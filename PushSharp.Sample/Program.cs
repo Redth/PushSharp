@@ -44,6 +44,8 @@ namespace PushSharp.Sample
 				.ForDeviceRegistrationId("<C2DM-DEVICE-ID>")
 				.WithData("alert", "Alert Text!")
 				.WithData("badge", "7"));
+
+			
 		}
 
 		static void Events_OnNotificationSent(Common.Notification notification)

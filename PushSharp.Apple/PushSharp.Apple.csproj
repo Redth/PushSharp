@@ -49,6 +49,7 @@
     <Compile Include="AppleNotificationAlert.cs" />
     <Compile Include="AppleNotificationPayload.cs" />
     <Compile Include="FeedbackService.cs" />
+    <Compile Include="AppleFluentNotification.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="ApplePushService.cs" />
   </ItemGroup>

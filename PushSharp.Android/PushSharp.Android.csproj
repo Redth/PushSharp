@@ -41,6 +41,7 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="AndroidFluentNotification.cs" />
     <Compile Include="AndroidNotification.cs" />
     <Compile Include="AndroidPushChannel.cs" />
     <Compile Include="AndroidPushChannelSettings.cs" />
