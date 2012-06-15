@@ -14,7 +14,7 @@ Some sample Usage
 
 Using the library should be easy, and the platform fairly abstracted away... Here's some sample code:
 
-  //Create our service	
+	//Create our service	
 	PushService push = new PushService();
 
 	//Wire up the events
