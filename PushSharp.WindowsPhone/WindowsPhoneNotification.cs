@@ -26,6 +26,24 @@ namespace PushSharp.WindowsPhone
 		Raw
 	}
 
+	public class WindowsPhoneNotificationFactory : Common.Notification
+	{
+		public WindowsPhoneRawNotification Raw()
+		{
+			return new WindowsPhoneRawNotification();
+		}
+
+		public WindowsPhoneTileNotification Tile()
+		{
+			return new WindowsPhoneTileNotification();
+		}
+
+		public WindowsPhoneToastNotification Toast()
+		{
+			return new WindowsPhoneToastNotification();
+		}
+	}
+
 	public abstract class WindowsPhoneNotification : Common.Notification
 	{
 		public WindowsPhoneNotification()

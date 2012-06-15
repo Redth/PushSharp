@@ -11,4 +11,5 @@ namespace PushSharp.Common
 
 		internal DateTime EnqueuedTimestamp { get; set; }
 	}
+
 }

@@ -33,15 +33,17 @@ namespace PushSharp.Sample
 			//Configure and start Windows Phone Notifications
 			push.StartWindowsPhonePushService(new WindowsPhone.WindowsPhonePushChannelSettings());
 
-			//Queue a notification easily!
-			push.QueueNotification(new AppleNotification("<DEVICETOKEN>", new Apple.AppleNotificationPayload("ALERT Text!", 7)));
+			//Fluent construction of an iOS notification
+			push.QueueNotification(NotificationFactory.Apple()
+				.ForDeviceToken("<DEVICETOKEN>")
+				.WithAlert("Alert Text!")
+				.WithBadge(7));
 
-			//Or queue and android notification!
-			var androidData = new NameValueCollection();
-			androidData.Add("msg", "ALERT Text!");
-			androidData.Add("badge", "7");
-			push.QueueNotification(new AndroidNotification() { RegistrationId = "<C2DM-DEVICE-ID>", Data = androidData });
-
+			//Fluent construction of an Android C2DM Notification
+			push.QueueNotification(NotificationFactory.Android()
+				.ForDeviceRegistrationId("<C2DM-DEVICE-ID>")
+				.WithData("alert", "Alert Text!")
+				.WithData("badge", "7"));
 		}
 
 		static void Events_OnNotificationSent(Common.Notification notification)
