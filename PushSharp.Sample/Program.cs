@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Collections.Specialized;
 using System.IO;
 using System.Linq;
 using System.Text;
@@ -33,7 +34,13 @@ namespace PushSharp.Sample
 			push.StartWindowsPhonePushService(new WindowsPhone.WindowsPhonePushChannelSettings());
 
 			//Queue a notification easily!
-			push.QueueNotification(new AppleNotification());
+			push.QueueNotification(new AppleNotification("<DEVICETOKEN>", new Apple.AppleNotificationPayload("ALERT Text!", 7)));
+
+			//Or queue and android notification!
+			var androidData = new NameValueCollection();
+			androidData.Add("msg", "ALERT Text!");
+			androidData.Add("badge", "7");
+			push.QueueNotification(new AndroidNotification() { RegistrationId = "<C2DM-DEVICE-ID>", Data = androidData });
 
 		}
 
