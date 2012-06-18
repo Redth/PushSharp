@@ -3,11 +3,24 @@ PushSharp
 
 A server-side library for sending Push Notifications to iOS (iPhone/iPad APNS), Android (C2DM), Windows Phone, and Blackberry devices!
 
-Disclaimer: Only for the Brave
-------------------------------
-There's finally some code available here to look at, but I must warn you, this code is completely untested as of now!  I mean it, I haven't even confirmed that the Push Channels can actually send notifications successfully!  It compiles, but past that, venture here at your own risk!  
+Features
+--------
+ - Supports sending push notifications for many platforms:
+   - Apple (APNS - iOS - iPhone, iPad)
+   - Android (C2DM - Phone/Tablets)
+   - Windows Phone 7 / 7.5
+   - Blackberry (Still in alpha)
+ - Fluent API for constructing Notifications for each platform
+ - Auto Scaling of notification channels (more workers/connections are added as demand increases, and scaled down as it decreases)
+ - Asynchronous code where possible, use of library is very event oriented
+ - No third party dependencies!
 
-I will obviously start trying to do some testing in the near future, but until then, feel free to fork it, watch it, play with it, and let me know of any obvious mistakes or errors!  Thanks!
+
+Disclaimer: Beta Quality
+---------------------------------
+Ok, so since the first update, some code has been tested and appears to be working!  Apple APNS should be working reasonably well, as well as C2DM.  I'm working on testing WP7 and Blackberry.
+I will warn that this code has not been heavily tested in production, so YMMV.  Having said that, it only gets better the more bugs are exposed, and since these were both based off previous libraries (APNS-Sharp and C2DM-Sharp) which I wrote, I feel that the code is pretty stable otherwise.
+
 
 Some sample Usage
 -----------------
@@ -48,6 +61,5 @@ Using the library should be easy, and the platform fairly abstracted away... Her
 	
 Yet to Come
 -----------
- - Fluent API for Notification construction
- - Testing!
+ - More thorough Testing!
  
