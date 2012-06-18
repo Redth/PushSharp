@@ -70,6 +70,11 @@ namespace PushSharp.WindowsPhone
 		}
 
 		public WindowsPhoneDeviceOSVersion OSVersion { get; set; }
+
+		protected string XmlEncode(string text)
+		{
+			return System.Security.SecurityElement.Escape(text);
+		}
 	}
 
 	public class WindowsPhoneToastNotification : WindowsPhoneNotification
@@ -95,10 +100,10 @@ namespace PushSharp.WindowsPhone
 			sb.AppendLine("<wp:Toast>");
 
 			if (!string.IsNullOrEmpty(Text1))
-				sb.AppendLine("<wp:Text1>" + Text1 + "</wp:Text1>");
+				sb.AppendLine("<wp:Text1>" + XmlEncode(Text1) + "</wp:Text1>");
 
 			if (!string.IsNullOrEmpty(Text2))
-				sb.AppendLine("<wp:Text2>" + Text2 + "</wp:Text2>");
+				sb.AppendLine("<wp:Text2>" + XmlEncode(Text2) + "</wp:Text2>");
 			
 			if (this.OSVersion > WindowsPhoneDeviceOSVersion.Seven)
 			{
@@ -107,14 +112,14 @@ namespace PushSharp.WindowsPhone
 					sb.Append("<wp:Param>");
 
 					if (!string.IsNullOrEmpty(NavigatePath))
-						sb.Append("/" + NavigatePath.TrimStart('/'));
+						sb.Append(XmlEncode("/" + NavigatePath.TrimStart('/')));
 
 					if (Parameters != null && Parameters.Count > 0)
 					{
 						sb.Append("?");
 
 						foreach (string key in Parameters.Keys)
-							sb.Append(key + "=" + Parameters[key].ToString() + "&amp;");
+							sb.Append(XmlEncode(key + "=" + Parameters[key].ToString()) + "&amp;");
 					}
 
 					sb.AppendLine("</wp:Param>");
@@ -182,13 +187,13 @@ namespace PushSharp.WindowsPhone
 			if (this.OSVersion > WindowsPhoneDeviceOSVersion.Seven)
 			{
 				if (!string.IsNullOrEmpty(this.TileId))
-					sb.Append(" Id=\"" + this.TileId + "\"");
+					sb.Append(" Id=\"" + XmlEncode(this.TileId) + "\"");
 			}
 
 			sb.AppendLine(">");
 
 			if (!string.IsNullOrEmpty(BackgroundImage))
-				sb.AppendLine("<wp:BackgroundImage>" + this.BackgroundImage + "</wp:BackgroundImage>");
+				sb.AppendLine("<wp:BackgroundImage>" + XmlEncode(this.BackgroundImage) + "</wp:BackgroundImage>");
 
 			if (ClearCount)
 				sb.AppendLine("<wp:Count Action=\"Clear\"></wp:Count>");
@@ -198,24 +203,24 @@ namespace PushSharp.WindowsPhone
 			if (ClearTitle)
 				sb.AppendLine("<wp:Title Action=\"Clear\"></wp:Title>");
 			else if (!string.IsNullOrEmpty(Title))
-				sb.AppendLine("<wp:Title>" + Title + "</wp:Title>");
+				sb.AppendLine("<wp:Title>" + XmlEncode(Title) + "</wp:Title>");
 
 			if (this.OSVersion > WindowsPhoneDeviceOSVersion.Seven)
 			{
 				if (ClearBackBackgroundImage)
 					sb.AppendLine("<wp:BackBackgroundImage Action=\"Clear\"></wp:BackBackgroundImage>");
 				else if (!string.IsNullOrEmpty(BackBackgroundImage))
-					sb.AppendLine("<wp:BackBackgroundImage>" + BackBackgroundImage + "</wp:BackBackgroundImage>");
+					sb.AppendLine("<wp:BackBackgroundImage>" + XmlEncode(BackBackgroundImage) + "</wp:BackBackgroundImage>");
 
 				if (ClearBackTitle)
 					sb.AppendLine("<wp:BackTitle Action=\"Clear\"></wp:BackTitle>");
 				else if (!string.IsNullOrEmpty(BackTitle))
-					sb.AppendLine("<wp:BackTitle>" + BackTitle + "</wp:BackTitle>");
+					sb.AppendLine("<wp:BackTitle>" + XmlEncode(BackTitle) + "</wp:BackTitle>");
 
 				if (ClearBackContent)
 					sb.AppendLine("<wp:BackContent Action=\"Clear\"></wp:BackContent>");
 				else if (!string.IsNullOrEmpty(BackContent))
-					sb.AppendLine("<wp:BackContent>" + BackContent + "</wp:BackContent>");
+					sb.AppendLine("<wp:BackContent>" + XmlEncode(BackContent) + "</wp:BackContent>");
 			}
 
 			sb.AppendLine("</wp:Tile>");
