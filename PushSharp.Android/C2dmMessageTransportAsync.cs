@@ -49,7 +49,7 @@ namespace PushSharp.Android
 			//webReq.ContentLength = postData.Length;
 			webReq.Method = "POST";
 			webReq.ContentType = "application/x-www-form-urlencoded";
-			webReq.UserAgent = "C2DM-Sharp (version: 1.0)";
+			webReq.UserAgent = "PushSharp (version: 1.0)";
 			webReq.Headers.Add("Authorization: GoogleLogin auth=" + googleLoginAuthorizationToken);
 
 			webReq.BeginGetRequestStream(new AsyncCallback(requestStreamCallback), new C2dmAsyncParameters()

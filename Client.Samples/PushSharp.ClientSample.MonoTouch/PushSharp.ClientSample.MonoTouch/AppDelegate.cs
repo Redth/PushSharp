@@ -38,8 +38,7 @@ namespace PushSharp.ClientSample.AppleMonoTouch
 			// make the window visible
 			window.MakeKeyAndVisible ();
 
-
-
+			//Register for remote notifications
 			UIApplication.SharedApplication.RegisterForRemoteNotificationTypes(UIRemoteNotificationType.Alert
 			                                                                   | UIRemoteNotificationType.Badge
 			                                                                   | UIRemoteNotificationType.Sound);
@@ -48,20 +47,22 @@ namespace PushSharp.ClientSample.AppleMonoTouch
 
 		public override void RegisteredForRemoteNotifications (UIApplication application, NSData deviceToken)
 		{
-			var pushDeviceToken = NSUserDefaults.StandardUserDefaults.StringForKey("PushDeviceToken");
+			var deviceToken = NSUserDefaults.StandardUserDefaults.StringForKey("PushDeviceToken");
 
-			//var newDeviceToken = deviceToken.ToString();
 			//There's probably a better way to do this
 		  	var strFormat = new NSString("%@");
-
 		  	var dt = new NSString(MonoTouch.ObjCRuntime.Messaging.IntPtr_objc_msgSend_IntPtr_IntPtr(new MonoTouch.ObjCRuntime.Class("NSString").Handle, new MonoTouch.ObjCRuntime.Selector("stringWithFormat:").Handle, strFormat.Handle, deviceToken.Handle));
 			var newDeviceToken = dt.ToString().Replace("<", "").Replace(">", "").Replace(" ", "");
 
+			if (string.IsNullOrEmpty(deviceToken) || !deviceToken.Equals(newDeviceToken))
+			{
+				//TODO: Put your own logic here to notify your server that the device token has changed/been created!
+			}
+
+			//Save device token now
 			NSUserDefaults.StandardUserDefaults.SetString(newDeviceToken, "PushDeviceToken");
 
-
 			Console.WriteLine("Device Token: " + newDeviceToken);
-
 		}
 
 		public override void FailedToRegisterForRemoteNotifications (UIApplication application, NSError error)

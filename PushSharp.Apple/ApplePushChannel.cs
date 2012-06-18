@@ -100,9 +100,14 @@ namespace PushSharp.Apple
 					lock (streamWriteLock)
 					{
 						stream.Write(notificationData);
-						Console.WriteLine("Wrote Notification: " + appleNotification.Identifier);
 						sentNotifications.TryAdd(appleNotification.Identifier, new SentNotification(appleNotification));
-						Thread.Sleep(150);
+						
+						//We need to sleep in between notifications to allow time for apple to return a response
+						// This really sucks, but if we don't do this, we could send many notifications before
+						// apple has processed the first one, and they can potentially return an error for the first one,
+						// ignoring the subsequent ones we sent before they closed our connection, and we wouldn't know
+						// if those messages in limbo got sent or not (they likely didn't in that case).
+						Thread.Sleep(250);
 					}
 				}
 				catch (Exception ex)
@@ -131,16 +136,12 @@ namespace PushSharp.Apple
 					{
 						var bytesRead = stream.EndRead(asyncResult);
 
-						//Console.WriteLine("End Read: " + bytesRead + " bytes read.");
-
 						if (bytesRead > 0)
 						{
 							//Get the enhanced format response
 							// byte 0 is always '1', byte 1 is the status, bytes 2,3,4,5 are the identifier of the notification
 							var status = readBuffer[1];
 							var identifier = IPAddress.NetworkToHostOrder(BitConverter.ToInt32(readBuffer, 2));
-
-							Console.WriteLine(status + "=" + identifier);
 
 							SentNotification sentNotification = null;
 
@@ -161,21 +162,20 @@ namespace PushSharp.Apple
 						else
 						{
 							connected = false;
-							Console.WriteLine("Disconnected");
 						}
 					}
-					catch (Exception ex)
+					catch
 					{
-						Console.WriteLine(ex.ToString());
+						connected = false;
 					}
 
 					//Otherwise, our connection was closed
 
 				}), null);
 			}
-			catch (Exception ex)
+			catch
 			{
-				Console.WriteLine(ex.ToString());
+				connected = false;
 			}
 		}
 

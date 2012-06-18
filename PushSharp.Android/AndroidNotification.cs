@@ -83,6 +83,11 @@ namespace PushSharp.Android
 			return sb.ToString();
 		}
 
+		public override string ToString()
+		{
+			return GetPostData();
+		}
+
 		internal int GetMessageSize()
 		{
 			//http://groups.google.com/group/android-c2dm/browse_thread/thread/c70575480be4f883?pli=1

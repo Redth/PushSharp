@@ -28,41 +28,24 @@ namespace PushSharp.Sample
 			push.StartApplePushService(new ApplePushChannelSettings(false, appleCert, "pushsharp"));
 
 			//Configure and start Android C2DM
-			//push.StartAndroidPushService(new Android.AndroidPushChannelSettings("<SENDERID>", "test", "<APPID>"));
+			push.StartAndroidPushService(new Android.AndroidPushChannelSettings("pushsharp@altusapps.com", "pushitg00d", "com.pushsharp.test"));
 
 			//Configure and start Windows Phone Notifications
 			//push.StartWindowsPhonePushService(new WindowsPhone.WindowsPhonePushChannelSettings());
-
+						
 			//Fluent construction of an iOS notification
 			push.QueueNotification(NotificationFactory.Apple()
-				.ForDeviceToken("0071737321559691b28fffa1aa4c8259d970fe0fc496794ad0486552fc9ec3db")
-				.WithAlert("Alert Text!")
-				.WithSound("default")
-				.WithBadge(7));
-
-			//System.Threading.Thread.Sleep(2000);
-
-			//Fluent construction of an iOS notification
-			push.QueueNotification(NotificationFactory.Apple()
-				.ForDeviceToken("0071737321559691b28fffa1aa4c8259d970fe0fc496794ad0486552fc9ec3db")
-				.WithAlert("Alert Text 2!")
-				.WithSound("default")
-				.WithBadge(7));
-
-			//System.Threading.Thread.Sleep(2000);
-
-			//Fluent construction of an iOS notification
-			push.QueueNotification(NotificationFactory.Apple()
-				.ForDeviceToken("1071737321559691b28fffa1aa4c8259d970fe0fc496794ad0486552fc9ec3db")
-				.WithAlert("Alert Text 3!")
-				.WithSound("default")
-				.WithBadge(7));
+			    .ForDeviceToken("1071737321559691b28fffa1aa4c8259d970fe0fc496794ad0486552fc9ec3db")
+			    .WithAlert("Alert Text!")
+			    .WithSound("default")
+			    .WithBadge(7));
 
 			//Fluent construction of an Android C2DM Notification
-			//push.QueueNotification(NotificationFactory.Android()
-			//	.ForDeviceRegistrationId("<C2DM-DEVICE-ID>")
-			//	.WithData("alert", "Alert Text!")
-			//	.WithData("badge", "7"));
+			push.QueueNotification(NotificationFactory.Android()
+				.ForDeviceRegistrationId("APA91bFwgGgA2uXHvgT0ij8vJbY7Kgf-qQfzsTj-QnLXNGHghysJx-BUj4OGu8xe1w0T2-H2rgMi_0NzIBo5gVs2jfiY1h_L3ohux2cSwZjJDHthNRZ38C2Ej1TcuUfZWa4ZHoVbNigR_ezXjuzJ8kD4dH_dCx2X3w")
+				.WithCollapseKey("NONE")
+				.WithData("alert", "Alert Text!")
+				.WithData("badge", "7"));
 						
 			Console.WriteLine("PushSharp.Sample Started");
 			Console.WriteLine("Type 'exit' and press return to stop");

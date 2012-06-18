@@ -1,0 +1,17 @@
+﻿<Properties>
+  <MonoDevelop.Ide.Workspace ActiveConfiguration="Debug" />
+  <MonoDevelop.Ide.Workbench ActiveDocument="PushSharp.ClientSample.MonoForAndroid\Properties\AndroidManifest.xml">
+    <Files>
+      <File FileName="..\..\PushSharp.Client\PushSharp.Client.MonoForAndroid\C2dmBroadcastReceiver.cs" Line="14" Column="42" />
+      <File FileName="..\..\PushSharp.Client\PushSharp.Client.MonoForAndroid\C2dmClient.cs" Line="14" Column="42" />
+      <File FileName="..\..\PushSharp.Client\PushSharp.Client.MonoForAndroid\C2dmExceptions.cs" Line="14" Column="27" />
+      <File FileName="..\..\PushSharp.Client\PushSharp.Client.MonoForAndroid\C2dmService.cs" Line="14" Column="27" />
+      <File FileName="PushSharp.ClientSample.MonoForAndroid\PushService.cs" Line="25" Column="74" />
+      <File FileName="PushSharp.ClientSample.MonoForAndroid\Properties\AndroidManifest.xml" Line="6" Column="64" />
+    </Files>
+  </MonoDevelop.Ide.Workbench>
+  <MonoDevelop.Ide.DebuggingService.Breakpoints>
+    <BreakpointStore />
+  </MonoDevelop.Ide.DebuggingService.Breakpoints>
+  <MonoDevelop.Ide.DebuggingService.PinnedWatches />
+</Properties>
