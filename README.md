@@ -8,12 +8,12 @@ Features
  - Supports sending push notifications for many platforms:
    - Apple (APNS - iOS - iPhone, iPad)
    - Android (C2DM - Phone/Tablets)
-   - Windows Phone 7 / 7.5
-   - Blackberry (Still in alpha)
+   - Windows Phone 7 / 7.5 (and 8 presumably when it's released)
+   - Blackberry (Not fully functional)
  - Fluent API for constructing Notifications for each platform
  - Auto Scaling of notification channels (more workers/connections are added as demand increases, and scaled down as it decreases)
  - Asynchronous code where possible, use of library is very event oriented
- - No third party dependencies!
+ - No third party dependencies! 100% managed code awesomeness for Mono compatibility!
 
 
 Disclaimer: Beta Quality
@@ -22,11 +22,11 @@ Ok, so since the first update, some code has been tested and appears to be worki
 I will warn that this code has not been heavily tested in production, so YMMV.  Having said that, it only gets better the more bugs are exposed, and since these were both based off previous libraries (APNS-Sharp and C2DM-Sharp) which I wrote, I feel that the code is pretty stable otherwise.
 
 
-Some sample Usage
------------------
+Some sample action!
+-------------------
 
 Using the library should be easy, and the platform fairly abstracted away... Here's some sample code:
-
+```csharp
 	//Create our service	
 	PushService push = new PushService();
   
@@ -57,9 +57,10 @@ Using the library should be easy, and the platform fairly abstracted away... Her
 		.ForDeviceRegistrationId("<C2DM-DEVICE-ID>")
 		.WithData("alert", "Alert Text!")
 		.WithData("badge", "7"));
-	
+```	
 	
 Yet to Come
 -----------
  - More thorough Testing!
+ - Blackberry support
  
