@@ -22,30 +22,6 @@ namespace PushSharp
 			//this.Settings = settings;
 			
 			this.Events = new ChannelEvents();
-			this.Events.OnChannelException += new ChannelEvents.ChannelExceptionDelegate(events_OnChannelException);
-			this.Events.OnNotificationSendFailure += new ChannelEvents.NotificationSendFailureDelegate(events_OnNotificationSendFailure);
-			this.Events.OnNotificationSent += new ChannelEvents.NotificationSentDelegate(events_OnNotificationSent);
-			this.Events.OnDeviceSubscriptionExpired += new ChannelEvents.DeviceSubscriptionExpired(events_OnDeviceSubscriptionExpired);
-		}
-
-		void events_OnDeviceSubscriptionExpired(PlatformType platform, string deviceInfo)
-		{
-			Console.WriteLine("Device Expired: " + platform.ToString() + " - " + deviceInfo);
-		}
-
-		void events_OnNotificationSent(Notification notification)
-		{
-			Console.WriteLine("Notification Sent: " + notification.ToString());
-		}
-
-		void events_OnNotificationSendFailure(Notification notification, Exception notificationFailureException)
-		{
-			Console.WriteLine("Notification Failure: " + notificationFailureException.Message);
-		}
-
-		void events_OnChannelException(Exception exception)
-		{
-			Console.WriteLine("Channel Exception: " + exception.ToString());
 		}
 
 		public void StartApplePushService(Apple.ApplePushChannelSettings channelSettings, PushServiceSettings serviceSettings = null)

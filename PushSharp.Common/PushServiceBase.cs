@@ -12,6 +12,7 @@ namespace PushSharp.Common
 	{
 		public ChannelEvents Events = new ChannelEvents();
 		Timer timerCheckScale;
+		Task distributerTask;
 
 		public PushServiceBase(PushChannelSettings channelSettings, PushServiceSettings serviceSettings = null)
 		{
@@ -26,6 +27,15 @@ namespace PushSharp.Common
 			}), null, TimeSpan.FromMinutes(1), TimeSpan.FromMinutes(1));
 			
 			CheckScale();
+
+			distributerTask = new Task(() => { Distributer(); }, TaskCreationOptions.LongRunning);
+			distributerTask.ContinueWith((ft) =>
+			{
+				var ex = ft.Exception;
+
+			}, TaskContinuationOptions.OnlyOnFaulted);
+			distributerTask.Start();
+
 		}
 
 		public PushServiceSettings ServiceSettings { get; private set; }

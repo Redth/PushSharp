@@ -94,8 +94,15 @@ namespace PushSharp.Apple
 
 			if (isOkToSend)
 			{
-				try { stream.Write(notificationData); }
-				catch { this.QueueNotification(notification); } //If this failed, we probably had a networking error, so let's requeue the notification
+				try 
+				{ 
+					stream.Write(notificationData);
+					sentNotifications.TryAdd(appleNotification.Identifier, new SentNotification(appleNotification));
+				}
+				catch 
+				{ 
+					this.QueueNotification(notification); 
+				} //If this failed, we probably had a networking error, so let's requeue the notification
 			}
 		}
 
@@ -126,8 +133,11 @@ namespace PushSharp.Apple
 							var identifier = IPAddress.NetworkToHostOrder(BitConverter.ToInt32(readBuffer, 2));
 
 							SentNotification sentNotification = null;
+							
+							//Gets the matching notification and removes it from the sent queue at the same time
+							sentNotifications.TryRemove(identifier, out sentNotification);
 
-							if (sentNotifications.TryGetValue(identifier, out sentNotification))
+							if (sentNotification != null)
 							{ 
 								var nfex = new NotificationFailureException(status, sentNotification.Notification);
 
@@ -147,7 +157,7 @@ namespace PushSharp.Apple
 
 				}), null);
 			//}
-			//catch { }
+//			catch { }
 		}
 
 
@@ -156,7 +166,7 @@ namespace PushSharp.Apple
 			while (true)
 			{
 				var toRemove = (from n in sentNotifications.Values
-								where n.SentAt < DateTime.UtcNow.AddSeconds(2)
+								where n.SentAt < DateTime.UtcNow.AddSeconds(3)
 								select n.Identifier).ToArray();
 
 				if (toRemove != null && toRemove.Length > 0)

@@ -184,7 +184,9 @@ namespace PushSharp.Apple
 					else if (!string.IsNullOrEmpty(this.Alert.ActionLocalizedKey))
 						jsonAlert.AppendFormat("\action-loc-key\":\"{0}\",", this.Alert.ActionLocalizedKey);
 
-					aps.AppendFormat("\"alert\":{{0}},", jsonAlert.ToString().TrimEnd(','));
+					aps.Append("\"alert\":{");
+					aps.Append(jsonAlert.ToString().TrimEnd(','));
+					aps.Append("},");
 				}
 			}
 
@@ -197,7 +199,9 @@ namespace PushSharp.Apple
 			if (this.ContentAvailable.HasValue)
 				aps.AppendFormat("\"content-available\":{0},", this.ContentAvailable.Value.ToString());
 
-			json.AppendFormat("\"aps\":{{0}},", aps.ToString().TrimEnd(','));
+			json.Append("\"aps\":{");
+			json.Append(aps.ToString().TrimEnd(','));
+			json.Append("},");			
 			
 			foreach (string key in this.CustomItems.Keys)
 			{
