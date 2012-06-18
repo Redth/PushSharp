@@ -31,14 +31,23 @@ namespace PushSharp.Sample
 			push.StartAndroidPushService(new Android.AndroidPushChannelSettings("pushsharp@altusapps.com", "pushitg00d", "com.pushsharp.test"));
 
 			//Configure and start Windows Phone Notifications
-			//push.StartWindowsPhonePushService(new WindowsPhone.WindowsPhonePushChannelSettings());
-						
+			push.StartWindowsPhonePushService(new WindowsPhone.WindowsPhonePushChannelSettings());
+
+			//Fluent construction of a Windows Phone Toast notification
+			push.QueueNotification(NotificationFactory.WindowsPhone().Toast()
+				.ForEndpointUri(new Uri("http://sn1.notify.live.net/throttledthirdparty/01.00/AAFCoNoCXidwRpn5NOxvwSxPAgAAAAADAgAAAAQUZm52OkJCMjg1QTg1QkZDMkUxREQ"))
+				.ForOSVersion(WindowsPhone.WindowsPhoneDeviceOSVersion.MangoSevenPointFive)
+				.WithBatchingInterval(WindowsPhone.BatchingInterval.Immediate)
+				.WithNavigatePath("/MainPage.xaml")
+				.WithText1("PushSharp")
+				.WithText2("This is a Toast"));
+
 			//Fluent construction of an iOS notification
 			push.QueueNotification(NotificationFactory.Apple()
-			    .ForDeviceToken("1071737321559691b28fffa1aa4c8259d970fe0fc496794ad0486552fc9ec3db")
-			    .WithAlert("Alert Text!")
-			    .WithSound("default")
-			    .WithBadge(7));
+				.ForDeviceToken("1071737321559691b28fffa1aa4c8259d970fe0fc496794ad0486552fc9ec3db")
+				.WithAlert("Alert Text!")
+				.WithSound("default")
+				.WithBadge(7));
 
 			//Fluent construction of an Android C2DM Notification
 			push.QueueNotification(NotificationFactory.Android()
@@ -46,7 +55,7 @@ namespace PushSharp.Sample
 				.WithCollapseKey("NONE")
 				.WithData("alert", "Alert Text!")
 				.WithData("badge", "7"));
-						
+			
 			Console.WriteLine("PushSharp.Sample Started");
 			Console.WriteLine("Type 'exit' and press return to stop");
 
@@ -66,12 +75,12 @@ namespace PushSharp.Sample
 
 		static void Events_OnNotificationSent(Common.Notification notification)
 		{
-			Console.WriteLine("Sent Notification: " + notification.ToString());
+			Console.WriteLine("Sent: " + notification.Platform.ToString() + " -> " + notification.ToString());
 		}
 
 		static void Events_OnNotificationSendFailure(Common.Notification notification, Exception notificationFailureException)
 		{
-			Console.WriteLine("Notification Failure: " + notification.ToString());
+			Console.WriteLine("Failure: " + notification.Platform.ToString() + " -> " + notification.ToString());
 		}
 
 		static void Events_OnChannelException(Exception exception)

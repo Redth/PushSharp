@@ -24,9 +24,10 @@ namespace PushSharp.WindowsPhone
 
 			var wr = HttpWebRequest.Create(wpNotification.EndPointUrl) as HttpWebRequest;
 			wr.ContentType = "text/xml";
+			wr.Method = "POST";
 
-			if (!string.IsNullOrEmpty(wpNotification.MessageID))
-				wr.Headers.Add("X-MessageID", wpNotification.MessageID);
+			if (wpNotification.MessageID != null)
+				wr.Headers.Add("X-MessageID", wpNotification.MessageID.ToString());
 
 			if (wpNotification.NotificationClass.HasValue)
 			{
@@ -62,7 +63,9 @@ namespace PushSharp.WindowsPhone
 			else if (wpNotification is WindowsPhoneTileNotification)
 				wr.Headers.Add("X-WindowsPhone-Target", "Tile");
 
-			var data = Encoding.Default.GetBytes(wpNotification.PayloadToString());
+			var payload = wpNotification.PayloadToString();
+
+			var data = Encoding.Default.GetBytes(payload);
 
 			wr.ContentLength = data.Length;
 
@@ -71,26 +74,78 @@ namespace PushSharp.WindowsPhone
 				rs.Write(data, 0, data.Length);
 			}
 
-			wr.BeginGetResponse(new AsyncCallback(getResponseCallback), new object[] { wr, wpNotification });			
+			try
+			{
+				wr.BeginGetResponse(new AsyncCallback(getResponseCallback), new object[] { wr, wpNotification });
+			}
+			catch (WebException wex)
+			{
+				//Handle different httpstatuses
+				var status = ParseStatus(wex.Response as HttpWebResponse, wpNotification);
+
+				HandleStatus(status);
+			}
 		}
 
 
 		void getResponseCallback(IAsyncResult asyncResult)
 		{
+			//Good list of statuses:
+			//http://msdn.microsoft.com/en-us/library/ff941100(v=vs.92).aspx
+
 			var objs = (object[])asyncResult.AsyncState;
 
 			var wr = (HttpWebRequest)objs[0];
 			var wpNotification = (WindowsPhoneNotification)objs[1];
-			//var callback = (Action)objs[2];
+			
+			var resp = wr.EndGetResponse(asyncResult) as HttpWebResponse;
 
-			var resp = wr.EndGetResponse(asyncResult);
+			var status = ParseStatus(resp, wpNotification);
+
+			HandleStatus(status);
+		}
+
+		WindowsPhoneMessageStatus ParseStatus(HttpWebResponse resp, WindowsPhoneNotification notification)
+		{
+			var result = new WindowsPhoneMessageStatus();
+
+			result.Notification = notification;
+			result.HttpStatus = resp.StatusCode;
 
 			var wpStatus = resp.Headers["X-NotificationStatus"];
 			var wpChannelStatus = resp.Headers["X-SubscriptionStatus"];
 			var wpDeviceConnectionStatus = resp.Headers["X-DeviceConnectionStatus"];
+			var messageID = resp.Headers["X-MessageID"];
 
+			Guid msgGuid = Guid.NewGuid();
+			if (Guid.TryParse(messageID, out msgGuid))
+				result.MessageID = msgGuid;
 
-			this.Events.RaiseNotificationSent(wpNotification);
+			WPDeviceConnectionStatus devConStatus = WPDeviceConnectionStatus.InActive;
+			Enum.TryParse<WPDeviceConnectionStatus>(wpDeviceConnectionStatus, out devConStatus);
+			result.DeviceConnectionStatus = devConStatus;
+
+			WPNotificationStatus notStatus = WPNotificationStatus.Dropped;
+			Enum.TryParse<WPNotificationStatus>(wpStatus, out notStatus);
+			result.NotificationStatus = notStatus;
+
+			WPSubscriptionStatus subStatus = WPSubscriptionStatus.Expired;
+			Enum.TryParse<WPSubscriptionStatus>(wpChannelStatus, out subStatus);
+			result.SubscriptionStatus = subStatus;
+
+			return result;
+		}
+
+		void HandleStatus(WindowsPhoneMessageStatus status)
+		{
+			if (status.HttpStatus == HttpStatusCode.OK
+				&& status.NotificationStatus == WPNotificationStatus.Received)
+			{
+				Events.RaiseNotificationSent(status.Notification);
+				return;
+			}
+			
+			Events.RaiseNotificationSendFailure(status.Notification, new WindowsPhoneNotificationSendFailureException(status));
 		}
 	}
 }

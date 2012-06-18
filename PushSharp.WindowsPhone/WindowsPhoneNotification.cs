@@ -49,11 +49,12 @@ namespace PushSharp.WindowsPhone
 		public WindowsPhoneNotification()
 		{
 			this.Platform = Common.PlatformType.WindowsPhone;
+			this.MessageID = Guid.NewGuid();
 		}
 
 		public string EndPointUrl { get; set; }
 
-		public string MessageID { get; set; }
+		public Guid MessageID { get; set; }
 
 		public BatchingInterval? NotificationClass { get; set; } //Batching interval   2 = immediate, 12 = 450 seconds, 22 = 900 seconds
 
@@ -62,6 +63,11 @@ namespace PushSharp.WindowsPhone
 		public string CallbackURI { get; set; }
 
 		public abstract string PayloadToString();
+
+		public override string ToString()
+		{
+			return PayloadToString();
+		}
 
 		public WindowsPhoneDeviceOSVersion OSVersion { get; set; }
 	}

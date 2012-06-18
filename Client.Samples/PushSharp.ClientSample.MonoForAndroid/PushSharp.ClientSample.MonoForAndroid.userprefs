@@ -1,17 +1,18 @@
 ﻿<Properties>
   <MonoDevelop.Ide.Workspace ActiveConfiguration="Debug" />
-  <MonoDevelop.Ide.Workbench ActiveDocument="PushSharp.ClientSample.MonoForAndroid\Properties\AndroidManifest.xml">
+  <MonoDevelop.Ide.Workbench ActiveDocument="..\..\PushSharp.Client\PushSharp.Client.MonoForAndroid\C2dmService.cs">
     <Files>
       <File FileName="..\..\PushSharp.Client\PushSharp.Client.MonoForAndroid\C2dmBroadcastReceiver.cs" Line="14" Column="42" />
       <File FileName="..\..\PushSharp.Client\PushSharp.Client.MonoForAndroid\C2dmClient.cs" Line="14" Column="42" />
       <File FileName="..\..\PushSharp.Client\PushSharp.Client.MonoForAndroid\C2dmExceptions.cs" Line="14" Column="27" />
-      <File FileName="..\..\PushSharp.Client\PushSharp.Client.MonoForAndroid\C2dmService.cs" Line="14" Column="27" />
-      <File FileName="PushSharp.ClientSample.MonoForAndroid\PushService.cs" Line="25" Column="74" />
-      <File FileName="PushSharp.ClientSample.MonoForAndroid\Properties\AndroidManifest.xml" Line="6" Column="64" />
+      <File FileName="..\..\PushSharp.Client\PushSharp.Client.MonoForAndroid\C2dmService.cs" Line="24" Column="4" />
+      <File FileName="PushSharp.ClientSample.MonoForAndroid\PushService.cs" Line="13" Column="20" />
+      <File FileName="PushSharp.ClientSample.MonoForAndroid\DefaultActivity.cs" Line="77" Column="45" />
     </Files>
   </MonoDevelop.Ide.Workbench>
   <MonoDevelop.Ide.DebuggingService.Breakpoints>
     <BreakpointStore />
   </MonoDevelop.Ide.DebuggingService.Breakpoints>
   <MonoDevelop.Ide.DebuggingService.PinnedWatches />
+  <MonoDevelop.Ide.ItemProperties.PushSharp.ClientSample.MonoForAndroid MonoForAntroid.PreferredDevice="3.7in WVGA (Nexus One)" AndroidDeviceId-Debug="383096100C4700EC" />
 </Properties>

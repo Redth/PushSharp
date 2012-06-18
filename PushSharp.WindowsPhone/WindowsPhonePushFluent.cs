@@ -20,7 +20,7 @@ namespace PushSharp
 			return n;
 		}
 
-		public static WindowsPhoneRawNotification WithMessageID(this WindowsPhoneRawNotification n, string messageID)
+		public static WindowsPhoneRawNotification WithMessageID(this WindowsPhoneRawNotification n, Guid messageID)
 		{
 			n.MessageID = messageID;
 			return n;
@@ -58,7 +58,7 @@ namespace PushSharp
 			return n;
 		}
 
-		public static WindowsPhoneToastNotification WithMessageID(this WindowsPhoneToastNotification n, string messageID)
+		public static WindowsPhoneToastNotification WithMessageID(this WindowsPhoneToastNotification n, Guid messageID)
 		{
 			n.MessageID = messageID;
 			return n;
@@ -117,7 +117,7 @@ namespace PushSharp
 			return n;
 		}
 
-		public static WindowsPhoneTileNotification WithMessageID(this WindowsPhoneTileNotification n, string messageID)
+		public static WindowsPhoneTileNotification WithMessageID(this WindowsPhoneTileNotification n, Guid messageID)
 		{
 			n.MessageID = messageID;
 			return n;

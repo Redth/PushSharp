@@ -40,6 +40,8 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="Exceptions.cs" />
+    <Compile Include="WindowsPhoneMessageStatus.cs" />
     <Compile Include="WindowsPhonePushChannelSettings.cs" />
     <Compile Include="WindowsPhoneNotification.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
