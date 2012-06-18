@@ -40,12 +40,16 @@ namespace PushSharp.Sample
 				.WithSound("default")
 				.WithBadge(7));
 
+			//System.Threading.Thread.Sleep(2000);
+
 			//Fluent construction of an iOS notification
 			push.QueueNotification(NotificationFactory.Apple()
-				.ForDeviceToken("2071737321559691b28fffa1aa4c8259d970fe0fc496794ad0486552fc9ec3db")
+				.ForDeviceToken("0071737321559691b28fffa1aa4c8259d970fe0fc496794ad0486552fc9ec3db")
 				.WithAlert("Alert Text 2!")
 				.WithSound("default")
 				.WithBadge(7));
+
+			//System.Threading.Thread.Sleep(2000);
 
 			//Fluent construction of an iOS notification
 			push.QueueNotification(NotificationFactory.Apple()

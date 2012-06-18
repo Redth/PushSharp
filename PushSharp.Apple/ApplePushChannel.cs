@@ -57,7 +57,8 @@ namespace PushSharp.Apple
 			taskCleanup.ContinueWith((t) => { var ex = t.Exception; }, TaskContinuationOptions.OnlyOnFaulted);
 			taskCleanup.Start();
 		}
-		
+
+		object streamWriteLock = new object();
 		int reconnectDelay = 3000;
 		float reconnectBackoffMultiplier = 1.5f;
 		
@@ -74,8 +75,6 @@ namespace PushSharp.Apple
 		protected override void SendNotification(Common.Notification notification)
 		{
 			var appleNotification = notification as AppleNotification;
-
-			Connect();
 
 			bool isOkToSend = true;
 			byte[] notificationData = new byte[] {};
@@ -94,12 +93,19 @@ namespace PushSharp.Apple
 
 			if (isOkToSend)
 			{
+				Connect();
+				
 				try 
-				{ 
-					stream.Write(notificationData);
-					sentNotifications.TryAdd(appleNotification.Identifier, new SentNotification(appleNotification));
+				{
+					lock (streamWriteLock)
+					{
+						stream.Write(notificationData);
+						Console.WriteLine("Wrote Notification: " + appleNotification.Identifier);
+						sentNotifications.TryAdd(appleNotification.Identifier, new SentNotification(appleNotification));
+						Thread.Sleep(150);
+					}
 				}
-				catch 
+				catch (Exception ex)
 				{ 
 					this.QueueNotification(notification); 
 				} //If this failed, we probably had a networking error, so let's requeue the notification
@@ -117,13 +123,15 @@ namespace PushSharp.Apple
 		
 		void Reader()
 		{
-			//try
-			//{
+			try
+			{
 				var result = stream.BeginRead(readBuffer, 0, 6, new AsyncCallback((asyncResult) =>
 				{
-					//try
-					//{
+					try
+					{
 						var bytesRead = stream.EndRead(asyncResult);
+
+						//Console.WriteLine("End Read: " + bytesRead + " bytes read.");
 
 						if (bytesRead > 0)
 						{
@@ -132,13 +140,15 @@ namespace PushSharp.Apple
 							var status = readBuffer[1];
 							var identifier = IPAddress.NetworkToHostOrder(BitConverter.ToInt32(readBuffer, 2));
 
+							Console.WriteLine(status + "=" + identifier);
+
 							SentNotification sentNotification = null;
-							
+
 							//Gets the matching notification and removes it from the sent queue at the same time
 							sentNotifications.TryRemove(identifier, out sentNotification);
 
 							if (sentNotification != null)
-							{ 
+							{
 								var nfex = new NotificationFailureException(status, sentNotification.Notification);
 
 								//Raise alert that notification failed
@@ -149,15 +159,24 @@ namespace PushSharp.Apple
 							Reader();
 						}
 						else
+						{
 							connected = false;
-					//}
-					//catch { }
+							Console.WriteLine("Disconnected");
+						}
+					}
+					catch (Exception ex)
+					{
+						Console.WriteLine(ex.ToString());
+					}
 
 					//Otherwise, our connection was closed
 
 				}), null);
-			//}
-//			catch { }
+			}
+			catch (Exception ex)
+			{
+				Console.WriteLine(ex.ToString());
+			}
 		}
 
 
@@ -285,6 +304,7 @@ namespace PushSharp.Apple
 				throw new ConnectionFailureException("SSL Stream is not Writable", null);
 
 			//Start reading from the stream asynchronously
+			Console.WriteLine("Connect -> Reader()");
 			Reader();
 		}
 		
