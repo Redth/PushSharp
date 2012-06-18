@@ -46,15 +46,26 @@ push.StartAndroidPushService(new Android.AndroidPushChannelSettings("<SENDERID>"
 //Configure and start Windows Phone Notifications
 push.StartWindowsPhonePushService(new WindowsPhone.WindowsPhonePushChannelSettings());
 
+//Fluent construction of a Windows Phone Toast notification
+push.QueueNotification(NotificationFactory.WindowsPhone().Toast()
+	.ForEndpointUri(new Uri("<DEVICE-ENDPOINT-URL-HERE"))
+	.ForOSVersion(WindowsPhone.WindowsPhoneDeviceOSVersion.MangoSevenPointFive)
+	.WithBatchingInterval(WindowsPhone.BatchingInterval.Immediate)
+	.WithNavigatePath("/MainPage.xaml")
+	.WithText1("Alert Text!")
+	.WithText2("You have 7 new things!"));
+	
 //Fluent construction of an iOS notification
 push.QueueNotification(NotificationFactory.Apple()
 	.ForDeviceToken("<DEVICETOKEN>")
 	.WithAlert("Alert Text!")
+	.WithSound("sound.caf")
 	.WithBadge(7));
 
 //Fluent construction of an Android C2DM Notification
 push.QueueNotification(NotificationFactory.Android()
 	.ForDeviceRegistrationId("<C2DM-DEVICE-ID>")
+	.WithCollapseKey("LATEST")
 	.WithData("alert", "Alert Text!")
 	.WithData("badge", "7"));
 ```	
