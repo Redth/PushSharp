@@ -1,0 +1,13 @@
+﻿<Properties>
+  <MonoDevelop.Ide.Workspace ActiveConfiguration="Debug|iPhone" />
+  <MonoDevelop.Ide.Workbench ActiveDocument="PushSharp.ClientSample.MonoTouch/Main.cs">
+    <Files>
+      <File FileName="PushSharp.ClientSample.MonoTouch/AppDelegate.cs" Line="9" Column="48" />
+      <File FileName="PushSharp.ClientSample.MonoTouch/Main.cs" Line="8" Column="48" />
+    </Files>
+  </MonoDevelop.Ide.Workbench>
+  <MonoDevelop.Ide.DebuggingService.Breakpoints>
+    <BreakpointStore />
+  </MonoDevelop.Ide.DebuggingService.Breakpoints>
+  <MonoDevelop.Ide.DebuggingService.PinnedWatches />
+</Properties>

@@ -170,6 +170,40 @@ namespace PushSharp
 			return n;
 		}
 
+		public static WindowsPhoneTileNotification WithTitle(this WindowsPhoneTileNotification n, string title)
+		{
+			n.Title = title;
+			return n;
+		}
 
+		public static WindowsPhoneTileNotification ClearBackBackgroundImage(this WindowsPhoneTileNotification n)
+		{
+			n.ClearBackBackgroundImage = true;
+			return n;
+		}
+
+		public static WindowsPhoneTileNotification ClearBackContent(this WindowsPhoneTileNotification n)
+		{
+			n.ClearBackContent = true;
+			return n;
+		}
+
+		public static WindowsPhoneTileNotification ClearBackTitle(this WindowsPhoneTileNotification n)
+		{
+			n.ClearBackTitle = true;
+			return n;
+		}
+
+		public static WindowsPhoneTileNotification ClearCount(this WindowsPhoneTileNotification n)
+		{
+			n.ClearCount = true;
+			return n;
+		}
+
+		public static WindowsPhoneTileNotification ClearTitle(this WindowsPhoneTileNotification n)
+		{
+			n.ClearTitle = true;
+			return n;
+		}
 	}
 }
