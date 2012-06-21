@@ -42,6 +42,12 @@ namespace PushSharp
 			n.Raw = raw;
 			return n;
 		}
+
+        public static WindowsPhoneRawNotification WithTag(this WindowsPhoneRawNotification n, object tag)
+        {
+            n.Tag = tag;
+            return n;
+        }
 	}
 
 	public static class WindowsPhoneToastPushFluent
@@ -101,6 +107,12 @@ namespace PushSharp
 			n.Parameters.Add(key, value);
 			return n;
 		}
+
+        public static WindowsPhoneToastNotification WithTag(this WindowsPhoneToastNotification n, object tag)
+        {
+            n.Tag = tag;
+            return n;
+        }
 	}
 
 	public static class WindowsPhoneTilePushFluent
@@ -205,5 +217,11 @@ namespace PushSharp
 			n.ClearTitle = true;
 			return n;
 		}
+
+        public static WindowsPhoneTileNotification WithTag(this WindowsPhoneTileNotification n, object tag)
+        {
+            n.Tag = tag;
+            return n;
+        }
 	}
 }

@@ -98,6 +98,13 @@ namespace PushSharp
 			return n;
 		}
 
+        public static AppleNotification WithTag(this AppleNotification n, object tag)
+        {
+            n.Tag = tag;
+
+            return n;
+        }
+
 		public static AppleNotification HideActionButton(this AppleNotification n)
 		{
 			if (n.Payload == null)
