@@ -34,5 +34,12 @@ namespace PushSharp
 			n.Data.Add(key, value);
 			return n;
 		}
+
+        public static AndroidNotification WithTag(this AndroidNotification n, object tag)
+        {
+            n.Tag = tag;
+
+            return n;
+        }
 	}
 }

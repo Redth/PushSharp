@@ -10,6 +10,7 @@ namespace PushSharp.Common
 		Apple,
 		Android,
 		WindowsPhone,
-		Blackberry
+		Blackberry,
+        None
 	}
 }

@@ -72,15 +72,6 @@ namespace PushSharp.Apple
 			Identifier = GetNextIdentifier();
 		}
 
-		/// <summary>
-		/// Object for storing state.  This does not affect the actual notification!
-		/// </summary>
-		public object Tag
-		{
-			get;
-			set;
-		}
-
 		public override string ToString()
 		{
 			return Payload.ToJson();
