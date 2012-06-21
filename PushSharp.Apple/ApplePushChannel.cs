@@ -107,7 +107,8 @@ namespace PushSharp.Apple
 						// apple has processed the first one, and they can potentially return an error for the first one,
 						// ignoring the subsequent ones we sent before they closed our connection, and we wouldn't know
 						// if those messages in limbo got sent or not (they likely didn't in that case).
-						Thread.Sleep(250);
+						if (!appleSettings.IgnoreDelayBetweenMessages)
+							Thread.Sleep(appleSettings.DelayBetweenMessagesMilliseconds);
 					}
 				}
 				catch (Exception ex)
