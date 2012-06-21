@@ -2,11 +2,12 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
+using System.Threading.Tasks;
 using PushSharp.Common;
 
 namespace PushSharp
 {
-	public class PushService
+	public class PushService : IDisposable
 	{
 		//public PushSettings Settings { get; private set; }
 
@@ -67,6 +68,27 @@ namespace PushSharp
 			}
 		}
 
+		public void Stop(bool waitForQueuesToFinish = true)
+		{
+			var services = new List<PushServiceBase>()
+			{
+				appleService,
+				androidService,
+				wpService,
+				bbService
+			};
+
+			Parallel.ForEach<PushServiceBase>(services, (s) =>
+			{
+				if (s != null)
+					s.Stop(waitForQueuesToFinish);
+			});
+		}
+
+		void IDisposable.Dispose()
+		{
+			Stop(false);
+		}
 	}
 
 	
