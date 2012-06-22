@@ -26,13 +26,13 @@ namespace PushSharp.Sample
 			//Configure and start Apple APNS
 			var appleCert = File.ReadAllBytes(Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "../../../Resources/PushSharp.Apns.Sandbox.p12"));
 			push.StartApplePushService(new ApplePushChannelSettings(false, appleCert, "pushsharp"));
-
+			
 			//Configure and start Android C2DM
 			push.StartAndroidPushService(new Android.AndroidPushChannelSettings("pushsharp@altusapps.com", "pushitg00d", "com.pushsharp.test"));
-
+			
 			//Configure and start Windows Phone Notifications
 			push.StartWindowsPhonePushService(new WindowsPhone.WindowsPhonePushChannelSettings());
-
+			
 			//Fluent construction of a Windows Phone Toast notification
 			push.QueueNotification(NotificationFactory.WindowsPhone().Toast()
 				.ForEndpointUri(new Uri("http://sn1.notify.live.net/throttledthirdparty/01.00/AAFCoNoCXidwRpn5NOxvwSxPAgAAAAADAgAAAAQUZm52OkJCMjg1QTg1QkZDMkUxREQ"))
