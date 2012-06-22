@@ -73,7 +73,7 @@ namespace PushSharp.Apple
 		SslStream stream;		
 			
 		Task taskCleanup;
-
+		
 		protected override void SendNotification(Common.Notification notification)
 		{
 			var appleNotification = notification as AppleNotification;
@@ -103,6 +103,8 @@ namespace PushSharp.Apple
 					{
 						lock (sentLock)
 						{
+							Console.WriteLine("Sending: " + appleNotification.Identifier);
+
 							stream.Write(notificationData);
 							//sentNotifications.TryAdd(appleNotification.Identifier, new SentNotification(appleNotification));
 
@@ -114,8 +116,8 @@ namespace PushSharp.Apple
 						// apple has processed the first one, and they can potentially return an error for the first one,
 						// ignoring the subsequent ones we sent before they closed our connection, and we wouldn't know
 						// if those messages in limbo got sent or not (they likely didn't in that case).
-						if (!appleSettings.IgnoreDelayBetweenMessages)
-							Thread.Sleep(appleSettings.DelayBetweenMessagesMilliseconds);
+						//if (!appleSettings.IgnoreDelayBetweenMessages)
+						//	Thread.Sleep(appleSettings.DelayBetweenMessagesMilliseconds);
 					}
 				}
 				catch (Exception ex)
@@ -127,25 +129,27 @@ namespace PushSharp.Apple
 
 		public override void Stop(bool waitForQueueToDrain)
 		{
-			//Make sure we wait for the sent notifications to process as well
+			stopping = true;
+
+			//See if we want to wait for the queue to drain before stopping
 			if (waitForQueueToDrain)
 			{
-				int sentCount = 0;
-
-				lock (sentLock)
+				while (QueuedNotificationCount > 0 || sentNotifications.Count > 0)
 				{
-					sentCount = sentNotifications.Count;
+					Console.WriteLine("Waiting for Queue: " + QueuedNotificationCount);
+					Thread.Sleep(50);
 				}
-
-				while (sentCount > 0)
-					Thread.Sleep(250);
 			}
 
-			//Call the base stop first
-			base.Stop(waitForQueueToDrain);
+			//Sleep a bit to prevent any race conditions
+			//especially since our cleanup method may need 3 seconds
+			Thread.Sleep(5000);
 
-			//Wait on our cleanup task
-			taskCleanup.Wait(30000);
+			if (!CancelTokenSource.IsCancellationRequested)
+				CancelTokenSource.Cancel();
+
+			//Wait on our tasks for a maximum of 30 seconds
+			Task.WaitAll(new Task[] { base.taskSender, taskCleanup }, 30000);
 		}
 		
 		void Reader()
@@ -154,14 +158,15 @@ namespace PushSharp.Apple
 			{
 				var result = stream.BeginRead(readBuffer, 0, 6, new AsyncCallback((asyncResult) =>
 				{
-					try
+					lock (sentLock)
 					{
-						var bytesRead = stream.EndRead(asyncResult);
-
-						if (bytesRead > 0)
+						try
 						{
-							lock (sentLock)
+							var bytesRead = stream.EndRead(asyncResult);
+
+							if (bytesRead > 0)
 							{
+
 
 								//Get the enhanced format response
 								// byte 0 is always '1', byte 1 is the status, bytes 2,3,4,5 are the identifier of the notification
@@ -190,22 +195,28 @@ namespace PushSharp.Apple
 									if (failedNotificationIndex > 0)
 									{
 										for (int i = 0; i < failedNotificationIndex; i++)
+										{
+											Console.WriteLine("Sent: " + sentNotifications[i].Identifier);
 											this.Events.RaiseNotificationSent(sentNotifications[i].Notification);
+										}
 									}
 
 									//The notification that failed needs to have a failure event raised
 									// we don't requeue it because apple told us it failed for real
 									this.Events.RaiseNotificationSendFailure(failedNotification.Notification,
 										new NotificationFailureException(status, failedNotification.Notification));
+									Console.WriteLine("Failed: " + failedNotification.Identifier);
 
 									// finally, raise failure for anything after the index of this failed one
 									// in the sent list, since we may have sent them but apple will have disregarded
 									// anything after the failed one and not told us about it
 									if (failedNotificationIndex < sentNotifications.Count - 1)
 									{
-										for (int i = failedNotificationIndex + 1; i < sentNotifications.Count - 1; i++)
+										for (int i = failedNotificationIndex + 1; i <= sentNotifications.Count - 1; i++)
 										{
 											var n = sentNotifications[i];
+
+											Console.WriteLine("ReQueueing: " + n.Notification.Identifier);
 
 											//Requeue the failed notification since we're not sure it's a bad
 											// notification, just that it was sent after a bad one was
@@ -215,23 +226,23 @@ namespace PushSharp.Apple
 
 									//Now clear out the sent list since we processed them all manually above
 									sentNotifications.Clear();
-
-								} // End lock
+								} 
 
 								//Start reading again
 								Reader();
+
+							}
+							else
+							{
+								connected = false;
 							}
 						}
-						else
+						catch
 						{
 							connected = false;
 						}
-					}
-					catch
-					{
-						connected = false;
-					}
 
+					} // End Lock
 					//Otherwise, our connection was closed
 
 				}), null);
@@ -260,7 +271,7 @@ namespace PushSharp.Apple
 					}
 				}
 
-				if (CancelToken.IsCancellationRequested)
+				if (this.CancelToken.IsCancellationRequested)
 					break;
 				else
 					Thread.Sleep(250);

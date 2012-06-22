@@ -19,11 +19,13 @@ namespace PushSharp.Common
 		public ChannelEvents Events = new ChannelEvents();
 
 		public PushChannelSettings Settings { get; private set; }
+		protected bool stopping;
 
 		protected abstract void SendNotification(Notification notification);
 
 		public PushChannelBase(PushChannelSettings settings)
 		{
+			this.stopping = false;
 			this.CancelTokenSource = new CancellationTokenSource();
 			this.CancelToken = CancelTokenSource.Token;
 
@@ -39,12 +41,20 @@ namespace PushSharp.Common
 
 		public virtual void Stop(bool waitForQueueToDrain)
 		{
+			stopping = true;
+
 			//See if we want to wait for the queue to drain before stopping
 			if (waitForQueueToDrain)
 			{
 				while (QueuedNotificationCount > 0)
-					Thread.Sleep(250);
+				{
+					Console.WriteLine("Waiting for Queue: " + QueuedNotificationCount);
+					Thread.Sleep(50);
+				}
 			}
+
+			//Sleep a bit to prevent any race conditions
+			Thread.Sleep(2000);
 
 			if (!CancelTokenSource.IsCancellationRequested)
 				CancelTokenSource.Cancel();
@@ -56,14 +66,15 @@ namespace PushSharp.Common
 		public virtual void Dispose()
 		{
 			//Stop without waiting
-			Stop(false);
+			if (!stopping)
+				Stop(false);
 		}
 
 		
 		object queuedNotificationsLock = new object();
 		ConcurrentQueue<Notification> queuedNotifications;
 
-		Task taskSender;
+		protected Task taskSender;
 
 		protected CancellationTokenSource CancelTokenSource;
 		protected CancellationToken CancelToken;

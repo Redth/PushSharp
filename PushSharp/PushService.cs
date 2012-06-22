@@ -12,6 +12,7 @@ namespace PushSharp
 		//public PushSettings Settings { get; private set; }
 
 		public ChannelEvents Events;
+		bool stopping;
 
 		Apple.ApplePushService appleService = null;
 		Android.AndroidPushService androidService = null;
@@ -21,7 +22,7 @@ namespace PushSharp
 		public PushService()
 		{
 			//this.Settings = settings;
-			
+			stopping = false;
 			this.Events = new ChannelEvents();
 		}
 
@@ -31,10 +32,22 @@ namespace PushSharp
 			appleService.Events.RegisterProxyHandler(this.Events);
 		}
 
+		public void StopApplePushService(bool waitForQueueToFinish = true)
+		{
+			if (appleService != null)
+				appleService.Stop(waitForQueueToFinish);
+		}
+
 		public void StartAndroidPushService(Android.AndroidPushChannelSettings channelSettings, PushServiceSettings serviceSettings = null)
 		{
 			androidService = new Android.AndroidPushService(channelSettings, serviceSettings);
 			androidService.Events.RegisterProxyHandler(this.Events);
+		}
+
+		public void StopAndroidPushService(bool waitForQueueToFinish = true)
+		{
+			if (androidService != null)
+				androidService.Stop(waitForQueueToFinish);
 		}
 
 		public void StartWindowsPhonePushService(WindowsPhone.WindowsPhonePushChannelSettings channelSettings, PushServiceSettings serviceSettings = null)
@@ -43,10 +56,22 @@ namespace PushSharp
 			wpService.Events.RegisterProxyHandler(this.Events);
 		}
 
+		public void StopWindowsPhonePushService(bool waitForQueueToFinish = true)
+		{
+			if (wpService != null)
+				wpService.Stop(waitForQueueToFinish);
+		}
+
 		public void StartBlackberryPushService(Blackberry.BlackberryPushChannelSettings channelSettings, PushServiceSettings serviceSettings = null)
 		{
 			bbService = new Blackberry.BlackberryPushService(channelSettings, serviceSettings);
 			bbService.Events.RegisterProxyHandler(this.Events);
+		}
+		
+		public void StopBlackberryPushService(bool waitForQueueToFinish = true)
+		{
+			if (bbService != null)
+				bbService.Stop(waitForQueueToFinish);
 		}
 
 		public void QueueNotification(Notification notification)
@@ -68,26 +93,28 @@ namespace PushSharp
 			}
 		}
 
-		public void Stop(bool waitForQueuesToFinish = true)
+		public void StopAllServices(bool waitForQueuesToFinish = true)
 		{
-			var services = new List<PushServiceBase>()
-			{
-				appleService,
-				androidService,
-				wpService,
-				bbService
-			};
+			var tasks = new List<Task>();
 
-			Parallel.ForEach<PushServiceBase>(services, (s) =>
-			{
-				if (s != null)
-					s.Stop(waitForQueuesToFinish);
-			});
+			if (appleService != null && !appleService.IsStopping)
+				tasks.Add(Task.Factory.StartNew(() => appleService.Stop(waitForQueuesToFinish)));
+
+			if (androidService != null && !androidService.IsStopping)
+				tasks.Add(Task.Factory.StartNew(() => androidService.Stop(waitForQueuesToFinish)));
+
+			if (wpService != null && !wpService.IsStopping)
+				tasks.Add(Task.Factory.StartNew(() => wpService.Stop(waitForQueuesToFinish)));
+
+			if (bbService != null && !bbService.IsStopping)
+				tasks.Add(Task.Factory.StartNew(() => bbService.Stop(waitForQueuesToFinish)));
+
+			Task.WaitAll(tasks.ToArray());
 		}
 
 		void IDisposable.Dispose()
 		{
-			Stop(false);
+			StopAllServices(false);
 		}
 	}
 

@@ -38,16 +38,6 @@ namespace PushSharp.Apple
 		protected override Common.PushChannelBase CreateChannel(Common.PushChannelSettings channelSettings)
 		{
 			return new ApplePushChannel(channelSettings as ApplePushChannelSettings);
-		}
-
-		public new void Dispose()
-		{
-			if (!cancelTokenSource.IsCancellationRequested)
-				cancelTokenSource.Cancel();
-
-			base.Dispose();
-		}
-
-		
+		}		
 	}
 }

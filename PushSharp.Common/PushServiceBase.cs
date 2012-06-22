@@ -13,6 +13,7 @@ namespace PushSharp.Common
 		public ChannelEvents Events = new ChannelEvents();
 		Timer timerCheckScale;
 		Task distributerTask;
+		bool stopping;
 
 		public PushServiceBase(PushChannelSettings channelSettings, PushServiceSettings serviceSettings = null)
 		{
@@ -36,10 +37,13 @@ namespace PushSharp.Common
 			}, TaskContinuationOptions.OnlyOnFaulted);
 			distributerTask.Start();
 
+			stopping = false;
 		}
 
 		public PushServiceSettings ServiceSettings { get; private set; }
 		public PushChannelSettings ChannelSettings { get; private set; }
+
+		public bool IsStopping { get { return stopping; } }
 
 		protected abstract PushChannelBase CreateChannel(PushChannelSettings channelSettings);
 		
@@ -55,26 +59,28 @@ namespace PushSharp.Common
 
 		public void Stop(bool waitForQueueToFinish)
 		{
-			if (this.cancelTokenSource.IsCancellationRequested)
-				return;
-
-			this.cancelTokenSource.Cancel();
+			stopping = true;
 
 			//Stop all channels
 			Parallel.ForEach<PushChannelBase>(channels,
 				(channel) =>
 				{
-					channel.Events.UnRegisterProxyHandler(this.Events);
 					channel.Stop(waitForQueueToFinish);
-					channel.Dispose();
+					channel.Events.UnRegisterProxyHandler(this.Events);
 				});
 
 			this.channels.Clear();
+			
+			//Sleep a bit to avoid race conditions
+			Thread.Sleep(2000);
+
+			this.cancelTokenSource.Cancel();
 		}
 
 		public void Dispose()
 		{
-			Stop(false);
+			if (!stopping)
+				Stop(false);
 		}
 
 		void Distributer()
@@ -83,7 +89,7 @@ namespace PushSharp.Common
 			{
 				if (channels == null || channels.Count <= 0)
 				{
-					Thread.Sleep(250);
+					Thread.Sleep(50);
 					continue;
 				}
 
@@ -92,7 +98,7 @@ namespace PushSharp.Common
 				if (!queuedNotifications.TryDequeue(out notification))
 				{
 					//No notifications in queue, sleep a bit!
-					Thread.Sleep(250);
+					Thread.Sleep(50);
 					continue;
 				}
 
