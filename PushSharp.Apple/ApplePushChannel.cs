@@ -101,11 +101,11 @@ namespace PushSharp.Apple
 				{
 					lock (streamWriteLock)
 					{
-						stream.Write(notificationData);
-						//sentNotifications.TryAdd(appleNotification.Identifier, new SentNotification(appleNotification));
-
 						lock (sentLock)
 						{
+							stream.Write(notificationData);
+							//sentNotifications.TryAdd(appleNotification.Identifier, new SentNotification(appleNotification));
+
 							sentNotifications.Add(new SentNotification(appleNotification));
 						}
 
@@ -194,6 +194,7 @@ namespace PushSharp.Apple
 									}
 
 									//The notification that failed needs to have a failure event raised
+									// we don't requeue it because apple told us it failed for real
 									this.Events.RaiseNotificationSendFailure(failedNotification.Notification,
 										new NotificationFailureException(status, failedNotification.Notification));
 
@@ -206,8 +207,9 @@ namespace PushSharp.Apple
 										{
 											var n = sentNotifications[i];
 
-											this.Events.RaiseNotificationSendFailure(n.Notification,
-												new NotificationFailureException(999, n.Notification));
+											//Requeue the failed notification since we're not sure it's a bad
+											// notification, just that it was sent after a bad one was
+											this.QueueNotification(n.Notification);
 										}
 									}
 
