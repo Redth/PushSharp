@@ -1,8 +1,21 @@
 # Build Folders (you can keep bin if you'd like, to store dlls and pdbs)
 bin
+[Bb]in
 obj
+[Oo]bj
+[Dd]ebug*/
+[Rr]elease*/
+
+*.unsuccessfulbuild
+*.pidb
+*.userprefs
+*.suo
+*.resharper
+*.svn
+
 
 # mstest test results
 TestResults
 
-.suo
+#NuGet
+packages/
