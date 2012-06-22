@@ -11,9 +11,20 @@ namespace PushSharp.Common
 	public abstract class PushServiceBase : IDisposable
 	{
 		public ChannelEvents Events = new ChannelEvents();
+		
+		public PushServiceSettings ServiceSettings { get; private set; }
+		public PushChannelSettings ChannelSettings { get; private set; }
+		public bool IsStopping { get { return stopping; } }
+
 		Timer timerCheckScale;
 		Task distributerTask;
 		bool stopping;
+		List<PushChannelBase> channels = new List<PushChannelBase>();
+		ConcurrentQueue<Notification> queuedNotifications = new ConcurrentQueue<Notification>();
+		CancellationTokenSource cancelTokenSource = new CancellationTokenSource();
+		List<double> measurements = new List<double>();
+
+		protected abstract PushChannelBase CreateChannel(PushChannelSettings channelSettings);
 
 		public PushServiceBase(PushChannelSettings channelSettings, PushServiceSettings serviceSettings = null)
 		{
@@ -39,19 +50,7 @@ namespace PushSharp.Common
 
 			stopping = false;
 		}
-
-		public PushServiceSettings ServiceSettings { get; private set; }
-		public PushChannelSettings ChannelSettings { get; private set; }
-
-		public bool IsStopping { get { return stopping; } }
-
-		protected abstract PushChannelBase CreateChannel(PushChannelSettings channelSettings);
-		
-		List<PushChannelBase> channels = new List<PushChannelBase>();
-		ConcurrentQueue<Notification> queuedNotifications = new ConcurrentQueue<Notification>();
-
-		CancellationTokenSource cancelTokenSource = new CancellationTokenSource();
-
+				
 		public void QueueNotification(Notification notification)
 		{
 			queuedNotifications.Enqueue(notification);
@@ -153,13 +152,9 @@ namespace PushSharp.Common
 			}
 		}
 
-
-		List<double> measurements = new List<double>();
-
 		void newChannel_OnQueueTimed(double queueTimeMilliseconds)
 		{
 			//We got a measurement for how long a message waited in the queue
-
 			lock (measurements)
 			{
 				measurements.Add(queueTimeMilliseconds);

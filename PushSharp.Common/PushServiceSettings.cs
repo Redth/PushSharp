@@ -17,6 +17,5 @@ namespace PushSharp.Common
 		public bool AutoScaleChannels { get; set; }
 		public int MaxAutoScaleChannels { get; set; }
 		public int Channels { get; set; }
-
 	}
 }

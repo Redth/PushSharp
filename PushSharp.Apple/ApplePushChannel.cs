@@ -35,7 +35,6 @@ namespace PushSharp.Apple
 
 
 		ApplePushChannelSettings appleSettings = null;
-		//ConcurrentDictionary<int, SentNotification> sentNotifications = new ConcurrentDictionary<int, SentNotification>();
 		List<SentNotification> sentNotifications = new List<SentNotification>();
 
 		public ApplePushChannel(ApplePushChannelSettings settings) : base(settings)
@@ -110,14 +109,6 @@ namespace PushSharp.Apple
 
 							sentNotifications.Add(new SentNotification(appleNotification));
 						}
-
-						//We need to sleep in between notifications to allow time for apple to return a response
-						// This really sucks, but if we don't do this, we could send many notifications before
-						// apple has processed the first one, and they can potentially return an error for the first one,
-						// ignoring the subsequent ones we sent before they closed our connection, and we wouldn't know
-						// if those messages in limbo got sent or not (they likely didn't in that case).
-						//if (!appleSettings.IgnoreDelayBetweenMessages)
-						//	Thread.Sleep(appleSettings.DelayBetweenMessagesMilliseconds);
 					}
 				}
 				catch (Exception ex)
@@ -166,8 +157,6 @@ namespace PushSharp.Apple
 
 							if (bytesRead > 0)
 							{
-
-
 								//Get the enhanced format response
 								// byte 0 is always '1', byte 1 is the status, bytes 2,3,4,5 are the identifier of the notification
 								var status = readBuffer[1];
@@ -176,6 +165,7 @@ namespace PushSharp.Apple
 								int failedNotificationIndex = -1;
 								SentNotification failedNotification = null;
 
+								//Try and find the failed notification in our sent list
 								for (int i = 0; i < sentNotifications.Count; i++)
 								{
 									var n = sentNotifications[i];
@@ -188,6 +178,7 @@ namespace PushSharp.Apple
 									}
 								}
 
+								//Don't bother doing anything unless we know what failed
 								if (failedNotification != null && failedNotificationIndex > -1)
 								{
 									//Anything before the failed message must have sent OK
@@ -230,7 +221,6 @@ namespace PushSharp.Apple
 
 								//Start reading again
 								Reader();
-
 							}
 							else
 							{
@@ -243,8 +233,7 @@ namespace PushSharp.Apple
 						}
 
 					} // End Lock
-					//Otherwise, our connection was closed
-
+					
 				}), null);
 			}
 			catch
@@ -259,10 +248,14 @@ namespace PushSharp.Apple
 			{
 				lock (sentLock)
 				{
+					//See if anything is here to process
 					if (sentNotifications.Count > 0)
 					{
+						//Get the oldest sent message
 						var n = sentNotifications[0];
 
+						//If it was sent more than 3 seconds ago,
+						// we have to assume it was sent successfully!
 						if (n.SentAt < DateTime.UtcNow.AddSeconds(-3))
 						{
 							this.Events.RaiseNotificationSent(n.Notification);
@@ -275,7 +268,6 @@ namespace PushSharp.Apple
 					break;
 				else
 					Thread.Sleep(250);
-
 			}
 		}
 

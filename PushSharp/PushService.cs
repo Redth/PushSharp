@@ -9,10 +9,7 @@ namespace PushSharp
 {
 	public class PushService : IDisposable
 	{
-		//public PushSettings Settings { get; private set; }
-
 		public ChannelEvents Events;
-		bool stopping;
 
 		Apple.ApplePushService appleService = null;
 		Android.AndroidPushService androidService = null;
@@ -21,8 +18,6 @@ namespace PushSharp
 
 		public PushService()
 		{
-			//this.Settings = settings;
-			stopping = false;
 			this.Events = new ChannelEvents();
 		}
 
@@ -116,7 +111,5 @@ namespace PushSharp
 		{
 			StopAllServices(false);
 		}
-	}
-
-	
+	}	
 }

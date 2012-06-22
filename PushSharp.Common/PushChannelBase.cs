@@ -14,12 +14,19 @@ namespace PushSharp.Common
 {
 	public abstract class PushChannelBase : IDisposable
 	{
+		public ChannelEvents Events = new ChannelEvents();
+		
+		public PushChannelSettings Settings { get; private set; }
+
 		internal event Action<double> OnQueueTimed;
 
-		public ChannelEvents Events = new ChannelEvents();
-
-		public PushChannelSettings Settings { get; private set; }
+		object queuedNotificationsLock = new object();
+		ConcurrentQueue<Notification> queuedNotifications;
+		
 		protected bool stopping;
+		protected Task taskSender;
+		protected CancellationTokenSource CancelTokenSource;
+		protected CancellationToken CancelToken;
 
 		protected abstract void SendNotification(Notification notification);
 
@@ -69,16 +76,6 @@ namespace PushSharp.Common
 			if (!stopping)
 				Stop(false);
 		}
-
-		
-		object queuedNotificationsLock = new object();
-		ConcurrentQueue<Notification> queuedNotifications;
-
-		protected Task taskSender;
-
-		protected CancellationTokenSource CancelTokenSource;
-		protected CancellationToken CancelToken;
-
 
 		public int QueuedNotificationCount
 		{
