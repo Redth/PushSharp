@@ -35,7 +35,8 @@ namespace PushSharp.Apple
 
 
 		ApplePushChannelSettings appleSettings = null;
-		ConcurrentDictionary<int, SentNotification> sentNotifications = new ConcurrentDictionary<int, SentNotification>();
+		//ConcurrentDictionary<int, SentNotification> sentNotifications = new ConcurrentDictionary<int, SentNotification>();
+		List<SentNotification> sentNotifications = new List<SentNotification>();
 
 		public ApplePushChannel(ApplePushChannelSettings settings) : base(settings)
 		{
@@ -58,6 +59,7 @@ namespace PushSharp.Apple
 			taskCleanup.Start();
 		}
 
+		object sentLock = new object();
 		object streamWriteLock = new object();
 		int reconnectDelay = 3000;
 		float reconnectBackoffMultiplier = 1.5f;
@@ -100,8 +102,13 @@ namespace PushSharp.Apple
 					lock (streamWriteLock)
 					{
 						stream.Write(notificationData);
-						sentNotifications.TryAdd(appleNotification.Identifier, new SentNotification(appleNotification));
-						
+						//sentNotifications.TryAdd(appleNotification.Identifier, new SentNotification(appleNotification));
+
+						lock (sentLock)
+						{
+							sentNotifications.Add(new SentNotification(appleNotification));
+						}
+
 						//We need to sleep in between notifications to allow time for apple to return a response
 						// This really sucks, but if we don't do this, we could send many notifications before
 						// apple has processed the first one, and they can potentially return an error for the first one,
@@ -120,6 +127,20 @@ namespace PushSharp.Apple
 
 		public override void Stop(bool waitForQueueToDrain)
 		{
+			//Make sure we wait for the sent notifications to process as well
+			if (waitForQueueToDrain)
+			{
+				int sentCount = 0;
+
+				lock (sentLock)
+				{
+					sentCount = sentNotifications.Count;
+				}
+
+				while (sentCount > 0)
+					Thread.Sleep(250);
+			}
+
 			//Call the base stop first
 			base.Stop(waitForQueueToDrain);
 
@@ -139,26 +160,65 @@ namespace PushSharp.Apple
 
 						if (bytesRead > 0)
 						{
-							//Get the enhanced format response
-							// byte 0 is always '1', byte 1 is the status, bytes 2,3,4,5 are the identifier of the notification
-							var status = readBuffer[1];
-							var identifier = IPAddress.NetworkToHostOrder(BitConverter.ToInt32(readBuffer, 2));
-
-							SentNotification sentNotification = null;
-
-							//Gets the matching notification and removes it from the sent queue at the same time
-							sentNotifications.TryRemove(identifier, out sentNotification);
-
-							if (sentNotification != null)
+							lock (sentLock)
 							{
-								var nfex = new NotificationFailureException(status, sentNotification.Notification);
 
-								//Raise alert that notification failed
-								this.Events.RaiseNotificationSendFailure(sentNotification.Notification, nfex);
+								//Get the enhanced format response
+								// byte 0 is always '1', byte 1 is the status, bytes 2,3,4,5 are the identifier of the notification
+								var status = readBuffer[1];
+								var identifier = IPAddress.NetworkToHostOrder(BitConverter.ToInt32(readBuffer, 2));
+
+								int failedNotificationIndex = -1;
+								SentNotification failedNotification = null;
+
+								for (int i = 0; i < sentNotifications.Count; i++)
+								{
+									var n = sentNotifications[i];
+
+									if (n.Identifier.Equals(identifier))
+									{
+										failedNotificationIndex = i;
+										failedNotification = n;
+										break;
+									}
+								}
+
+								if (failedNotification != null && failedNotificationIndex > -1)
+								{
+									//Anything before the failed message must have sent OK
+									// so let's expedite the success status Success for all those before the failed one
+									if (failedNotificationIndex > 0)
+									{
+										for (int i = 0; i < failedNotificationIndex; i++)
+											this.Events.RaiseNotificationSent(sentNotifications[i].Notification);
+									}
+
+									//The notification that failed needs to have a failure event raised
+									this.Events.RaiseNotificationSendFailure(failedNotification.Notification,
+										new NotificationFailureException(status, failedNotification.Notification));
+
+									// finally, raise failure for anything after the index of this failed one
+									// in the sent list, since we may have sent them but apple will have disregarded
+									// anything after the failed one and not told us about it
+									if (failedNotificationIndex < sentNotifications.Count - 1)
+									{
+										for (int i = failedNotificationIndex + 1; i < sentNotifications.Count - 1; i++)
+										{
+											var n = sentNotifications[i];
+
+											this.Events.RaiseNotificationSendFailure(n.Notification,
+												new NotificationFailureException(999, n.Notification));
+										}
+									}
+
+									//Now clear out the sent list since we processed them all manually above
+									sentNotifications.Clear();
+
+								} // End lock
+
+								//Start reading again
+								Reader();
 							}
-
-							//Start reading again
-							Reader();
 						}
 						else
 						{
@@ -180,32 +240,29 @@ namespace PushSharp.Apple
 			}
 		}
 
-
 		void Cleanup()
 		{
 			while (true)
 			{
-				var toRemove = (from n in sentNotifications.Values
-								where n.SentAt < DateTime.UtcNow.AddSeconds(3)
-								select n.Identifier).ToArray();
-
-				if (toRemove != null && toRemove.Length > 0)
+				lock (sentLock)
 				{
-					SentNotification removedNotification = null;
-
-					foreach (var id in toRemove)
+					if (sentNotifications.Count > 0)
 					{
-						if (sentNotifications.TryRemove(id, out removedNotification))
+						var n = sentNotifications[0];
+
+						if (n.SentAt < DateTime.UtcNow.AddSeconds(-3))
 						{
-							//Alert that we sent this one successfully since there was no error response
-							this.Events.RaiseNotificationSent(removedNotification.Notification);
+							this.Events.RaiseNotificationSent(n.Notification);
+							sentNotifications.RemoveAt(0);
 						}
 					}
 				}
-				else if (CancelToken.IsCancellationRequested) //If there were no items left and the program is ending, break out
+
+				if (CancelToken.IsCancellationRequested)
 					break;
-				else //Sleep since there are no items to remove and no cancellation token requested
+				else
 					Thread.Sleep(250);
+
 			}
 		}
 
