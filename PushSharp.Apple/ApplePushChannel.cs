@@ -102,11 +102,8 @@ namespace PushSharp.Apple
 					{
 						lock (sentLock)
 						{
-							Console.WriteLine("Sending: " + appleNotification.Identifier);
-
 							stream.Write(notificationData);
-							//sentNotifications.TryAdd(appleNotification.Identifier, new SentNotification(appleNotification));
-
+						
 							sentNotifications.Add(new SentNotification(appleNotification));
 						}
 					}
@@ -126,10 +123,7 @@ namespace PushSharp.Apple
 			if (waitForQueueToDrain)
 			{
 				while (QueuedNotificationCount > 0 || sentNotifications.Count > 0)
-				{
-					Console.WriteLine("Waiting for Queue: " + QueuedNotificationCount);
 					Thread.Sleep(50);
-				}
 			}
 
 			//Sleep a bit to prevent any race conditions
@@ -186,33 +180,23 @@ namespace PushSharp.Apple
 									if (failedNotificationIndex > 0)
 									{
 										for (int i = 0; i < failedNotificationIndex; i++)
-										{
-											Console.WriteLine("Sent: " + sentNotifications[i].Identifier);
 											this.Events.RaiseNotificationSent(sentNotifications[i].Notification);
-										}
 									}
 
 									//The notification that failed needs to have a failure event raised
 									// we don't requeue it because apple told us it failed for real
 									this.Events.RaiseNotificationSendFailure(failedNotification.Notification,
 										new NotificationFailureException(status, failedNotification.Notification));
-									Console.WriteLine("Failed: " + failedNotification.Identifier);
 
 									// finally, raise failure for anything after the index of this failed one
 									// in the sent list, since we may have sent them but apple will have disregarded
 									// anything after the failed one and not told us about it
 									if (failedNotificationIndex < sentNotifications.Count - 1)
 									{
+										//Requeue the failed notification since we're not sure it's a bad
+										// notification, just that it was sent after a bad one was
 										for (int i = failedNotificationIndex + 1; i <= sentNotifications.Count - 1; i++)
-										{
-											var n = sentNotifications[i];
-
-											Console.WriteLine("ReQueueing: " + n.Notification.Identifier);
-
-											//Requeue the failed notification since we're not sure it's a bad
-											// notification, just that it was sent after a bad one was
-											this.QueueNotification(n.Notification);
-										}
+											this.QueueNotification(sentNotifications[i].Notification);
 									}
 
 									//Now clear out the sent list since we processed them all manually above
@@ -367,7 +351,6 @@ namespace PushSharp.Apple
 				throw new ConnectionFailureException("SSL Stream is not Writable", null);
 
 			//Start reading from the stream asynchronously
-			Console.WriteLine("Connect -> Reader()");
 			Reader();
 		}
 		

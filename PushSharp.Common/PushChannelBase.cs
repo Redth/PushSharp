@@ -54,10 +54,7 @@ namespace PushSharp.Common
 			if (waitForQueueToDrain)
 			{
 				while (QueuedNotificationCount > 0)
-				{
-					Console.WriteLine("Waiting for Queue: " + QueuedNotificationCount);
 					Thread.Sleep(50);
-				}
 			}
 
 			//Sleep a bit to prevent any race conditions

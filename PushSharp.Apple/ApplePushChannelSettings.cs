@@ -18,15 +18,13 @@ namespace PushSharp.Apple
 		public ApplePushChannelSettings(bool production, string certificateFile, string certificateFilePwd) 
 			: this(production, System.IO.File.ReadAllBytes(certificateFile), certificateFilePwd) { }
 
-		public ApplePushChannelSettings(bool production, byte[] certificateData, string certificateFilePwd, bool ignoreDelayBetweenMessages = false)
+		public ApplePushChannelSettings(bool production, byte[] certificateData, string certificateFilePwd)
 		{
 			this.Host = production ? APNS_PRODUCTION_HOST : APNS_SANDBOX_HOST;
 			this.Port = production ? APNS_PRODUCTION_PORT : APNS_SANDBOX_PORT;
 
 			this.CertificateData = certificateData;
 			this.CertificateFilePassword = certificateFilePwd;
-			this.IgnoreDelayBetweenMessages = ignoreDelayBetweenMessages;
-			this.DelayBetweenMessagesMilliseconds = 250;
 		}
 
 		public string Host
@@ -51,18 +49,6 @@ namespace PushSharp.Apple
 		{
 			get;
 			private set;
-		}
-
-		public bool IgnoreDelayBetweenMessages
-		{
-			get;
-			private set;
-		}
-
-		public int DelayBetweenMessagesMilliseconds
-		{
-			get;
-			set;
 		}
 	}
 }

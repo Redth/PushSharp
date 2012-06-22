@@ -33,14 +33,14 @@ namespace PushSharp.Sample
 			//Configure and start Windows Phone Notifications
 			push.StartWindowsPhonePushService(new WindowsPhone.WindowsPhonePushChannelSettings());
 
-			////Fluent construction of a Windows Phone Toast notification
-			//push.QueueNotification(NotificationFactory.WindowsPhone().Toast()
-			//    .ForEndpointUri(new Uri("http://sn1.notify.live.net/throttledthirdparty/01.00/AAFCoNoCXidwRpn5NOxvwSxPAgAAAAADAgAAAAQUZm52OkJCMjg1QTg1QkZDMkUxREQ"))
-			//    .ForOSVersion(WindowsPhone.WindowsPhoneDeviceOSVersion.MangoSevenPointFive)
-			//    .WithBatchingInterval(WindowsPhone.BatchingInterval.Immediate)
-			//    .WithNavigatePath("/MainPage.xaml")
-			//    .WithText1("PushSharp")
-			//    .WithText2("This is a Toast"));
+			//Fluent construction of a Windows Phone Toast notification
+			push.QueueNotification(NotificationFactory.WindowsPhone().Toast()
+				.ForEndpointUri(new Uri("http://sn1.notify.live.net/throttledthirdparty/01.00/AAFCoNoCXidwRpn5NOxvwSxPAgAAAAADAgAAAAQUZm52OkJCMjg1QTg1QkZDMkUxREQ"))
+				.ForOSVersion(WindowsPhone.WindowsPhoneDeviceOSVersion.MangoSevenPointFive)
+				.WithBatchingInterval(WindowsPhone.BatchingInterval.Immediate)
+				.WithNavigatePath("/MainPage.xaml")
+				.WithText1("PushSharp")
+				.WithText2("This is a Toast"));
 
 			//Fluent construction of an iOS notification
 			push.QueueNotification(NotificationFactory.Apple()
@@ -49,39 +49,16 @@ namespace PushSharp.Sample
 				.WithSound("default")
 				.WithBadge(7));
 
-			push.QueueNotification(NotificationFactory.Apple()
-				.ForDeviceToken("0071737321559691b28fffa1aa4c8259d970fe0fc496794ad0486552fc9ec3db")
-				.WithAlert("2 Alert Text!")
-				.WithSound("default")
-				.WithBadge(7));
-
-			push.QueueNotification(NotificationFactory.Apple()
-				.ForDeviceToken("1071737321559691b28fffa1aa4c8259d970fe0fc496794ad0486552fc9ec3db")
-				.WithAlert("3 Alert Text!")
-				.WithSound("default")
-				.WithBadge(7));
-
-			push.QueueNotification(NotificationFactory.Apple()
-				.ForDeviceToken("3071737321559691b28fffa1aa4c8259d970fe0fc496794ad0486552fc9ec3db")
-				.WithAlert("4 Alert Text!")
-				.WithSound("default")
-				.WithBadge(7));
-
-			push.QueueNotification(NotificationFactory.Apple()
-				.ForDeviceToken("1071737321559691b28fffa1aa4c8259d970fe0fc496794ad0486552fc9ec3db")
-				.WithAlert("5 Alert Text!")
-				.WithSound("default")
-				.WithBadge(7));
-
-			////Fluent construction of an Android C2DM Notification
-			//push.QueueNotification(NotificationFactory.Android()
-			//    .ForDeviceRegistrationId("APA91bFwgGgA2uXHvgT0ij8vJbY7Kgf-qQfzsTj-QnLXNGHghysJx-BUj4OGu8xe1w0T2-H2rgMi_0NzIBo5gVs2jfiY1h_L3ohux2cSwZjJDHthNRZ38C2Ej1TcuUfZWa4ZHoVbNigR_ezXjuzJ8kD4dH_dCx2X3w")
-			//    .WithCollapseKey("NONE")
-			//    .WithData("alert", "Alert Text!")
-			//    .WithData("badge", "7"));
+			//Fluent construction of an Android C2DM Notification
+			push.QueueNotification(NotificationFactory.Android()
+				.ForDeviceRegistrationId("APA91bFwgGgA2uXHvgT0ij8vJbY7Kgf-qQfzsTj-QnLXNGHghysJx-BUj4OGu8xe1w0T2-H2rgMi_0NzIBo5gVs2jfiY1h_L3ohux2cSwZjJDHthNRZ38C2Ej1TcuUfZWa4ZHoVbNigR_ezXjuzJ8kD4dH_dCx2X3w")
+				.WithCollapseKey("NONE")
+				.WithData("alert", "Alert Text!")
+				.WithData("badge", "7"));
 
 			Console.WriteLine("Waiting for Queue to Finish...");
 
+			//Stop and wait for the queues to drains
 			push.StopAllServices(true);
 
 			Console.WriteLine("Queue Finished, press return to exit...");
