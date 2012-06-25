@@ -15,6 +15,8 @@ Features
  - Asynchronous code where possible, use of library is very event oriented
  - No third party dependencies! 100% managed code awesomeness for Mono compatibility!
 
+[[Resources/PushSharp-Diagram.png]]
+
 
 Disclaimer: Beta Quality
 ---------------------------------
