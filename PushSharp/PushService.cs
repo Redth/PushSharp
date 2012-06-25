@@ -23,7 +23,7 @@ namespace PushSharp
 			this.Events = new ChannelEvents();
 		}
 
-        public PushService(bool waitForQueuesToFinish) : base()
+        public PushService(bool waitForQueuesToFinish) : this()
         {
             this.WaitForQueuesToFinish = waitForQueuesToFinish;
         }
