@@ -3,6 +3,8 @@ PushSharp
 
 A server-side library for sending Push Notifications to iOS (iPhone/iPad APNS), Android (C2DM), Windows Phone, and Blackberry devices!
 
+![PushSharp Diagram](https://github.com/Redth/PushSharp/raw/master/Resources/PushSharp-Diagram.png)
+
 Features
 --------
  - Supports sending push notifications for many platforms:
@@ -14,8 +16,6 @@ Features
  - Auto Scaling of notification channels (more workers/connections are added as demand increases, and scaled down as it decreases)
  - Asynchronous code where possible, use of library is very event oriented
  - No third party dependencies! 100% managed code awesomeness for Mono compatibility!
-
-![PushSharp Diagram](https://github.com/Redth/PushSharp/raw/master/Resources/PushSharp-Diagram.png)
 
 
 Disclaimer: Beta Quality
