@@ -24,7 +24,15 @@ namespace PushSharp.Sample
 			push.Events.OnNotificationSent += new Common.ChannelEvents.NotificationSentDelegate(Events_OnNotificationSent);
 
 			//Configure and start Apple APNS
+			// IMPORTANT: Make sure you use the right Push certificate.  Apple allows you to generate one for connecting to Sandbox,
+			//   and one for connecting to Production.  You must use the right one, to match the provisioning profile you build your
+			//   app with!
 			var appleCert = File.ReadAllBytes(Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "../../../Resources/PushSharp.Apns.Sandbox.p12"));
+			
+			//IMPORTANT: If you are using a Development provisioning Profile, you must use the Sandbox push notification server 
+			//  (so you would leave the first arg in the ctor of ApplePushChannelSettings as 'false')
+			//  If you are using an AdHoc or AppStore provisioning profile, you must use the Production push notification server
+			//  (so you would change the first arg in the ctor of ApplePushChannelSettings to 'true')
 			push.StartApplePushService(new ApplePushChannelSettings(false, appleCert, "pushsharp"));
 			
 			//Configure and start Android C2DM
@@ -43,6 +51,8 @@ namespace PushSharp.Sample
 				.WithText2("This is a Toast"));
 
 			//Fluent construction of an iOS notification
+			//IMPORTANT: For iOS you MUST MUST MUST use your own DeviceToken here that gets generated within your iOS app itself when the Application Delegate
+			//  for registered for remote notifications is called, and the device token is passed back to you
 			push.QueueNotification(NotificationFactory.Apple()
 				.ForDeviceToken("1071737321559691b28fffa1aa4c8259d970fe0fc496794ad0486552fc9ec3db")
 				.WithAlert("1 Alert Text!")
