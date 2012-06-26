@@ -41,6 +41,9 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="..\PushSharp.Common\AssemblyVersionInfo.cs">
+      <Link>AssemblyVersionInfo.cs</Link>
+    </Compile>
     <Compile Include="NotificationFactory.cs" />
     <Compile Include="PushService.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />

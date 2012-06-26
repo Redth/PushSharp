@@ -41,6 +41,9 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="..\PushSharp.Common\AssemblyVersionInfo.cs">
+      <Link>AssemblyVersionInfo.cs</Link>
+    </Compile>
     <Compile Include="Exceptions.cs" />
     <Compile Include="WindowsPhoneMessageStatus.cs" />
     <Compile Include="WindowsPhonePushChannelSettings.cs" />
