@@ -18,11 +18,10 @@ Features
  - No third party dependencies! 100% managed code awesomeness for Mono compatibility!
 
 
-Disclaimer: Beta Quality
----------------------------------
-Ok, so since the first update, some code has been tested and appears to be working!  Apple APNS should be working reasonably well, as well as C2DM.  I'm working on testing WP7 and Blackberry.
-I will warn that this code has not been heavily tested in production, so YMMV.  Having said that, it only gets better the more bugs are exposed, and since these were both based off previous libraries (APNS-Sharp and C2DM-Sharp) which I wrote, I feel that the code is pretty stable otherwise.
-
+Documentation
+-------------
+Head over to the Wiki for some documentation, guides, etc.
+(Wiki)[https://github.com/Redth/PushSharp/wiki]
 
 Some sample action!
 -------------------
