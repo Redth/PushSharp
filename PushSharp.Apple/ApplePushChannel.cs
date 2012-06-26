@@ -69,8 +69,8 @@ namespace PushSharp.Apple
 		X509Certificate certificate;
 		X509CertificateCollection certificates;
 		TcpClient client;
-		SslStream stream;		
-			
+		SslStream stream;
+		System.IO.Stream networkStream;
 		Task taskCleanup;
 		
 		protected override void SendNotification(Common.Notification notification)
@@ -102,8 +102,8 @@ namespace PushSharp.Apple
 					{
 						lock (sentLock)
 						{
-							stream.Write(notificationData);
-						
+							networkStream.Write(notificationData, 0, notificationData.Length);
+
 							sentNotifications.Add(new SentNotification(appleNotification));
 						}
 					}
@@ -141,13 +141,13 @@ namespace PushSharp.Apple
 		{
 			try
 			{
-				var result = stream.BeginRead(readBuffer, 0, 6, new AsyncCallback((asyncResult) =>
+				var result = networkStream.BeginRead(readBuffer, 0, 6, new AsyncCallback((asyncResult) =>
 				{
 					lock (sentLock)
 					{
 						try
 						{
-							var bytesRead = stream.EndRead(asyncResult);
+							var bytesRead = networkStream.EndRead(asyncResult);
 
 							if (bytesRead > 0)
 							{
@@ -237,6 +237,8 @@ namespace PushSharp.Apple
 
 		void Cleanup()
 		{
+			bool wasRemoved = false;
+
 			while (true)
 			{
 				lock (sentLock)
@@ -251,15 +253,18 @@ namespace PushSharp.Apple
 						// we have to assume it was sent successfully!
 						if (n.SentAt < DateTime.UtcNow.AddSeconds(-3))
 						{
+							wasRemoved = true;
 							this.Events.RaiseNotificationSent(n.Notification);
 							sentNotifications.RemoveAt(0);
 						}
+						else
+							wasRemoved = false;
 					}
 				}
 
 				if (this.CancelToken.IsCancellationRequested)
 					break;
-				else
+				else if (!wasRemoved)
 					Thread.Sleep(250);
 			}
 		}
@@ -336,29 +341,39 @@ namespace PushSharp.Apple
 			{
 				throw new ConnectionFailureException("Connection to Host Failed", ex);
 			}
-			
-			stream = new SslStream(client.GetStream(), false,
-				new RemoteCertificateValidationCallback((sender, cert, chain, sslPolicyErrors) => { return true; }),
-				new LocalCertificateSelectionCallback((sender, targetHost, localCerts, remoteCert, acceptableIssuers) =>
+
+			if (appleSettings.SkipSsl)
+			{
+				networkStream = client.GetStream();
+			}
+			else
+			{
+				stream = new SslStream(client.GetStream(), false,
+					new RemoteCertificateValidationCallback((sender, cert, chain, sslPolicyErrors) => { return true; }),
+					new LocalCertificateSelectionCallback((sender, targetHost, localCerts, remoteCert, acceptableIssuers) =>
+					{
+						return certificate;
+					}));
+
+				try
 				{
-					return certificate;
-				}));
+					//stream.AuthenticateAsClient(this.appleSettings.Host, this.certificates, System.Security.Authentication.SslProtocols.Ssl3, false);
+					stream.AuthenticateAsClient(this.appleSettings.Host);
+				}
+				catch (System.Security.Authentication.AuthenticationException ex)
+				{
+					throw new ConnectionFailureException("SSL Stream Failed to Authenticate as Client", ex);
+				}
 
-			try
-			{
-				stream.AuthenticateAsClient(this.appleSettings.Host, this.certificates, System.Security.Authentication.SslProtocols.Ssl3, false);
+				if (!stream.IsMutuallyAuthenticated)
+					throw new ConnectionFailureException("SSL Stream Failed to Authenticate", null);
+
+				if (!stream.CanWrite)
+					throw new ConnectionFailureException("SSL Stream is not Writable", null);
+
+				networkStream = stream;
 			}
-			catch (System.Security.Authentication.AuthenticationException ex)
-			{
-				throw new ConnectionFailureException("SSL Stream Failed to Authenticate as Client", ex);
-			}
-
-			if (!stream.IsMutuallyAuthenticated)
-				throw new ConnectionFailureException("SSL Stream Failed to Authenticate", null);
-
-			if (!stream.CanWrite)
-				throw new ConnectionFailureException("SSL Stream is not Writable", null);
-
+			
 			//Start reading from the stream asynchronously
 			Reader();
 		}

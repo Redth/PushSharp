@@ -42,6 +42,9 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="..\PushSharp.Common\AssemblyVersionInfo.cs">
+      <Link>AssemblyVersionInfo.cs</Link>
+    </Compile>
     <Compile Include="AndroidFluentNotification.cs" />
     <Compile Include="AndroidNotification.cs" />
     <Compile Include="AndroidPushChannel.cs" />

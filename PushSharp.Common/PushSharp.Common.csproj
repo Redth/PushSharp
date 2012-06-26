@@ -40,6 +40,7 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="AssemblyVersionInfo.cs" />
     <Compile Include="ChannelEvents.cs" />
     <Compile Include="PushChannelBase.cs" />
     <Compile Include="PushChannelSettings.cs" />
