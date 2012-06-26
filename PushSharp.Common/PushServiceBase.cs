@@ -36,7 +36,7 @@ namespace PushSharp.Common
 			timerCheckScale = new Timer(new TimerCallback((state) =>
 			{
 				CheckScale();
-			}), null, TimeSpan.FromMinutes(1), TimeSpan.FromMinutes(1));
+			}), null, TimeSpan.FromSeconds(15), TimeSpan.FromSeconds(15));
 			
 			CheckScale();
 
@@ -139,7 +139,28 @@ namespace PushSharp.Common
 				}
 				else if (avgTime > 5 && channels.Count < this.ServiceSettings.MaxAutoScaleChannels)
 				{
-					SpinupChannel();
+                    int numOfChannelsToSpinUp = 1;
+
+                    if (avgTime > 500)
+                    {
+                        numOfChannelsToSpinUp = 20;
+                    }
+                    else if (avgTime > 250)
+                    {
+                        numOfChannelsToSpinUp = 10;
+                    }
+                    else if (avgTime > 100)
+                    {
+                        numOfChannelsToSpinUp = 5;
+                    }
+
+                    for (int i = 0; i < numOfChannelsToSpinUp; i++)
+                    {
+                        if (channels.Count < this.ServiceSettings.MaxAutoScaleChannels)
+                        {
+                            SpinupChannel();
+                        }
+                    }
 				}
 			}
 			else
