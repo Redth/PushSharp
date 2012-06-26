@@ -23,6 +23,11 @@ namespace PushSharp.Apple
 				evt(deviceToken, timestamp);
 		}
 
+		public void Run(ApplePushChannelSettings settings)
+		{
+			Run(settings, (new CancellationTokenSource()).Token);
+		}
+
 		public void Run(ApplePushChannelSettings settings, CancellationToken cancelToken)
 		{
 			var encoding = Encoding.ASCII;
@@ -33,13 +38,13 @@ namespace PushSharp.Apple
 			certificates.Add(certificate);
 
 
-			var client = new TcpClient(settings.Host, settings.Port);
+			var client = new TcpClient(settings.FeedbackHost, settings.FeedbackPort);
 
 			var stream = new SslStream(client.GetStream(), true,
 				(sender, cert, chain, sslErrs) => { return true; },
 				(sender, targetHost, localCerts, remoteCert, acceptableIssuers) => { return certificate; });
 
-			stream.AuthenticateAsClient(settings.Host, certificates, System.Security.Authentication.SslProtocols.Ssl3, false);
+			stream.AuthenticateAsClient(settings.FeedbackHost, certificates, System.Security.Authentication.SslProtocols.Ssl3, false);
 
 
 			//Set up
