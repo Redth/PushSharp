@@ -70,5 +70,11 @@ namespace PushSharp.Apple
 			get;
 			private set;
 		}
+
+		public bool SkipSsl
+		{
+			get;
+			set;
+		}
 	}
 }
