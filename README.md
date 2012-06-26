@@ -21,7 +21,7 @@ Features
 Documentation
 -------------
 Head over to the Wiki for some documentation, guides, etc.
-(Wiki)[https://github.com/Redth/PushSharp/wiki]
+[Wiki](https://github.com/Redth/PushSharp/wiki)
 
 Some sample action!
 -------------------
