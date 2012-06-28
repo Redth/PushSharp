@@ -180,7 +180,10 @@ namespace PushSharp.Common
 		{
 			lock (measurements)
 			{
-				return measurements.Average();
+				if (measurements != null && measurements.Count > 0)
+					return measurements.Average();
+				else
+					return 0;
 			}
 		}
 
