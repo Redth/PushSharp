@@ -14,8 +14,8 @@ namespace PushSharp.Android
 	internal class GcmMessageTransportAsync
 	{
 		public event Action<string> UpdateGoogleClientAuthToken;
-		public event Action<C2dmMessageTransportResponse> MessageResponseReceived;
-		public event Action<AndroidNotification, Exception> UnhandledException;
+		public event Action<GcmMessageTransportResponse> MessageResponseReceived;
+		public event Action<GcmNotification, Exception> UnhandledException;
 
 		static GcmMessageTransportAsync()
 		{
@@ -24,11 +24,11 @@ namespace PushSharp.Android
 
 		private const string GCM_SEND_URL = "https://android.googleapis.com/gcm/send";
 
-		public void Send(AndroidNotification msg, string googleLoginAuthorizationToken, string senderID, string applicationID)
+		public void Send(GcmNotification msg, string senderAuthToken, string senderID, string applicationID)
 		{
 			try
 			{
-				send(msg, googleLoginAuthorizationToken, senderID, applicationID);
+				send(msg, senderAuthToken, senderID, applicationID);
 			}
 			catch (Exception ex)
 			{
@@ -39,12 +39,12 @@ namespace PushSharp.Android
 			}
 		}
 
-		void send(AndroidNotification msg, string applicationApiKey, string senderID, string applicationID)
+		void send(GcmNotification msg, string senderAuthToken, string senderID, string applicationID)
 		{
-			C2dmMessageTransportResponse result = new C2dmMessageTransportResponse();
+			var result = new GcmMessageTransportResponse();
 			result.Message = msg;
-
-			var postData = msg.GetPostData();
+						
+			var postData = msg.GetJson();
 
 			var webReq = (HttpWebRequest)WebRequest.Create(GCM_SEND_URL);
 			//webReq.ContentLength = postData.Length;
@@ -52,14 +52,14 @@ namespace PushSharp.Android
 			webReq.ContentType = "application/json";
 			//webReq.ContentType = "application/x-www-form-urlencoded;charset=UTF-8   can be used for plaintext bodies
 			webReq.UserAgent = "PushSharp (version: 1.0)";
-			webReq.Headers.Add("Authorization: key=" + applicationApiKey);
+			webReq.Headers.Add("Authorization: key=" + senderAuthToken);
 
 			webReq.BeginGetRequestStream(new AsyncCallback(requestStreamCallback), new GcmAsyncParameters()
 			{
 				WebRequest = webReq,
 				WebResponse = null,
 				Message = msg,
-				ApplicationApiKey = applicationApiKey,
+				SenderAuthToken = senderAuthToken,
 				SenderId = senderID,
 				ApplicationId = applicationID
 			});
@@ -67,7 +67,7 @@ namespace PushSharp.Android
 
 		void requestStreamCallback(IAsyncResult result)
 		{
-			var msg = new AndroidNotification();
+			var msg = new GcmNotification();
 
 			try
 			{
@@ -80,7 +80,7 @@ namespace PushSharp.Android
 
 					using (var webReqStream = new StreamWriter(wrStream))
 					{
-						var data = asyncParam.Message.GetPostData();
+						var data = asyncParam.Message.GetJson();
 						webReqStream.Write(data);
 						webReqStream.Close();
 					}
@@ -107,7 +107,7 @@ namespace PushSharp.Android
 
 		void responseCallback(IAsyncResult result)
 		{
-			var msg = new AndroidNotification();
+			var msg = new GcmNotification();
 
 			try
 			{
@@ -136,12 +136,10 @@ namespace PushSharp.Android
 
 		void processResponseOk(GcmAsyncParameters asyncParam)
 		{
-			var result = new C2dmMessageTransportResponse()
+			var result = new GcmMessageTransportResponse()
 			{
-				ResponseCode = MessageTransportResponseCode.Ok,
-				ResponseStatus = MessageTransportResponseStatus.Ok,
-				Message = asyncParam.Message,
-				MessageId = string.Empty
+				ResponseCode = GcmMessageTransportResponseCode.Ok,
+				Message = asyncParam.Message
 			};
 
 			var updateClientAuth = asyncParam.WebResponse.GetResponseHeader("Update-Client-Auth");
@@ -156,6 +154,11 @@ namespace PushSharp.Android
 			catch { }
 
 
+			result.NumberOfCanonicalIds = json.Value<long>("canonical_ids");
+			result.NumberOfFailures = json.Value<long>("failure");
+			result.NumberOfSuccesses = json.Value<long>("success");
+
+		
 			var jsonResults = json["results"] as JArray;
 
 			if (jsonResults == null)
@@ -164,75 +167,71 @@ namespace PushSharp.Android
 			foreach (var r in json["results"])
 			{
 				var msgResult = new GcmMessageResult();
-
+								
 				msgResult.MessageId = r.Value<string>("message_id");
 				msgResult.CanonicalRegistrationId = r.Value<string>("registration_id");
-				msgResult.Error = r.Value<string>("error");
-				
 
+				if (!string.IsNullOrEmpty(msgResult.CanonicalRegistrationId))
+				{
+					msgResult.ResponseStatus = GcmMessageTransportResponseStatus.CanonicalRegistrationId;
+				}
+				else if (r["error"] != null)
+				{
+					var err = r.Value<string>("error") ?? "";
+
+					switch (err.ToLower().Trim())
+					{
+						case "missingregistration":
+							msgResult.ResponseStatus = GcmMessageTransportResponseStatus.MissingRegistrationId;
+							break;
+						case "unavailable":
+							msgResult.ResponseStatus = GcmMessageTransportResponseStatus.Unavailable;
+							break;
+						case "notregistered":
+							msgResult.ResponseStatus = GcmMessageTransportResponseStatus.NotRegistered;
+							break;
+						case "invalidregistration":
+							msgResult.ResponseStatus = GcmMessageTransportResponseStatus.InvalidRegistration;
+							break;
+						case "mismatchsenderid":
+							msgResult.ResponseStatus = GcmMessageTransportResponseStatus.MismatchSenderId;
+							break;
+						case "messagetoobig":
+							msgResult.ResponseStatus = GcmMessageTransportResponseStatus.MessageTooBig;
+							break;
+						default:
+							msgResult.ResponseStatus = GcmMessageTransportResponseStatus.Error;
+							break;
+					}
+				}
+
+				result.Results.Add(msgResult);
+								
 			}
-			
-
-			////Handle the type of error
-			//if (json.StartsWith("Error="))
-			//{
-			//    var wrErr = responseBody.Substring(responseBody.IndexOf("Error=") + 6);
-			//    switch (wrErr.ToLower().Trim())
-			//    {
-			//        case "quotaexceeded":
-			//            result.ResponseStatus = MessageTransportResponseStatus.QuotaExceeded;
-			//            break;
-			//        case "devicequotaexceeded":
-			//            result.ResponseStatus = MessageTransportResponseStatus.DeviceQuotaExceeded;
-			//            break;
-			//        case "invalidregistration":
-			//            result.ResponseStatus = MessageTransportResponseStatus.InvalidRegistration;
-			//            break;
-			//        case "notregistered":
-			//            result.ResponseStatus = MessageTransportResponseStatus.NotRegistered;
-			//            break;
-			//        case "messagetoobig":
-			//            result.ResponseStatus = MessageTransportResponseStatus.MessageTooBig;
-			//            break;
-			//        case "missingcollapsekey":
-			//            result.ResponseStatus = MessageTransportResponseStatus.MissingCollapseKey;
-			//            break;
-			//        default:
-			//            result.ResponseStatus = MessageTransportResponseStatus.Error;
-			//            break;
-			//    }
-
-			//    throw new MessageTransportException(wrErr, result);
-			//}
-			//else
-			//{
-			//    //Get the message ID
-			//    if (responseBody.StartsWith("id="))
-			//        result.MessageId = responseBody.Substring(3).Trim();
-			//}
 
 			asyncParam.WebResponse.Close();
 
-			if (MessageResponseReceived != null)
-				MessageResponseReceived(result);
+			var evtmrr = MessageResponseReceived;
+
+			if (evtmrr != null)
+				evtmrr(result);
 		}
 
 		void processResponseError(GcmAsyncParameters asyncParam)
 		{
-			var result = new C2dmMessageTransportResponse()
-			{
-				ResponseCode = MessageTransportResponseCode.Error,
-				ResponseStatus = MessageTransportResponseStatus.Error,
-				Message = asyncParam.Message,
-				MessageId = string.Empty
-			};
+			var result = new GcmMessageTransportResponse();
+			result.ResponseCode = GcmMessageTransportResponseCode.Error;
 
 			if (asyncParam.WebResponse.StatusCode == HttpStatusCode.Unauthorized)
 			{
 				//401 bad auth token
-				result.ResponseCode = MessageTransportResponseCode.InvalidAuthToken;
-				result.ResponseStatus = MessageTransportResponseStatus.Error;
-				throw new InvalidAuthenticationTokenTransportException(result);
+				result.ResponseCode = GcmMessageTransportResponseCode.InvalidAuthToken;
+				throw new GcmAuthenticationErrorTransportException(result);
+			}
+			else if (asyncParam.WebResponse.StatusCode == HttpStatusCode.BadRequest)
+			{
+				result.ResponseCode = GcmMessageTransportResponseCode.BadRequest;
+				throw new GcmBadRequestTransportException(result);
 			}
 			else if (asyncParam.WebResponse.StatusCode == HttpStatusCode.ServiceUnavailable)
 			{
@@ -256,21 +255,19 @@ namespace PushSharp.Android
 				}
 
 				//503 exponential backoff, get retry-after header
-				result.ResponseCode = MessageTransportResponseCode.ServiceUnavailable;
-				result.ResponseStatus = MessageTransportResponseStatus.Error;
-
-				throw new ServiceUnavailableTransportException(retryAfter, result);
+				result.ResponseCode = GcmMessageTransportResponseCode.ServiceUnavailable;
+			
+				throw new GcmServiceUnavailableTransportException(retryAfter, result);
 			}
 
 			asyncParam.WebResponse.Close();
 
-			if (MessageResponseReceived != null)
-				MessageResponseReceived(result);
+			throw new GcmMessageTransportException("Unknown Transport Error", result);
 		}
 
 		class GcmAsyncParameters
 		{
-			public AndroidNotification Message
+			public GcmNotification Message
 			{
 				get;
 				set;
@@ -288,7 +285,7 @@ namespace PushSharp.Android
 				set;
 			}
 
-			public string ApplicationApiKey
+			public string SenderAuthToken
 			{
 				get;
 				set;
@@ -314,6 +311,6 @@ namespace PushSharp.Android
 
 		public string CanonicalRegistrationId {	get; set; }
 
-		public string Error { get; set; }
+		public GcmMessageTransportResponseStatus ResponseStatus { get; set; }
 	}
 }

@@ -12,7 +12,7 @@ namespace PushSharp.Android
 	{
 		public AndroidNotification()
 		{
-			this.Platform = PlatformType.Android;
+			this.Platform = PlatformType.AndroidC2dm;
 
 			this.RegistrationId = string.Empty;
 			this.CollapseKey = string.Empty;

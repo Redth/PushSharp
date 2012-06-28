@@ -51,7 +51,7 @@ namespace PushSharp.Android
 			else if (response.ResponseStatus == MessageTransportResponseStatus.InvalidRegistration)
 			{
 				//Device subscription is no good!
-				this.Events.RaiseDeviceSubscriptionExpired(PlatformType.Android, response.Message.RegistrationId);
+				this.Events.RaiseDeviceSubscriptionExpired(PlatformType.AndroidC2dm, response.Message.RegistrationId);
 			}
 			else
 			{

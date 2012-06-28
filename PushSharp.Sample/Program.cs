@@ -36,35 +36,42 @@ namespace PushSharp.Sample
 			push.StartApplePushService(new ApplePushChannelSettings(false, appleCert, "pushsharp"));
 			
 			//Configure and start Android C2DM
-			push.StartAndroidPushService(new Android.AndroidPushChannelSettings("pushsharp@altusapps.com", "pushitg00d", "com.pushsharp.test"));
-			
+			//push.StartAndroidPushService(new Android.AndroidPushChannelSettings("pushsharp@altusapps.com", "pushitg00d", "com.pushsharp.test"));
+			push.StartGoogleCloudMessagingPushService(new GcmPushChannelSettings("pushsharp@altusapps.com", "AIzaSyB3_87o2GES59rAR7H5KytGTWbH7oD9LWE", "com.pushsharp.test"));
+
 			//Configure and start Windows Phone Notifications
-			push.StartWindowsPhonePushService(new WindowsPhone.WindowsPhonePushChannelSettings());
+			//push.StartWindowsPhonePushService(new WindowsPhone.WindowsPhonePushChannelSettings());
 			
 			//Fluent construction of a Windows Phone Toast notification
-			push.QueueNotification(NotificationFactory.WindowsPhone().Toast()
-				.ForEndpointUri(new Uri("http://sn1.notify.live.net/throttledthirdparty/01.00/AAFCoNoCXidwRpn5NOxvwSxPAgAAAAADAgAAAAQUZm52OkJCMjg1QTg1QkZDMkUxREQ"))
-				.ForOSVersion(WindowsPhone.WindowsPhoneDeviceOSVersion.MangoSevenPointFive)
-				.WithBatchingInterval(WindowsPhone.BatchingInterval.Immediate)
-				.WithNavigatePath("/MainPage.xaml")
-				.WithText1("PushSharp")
-				.WithText2("This is a Toast"));
+			//push.QueueNotification(NotificationFactory.WindowsPhone().Toast()
+			//    .ForEndpointUri(new Uri("http://sn1.notify.live.net/throttledthirdparty/01.00/AAFCoNoCXidwRpn5NOxvwSxPAgAAAAADAgAAAAQUZm52OkJCMjg1QTg1QkZDMkUxREQ"))
+			//    .ForOSVersion(WindowsPhone.WindowsPhoneDeviceOSVersion.MangoSevenPointFive)
+			//    .WithBatchingInterval(WindowsPhone.BatchingInterval.Immediate)
+			//    .WithNavigatePath("/MainPage.xaml")
+			//    .WithText1("PushSharp")
+			//    .WithText2("This is a Toast"));
 
 			//Fluent construction of an iOS notification
 			//IMPORTANT: For iOS you MUST MUST MUST use your own DeviceToken here that gets generated within your iOS app itself when the Application Delegate
 			//  for registered for remote notifications is called, and the device token is passed back to you
-			push.QueueNotification(NotificationFactory.Apple()
-				.ForDeviceToken("1071737321559691b28fffa1aa4c8259d970fe0fc496794ad0486552fc9ec3db")
-				.WithAlert("1 Alert Text!")
-				.WithSound("default")
-				.WithBadge(7));
+			//push.QueueNotification(NotificationFactory.Apple()
+			//    .ForDeviceToken("1071737321559691b28fffa1aa4c8259d970fe0fc496794ad0486552fc9ec3db")
+			//    .WithAlert("1 Alert Text!")
+			//    .WithSound("default")
+			//    .WithBadge(7));
 
 			//Fluent construction of an Android C2DM Notification
-			push.QueueNotification(NotificationFactory.Android()
+			//push.QueueNotification(NotificationFactory.Android()
+			//    .ForDeviceRegistrationId("APA91bFwgGgA2uXHvgT0ij8vJbY7Kgf-qQfzsTj-QnLXNGHghysJx-BUj4OGu8xe1w0T2-H2rgMi_0NzIBo5gVs2jfiY1h_L3ohux2cSwZjJDHthNRZ38C2Ej1TcuUfZWa4ZHoVbNigR_ezXjuzJ8kD4dH_dCx2X3w")
+			//    .WithCollapseKey("NONE")
+			//    .WithData("alert", "Alert Text!")
+			//    .WithData("badge", "7"));
+
+			push.QueueNotification(NotificationFactory.AndroidGcm()
 				.ForDeviceRegistrationId("APA91bFwgGgA2uXHvgT0ij8vJbY7Kgf-qQfzsTj-QnLXNGHghysJx-BUj4OGu8xe1w0T2-H2rgMi_0NzIBo5gVs2jfiY1h_L3ohux2cSwZjJDHthNRZ38C2Ej1TcuUfZWa4ZHoVbNigR_ezXjuzJ8kD4dH_dCx2X3w")
-				.WithCollapseKey("NONE")
-				.WithData("alert", "Alert Text!")
-				.WithData("badge", "7"));
+				.WithCollapseKey("NONE"));
+				//.WithData("alert", "Alert Text!")
+				//.WithData("badge", "7"));
 
 			Console.WriteLine("Waiting for Queue to Finish...");
 

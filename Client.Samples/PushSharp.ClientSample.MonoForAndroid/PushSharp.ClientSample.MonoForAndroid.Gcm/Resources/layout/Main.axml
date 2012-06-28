@@ -1,0 +1,33 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:orientation="vertical"
+    android:layout_width="fill_parent"
+    android:layout_height="fill_parent">
+    <TextView
+        android:id="@+id/textRegistrationStatus"
+        android:layout_width="fill_parent"
+        android:layout_height="wrap_content"
+        android:text="Registered: No"
+        android:paddingBottom="5dp" />
+    <TextView
+        android:id="@+id/textRegistrationId"
+        android:layout_width="fill_parent"
+        android:layout_height="wrap_content"
+        android:text="Id: N/A"
+        android:paddingBottom="5dp" />
+    <TextView
+        android:id="@+id/textLastMessage"
+        android:layout_width="fill_parent"
+        android:layout_height="wrap_content"
+        android:text="Last Msg: N/A" />
+    <Button
+        android:id="@+id/buttonRegister"
+        android:layout_width="fill_parent"
+        android:layout_height="wrap_content"
+        android:text="Register..." />
+    <TextView
+        android:id="@+id/textHints"
+        android:layout_width="fill_parent"
+        android:layout_height="wrap_content"
+        android:text="NOTE: The values above are only updated AFTER you tap a notification!" />
+</LinearLayout>
