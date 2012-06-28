@@ -178,9 +178,12 @@ namespace PushSharp.Common
 
 		double GetAverageQueueWait()
 		{
+			if (measurements == null)
+				return 0;
+
 			lock (measurements)
 			{
-				if (measurements != null && measurements.Count > 0)
+				if (measurements.Count > 0)
 					return measurements.Average();
 				else
 					return 0;
