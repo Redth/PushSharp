@@ -37,7 +37,7 @@ namespace PushSharp.Sample
 			
 			//Configure and start Android C2DM
 			//push.StartAndroidPushService(new Android.AndroidPushChannelSettings("pushsharp@altusapps.com", "pushitg00d", "com.pushsharp.test"));
-			push.StartGoogleCloudMessagingPushService(new GcmPushChannelSettings("pushsharp@altusapps.com", "AIzaSyB3_87o2GES59rAR7H5KytGTWbH7oD9LWE", "com.pushsharp.test"));
+			push.StartGoogleCloudMessagingPushService(new GcmPushChannelSettings("jon@altusapps.com", "AIzaSyCDk23SJv556HD3x1rlYVnzUj7gp5ECIvU", "com.pushsharp.test"));
 
 			//Configure and start Windows Phone Notifications
 			//push.StartWindowsPhonePushService(new WindowsPhone.WindowsPhonePushChannelSettings());
@@ -68,8 +68,8 @@ namespace PushSharp.Sample
 			//    .WithData("badge", "7"));
 
 			push.QueueNotification(NotificationFactory.AndroidGcm()
-				.ForDeviceRegistrationId("APA91bFwgGgA2uXHvgT0ij8vJbY7Kgf-qQfzsTj-QnLXNGHghysJx-BUj4OGu8xe1w0T2-H2rgMi_0NzIBo5gVs2jfiY1h_L3ohux2cSwZjJDHthNRZ38C2Ej1TcuUfZWa4ZHoVbNigR_ezXjuzJ8kD4dH_dCx2X3w")
-				.WithCollapseKey("NONE"));
+				.ForDeviceRegistrationId("APA91bH2ihLxd5qyxxeoEy_q_WKZYkiq_OTczobny00yIDDYRC47UEjMXv_59hruCisAzA2ta6K_GatLCFx5nZw7mkt9AJ6KMDRpGUHqlgI3qOg3Xi8_6M3zxd3splcKAlx7yEzyeqX3ukXmEb0GKb5qk5DRXxrnMg")
+				.WithCollapseKey("NONE").WithJson("{\"keytest\":\"keyvalue\"}"));
 				//.WithData("alert", "Alert Text!")
 				//.WithData("badge", "7"));
 
@@ -89,7 +89,7 @@ namespace PushSharp.Sample
 
 		static void Events_OnNotificationSendFailure(Common.Notification notification, Exception notificationFailureException)
 		{
-			Console.WriteLine("Failure: " + notification.Platform.ToString() + " -> " + notification.ToString());
+			Console.WriteLine("Failure: " + notification.Platform.ToString() + " -> " + notificationFailureException.Message + " -> " + notification.ToString());
 		}
 
 		static void Events_OnChannelException(Exception exception)

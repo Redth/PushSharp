@@ -61,4 +61,10 @@
     <AndroidResource Include="Resources\drawable\Icon.png" />
   </ItemGroup>
   <Import Project="$(MSBuildExtensionsPath)\Novell\Novell.MonoDroid.CSharp.targets" />
+  <ItemGroup>
+    <ProjectReference Include="..\..\..\PushSharp.Client\PushSharp.Client.MonoForAndroid.C2dm\PushSharp.Client.MonoForAndroid.C2dm.csproj">
+      <Project>{887745C1-B5C2-4BA7-9473-0617C1E5378B}</Project>
+      <Name>PushSharp.Client.MonoForAndroid.C2dm</Name>
+    </ProjectReference>
+  </ItemGroup>
 </Project>

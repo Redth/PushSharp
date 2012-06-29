@@ -16,8 +16,8 @@ namespace PushSharp.ClientSample.MonoForAndroid
 	{
 		//NOTE: You need to put your own email here!
 		// Whichever one you registered as the 'Role' email with google
-		public const string senderIdEmail = "pushsharp@altusapps.com";
 
+		const string TAG = "PushSharp-GCM";
 
 		TextView textRegistrationStatus = null;
 		TextView textRegistrationId = null;
@@ -37,19 +37,28 @@ namespace PushSharp.ClientSample.MonoForAndroid
 			textLastMsg = FindViewById<TextView>(Resource.Id.textLastMessage);
 			buttonRegister = FindViewById<Button>(Resource.Id.buttonRegister);
 
-			Log.Info("C2DM-Sharp-UI", "Hello World");
+			Log.Info(TAG, "Hello World");
+
+			//Check to ensure everything's setup right
+			GCMSharp.Client.GCMRegistrar.CheckDevice(this);
+			GCMSharp.Client.GCMRegistrar.CheckManifest(this);
+								
 
 			this.buttonRegister.Click += delegate
 			{
 				if (!registered)
 				{
-					Log.Info("C2DM-Sharp", "Registering...");
-					PushSharp.Client.MonoForAndroid.C2dmClient.Register(this, senderIdEmail);
+					Log.Info(TAG, "Registering...");
+
+					//Call to register
+					GCMSharp.Client.GCMRegistrar.Register(this, SampleBroadcastReceiver.SENDER_ID);
 				}
 				else
 				{
-					Log.Info("C2DM-Sharp", "Unregistering...");
-					PushSharp.Client.MonoForAndroid.C2dmClient.Unregister(this);
+					Log.Info(TAG, "Unregistering...");
+
+					//Call to unregister
+					GCMSharp.Client.GCMRegistrar.UnRegister(this);
 				}
 
 				RunOnUiThread(() =>
@@ -71,8 +80,8 @@ namespace PushSharp.ClientSample.MonoForAndroid
 		void updateView()
 		{
 			//Get the stored latest registration id
-			var registrationId = PushSharp.Client.MonoForAndroid.C2dmClient.GetRegistrationId(this);
-
+			var registrationId = GCMSharp.Client.GCMRegistrar.GetRegistrationId(this);
+					
 			//If it's empty, we need to register
 			if (string.IsNullOrEmpty(registrationId))
 			{
@@ -81,7 +90,7 @@ namespace PushSharp.ClientSample.MonoForAndroid
 				this.textRegistrationId.Text = "Id: N/A";
 				this.buttonRegister.Text = "Register...";
 
-				Log.Info("C2DM-Sharp", "Not registered...");
+				Log.Info(TAG, "Not registered...");
 			}
 			else
 			{
@@ -90,10 +99,10 @@ namespace PushSharp.ClientSample.MonoForAndroid
 				this.textRegistrationId.Text = "Id: " + registrationId;
 				this.buttonRegister.Text = "Unregister...";
 
-				Log.Info("C2DM-Sharp", "Already Registered: " + registrationId);
+				Log.Info(TAG, "Already Registered: " + registrationId);
 			}
 
-			var prefs = GetSharedPreferences("c2dm.client.sample", FileCreationMode.Private);
+			var prefs = GetSharedPreferences(this.PackageName, FileCreationMode.Private);
 			this.textLastMsg.Text = "Last Msg: " + prefs.GetString("last_msg", "N/A");
 
 			//Enable the button as it was normally disabled

@@ -11,70 +11,86 @@ using Android.Runtime;
 using Android.Views;
 using Android.Widget;
 using Android.Util;
-using PushSharp.Client.MonoForAndroid;
+using GCMSharp.Client;
 
 namespace PushSharp.ClientSample.MonoForAndroid
 {
 	//You must subclass this!
-	[BroadcastReceiver(Permission = C2dmClient.GOOGLE_PERMISSION_C2DM_SEND)]
-	[IntentFilter(new string[] { C2dmClient.GOOGLE_ACTION_C2DM_INTENT_RECEIVE },
+	[BroadcastReceiver(Permission=GCMConstants.PERMISSION_GCM_INTENTS)]
+	[IntentFilter(new string[] { GCMConstants.INTENT_FROM_GCM_MESSAGE },
 		Categories = new string[] { "com.pushsharp.test" })]
-	[IntentFilter(new string[] { C2dmClient.GOOGLE_ACTION_C2DM_INTENT_REGISTRATION },
+	[IntentFilter(new string[] { GCMConstants.INTENT_FROM_GCM_REGISTRATION_CALLBACK },
+		Categories = new string[] { "com.pushsharp.test" })]
+	[IntentFilter(new string[] { GCMConstants.INTENT_FROM_GCM_LIBRARY_RETRY },
 		Categories = new string[] { "com.pushsharp.test" })]
 	//[C2dmReceiver]
 	//[C2dmReceiveIntentFilter("c2dmsharp.client.sample")]
 	//[C2dmRegistrationIntentFilter("c2dmsharp.client.sample")]
-	public class SampleBroadcastReceiver : C2dmBroadcastReceiver<PushService>
+	public class SampleBroadcastReceiver : GCMBroadcastReceiver<GCMIntentService>
 	{
+		//IMPORTANT: Change this to your own Sender ID!
+		public const string SENDER_ID = "jon@altusapps.com";
+		public const string TAG = "PushSharp-GCM";
 	}
 
 	[Service] //Must use the service tag
-	public class PushService : C2dmService
+	public class GCMIntentService : GCMBaseIntentService
 	{
-		public override void OnRegistrationError(Exception ex)
-		{
-			Log.Error("C2DM-Sharp-Service", "Registration Failed: " + ex.Message);
+		public GCMIntentService() : base(SampleBroadcastReceiver.SENDER_ID) {}
 
-			//Create notification or do something useful
-		}
-
-		public override void OnRegistered(string registrationId)
+		protected override void OnRegistered (Context context, string registrationId)
 		{
-			Log.Info("C2DM-Sharp-Service", "Registered: " + registrationId);
+			Log.Verbose(SampleBroadcastReceiver.TAG, "GCM Registered: " + registrationId);
 			//Send back to the server
 			//	var wc = new WebClient();
 			//	var result = wc.UploadString("http://your.server.com/api/register/", "POST", 
 			//		"{ 'registrationId' : '" + registrationId + "' }");
 
-			createNotification("C2DM# Registered...", "The device has been Registered, Tap to View!");
+			createNotification("PushSharp-GCM Registered...", "The device has been Registered, Tap to View!");
 		}
 
-		public override void OnUnregistered(string lastRegistrationId)
+		protected override void OnUnRegistered (Context context, string registrationId)
 		{
-			Log.Info("C2DM-Sharp-Service", "Unregistered: " + lastRegistrationId);
+			Log.Verbose(SampleBroadcastReceiver.TAG, "GCM Unregistered: " + registrationId);
 			//Remove from the web service
 			//	var wc = new WebClient();
 			//	var result = wc.UploadString("http://your.server.com/api/unregister/", "POST",
 			//		"{ 'registrationId' : '" + lastRegistrationId + "' }");
 
-			createNotification("C2DM# Unregistered...", "The device has been unregistered, Tap to View!");
+			createNotification("PushSharp-GCM Unregistered...", "The device has been unregistered, Tap to View!");
 		}
 
-		public override void OnMessageReceived(Bundle extras)
+		protected override void OnMessage (Context context, Intent intent)
 		{
-			Log.Info("C2DM-Sharp-Service", "Message Received!");
+			Log.Info(SampleBroadcastReceiver.TAG, "GCM Message Received!");
 
 			var msg = new StringBuilder();
-			foreach (var key in extras.KeySet())
-				msg.AppendLine(key + "=" + extras.Get(key).ToString());
+
+			if (intent != null && intent.Extras != null)
+			{
+				foreach (var key in intent.Extras.KeySet())
+					msg.AppendLine(key + "=" + intent.Extras.Get(key).ToString());
+			}
 
 			//Store the message
-			var prefs = GetSharedPreferences("c2dm.client.sample", FileCreationMode.Private);
+			var prefs = GetSharedPreferences(context.PackageName, FileCreationMode.Private);
 			var edit = prefs.Edit();
 			edit.PutString("last_msg", msg.ToString());
 			edit.Commit();
 
-			createNotification("C2DM# Msg Rec'd", "Message Received for C2DM-Sharp... Tap to View!");
+			createNotification("PushSharp-GCM Msg Rec'd", "Message Received for C2DM-Sharp... Tap to View!");
+		}
+
+		protected override bool OnRecoverableError (Context context, string errorId)
+		{
+			Log.Warn(SampleBroadcastReceiver.TAG, "Recoverable Error: " + errorId);
+
+			return base.OnRecoverableError (context, errorId);
+		}
+
+		protected override void OnError (Context context, string errorId)
+		{
+			Log.Error(SampleBroadcastReceiver.TAG, "GCM Error: " + errorId);
 		}
 
 		void createNotification(string title, string desc)

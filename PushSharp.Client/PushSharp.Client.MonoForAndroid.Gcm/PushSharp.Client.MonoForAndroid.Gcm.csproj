@@ -5,7 +5,7 @@
     <Platform Condition=" '$(Platform)' == '' ">AnyCPU</Platform>
     <ProductVersion>10.0.0</ProductVersion>
     <SchemaVersion>2.0</SchemaVersion>
-    <ProjectGuid>{887745C1-B5C2-4BA7-9473-0617C1E5378B}</ProjectGuid>
+    <ProjectGuid>{1466d096-69fa-4b75-bbb6-533ffaf5d4eb}</ProjectGuid>
     <ProjectTypeGuids>{EFBA0AD7-5A72-4C68-AF49-83D382785DCF};{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}</ProjectTypeGuids>
     <OutputType>Library</OutputType>
     <RootNamespace>PushSharp.Client.MonoForAndroid</RootNamespace>
@@ -42,9 +42,9 @@
   </ItemGroup>
   <Import Project="$(MSBuildExtensionsPath)\Novell\Novell.MonoDroid.CSharp.targets" />
   <ItemGroup>
-    <Compile Include="GcmBroadcastReceiver.cs" />
-    <Compile Include="GcmService.cs" />
-    <Compile Include="GcmExceptions.cs" />
-    <Compile Include="GcmClient.cs" />
+    <Compile Include="GCMBaseIntentService.cs" />
+    <Compile Include="GCMBroadcastReceiver.cs" />
+    <Compile Include="GCMConstants.cs" />
+    <Compile Include="GCMRegistrar.cs" />
   </ItemGroup>
 </Project>
