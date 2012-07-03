@@ -8,11 +8,12 @@ using PushSharp.Common;
 
 namespace PushSharp.Android
 {
+	[Obsolete("Google has Deprecated C2DM, and you should now use GCM Instead.")]
 	public class AndroidNotification : Notification
 	{
 		public AndroidNotification()
 		{
-			this.Platform = PlatformType.Android;
+			this.Platform = PlatformType.AndroidC2dm;
 
 			this.RegistrationId = string.Empty;
 			this.CollapseKey = string.Empty;

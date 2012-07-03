@@ -8,7 +8,8 @@ namespace PushSharp.Common
 	public enum PlatformType
 	{
 		Apple,
-		Android,
+		AndroidC2dm,
+		AndroidGcm,
 		WindowsPhone,
 		Blackberry,
         None

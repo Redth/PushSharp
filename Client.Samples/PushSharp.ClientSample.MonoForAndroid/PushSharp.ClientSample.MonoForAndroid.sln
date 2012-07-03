@@ -1,9 +1,17 @@
 ﻿
 Microsoft Visual Studio Solution File, Format Version 11.00
 # Visual Studio 2010
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "PushSharp.ClientSample.MonoForAndroid", "PushSharp.ClientSample.MonoForAndroid\PushSharp.ClientSample.MonoForAndroid.csproj", "{3F402F02-F634-4D1B-A6B0-0D70D79CF992}"
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "GCM", "GCM", "{F78A1A03-5FE1-4C6A-BB08-ED61494A490F}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "PushSharp.Client.MonoForAndroid", "..\..\PushSharp.Client\PushSharp.Client.MonoForAndroid\PushSharp.Client.MonoForAndroid.csproj", "{887745C1-B5C2-4BA7-9473-0617C1E5378B}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "PushSharp.ClientSample.MonoForAndroid.Gcm", "PushSharp.ClientSample.MonoForAndroid.Gcm\PushSharp.ClientSample.MonoForAndroid.Gcm.csproj", "{b3f5a628-e5fc-4e46-ad50-e5babc79dd3a}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "PushSharp.Client.MonoForAndroid.Gcm", "..\..\PushSharp.Client\PushSharp.Client.MonoForAndroid.Gcm\PushSharp.Client.MonoForAndroid.Gcm.csproj", "{1466d096-69fa-4b75-bbb6-533ffaf5d4eb}"
+EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "C2DM", "C2DM", "{C651BAEB-5BD8-4B51-A882-346FF765D529}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "PushSharp.ClientSample.MonoForAndroid.C2dm", "PushSharp.ClientSample.MonoForAndroid.C2dm\PushSharp.ClientSample.MonoForAndroid.C2dm.csproj", "{3F402F02-F634-4D1B-A6B0-0D70D79CF992}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "PushSharp.Client.MonoForAndroid.C2dm", "..\..\PushSharp.Client\PushSharp.Client.MonoForAndroid.C2dm\PushSharp.Client.MonoForAndroid.C2dm.csproj", "{887745C1-B5C2-4BA7-9473-0617C1E5378B}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -11,6 +19,10 @@ Global
 		Release|Any CPU = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(ProjectConfigurationPlatforms) = postSolution
+		{1466d096-69fa-4b75-bbb6-533ffaf5d4eb}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{1466d096-69fa-4b75-bbb6-533ffaf5d4eb}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{1466d096-69fa-4b75-bbb6-533ffaf5d4eb}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{1466d096-69fa-4b75-bbb6-533ffaf5d4eb}.Release|Any CPU.Build.0 = Release|Any CPU
 		{3F402F02-F634-4D1B-A6B0-0D70D79CF992}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
 		{3F402F02-F634-4D1B-A6B0-0D70D79CF992}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{3F402F02-F634-4D1B-A6B0-0D70D79CF992}.Release|Any CPU.ActiveCfg = Release|Any CPU
@@ -19,8 +31,18 @@ Global
 		{887745C1-B5C2-4BA7-9473-0617C1E5378B}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{887745C1-B5C2-4BA7-9473-0617C1E5378B}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{887745C1-B5C2-4BA7-9473-0617C1E5378B}.Release|Any CPU.Build.0 = Release|Any CPU
+		{b3f5a628-e5fc-4e46-ad50-e5babc79dd3a}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{b3f5a628-e5fc-4e46-ad50-e5babc79dd3a}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{b3f5a628-e5fc-4e46-ad50-e5babc79dd3a}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{b3f5a628-e5fc-4e46-ad50-e5babc79dd3a}.Release|Any CPU.Build.0 = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(NestedProjects) = preSolution
+		{b3f5a628-e5fc-4e46-ad50-e5babc79dd3a} = {F78A1A03-5FE1-4C6A-BB08-ED61494A490F}
+		{1466d096-69fa-4b75-bbb6-533ffaf5d4eb} = {F78A1A03-5FE1-4C6A-BB08-ED61494A490F}
+		{3F402F02-F634-4D1B-A6B0-0D70D79CF992} = {C651BAEB-5BD8-4B51-A882-346FF765D529}
+		{887745C1-B5C2-4BA7-9473-0617C1E5378B} = {C651BAEB-5BD8-4B51-A882-346FF765D529}
 	EndGlobalSection
 	GlobalSection(MonoDevelopProperties) = preSolution
-		StartupItem = PushSharp.ClientSample.MonoForAndroid\PushSharp.ClientSample.MonoForAndroid.csproj
+		StartupItem = PushSharp.ClientSample.MonoForAndroid.Gcm\PushSharp.ClientSample.MonoForAndroid.Gcm.csproj
 	EndGlobalSection
 EndGlobal
