@@ -24,6 +24,7 @@ Documentation
 -------------
 Head over to the [Wiki](https://github.com/Redth/PushSharp/wiki) for some documentation, guides, etc.
  - [How to Configure & Send Apple Push Notifications using PushSharp](https://github.com/Redth/PushSharp/wiki/How-to-Configure-&-Send-Apple-Push-Notifications-using-PushSharp)
+ - [How to Configure & Send Android GCM Google Cloud Messaging Push Notifications using PushSharp](https://github.com/Redth/PushSharp/wiki/How-to-Configure-&-Send-GCM-Google-Cloud-Messaging-Push-Notifications-using-PushSharp)
 
 Some sample action!
 -------------------
