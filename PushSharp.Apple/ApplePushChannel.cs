@@ -246,19 +246,30 @@ namespace PushSharp.Apple
 					//See if anything is here to process
 					if (sentNotifications.Count > 0)
 					{
-						//Get the oldest sent message
-						var n = sentNotifications[0];
-
-						//If it was sent more than 3 seconds ago,
-						// we have to assume it was sent successfully!
-						if (n.SentAt < DateTime.UtcNow.AddMilliseconds(-1 * appleSettings.MillisecondsToWaitBeforeMessageDeclaredSuccess))
+						//Don't expire any notifications while we are in a connecting state
+						if (connected || CancelToken.IsCancellationRequested)
 						{
-							wasRemoved = true;
-							this.Events.RaiseNotificationSent(n.Notification);
-							sentNotifications.RemoveAt(0);
+							//Get the oldest sent message
+							var n = sentNotifications[0];
+
+							//If it was sent more than 3 seconds ago,
+							// we have to assume it was sent successfully!
+							if (n.SentAt < DateTime.UtcNow.AddMilliseconds(-1 * appleSettings.MillisecondsToWaitBeforeMessageDeclaredSuccess))
+							{
+								wasRemoved = true;
+								this.Events.RaiseNotificationSent(n.Notification);
+								sentNotifications.RemoveAt(0);
+							}
+							else
+								wasRemoved = false;
 						}
 						else
-							wasRemoved = false;
+						{
+							//In fact, if we weren't connected, bump up the sentat timestamp
+							// so that we wait awhile after reconnecting to expire this message
+							try { sentNotifications[0].SentAt = DateTime.UtcNow; }
+							catch { }
+						}
 					}
 				}
 
