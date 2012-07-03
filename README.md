@@ -29,7 +29,7 @@ Head over to the [Wiki](https://github.com/Redth/PushSharp/wiki) for some docume
 Some sample action!
 -------------------
 
-Using the library should be easy, and the platform fairly abstracted away... Here's some sample code:
+Using the library to send push notifications should be easy, and the platform fairly abstracted away... Here's some sample code:
 ```csharp
 //Create our service	
 PushService push = new PushService();
@@ -75,10 +75,49 @@ push.QueueNotification(NotificationFactory.Android()
 	.WithJson("{\"alert\":\"Alert Text!\",\"badge\":\"7\"}"));
 ```	
 	
-Yet to Come
------------
- - More thorough Testing!
- - Blackberry support
+
+**MonoTouch** and **Mono for Android** Client Application Integration
+---------------------------------------------------------------------
+Given that PushSharp is written in C#, you probably thought there was a good chance that it's being used somewhere with MonoTouch or Mono for Android... and you would be correct!  There are samples of how to setup the client app push notification end of things included in the PushSharp project source!  There's even a Windows Phone 7.5 project to show how to register for notifications!
+
+All client samples can be found in the **/Client.Samples/** folder.  
+
+PushSharp.ClientSample.**MonoForAndroid** 
+-----------------------------------------
+There are two projects for Mono For Android:
+
+1. PushSharp.ClientSample.C2dm
+2. PushSharp.ClientSample.Gcm
+
+C2DM is now deprecated by Google, and you can ignore it unless you are working with an application that already uses it.  Otherwise, focus on the *GCM* project.  
+
+The GCM project also references the ***/PushSharp.Client/PushSharp.Client.MonoForAndroid.Gcm*** project which is a client library (ported from the java gcm-client library).  It is a helper library for managing GCM registrations on the client side, within your Android app.  You don't necessarily need to understand the code in this library, but just know that this Client Sample project references it for its own use!  
+
+Unfortunately, integration of GCM with Mono for Android is a bit tricky.  You will need to make sure you have the right permissions setup in the ***AndroidManifest.xml*** file, inside your *<manifest>* node:
+
+```xml
+<permission android:name="com.pushsharp.test.permission.C2D_MESSAGE" android:protectionLevel="signature" />
+<uses-permission android:name="android.permission.GET_ACCOUNTS" />
+<uses-permission android:name="android.permission.INTERNET" />
+<uses-permission android:name="com.pushsharp.test.permission.C2D_MESSAGE" />
+<uses-permission android:name="com.google.android.c2dm.permission.RECEIVE" />
+<uses-permission android:name="android.permission.WAKE_LOCK" />
+```
+
+Make sure that you use your own app's package name where applicable:
+> eg: "**your.package.name**.permission.C2D_MESSAGE" instead of "***com.pushsharp.test***.permission.C2D_MESSAGE" from the example
+
+Next, take a look at the PushService.cs file in the sample project.  You can copy much of this class into your own App, but again be sure to substitute your own package name in where applicable (the BroadcastReceiver attributes need to be changed).  You will also need to change the SENDER_ID constant to your own (see the documentation for Configuring GCM with PushSharp in the wiki).  Finally, in this class, you will probably want to change what happens in some of the GCMIntentService methods.  In the OnRegistered, you would want to send the registration ID to your server, so that you can use it to send the device notifications.  You get the point.
+
+In future versions I'm hoping that some of the limitations of Mono for Android will be addressed to allow me to incorporate the client sample in a more packaged up, easy to use library.  Until then, this is what you get!  Follow the directions closely! 
+
+
+PushSharp.ClientSample.**MonoTouch**
+------------------------------------
+Registering for remote notifications in MonoTouch is fairly trivial.  The only real tricky part is figuring out how to get the deviceToken into a nice string that you can send to your server.  Check out *AppDelegate.cs* for details on how this is done in MonoTouch!
+
+
+	
  
 License
 -------
