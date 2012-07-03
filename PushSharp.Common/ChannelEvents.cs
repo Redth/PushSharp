@@ -48,6 +48,16 @@ namespace PushSharp.Common
 				evt(platform, deviceInfo);
 		}
 
+		public delegate void DeviceSubscriptionIdChanged(PlatformType platform, string oldDeviceInfo, string newDeviceInfo);
+		public event DeviceSubscriptionIdChanged OnDeviceSubscriptionIdChanged;
+
+		public void RaiseDeviceSubscriptionIdChanged(PlatformType platform, string oldDeviceInfo, string newDeviceInfo)
+		{
+			var evt = this.OnDeviceSubscriptionIdChanged;
+			if (evt != null)
+				evt(platform, oldDeviceInfo, newDeviceInfo);
+		}
+
 
 		public void RegisterProxyHandler(ChannelEvents proxy)
 		{
@@ -58,6 +68,8 @@ namespace PushSharp.Common
 			this.OnNotificationSent += new NotificationSentDelegate((notification) => proxy.RaiseNotificationSent(notification));
 
 			this.OnDeviceSubscriptionExpired += new DeviceSubscriptionExpired((platform, deviceInfo) => proxy.RaiseDeviceSubscriptionExpired(platform, deviceInfo));
+
+			this.OnDeviceSubscriptionIdChanged += new DeviceSubscriptionIdChanged((platform, oldDeviceInfo, newDeviceInfo) => proxy.RaiseDeviceSubscriptionIdChanged(platform, oldDeviceInfo, newDeviceInfo));
 		}
 
 		public void UnRegisterProxyHandler(ChannelEvents proxy)
@@ -69,6 +81,8 @@ namespace PushSharp.Common
 			this.OnNotificationSent -= new NotificationSentDelegate((notification) => proxy.RaiseNotificationSent(notification));
 
 			this.OnDeviceSubscriptionExpired -= new DeviceSubscriptionExpired((platform, deviceInfo) => proxy.RaiseDeviceSubscriptionExpired(platform, deviceInfo));
+
+			this.OnDeviceSubscriptionIdChanged -= new DeviceSubscriptionIdChanged((platform, oldDeviceInfo, newDeviceInfo) => proxy.RaiseDeviceSubscriptionIdChanged(platform, oldDeviceInfo, newDeviceInfo));
 		}
 	}
 }

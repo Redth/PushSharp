@@ -16,6 +16,7 @@ namespace PushSharp
 		Android.AndroidPushService androidService = null;
 		WindowsPhone.WindowsPhonePushService wpService = null;
 		Blackberry.BlackberryPushService bbService = null;
+		Android.GcmPushService gcmService = null;
 
 		public PushService()
 		{
@@ -39,16 +40,30 @@ namespace PushSharp
 				appleService.Stop(waitForQueueToFinish);
 		}
 
+		[Obsolete("Google has Deprecated C2DM, and you should now use GCM Instead.  See the StartGoogleCloudMessagingPushService(...) method!")]
 		public void StartAndroidPushService(Android.AndroidPushChannelSettings channelSettings, PushServiceSettings serviceSettings = null)
 		{
 			androidService = new Android.AndroidPushService(channelSettings, serviceSettings);
 			androidService.Events.RegisterProxyHandler(this.Events);
 		}
 
+		[Obsolete("Google has Deprecated C2DM, and you should now use GCM Instead.  See the StopGoogleCloudMessagingPushService() method!")]
 		public void StopAndroidPushService(bool waitForQueueToFinish = true)
 		{
 			if (androidService != null)
 				androidService.Stop(waitForQueueToFinish);
+		}
+
+		public void StartGoogleCloudMessagingPushService(Android.GcmPushChannelSettings channelSettings, PushServiceSettings serviceSettings = null)
+		{
+			gcmService = new Android.GcmPushService(channelSettings, serviceSettings);
+			gcmService.Events.RegisterProxyHandler(this.Events);
+		}
+
+		public void StopGoogleCloudMessagingPushService(bool waitForQueueToFinish = true)
+		{
+			if (gcmService != null)
+				gcmService.Stop(waitForQueueToFinish);
 		}
 
 		public void StartWindowsPhonePushService(WindowsPhone.WindowsPhonePushChannelSettings channelSettings, PushServiceSettings serviceSettings = null)
@@ -82,8 +97,11 @@ namespace PushSharp
 				case PlatformType.Apple:
 					appleService.QueueNotification(notification);
 					break;
-				case PlatformType.Android:
+				case PlatformType.AndroidC2dm:
 					androidService.QueueNotification(notification);
+					break;
+				case PlatformType.AndroidGcm:
+					gcmService.QueueNotification(notification);
 					break;
 				case PlatformType.WindowsPhone:
 					wpService.QueueNotification(notification);
@@ -103,6 +121,9 @@ namespace PushSharp
 
 			if (androidService != null && !androidService.IsStopping)
 				tasks.Add(Task.Factory.StartNew(() => androidService.Stop(waitForQueuesToFinish)));
+
+			if (gcmService != null && !gcmService.IsStopping)
+				tasks.Add(Task.Factory.StartNew(() => gcmService.Stop(waitForQueuesToFinish)));
 
 			if (wpService != null && !wpService.IsStopping)
 				tasks.Add(Task.Factory.StartNew(() => wpService.Stop(waitForQueuesToFinish)));

@@ -6,6 +6,7 @@ using PushSharp.Common;
 
 namespace PushSharp.Android
 {
+	[Obsolete("Google has Deprecated C2DM, and you should now use GCM Instead.")]
 	public class AndroidPushChannelSettings : PushChannelSettings
 	{
 		public AndroidPushChannelSettings(string senderID, string password, string applicationID)

@@ -251,7 +251,7 @@ namespace PushSharp.Apple
 
 						//If it was sent more than 3 seconds ago,
 						// we have to assume it was sent successfully!
-						if (n.SentAt < DateTime.UtcNow.AddSeconds(-3))
+						if (n.SentAt < DateTime.UtcNow.AddMilliseconds(-1 * appleSettings.MillisecondsToWaitBeforeMessageDeclaredSuccess))
 						{
 							wasRemoved = true;
 							this.Events.RaiseNotificationSent(n.Notification);

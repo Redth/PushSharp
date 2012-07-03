@@ -6,16 +6,16 @@ using PushSharp.Common;
 
 namespace PushSharp.Android
 {
-	public class AndroidPushService : PushServiceBase
+	public class GcmPushService : PushServiceBase
 	{
-		public AndroidPushService(PushChannelSettings channelSettings, PushServiceSettings serviceSettings = null)
+		public GcmPushService(PushChannelSettings channelSettings, PushServiceSettings serviceSettings = null)
 			: base(channelSettings, serviceSettings)
 		{
 		}
 
 		protected override PushChannelBase CreateChannel(PushChannelSettings channelSettings)
 		{
-			return new AndroidPushChannel(channelSettings as AndroidPushChannelSettings);
+			return new GcmPushChannel(channelSettings as GcmPushChannelSettings);
 		}
 	}
 }

@@ -32,6 +32,9 @@
     <WarningLevel>4</WarningLevel>
   </PropertyGroup>
   <ItemGroup>
+    <Reference Include="Newtonsoft.Json">
+      <HintPath>..\packages\Newtonsoft.Json.4.5.7\lib\net40\Newtonsoft.Json.dll</HintPath>
+    </Reference>
     <Reference Include="System" />
     <Reference Include="System.Core" />
     <Reference Include="System.Web" />
@@ -45,14 +48,22 @@
     <Compile Include="..\PushSharp.Common\AssemblyVersionInfo.cs">
       <Link>AssemblyVersionInfo.cs</Link>
     </Compile>
-    <Compile Include="AndroidFluentNotification.cs" />
-    <Compile Include="AndroidNotification.cs" />
-    <Compile Include="AndroidPushChannel.cs" />
-    <Compile Include="AndroidPushChannelSettings.cs" />
-    <Compile Include="AndroidPushService.cs" />
-    <Compile Include="C2dmMessageTransportAsync.cs" />
-    <Compile Include="C2dmMessageTransportResponse.cs" />
-    <Compile Include="Exceptions.cs" />
+    <Compile Include="C2dm\AndroidFluentNotification.cs" />
+    <Compile Include="C2dm\AndroidNotification.cs" />
+    <Compile Include="C2dm\AndroidPushChannel.cs" />
+    <Compile Include="C2dm\AndroidPushChannelSettings.cs" />
+    <Compile Include="C2dm\AndroidPushService.cs" />
+    <Compile Include="C2dm\C2dmMessageTransportAsync.cs" />
+    <Compile Include="C2dm\C2dmMessageTransportResponse.cs" />
+    <Compile Include="C2dm\C2dmExceptions.cs" />
+    <Compile Include="Gcm\GcmFluentNotification.cs" />
+    <Compile Include="Gcm\GcmPushChannel.cs" />
+    <Compile Include="Gcm\GcmPushChannelSettings.cs" />
+    <Compile Include="Gcm\GcmPushService.cs" />
+    <Compile Include="Gcm\GcmExceptions.cs" />
+    <Compile Include="Gcm\GcmMessageTransportAsync.cs" />
+    <Compile Include="Gcm\GcmMessageTransportResponse.cs" />
+    <Compile Include="Gcm\GcmNotification.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
   </ItemGroup>
   <ItemGroup>
@@ -60,6 +71,9 @@
       <Project>{836F225F-6CD9-48DE-910C-70F8A7CF54AA}</Project>
       <Name>PushSharp.Common</Name>
     </ProjectReference>
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="packages.config" />
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 

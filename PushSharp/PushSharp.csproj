@@ -49,9 +49,9 @@
     <Compile Include="Properties\AssemblyInfo.cs" />
   </ItemGroup>
   <ItemGroup>
-    <ProjectReference Include="..\PushSharp.Android\PushSharp.Android.csproj">
+    <ProjectReference Include="..\PushSharp.Android\PushSharp.Google.csproj">
       <Project>{71E27C37-FBBF-481B-934B-1F7DBDE3C5D6}</Project>
-      <Name>PushSharp.Android</Name>
+      <Name>PushSharp.Google</Name>
     </ProjectReference>
     <ProjectReference Include="..\PushSharp.Apple\PushSharp.Apple.csproj">
       <Project>{83C67156-893D-4AFF-9169-DB34771989CB}</Project>
