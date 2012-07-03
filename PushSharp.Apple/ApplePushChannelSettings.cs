@@ -33,6 +33,8 @@ namespace PushSharp.Apple
 
 			this.CertificateData = certificateData;
 			this.CertificateFilePassword = certificateFilePwd;
+
+			this.MillisecondsToWaitBeforeMessageDeclaredSuccess = 3000;
 		}
 
 		public string Host
@@ -72,6 +74,12 @@ namespace PushSharp.Apple
 		}
 
 		public bool SkipSsl
+		{
+			get;
+			set;
+		}
+
+		public int MillisecondsToWaitBeforeMessageDeclaredSuccess
 		{
 			get;
 			set;
