@@ -41,12 +41,14 @@ namespace PushSharp
 				appleService.Stop(waitForQueueToFinish);
 		}
 
+		[Obsolete("Google has Deprecated C2DM, and you should now use GCM Instead.  See the StartGoogleCloudMessagingPushService(...) method!")]
 		public void StartAndroidPushService(Android.AndroidPushChannelSettings channelSettings, PushServiceSettings serviceSettings = null)
 		{
 			androidService = new Android.AndroidPushService(channelSettings, serviceSettings);
 			androidService.Events.RegisterProxyHandler(this.Events);
 		}
 
+		[Obsolete("Google has Deprecated C2DM, and you should now use GCM Instead.  See the StopGoogleCloudMessagingPushService() method!")]
 		public void StopAndroidPushService(bool waitForQueueToFinish = true)
 		{
 			if (androidService != null)

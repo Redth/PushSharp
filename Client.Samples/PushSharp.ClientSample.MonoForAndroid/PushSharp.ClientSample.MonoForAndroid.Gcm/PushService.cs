@@ -29,7 +29,12 @@ namespace PushSharp.ClientSample.MonoForAndroid
 	public class SampleBroadcastReceiver : GCMBroadcastReceiver<GCMIntentService>
 	{
 		//IMPORTANT: Change this to your own Sender ID!
-		public const string SENDER_ID = "jon@altusapps.com";
+		//The SENDER_ID is your Google API Console App Project ID.
+		//  Be sure to get the right Project ID from your Google APIs Console.  It's not the named project ID that appears in the Overview,
+		//  but instead the numeric project id in the url: eg: https://code.google.com/apis/console/?pli=1#project:785671162406:overview
+		//  where 785671162406 is the project id, which is the SENDER_ID to use!
+		public const string SENDER_ID = "785671162406"; 
+
 		public const string TAG = "PushSharp-GCM";
 	}
 

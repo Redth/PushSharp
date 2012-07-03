@@ -19,6 +19,7 @@ namespace PushSharp.Sample
 
 			//Wire up the events
 			push.Events.OnDeviceSubscriptionExpired += new Common.ChannelEvents.DeviceSubscriptionExpired(Events_OnDeviceSubscriptionExpired);
+			push.Events.OnDeviceSubscriptionIdChanged += new Common.ChannelEvents.DeviceSubscriptionIdChanged(Events_OnDeviceSubscriptionIdChanged);
 			push.Events.OnChannelException += new Common.ChannelEvents.ChannelExceptionDelegate(Events_OnChannelException);
 			push.Events.OnNotificationSendFailure += new Common.ChannelEvents.NotificationSendFailureDelegate(Events_OnNotificationSendFailure);
 			push.Events.OnNotificationSent += new Common.ChannelEvents.NotificationSentDelegate(Events_OnNotificationSent);
@@ -35,44 +36,41 @@ namespace PushSharp.Sample
 			//  (so you would change the first arg in the ctor of ApplePushChannelSettings to 'true')
 			push.StartApplePushService(new ApplePushChannelSettings(false, appleCert, "pushsharp"));
 			
-			//Configure and start Android C2DM
-			//push.StartAndroidPushService(new Android.AndroidPushChannelSettings("pushsharp@altusapps.com", "pushitg00d", "com.pushsharp.test"));
-			push.StartGoogleCloudMessagingPushService(new GcmPushChannelSettings("jon@altusapps.com", "AIzaSyCDk23SJv556HD3x1rlYVnzUj7gp5ECIvU", "com.pushsharp.test"));
+			//Configure and start Android GCM
+			//IMPORTANT: The SENDER_ID is your Google API Console App Project ID.
+			//  Be sure to get the right Project ID from your Google APIs Console.  It's not the named project ID that appears in the Overview,
+			//  but instead the numeric project id in the url: eg: https://code.google.com/apis/console/?pli=1#project:785671162406:overview
+			//  where 785671162406 is the project id, which is the SENDER_ID to use!
+			push.StartGoogleCloudMessagingPushService(new GcmPushChannelSettings("785671162406", "AIzaSyC2PZNXQDVaUpZGmtsF_Vp8tHtIABVjazI", "com.pushsharp.test"));
 
 			//Configure and start Windows Phone Notifications
-			//push.StartWindowsPhonePushService(new WindowsPhone.WindowsPhonePushChannelSettings());
-			
+			push.StartWindowsPhonePushService(new WindowsPhone.WindowsPhonePushChannelSettings());
+
 			//Fluent construction of a Windows Phone Toast notification
-			//push.QueueNotification(NotificationFactory.WindowsPhone().Toast()
-			//    .ForEndpointUri(new Uri("http://sn1.notify.live.net/throttledthirdparty/01.00/AAFCoNoCXidwRpn5NOxvwSxPAgAAAAADAgAAAAQUZm52OkJCMjg1QTg1QkZDMkUxREQ"))
-			//    .ForOSVersion(WindowsPhone.WindowsPhoneDeviceOSVersion.MangoSevenPointFive)
-			//    .WithBatchingInterval(WindowsPhone.BatchingInterval.Immediate)
-			//    .WithNavigatePath("/MainPage.xaml")
-			//    .WithText1("PushSharp")
-			//    .WithText2("This is a Toast"));
+			push.QueueNotification(NotificationFactory.WindowsPhone().Toast()
+				.ForEndpointUri(new Uri("http://sn1.notify.live.net/throttledthirdparty/01.00/AAFCoNoCXidwRpn5NOxvwSxPAgAAAAADAgAAAAQUZm52OkJCMjg1QTg1QkZDMkUxREQ"))
+				.ForOSVersion(WindowsPhone.WindowsPhoneDeviceOSVersion.MangoSevenPointFive)
+				.WithBatchingInterval(WindowsPhone.BatchingInterval.Immediate)
+				.WithNavigatePath("/MainPage.xaml")
+				.WithText1("PushSharp")
+				.WithText2("This is a Toast"));
 
 			//Fluent construction of an iOS notification
 			//IMPORTANT: For iOS you MUST MUST MUST use your own DeviceToken here that gets generated within your iOS app itself when the Application Delegate
 			//  for registered for remote notifications is called, and the device token is passed back to you
-			//push.QueueNotification(NotificationFactory.Apple()
-			//    .ForDeviceToken("1071737321559691b28fffa1aa4c8259d970fe0fc496794ad0486552fc9ec3db")
-			//    .WithAlert("1 Alert Text!")
-			//    .WithSound("default")
-			//    .WithBadge(7));
+			push.QueueNotification(NotificationFactory.Apple()
+				.ForDeviceToken("1071737321559691b28fffa1aa4c8259d970fe0fc496794ad0486552fc9ec3db")
+				.WithAlert("1 Alert Text!")
+				.WithSound("default")
+				.WithBadge(7));
 
-			//Fluent construction of an Android C2DM Notification
-			//push.QueueNotification(NotificationFactory.Android()
-			//    .ForDeviceRegistrationId("APA91bFwgGgA2uXHvgT0ij8vJbY7Kgf-qQfzsTj-QnLXNGHghysJx-BUj4OGu8xe1w0T2-H2rgMi_0NzIBo5gVs2jfiY1h_L3ohux2cSwZjJDHthNRZ38C2Ej1TcuUfZWa4ZHoVbNigR_ezXjuzJ8kD4dH_dCx2X3w")
-			//    .WithCollapseKey("NONE")
-			//    .WithData("alert", "Alert Text!")
-			//    .WithData("badge", "7"));
-
+			//Fluent construction of an Android GCM Notification
 			push.QueueNotification(NotificationFactory.AndroidGcm()
-				.ForDeviceRegistrationId("APA91bH2ihLxd5qyxxeoEy_q_WKZYkiq_OTczobny00yIDDYRC47UEjMXv_59hruCisAzA2ta6K_GatLCFx5nZw7mkt9AJ6KMDRpGUHqlgI3qOg3Xi8_6M3zxd3splcKAlx7yEzyeqX3ukXmEb0GKb5qk5DRXxrnMg")
-				.WithCollapseKey("NONE").WithJson("{\"keytest\":\"keyvalue\"}"));
-				//.WithData("alert", "Alert Text!")
-				//.WithData("badge", "7"));
+				.ForDeviceRegistrationId("APA91bG7J-cZjkURrqi58cEd5ain6hzi4i06T0zg9eM2kQAprV-fslFiq60hnBUVlnJPlPV-4K7X39aHIe55of8fJugEuYMyAZSUbmDyima5ZTC7hn4euQ0Yflj2wMeTxnyMOZPuwTLuYNiJ6EREeI9qJuJZH9Zu9g")
+				.WithCollapseKey("NONE")
+				.WithJson("{\"alert\":\"Alert Text!\",\"badge\":\"7\",\"obj\":{\"field\":\"1\"}}"));
 
+				
 			Console.WriteLine("Waiting for Queue to Finish...");
 
 			//Stop and wait for the queues to drains
@@ -80,6 +78,12 @@ namespace PushSharp.Sample
 
 			Console.WriteLine("Queue Finished, press return to exit...");
 			Console.ReadLine();			
+		}
+
+		static void Events_OnDeviceSubscriptionIdChanged(Common.PlatformType platform, string oldDeviceInfo, string newDeviceInfo)
+		{
+			//Currently this event will only ever happen for Android GCM
+			Console.WriteLine("Device Registration Changed:  Old-> " + oldDeviceInfo + "  New-> " + newDeviceInfo);
 		}
 
 		static void Events_OnNotificationSent(Common.Notification notification)
