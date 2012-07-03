@@ -68,7 +68,7 @@ namespace PushSharp.Sample
 			push.QueueNotification(NotificationFactory.AndroidGcm()
 				.ForDeviceRegistrationId("APA91bG7J-cZjkURrqi58cEd5ain6hzi4i06T0zg9eM2kQAprV-fslFiq60hnBUVlnJPlPV-4K7X39aHIe55of8fJugEuYMyAZSUbmDyima5ZTC7hn4euQ0Yflj2wMeTxnyMOZPuwTLuYNiJ6EREeI9qJuJZH9Zu9g")
 				.WithCollapseKey("NONE")
-				.WithJson("{\"alert\":\"Alert Text!\",\"badge\":\"7\",\"obj\":{\"field\":\"1\"}}"));
+				.WithJson("{\"alert\":\"Alert Text!\",\"badge\":\"7\"}"));
 
 				
 			Console.WriteLine("Waiting for Queue to Finish...");

@@ -3,8 +3,7 @@ PushSharp
 
 A server-side library for sending Push Notifications to iOS (iPhone/iPad APNS), Android (C2DM - soon Google Cloud Message), Windows Phone, and Blackberry devices!
 
-**UPDATE: June 29, 2012** Please check out the Google-GCM branch to see this work in progress.  It's almost complete!
-**UPDATE: June 27, 2012** Google just announced that Google Cloud Messaging will take the place of the now Deprecated C2DM.  I plan on integrating Google Cloud Messaging ASAP!
+**UPDATE: July 3, 2012** Google GCM branch has now been merged into the master branch, and we now support Google Cloud Messaging!
 
 ![PushSharp Diagram](https://github.com/Redth/PushSharp/raw/master/Resources/PushSharp-Diagram.png)
 
@@ -12,7 +11,7 @@ Features
 --------
  - Supports sending push notifications for many platforms:
    - Apple (APNS - iOS - iPhone, iPad)
-   - Android (C2DM - Phone/Tablets)
+   - Android (GCM/C2DM - Phone/Tablets)
    - Windows Phone 7 / 7.5 (and 8 presumably when it's released)
    - Blackberry (Not fully functional)
  - Fluent API for constructing Notifications for each platform
@@ -36,6 +35,7 @@ PushService push = new PushService();
 
 //Wire up the events
 push.Events.OnDeviceSubscriptionExpired += new Common.ChannelEvents.DeviceSubscriptionExpired(Events_OnDeviceSubscriptionExpired);
+push.Events.OnDeviceSubscriptionIdChanged += new Common.ChannelEvents.DeviceSubscriptionIdChanged(Events_OnDeviceSubscriptionIdChanged);
 push.Events.OnChannelException += new Common.ChannelEvents.ChannelExceptionDelegate(Events_OnChannelException);
 push.Events.OnNotificationSendFailure += new Common.ChannelEvents.NotificationSendFailureDelegate(Events_OnNotificationSendFailure);
 push.Events.OnNotificationSent += new Common.ChannelEvents.NotificationSentDelegate(Events_OnNotificationSent);
@@ -45,7 +45,8 @@ var appleCert = File.ReadAllBytes(Path.Combine(AppDomain.CurrentDomain.BaseDirec
 push.StartApplePushService(new ApplePushChannelSettings(false, appleCert, "test"));
 
 //Configure and start Android C2DM
-push.StartAndroidPushService(new Android.AndroidPushChannelSettings("<SENDERID>", "test", "<APPID>"));
+push.StartGoogleCloudMessagingPushService(new GcmPushChannelSettings("<YOUR_API_SENDER_ID>", 
+  "<YOUR_API_ACCESS_API_KEY_FOR_SERVER_APP>", "<YOUR_ANDROID_APP_PACKAGE_NAME>"));
 
 //Configure and start Windows Phone Notifications
 push.StartWindowsPhonePushService(new WindowsPhone.WindowsPhonePushChannelSettings());
@@ -68,10 +69,9 @@ push.QueueNotification(NotificationFactory.Apple()
 
 //Fluent construction of an Android C2DM Notification
 push.QueueNotification(NotificationFactory.Android()
-	.ForDeviceRegistrationId("<C2DM-DEVICE-ID>")
+	.ForDeviceRegistrationId("<GCM-DEVICE-REGISTRATION_ID>")
 	.WithCollapseKey("LATEST")
-	.WithData("alert", "Alert Text!")
-	.WithData("badge", "7"));
+	.WithJson("{\"alert\":\"Alert Text!\",\"badge\":\"7\"}"));
 ```	
 	
 Yet to Come
