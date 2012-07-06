@@ -42,6 +42,7 @@
   <ItemGroup>
     <Compile Include="AssemblyVersionInfo.cs" />
     <Compile Include="ChannelEvents.cs" />
+    <Compile Include="Exceptions.cs" />
     <Compile Include="PushChannelBase.cs" />
     <Compile Include="PushChannelSettings.cs" />
     <Compile Include="Notification.cs" />

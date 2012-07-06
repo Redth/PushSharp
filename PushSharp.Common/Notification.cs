@@ -20,6 +20,11 @@ namespace PushSharp.Common
         public object Tag { get; set; }
 
 		internal DateTime EnqueuedTimestamp { get; set; }
+
+		/// <summary>
+		/// How many times a message was queued for sending.  This counter will increase every time a message is queued or requeued.
+		/// </summary>
+		public int QueuedCount { get; set; }
 	}
 
 }
