@@ -16,7 +16,8 @@ namespace PushSharp.Common
 	{
 		public ChannelEvents Events = new ChannelEvents();
 		
-		public PushChannelSettings Settings { get; private set; }
+		public PushChannelSettings ChannelSettings { get; private set; }
+		public PushServiceSettings ServiceSettings { get; private set; }
 
 		internal event Action<double> OnQueueTimed;
 
@@ -30,7 +31,7 @@ namespace PushSharp.Common
 
 		protected abstract void SendNotification(Notification notification);
 
-		public PushChannelBase(PushChannelSettings settings)
+		public PushChannelBase(PushChannelSettings channelSettings, PushServiceSettings serviceSettings = null)
 		{
 			this.stopping = false;
 			this.CancelTokenSource = new CancellationTokenSource();
@@ -38,7 +39,8 @@ namespace PushSharp.Common
 
 			this.queuedNotifications = new ConcurrentQueue<Notification>();
 		
-			this.Settings = settings;
+			this.ChannelSettings = channelSettings;
+			this.ServiceSettings = serviceSettings;
 
 			//Start our sending task
 			taskSender = new Task(() => Sender(), TaskCreationOptions.LongRunning);
@@ -79,9 +81,19 @@ namespace PushSharp.Common
 			get { return queuedNotifications.Count; }
 		}
 
-		public void QueueNotification(Notification notification)
+		public void QueueNotification(Notification notification, bool countsAsRequeue = true)
 		{
-			queuedNotifications.Enqueue(notification);
+			//If the count is -1, it can be queued infinitely, otherwise check that it's less than the max
+			if (this.ServiceSettings.MaxNotificationRequeues < 0 || notification.QueuedCount <= this.ServiceSettings.MaxNotificationRequeues)
+			{
+				//Increase the queue counter
+				if (countsAsRequeue)
+					notification.QueuedCount++;
+
+				queuedNotifications.Enqueue(notification);
+			}
+			else
+				Events.RaiseNotificationSendFailure(notification, new MaxSendAttemptsReachedException());
 		}
 
 		void Sender()

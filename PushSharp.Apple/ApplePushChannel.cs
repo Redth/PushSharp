@@ -205,7 +205,7 @@ namespace PushSharp.Apple
 										//Requeue the failed notification since we're not sure it's a bad
 										// notification, just that it was sent after a bad one was
 										for (int i = failedNotificationIndex + 1; i <= sentNotifications.Count - 1; i++)
-											this.QueueNotification(sentNotifications[i].Notification);
+											this.QueueNotification(sentNotifications[i].Notification, false);
 									}
 
 									//Now clear out the sent list since we processed them all manually above
