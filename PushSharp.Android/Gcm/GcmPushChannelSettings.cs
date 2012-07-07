@@ -1,8 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using PushSharp.Common;
+﻿using PushSharp.Common;
 
 namespace PushSharp.Android
 {
