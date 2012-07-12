@@ -43,7 +43,7 @@ namespace PushSharp.Apple
 
 		protected override Common.PushChannelBase CreateChannel(Common.PushChannelSettings channelSettings)
 		{
-			return new ApplePushChannel(channelSettings as ApplePushChannelSettings);
+			return new ApplePushChannel(channelSettings as ApplePushChannelSettings, this.ServiceSettings);
 		}		
 	}
 }

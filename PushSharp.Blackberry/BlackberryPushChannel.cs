@@ -4,6 +4,7 @@ using System.IO;
 using System.Linq;
 using System.Net;
 using System.Text;
+using PushSharp.Common;
 
 namespace PushSharp.Blackberry
 {
@@ -11,8 +12,8 @@ namespace PushSharp.Blackberry
 	{
 		BlackberryPushChannelSettings blackberrySettings = null;
 
-		public BlackberryPushChannel(Common.PushChannelSettings settings)
-			: base(settings)
+        public BlackberryPushChannel(Common.PushChannelSettings settings, PushServiceSettings serviceSettings = null)
+			: base(settings, serviceSettings)
 		{
 			blackberrySettings = settings as BlackberryPushChannelSettings;
 		}
