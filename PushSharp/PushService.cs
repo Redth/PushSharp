@@ -10,8 +10,7 @@ namespace PushSharp
 	public class PushService : IDisposable
 	{
 		public ChannelEvents Events;
-
-		public bool WaitForQueuesToFinish { get; set; }
+        public bool WaitForQueuesToFinish { get; set; }
 
 		Apple.ApplePushService appleService = null;
 		Android.AndroidPushService androidService = null;
@@ -137,7 +136,7 @@ namespace PushSharp
 
 		void IDisposable.Dispose()
 		{
-			StopAllServices(this.WaitForQueuesToFinish);
+            StopAllServices(this.WaitForQueuesToFinish);
 		}
 	}	
 }

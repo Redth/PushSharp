@@ -37,7 +37,8 @@ namespace PushSharp.Apple
 		ApplePushChannelSettings appleSettings = null;
 		List<SentNotification> sentNotifications = new List<SentNotification>();
 
-		public ApplePushChannel(ApplePushChannelSettings settings) : base(settings)
+        public ApplePushChannel(ApplePushChannelSettings settings, PushServiceSettings serviceSettings = null)
+            : base(settings, serviceSettings)
 		{
 			this.appleSettings = settings as ApplePushChannelSettings;
 

@@ -23,8 +23,14 @@ namespace PushSharp.Apple
 			feedbackService.OnFeedbackReceived += new FeedbackService.FeedbackReceivedDelegate(feedbackService_OnFeedbackReceived);
 			timerFeedback = new Timer(new TimerCallback((state) =>
 			{
-				feedbackService.Run(channelSettings as ApplePushChannelSettings, this.cancelTokenSource.Token);
-
+                try
+                {
+                    feedbackService.Run(channelSettings as ApplePushChannelSettings, this.cancelTokenSource.Token);
+                }
+                catch (Exception e)
+                {
+                    this.Events.RaiseChannelException(e);
+                }
 				//Timer will run first after 10 seconds, then every 10 minutes to get feedback!
 			}),null, TimeSpan.FromSeconds(10), TimeSpan.FromMinutes(10));
 
@@ -37,7 +43,7 @@ namespace PushSharp.Apple
 
 		protected override Common.PushChannelBase CreateChannel(Common.PushChannelSettings channelSettings)
 		{
-			return new ApplePushChannel(channelSettings as ApplePushChannelSettings);
+			return new ApplePushChannel(channelSettings as ApplePushChannelSettings, this.ServiceSettings);
 		}		
 	}
 }
