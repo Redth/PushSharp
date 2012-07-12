@@ -30,6 +30,11 @@ namespace PushSharp
 
 		public void StartApplePushService(Apple.ApplePushChannelSettings channelSettings, PushServiceSettings serviceSettings = null)
 		{
+            if (serviceSettings == null)
+            {
+                serviceSettings = new PushServiceSettings();
+            }
+
 			appleService = new Apple.ApplePushService(channelSettings, serviceSettings);
 			appleService.Events.RegisterProxyHandler(this.Events);
 		}
