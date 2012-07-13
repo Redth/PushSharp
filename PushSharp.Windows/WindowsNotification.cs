@@ -14,6 +14,8 @@ namespace PushSharp.Windows
 			
 		}
 
+		public string ChannelUri { get; set; }
+
 		public bool? RequestForStatus { get; set; }
 		public int? TimeToLive { get; set; }
 		
@@ -32,6 +34,12 @@ namespace PushSharp.Windows
 
 		public WindowsNotificationCachePolicyType? CachePolicy { get; set; }
 		public string Tag { get; set; }
+
+		public override string PayloadToString()
+		{
+			//TODO: Implement
+			return string.Empty;
+		}
 	}
 
 	public class WindowsToastNotification : WindowsNotification
@@ -41,6 +49,11 @@ namespace PushSharp.Windows
 			get { return WindowsNotificationType.Toast; }
 		}
 
+		public override string PayloadToString()
+		{
+			//TODO: Implement
+			return string.Empty;
+		}
 	}
 
 	public class WindowsBadgeNotification : WindowsNotification
@@ -51,6 +64,12 @@ namespace PushSharp.Windows
 		}
 
 		public WindowsNotificationCachePolicyType? CachePolicy { get; set; }
+
+		public override string PayloadToString()
+		{
+			//TODO: Implement
+			return string.Empty;
+		}
 	}
 
 	public class WindowsRawNotification : WindowsNotification
@@ -60,6 +79,11 @@ namespace PushSharp.Windows
 			get { return WindowsNotificationType.Raw; }
 		}
 
+		public override string PayloadToString()
+		{
+			//TODO: Implement
+			return string.Empty;
+		}
 	}
 
 	public enum WindowsNotificationCachePolicyType

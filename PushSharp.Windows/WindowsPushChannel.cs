@@ -125,55 +125,82 @@ namespace PushSharp.Windows
 			//Microsoft recommends we disable expect-100 to improve latency
 			request.ServicePoint.Expect100Continue = false;
 
-
-			var data = Encoding.ASCII.GetBytes(winNotification.PayloadToString());
+			var payload = winNotification.PayloadToString();
+			var data = Encoding.Default.GetBytes(payload);
 
 			request.ContentLength = data.Length;
 
-			var stream = request.GetRequestStream();
-
-			stream.Write(data, 0, data.Length);
-
-			request.BeginGetResponse(new AsyncCallback((asyncResult) =>
+			using (var rs = request.GetRequestStream())
+				rs.Write(data, 0, data.Length);
+			
+			try
 			{
-				var wr = request.EndGetResponse(asyncResult) as HttpWebResponse;
+				request.BeginGetResponse(new AsyncCallback(getResponseCallback), new object[] { request, winNotification });
+			}
+			catch (WebException wex)
+			{
+				//Handle different httpstatuses
+				var status = ParseStatus(wex.Response as HttpWebResponse, winNotification);
 
-				if (wr != null)
-				{
-					var responseBody = string.Empty;
-					var statusCode = wr.StatusCode;
-
-					try
-					{
-						using (var streamReader = new System.IO.StreamReader(wr.GetResponseStream()))
-							responseBody = streamReader.ReadToEnd();
-					}
-					catch (WebException wex)
-					{
-						try
-						{
-							using (var streamReader = new System.IO.StreamReader(wex.Response.GetResponseStream()))
-								responseBody = streamReader.ReadToEnd();
-						}
-						catch { }
-						
-					}
-					catch {	}
+				HandleStatus(status);
+			}
+		}
 
 
-					//TODO: Handle the response
-					if (statusCode == HttpStatusCode.OK)
-					{
+		void getResponseCallback(IAsyncResult asyncResult)
+		{
+			//Good list of statuses:
+			//http://msdn.microsoft.com/en-us/library/ff941100(v=vs.92).aspx
 
-					}
-					else
-					{
+			var objs = (object[])asyncResult.AsyncState;
 
-					}
-				}
+			var wr = (HttpWebRequest)objs[0];
+			var winNotification = (WindowsNotification)objs[1];
 
-			}), null);
+			var resp = wr.EndGetResponse(asyncResult) as HttpWebResponse;
 
+			var status = ParseStatus(resp, winNotification);
+
+			HandleStatus(status);
+		}
+
+
+		WindowsNotificationStatus ParseStatus(HttpWebResponse resp, WindowsNotification notification)
+		{
+			var result = new WindowsNotificationStatus();
+
+			result.Notification = notification;
+			result.HttpStatus = resp.StatusCode;
+
+			var wnsDebugTrace = resp.Headers["X-WNS-Debug-Trace"];
+			var wnsDeviceConnectionStatus = resp.Headers["X-WNS-DeviceConnectionStatus"];
+			var wnsErrorDescription = resp.Headers["X-WNS-Error-Description"];
+			var wnsMsgId = resp.Headers["X-WNS-Msg-ID"];
+			var wnsNotificationStatus = resp.Headers["X-WNS-NotificationStatus"];
+
+			result.DebugTrace = wnsDebugTrace;
+			result.ErrorDescription = wnsErrorDescription;
+			result.MessageID = wnsMsgId;
+
+			if (wnsNotificationStatus.Equals("received", StringComparison.InvariantCultureIgnoreCase))
+				result.NotificationStatus = WindowsNotificationSendStatus.Received;
+			else if (wnsNotificationStatus.Equals("dropped", StringComparison.InvariantCultureIgnoreCase))
+				result.NotificationStatus = WindowsNotificationSendStatus.Dropped;
+			else
+				result.NotificationStatus = WindowsNotificationSendStatus.ChannelThrottled;
+
+			if (wnsDeviceConnectionStatus.Equals("connected", StringComparison.InvariantCultureIgnoreCase))
+				result.DeviceConnectionStatus = WindowsDeviceConnectionStatus.Connected;
+			else if (wnsDeviceConnectionStatus.Equals("tempdisconnected", StringComparison.InvariantCultureIgnoreCase))
+				result.DeviceConnectionStatus = WindowsDeviceConnectionStatus.TempDisconnected;
+			else
+				result.DeviceConnectionStatus = WindowsDeviceConnectionStatus.Disconnected;
+
+			return result;
+		}
+
+		void HandleStatus(WindowsNotificationStatus status)
+		{
 			//RESPONSE HEADERS
 			// X-WNS-Debug-Trace   string
 			// X-WNS-DeviceConnectionStatus  connected | disconnected | tempdisconnected   (if RequestForStatus was set to true)
@@ -193,13 +220,22 @@ namespace PushSharp.Windows
 			// 413	The notification payload exceeds the 5000 byte size limit.
 			// 500	An internal failure caused notification delivery to fail.
 			// 503	The server is currently unavailable.
+			if (status.HttpStatus == HttpStatusCode.OK
+				&& status.NotificationStatus == WindowsNotificationSendStatus.Received)
+			{
+				Events.RaiseNotificationSent(status.Notification);
+				return;
+			}
+			else if (status.HttpStatus == HttpStatusCode.NotFound) //404
+			{
+				Events.RaiseDeviceSubscriptionExpired(PlatformType.Windows, status.Notification.ChannelUri);
+			}
+			else if (status.HttpStatus == HttpStatusCode.Gone) //410
+			{
+				Events.RaiseDeviceSubscriptionExpired(PlatformType.Windows, status.Notification.ChannelUri);
+			}
+
+			Events.RaiseNotificationSendFailure(status.Notification, new WindowsNotificationSendFailureException(status));
 		}
-
-
-
-
-
-
-	
 	}
 }
