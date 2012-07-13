@@ -17,7 +17,7 @@ namespace PushSharp.Windows
 
 		WindowsPushChannelSettings channelSettings;
 
-		public WindowsPushChannel(WindowsPushChannelSettings channelSettings, PushServiceSettings serviceSettings) : base(channelSettings, serviceSettings)
+		public WindowsPushChannel(WindowsPushChannelSettings channelSettings, PushServiceSettings serviceSettings = null) : base(channelSettings, serviceSettings)
 		{
 			this.channelSettings = channelSettings;
 		}
@@ -125,6 +125,54 @@ namespace PushSharp.Windows
 			//Microsoft recommends we disable expect-100 to improve latency
 			request.ServicePoint.Expect100Continue = false;
 
+
+			var data = Encoding.ASCII.GetBytes(winNotification.PayloadToString());
+
+			request.ContentLength = data.Length;
+
+			var stream = request.GetRequestStream();
+
+			stream.Write(data, 0, data.Length);
+
+			request.BeginGetResponse(new AsyncCallback((asyncResult) =>
+			{
+				var wr = request.EndGetResponse(asyncResult) as HttpWebResponse;
+
+				if (wr != null)
+				{
+					var responseBody = string.Empty;
+					var statusCode = wr.StatusCode;
+
+					try
+					{
+						using (var streamReader = new System.IO.StreamReader(wr.GetResponseStream()))
+							responseBody = streamReader.ReadToEnd();
+					}
+					catch (WebException wex)
+					{
+						try
+						{
+							using (var streamReader = new System.IO.StreamReader(wex.Response.GetResponseStream()))
+								responseBody = streamReader.ReadToEnd();
+						}
+						catch { }
+						
+					}
+					catch {	}
+
+
+					//TODO: Handle the response
+					if (statusCode == HttpStatusCode.OK)
+					{
+
+					}
+					else
+					{
+
+					}
+				}
+
+			}), null);
 
 			//RESPONSE HEADERS
 			// X-WNS-Debug-Trace   string
