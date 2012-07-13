@@ -10,6 +10,7 @@ namespace PushSharp.Common
 		Apple,
 		AndroidC2dm,
 		AndroidGcm,
+		Windows,
 		WindowsPhone,
 		Blackberry,
         None
