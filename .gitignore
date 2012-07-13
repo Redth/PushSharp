@@ -21,3 +21,6 @@ TestResults
 packages/
 
 Xamarin/
+
+#ReSharper
+_ReSharper.*

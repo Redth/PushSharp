@@ -1,9 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-
-namespace PushSharp.Apple
+﻿namespace PushSharp.Apple
 {
 	public class ApplePushChannelSettings : Common.PushChannelSettings
 	{

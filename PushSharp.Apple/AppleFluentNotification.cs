@@ -1,11 +1,8 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
-using System.Text;
-using PushSharp.Apple;
-using PushSharp.Common;
 
-namespace PushSharp
+namespace PushSharp.Apple
 {
 	public static class FluentNotification
 	{

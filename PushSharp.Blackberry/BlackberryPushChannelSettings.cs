@@ -1,9 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-
-namespace PushSharp.Blackberry
+﻿namespace PushSharp.Blackberry
 {
 	public class BlackberryPushChannelSettings : Common.PushChannelSettings
 	{
