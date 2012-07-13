@@ -15,9 +15,9 @@ namespace PushSharp.Android
 		string googleAuthToken = string.Empty;
 		C2dmMessageTransportAsync transport;
 
-		public AndroidPushChannel(AndroidPushChannelSettings settings) : base(settings) 
+		public AndroidPushChannel(AndroidPushChannelSettings channelSettings, PushServiceSettings serviceSettings = null) : base(channelSettings, serviceSettings) 
 		{
-			androidSettings = settings;
+			androidSettings = channelSettings;
 
 			//Go get the auth token from google
 			try

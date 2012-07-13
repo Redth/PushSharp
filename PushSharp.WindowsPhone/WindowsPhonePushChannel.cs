@@ -11,10 +11,9 @@ namespace PushSharp.WindowsPhone
 	{
 		WindowsPhonePushChannelSettings windowsPhoneSettings;
 
-		public WindowsPhonePushChannel(WindowsPhonePushChannelSettings settings)
-			: base(settings)
+		public WindowsPhonePushChannel(WindowsPhonePushChannelSettings channelSettings, PushServiceSettings serviceSettings = null) : base(channelSettings, serviceSettings)
 		{
-			windowsPhoneSettings = settings;
+			windowsPhoneSettings = channelSettings;
 		}
 
 		protected override void SendNotification(Notification notification)

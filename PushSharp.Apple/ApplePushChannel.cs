@@ -37,16 +37,16 @@ namespace PushSharp.Apple
 		ApplePushChannelSettings appleSettings = null;
 		List<SentNotification> sentNotifications = new List<SentNotification>();
 
-		public ApplePushChannel(ApplePushChannelSettings settings) : base(settings)
+		public ApplePushChannel(ApplePushChannelSettings channelSettings, PushServiceSettings serviceSettings = null) : base(channelSettings, serviceSettings)
 		{
-			this.appleSettings = settings as ApplePushChannelSettings;
+			this.appleSettings = channelSettings;
 
 			//Need to load the private key seperately from apple
 			// Fixed by danielgindi@gmail.com :
 			//      The default is UserKeySet, which has caused internal encryption errors,
 			//      Because of lack of permissions on most hosting services.
 			//      So MachineKeySet should be used instead.
-			certificate = new X509Certificate2(settings.CertificateData, settings.CertificateFilePassword, 
+			certificate = new X509Certificate2(this.appleSettings.CertificateData, this.appleSettings.CertificateFilePassword, 
 				X509KeyStorageFlags.MachineKeySet | X509KeyStorageFlags.PersistKeySet | X509KeyStorageFlags.Exportable);
 
 			certificates = new X509CertificateCollection();

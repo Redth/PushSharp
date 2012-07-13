@@ -40,7 +40,7 @@ namespace PushSharp.Common
 			this.queuedNotifications = new ConcurrentQueue<Notification>();
 		
 			this.ChannelSettings = channelSettings;
-			this.ServiceSettings = serviceSettings;
+			this.ServiceSettings = serviceSettings ?? new PushServiceSettings();
 
 			//Start our sending task
 			taskSender = new Task(() => Sender(), TaskCreationOptions.LongRunning);

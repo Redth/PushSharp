@@ -11,10 +11,9 @@ namespace PushSharp.Blackberry
 	{
 		BlackberryPushChannelSettings blackberrySettings = null;
 
-		public BlackberryPushChannel(Common.PushChannelSettings settings)
-			: base(settings)
+		public BlackberryPushChannel(BlackberryPushChannelSettings channelSettings, Common.PushServiceSettings serviceSettings = null) : base(channelSettings, serviceSettings)
 		{
-			blackberrySettings = settings as BlackberryPushChannelSettings;
+			blackberrySettings = channelSettings;
 		}
 
 		protected override void SendNotification(Common.Notification notification)

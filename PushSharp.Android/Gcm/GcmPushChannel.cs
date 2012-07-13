@@ -13,9 +13,9 @@ namespace PushSharp.Android
 		GcmPushChannelSettings gcmSettings = null;
 		GcmMessageTransportAsync transport;
 
-		public GcmPushChannel(GcmPushChannelSettings settings) : base(settings) 
+		public GcmPushChannel(GcmPushChannelSettings channelSettings, PushServiceSettings serviceSettings = null) : base(channelSettings, serviceSettings) 
 		{
-			gcmSettings = settings;
+			gcmSettings = channelSettings;
 			
 			transport = new GcmMessageTransportAsync();
 			
