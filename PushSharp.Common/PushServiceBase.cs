@@ -40,7 +40,7 @@ namespace PushSharp.Common
 			
 			CheckScale();
 
-			distributerTask = new Task(() => { Distributer(); }, TaskCreationOptions.LongRunning);
+			distributerTask = new Task(Distributer, TaskCreationOptions.LongRunning);
 			distributerTask.ContinueWith((ft) =>
 			{
 				var ex = ft.Exception;

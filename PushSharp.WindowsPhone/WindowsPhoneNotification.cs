@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
+using System.Xml.Linq;
 
 namespace PushSharp.WindowsPhone
 {
@@ -46,7 +47,7 @@ namespace PushSharp.WindowsPhone
 
 	public abstract class WindowsPhoneNotification : Common.Notification
 	{
-		public WindowsPhoneNotification()
+		protected WindowsPhoneNotification()
 		{
 			this.Platform = Common.PlatformType.WindowsPhone;
 			this.MessageID = Guid.NewGuid();
