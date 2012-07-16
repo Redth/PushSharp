@@ -16,6 +16,7 @@ namespace PushSharp
 		Apple.ApplePushService appleService = null;
 		Android.AndroidPushService androidService = null;
 		WindowsPhone.WindowsPhonePushService wpService = null;
+		Windows.WindowsPushService winService = null;
 		Blackberry.BlackberryPushService bbService = null;
 		Android.GcmPushService gcmService = null;
 
@@ -79,6 +80,18 @@ namespace PushSharp
 				wpService.Stop(waitForQueueToFinish);
 		}
 
+		public void StartWindowsPushService(Windows.WindowsPushChannelSettings channelSettings, PushServiceSettings serviceSettings = null)
+		{
+			winService = new Windows.WindowsPushService(channelSettings, serviceSettings);
+			winService.Events.RegisterProxyHandler(this.Events);
+		}
+
+		public void StopWindowsPushService(bool waitForQueueToFinish = true)
+		{
+			if (winService != null)
+				winService.Stop(waitForQueueToFinish);
+		}
+
 		public void StartBlackberryPushService(Blackberry.BlackberryPushChannelSettings channelSettings, PushServiceSettings serviceSettings = null)
 		{
 			bbService = new Blackberry.BlackberryPushService(channelSettings, serviceSettings);
@@ -107,6 +120,9 @@ namespace PushSharp
 				case PlatformType.WindowsPhone:
 					wpService.QueueNotification(notification);
 					break;
+				case PlatformType.Windows:
+					winService.QueueNotification(notification);
+					break;
 				case PlatformType.Blackberry:
 					bbService.QueueNotification(notification);
 					break;
@@ -128,6 +144,9 @@ namespace PushSharp
 
 			if (wpService != null && !wpService.IsStopping)
 				tasks.Add(Task.Factory.StartNew(() => wpService.Stop(waitForQueuesToFinish)));
+
+			if (winService != null && !winService.IsStopping)
+				tasks.Add(Task.Factory.StartNew(() => winService.Stop(waitForQueuesToFinish)));
 
 			if (bbService != null && !bbService.IsStopping)
 				tasks.Add(Task.Factory.StartNew(() => bbService.Stop(waitForQueuesToFinish)));

@@ -9,8 +9,9 @@
     <AppDesignerFolder>Properties</AppDesignerFolder>
     <RootNamespace>PushSharp.Windows</RootNamespace>
     <AssemblyName>PushSharp.Windows</AssemblyName>
-    <TargetFrameworkVersion>v4.5</TargetFrameworkVersion>
+    <TargetFrameworkVersion>v4.0</TargetFrameworkVersion>
     <FileAlignment>512</FileAlignment>
+    <TargetFrameworkProfile />
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|AnyCPU' ">
     <DebugSymbols>true</DebugSymbols>
@@ -44,7 +45,10 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="Exceptions.cs" />
+    <Compile Include="TileNotificationTemplate.cs" />
+    <Compile Include="WindowsFluent.cs" />
     <Compile Include="WindowsNotification.cs" />
+    <Compile Include="WindowsNotificationFactory.cs" />
     <Compile Include="WindowsNotificationStatus.cs" />
     <Compile Include="WindowsPushChannel.cs" />
     <Compile Include="WindowsPushChannelSettings.cs" />

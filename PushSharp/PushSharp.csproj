@@ -69,6 +69,10 @@
       <Project>{9947F510-BA9A-4045-A648-BAB687D8F513}</Project>
       <Name>PushSharp.WindowsPhone</Name>
     </ProjectReference>
+    <ProjectReference Include="..\PushSharp.Windows\PushSharp.Windows.csproj">
+      <Project>{0ec3a31e-b869-4465-abdc-90c2e3ccc17d}</Project>
+      <Name>PushSharp.Windows</Name>
+    </ProjectReference>
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 

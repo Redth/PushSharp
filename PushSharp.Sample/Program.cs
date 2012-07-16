@@ -7,6 +7,8 @@ using System.Text;
 using PushSharp;
 using PushSharp.Apple;
 using PushSharp.Android;
+using PushSharp.WindowsPhone;
+using PushSharp.Windows;
 
 namespace PushSharp.Sample
 {
@@ -44,8 +46,15 @@ namespace PushSharp.Sample
 			push.StartGoogleCloudMessagingPushService(new GcmPushChannelSettings("785671162406", "AIzaSyC2PZNXQDVaUpZGmtsF_Vp8tHtIABVjazI", "com.pushsharp.test"));
 
 			//Configure and start Windows Phone Notifications
-			push.StartWindowsPhonePushService(new WindowsPhone.WindowsPhonePushChannelSettings());
+			push.StartWindowsPhonePushService(new WindowsPhonePushChannelSettings());
 
+			//Configure and start Windows Notifications
+			push.StartWindowsPushService(new WindowsPushChannelSettings("BUILD.64beb1a1-5444-4660-8b27-bcc740f9c7ca", 
+				"ms-app://s-1-15-2-259456210-2622405444-520366611-1750679940-1314087242-2560077863-3994015833", "7-GIUO1ubmrqOwQUBzXpnqiSw30LS2xr"));
+			
+			//Fluent construction of a Windows Toast Notification
+			push.QueueNotification(NotificationFactory.Windows().Toast().AsToastText01("This is a test").ForChannelUri("YOUR_CHANNEL_URI_HERE"));
+			
 			//Fluent construction of a Windows Phone Toast notification
 			push.QueueNotification(NotificationFactory.WindowsPhone().Toast()
 				.ForEndpointUri(new Uri("http://sn1.notify.live.net/throttledthirdparty/01.00/AAFCoNoCXidwRpn5NOxvwSxPAgAAAAADAgAAAAQUZm52OkJCMjg1QTg1QkZDMkUxREQ"))

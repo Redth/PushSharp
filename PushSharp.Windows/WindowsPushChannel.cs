@@ -115,8 +115,8 @@ namespace PushSharp.Windows
 			{
 				var winTileNot = winNotification as WindowsTileNotification;
 
-				if (winTileNot != null && !string.IsNullOrEmpty(winTileNot.Tag))
-					request.Headers.Add("X-WNS-Tag", winTileNot.Tag); // TILE only
+				if (winTileNot != null && !string.IsNullOrEmpty(winTileNot.NotificationTag))
+					request.Headers.Add("X-WNS-Tag", winTileNot.NotificationTag); // TILE only
 			}
 
 			if (winNotification.TimeToLive.HasValue)

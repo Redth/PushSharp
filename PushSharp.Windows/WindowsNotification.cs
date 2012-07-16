@@ -23,6 +23,11 @@ namespace PushSharp.Windows
 		public abstract string PayloadToString();
 
 		public abstract WindowsNotificationType Type { get; }
+
+		protected string XmlEncode(string text)
+		{
+			return System.Security.SecurityElement.Escape(text);
+		}
 	}
 
 	public class WindowsTileNotification : WindowsNotification
@@ -33,12 +38,47 @@ namespace PushSharp.Windows
 		}
 
 		public WindowsNotificationCachePolicyType? CachePolicy { get; set; }
-		public string Tag { get; set; }
+		public string NotificationTag { get; set; }
+
+		public TileNotificationTemplate TileTemplate { get; set; }
+		public Dictionary<string, string> Images { get; set; }
+		public List<string> Texts { get; set; }
 
 		public override string PayloadToString()
 		{
-			//TODO: Implement
-			return string.Empty;
+			var xml = new StringBuilder();
+
+			xml.Append("<tile>");
+			xml.Append("<visual>");
+			xml.AppendFormat("<binding template=\"{0}\">", this.TileTemplate.ToString());
+
+			int idOn = 1;
+
+			foreach (var imgSrc in Images.Keys)
+			{
+				var alt = Images[imgSrc];
+
+				if (!string.IsNullOrEmpty(alt))
+					xml.AppendFormat("<image id=\"{0}\" src=\"{1}\" alt=\"{2}\"/>", idOn, XmlEncode(imgSrc), XmlEncode(alt));
+				else
+					xml.AppendFormat("<image id=\"{0}\" src=\"{1}\"/>", idOn, XmlEncode(imgSrc));
+
+				idOn++;
+			}
+
+			idOn = 1;
+
+			foreach (var text in Texts)
+			{
+				xml.AppendFormat("<text id=\"{0}\">{1}</text>", idOn, XmlEncode(text));
+				idOn++;
+			}
+
+			xml.Append("</binding>");
+			xml.Append("</visual>");
+			xml.Append("</tile>");
+
+			return xml.ToString();
 		}
 	}
 
@@ -49,10 +89,45 @@ namespace PushSharp.Windows
 			get { return WindowsNotificationType.Toast; }
 		}
 
+		public ToastNotificationTemplate TextTemplate { get; set; }
+		public Dictionary<string, string> Images { get; set; }
+		public List<string> Texts { get; set; }
+
 		public override string PayloadToString()
 		{
-			//TODO: Implement
-			return string.Empty;
+			var xml = new StringBuilder();
+
+			xml.Append("<toast>");
+			xml.Append("<visual>");
+			xml.AppendFormat("<binding template=\"{0}\">", this.TextTemplate.ToString());
+
+			int idOn = 1;
+
+			foreach (var imgSrc in Images.Keys)
+			{
+				var alt = Images[imgSrc];
+
+				if (!string.IsNullOrEmpty(alt))
+					xml.AppendFormat("<image id=\"{0}\" src=\"{1}\" alt=\"{2}\"/>", idOn, XmlEncode(imgSrc), XmlEncode(alt));
+				else
+					xml.AppendFormat("<image id=\"{0}\" src=\"{1}\"/>", idOn, XmlEncode(imgSrc));
+
+				idOn++;
+			}
+
+			idOn = 1;
+
+			foreach (var text in Texts)
+			{
+				xml.AppendFormat("<text id=\"{0}\">{1}</text>", idOn, XmlEncode(text));
+				idOn++;
+			}
+
+			xml.Append("</binding>");
+			xml.Append("</visual>");
+			xml.Append("</toast>");
+
+			return xml.ToString();
 		}
 	}
 
@@ -67,8 +142,7 @@ namespace PushSharp.Windows
 
 		public override string PayloadToString()
 		{
-			//TODO: Implement
-			return string.Empty;
+			throw new NotImplementedException();
 		}
 	}
 
@@ -79,10 +153,11 @@ namespace PushSharp.Windows
 			get { return WindowsNotificationType.Raw; }
 		}
 
+		public string RawXml { get; set; }
+
 		public override string PayloadToString()
 		{
-			//TODO: Implement
-			return string.Empty;
+			return RawXml;
 		}
 	}
 
@@ -98,6 +173,18 @@ namespace PushSharp.Windows
 		Tile,
 		Toast,
 		Raw
+	}
+
+	public enum ToastNotificationTemplate
+	{
+		ToastText01,
+		ToastText02,
+		ToastText03,
+		ToastText04,
+		ToastImageAndText01,
+		ToastImageAndText02,
+		ToastImageAndText03,
+		ToastImageAndText04
 	}
 	
 }
