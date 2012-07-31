@@ -84,6 +84,11 @@ namespace PushSharp.Android
 			return sb.ToString();
 		}
 
+        public override bool IsValidDeviceRegistrationId()
+        {
+            return true;
+        }
+
 		public override string ToString()
 		{
 			return GetPostData();

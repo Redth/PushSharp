@@ -42,6 +42,11 @@ namespace PushSharp.WindowsPhone
 		{
 			return new WindowsPhoneToastNotification();
 		}
+
+        public override bool IsValidDeviceRegistrationId()
+        {
+            return true;
+        }
 	}
 
 	public abstract class WindowsPhoneNotification : Common.Notification
@@ -75,6 +80,11 @@ namespace PushSharp.WindowsPhone
 		{
 			return System.Security.SecurityElement.Escape(text);
 		}
+
+        public override bool IsValidDeviceRegistrationId()
+        {
+            return true;
+        }
 	}
 
 	public class WindowsPhoneToastNotification : WindowsPhoneNotification

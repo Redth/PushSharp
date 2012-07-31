@@ -90,27 +90,30 @@ namespace PushSharp
 				bbService.Stop(waitForQueueToFinish);
 		}
 
-		public void QueueNotification(Notification notification)
-		{
-			switch (notification.Platform)
-			{
-				case PlatformType.Apple:
-					appleService.QueueNotification(notification);
-					break;
-				case PlatformType.AndroidC2dm:
-					androidService.QueueNotification(notification);
-					break;
-				case PlatformType.AndroidGcm:
-					gcmService.QueueNotification(notification);
-					break;
-				case PlatformType.WindowsPhone:
-					wpService.QueueNotification(notification);
-					break;
-				case PlatformType.Blackberry:
-					bbService.QueueNotification(notification);
-					break;
-			}
-		}
+        public void QueueNotification(Notification notification)
+        {
+            if (notification.IsValidDeviceRegistrationId())
+            {
+                switch (notification.Platform)
+                {
+                    case PlatformType.Apple:
+                        appleService.QueueNotification(notification);
+                        break;
+                    case PlatformType.AndroidC2dm:
+                        androidService.QueueNotification(notification);
+                        break;
+                    case PlatformType.AndroidGcm:
+                        gcmService.QueueNotification(notification);
+                        break;
+                    case PlatformType.WindowsPhone:
+                        wpService.QueueNotification(notification);
+                        break;
+                    case PlatformType.Blackberry:
+                        bbService.QueueNotification(notification);
+                        break;
+                }
+            }
+        }
 
 		public void StopAllServices(bool waitForQueuesToFinish = true)
 		{

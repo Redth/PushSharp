@@ -21,5 +21,10 @@ namespace PushSharp.Blackberry
 		public string PushPin { get; set; }
 
 		public string Message { get; set; }
+
+        public override bool IsValidDeviceRegistrationId()
+        {
+            return true;
+        }
 	}
 }

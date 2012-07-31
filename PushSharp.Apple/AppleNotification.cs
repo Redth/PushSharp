@@ -5,6 +5,7 @@ using System.Net;
 using System.Runtime.Serialization;
 using System.Runtime.Serialization.Json;
 using System.Text;
+using System.Text.RegularExpressions;
 using System.ServiceModel.Web;
 
 namespace PushSharp.Apple
@@ -71,6 +72,12 @@ namespace PushSharp.Apple
 
 			Identifier = GetNextIdentifier();
 		}
+
+        public override bool IsValidDeviceRegistrationId()
+        {
+            Regex r = new Regex(@"^[0-9A-F]+$", RegexOptions.IgnoreCase);
+            return r.Match(this.DeviceToken).Success;
+        }
 
 		public override string ToString()
 		{
