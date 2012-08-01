@@ -54,6 +54,11 @@ namespace PushSharp.Android
 				//Device subscription is no good!
 				this.Events.RaiseDeviceSubscriptionExpired(PlatformType.AndroidC2dm, response.Message.RegistrationId);
 			}
+			else if (response.ResponseStatus == MessageTransportResponseStatus.NotRegistered)
+			{
+				//Device must have uninstalled app
+				this.Events.RaiseDeviceSubscriptionExpired(PlatformType.AndroidC2dm, response.Message.RegistrationId);
+			}
 			else
 			{
 				//TODO: Raise error response
