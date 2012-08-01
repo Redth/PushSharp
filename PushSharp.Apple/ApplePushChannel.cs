@@ -237,10 +237,10 @@ namespace PushSharp.Apple
 
 		void Cleanup()
 		{
-			bool wasRemoved = false;
-
 			while (true)
 			{
+				bool wasRemoved = false;
+
 				lock (sentLock)
 				{
 					//See if anything is here to process
