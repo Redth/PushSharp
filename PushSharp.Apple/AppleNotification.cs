@@ -72,6 +72,12 @@ namespace PushSharp.Apple
 			Identifier = GetNextIdentifier();
 		}
 
+		public override bool IsValidDeviceRegistrationId()
+		{
+			var r = new System.Text.RegularExpressions.Regex(@"^[0-9A-F]+$", System.Text.RegularExpressions.RegexOptions.IgnoreCase);
+			return r.Match(this.DeviceToken).Success;
+		}
+
 		public override string ToString()
 		{
 			return Payload.ToJson();

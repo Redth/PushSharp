@@ -88,7 +88,7 @@ namespace PushSharp.Common
 			{
 				if (channels == null || channels.Count <= 0)
 				{
-					Thread.Sleep(50);
+					Thread.Sleep(250);
 					continue;
 				}
 
@@ -97,7 +97,7 @@ namespace PushSharp.Common
 				if (!queuedNotifications.TryDequeue(out notification))
 				{
 					//No notifications in queue, sleep a bit!
-					Thread.Sleep(50);
+					Thread.Sleep(250);
 					continue;
 				}
 
