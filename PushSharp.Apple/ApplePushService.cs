@@ -21,14 +21,19 @@ namespace PushSharp.Apple
 			cancelTokenSource = new CancellationTokenSource();
 			feedbackService = new FeedbackService();
 			feedbackService.OnFeedbackReceived += new FeedbackService.FeedbackReceivedDelegate(feedbackService_OnFeedbackReceived);
-			timerFeedback = new Timer(new TimerCallback((state) =>
+
+			//allow control over feedback call interval, if set to zero, don't make feedback calls automatically
+			if ((channelSettings as ApplePushChannelSettings).FeedbackIntervalMinutes > 0)
 			{
-				try { feedbackService.Run(channelSettings as ApplePushChannelSettings, this.cancelTokenSource.Token); }
-				catch (Exception ex) { this.Events.RaiseChannelException(ex); }
+				timerFeedback = new Timer(new TimerCallback((state) =>
+				{
+					try { feedbackService.Run(channelSettings as ApplePushChannelSettings, this.cancelTokenSource.Token); }
+					catch (Exception ex) { this.Events.RaiseChannelException(ex); }
 
-				//Timer will run first after 10 seconds, then every 10 minutes to get feedback!
-			}),null, TimeSpan.FromSeconds(10), TimeSpan.FromMinutes(10));
+					//Timer will run first after 10 seconds, then every 10 minutes to get feedback!
+				}), null, TimeSpan.FromSeconds(10), TimeSpan.FromMinutes(10));
 
+			}
 		}
 
 		void feedbackService_OnFeedbackReceived(string deviceToken, DateTime timestamp)

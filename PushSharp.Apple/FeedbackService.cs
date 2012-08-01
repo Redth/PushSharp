@@ -76,7 +76,10 @@ namespace PushSharp.Apple
 					//Add seconds since 1970 to that date, in UTC and then get it locally
 					var timestamp = new DateTime(1970, 1, 1, 0, 0, 0, DateTimeKind.Utc).AddSeconds(tSeconds).ToLocalTime();
 
-
+					//flag to allow feedback times in UTC or local, but default is local
+					if (!settings.FeedbackTimeIsUTC)
+						timestamp = timestamp.ToLocalTime();
+				
 					//Now copy out the device token
 					Array.Copy(buffer, 6, bDeviceToken, 0, 32);
 

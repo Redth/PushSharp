@@ -35,6 +35,9 @@ namespace PushSharp.Apple
 			this.CertificateFilePassword = certificateFilePwd;
 
 			this.MillisecondsToWaitBeforeMessageDeclaredSuccess = 3000;
+
+			this.FeedbackIntervalMinutes = 10;
+			this.FeedbackTimeIsUTC = false;
 		}
 
 		public string Host
@@ -80,6 +83,18 @@ namespace PushSharp.Apple
 		}
 
 		public int MillisecondsToWaitBeforeMessageDeclaredSuccess
+		{
+			get;
+			set;
+		}
+
+		public int FeedbackIntervalMinutes
+		{
+			get;
+			set;
+		}
+
+		public bool FeedbackTimeIsUTC
 		{
 			get;
 			set;
