@@ -57,7 +57,7 @@ namespace PushSharp.Android
 					//Swap Registrations Id's
 					var newRegistrationId = r.CanonicalRegistrationId;
 
-					this.Events.RaiseDeviceSubscriptionIdChanged(PlatformType.AndroidC2dm, singleResultNotification.RegistrationIds[0], newRegistrationId);
+					this.Events.RaiseDeviceSubscriptionIdChanged(PlatformType.AndroidGcm, singleResultNotification.RegistrationIds[0], newRegistrationId);
 
 				}
 				else if (r.ResponseStatus == GcmMessageTransportResponseStatus.Unavailable)
@@ -67,7 +67,7 @@ namespace PushSharp.Android
 				else if (r.ResponseStatus == GcmMessageTransportResponseStatus.NotRegistered)
 				{
 					//Raise failure and device expired
-					this.Events.RaiseDeviceSubscriptionExpired(PlatformType.AndroidC2dm, singleResultNotification.RegistrationIds[0]);
+					this.Events.RaiseDeviceSubscriptionExpired(PlatformType.AndroidGcm, singleResultNotification.RegistrationIds[0]);
 				}
 				else
 				{
