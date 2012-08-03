@@ -111,7 +111,8 @@ namespace PushSharp.Apple
 			if (this.ContentAvailable.HasValue)
 				aps["content-available"] = new JValue(this.ContentAvailable.Value);
 
-			json["aps"] = aps;
+			if (aps.Count > 0)
+				json["aps"] = aps;
 
 			foreach (string key in this.CustomItems.Keys)
 			{
