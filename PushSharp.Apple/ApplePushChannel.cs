@@ -41,13 +41,7 @@ namespace PushSharp.Apple
 		{
 			this.appleSettings = channelSettings;
 
-			//Need to load the private key seperately from apple
-			// Fixed by danielgindi@gmail.com :
-			//      The default is UserKeySet, which has caused internal encryption errors,
-			//      Because of lack of permissions on most hosting services.
-			//      So MachineKeySet should be used instead.
-			certificate = new X509Certificate2(this.appleSettings.CertificateData, this.appleSettings.CertificateFilePassword, 
-				X509KeyStorageFlags.MachineKeySet | X509KeyStorageFlags.PersistKeySet | X509KeyStorageFlags.Exportable);
+			certificate = this.appleSettings.Certificate;
 
 			certificates = new X509CertificateCollection();
 			certificates.Add(certificate);

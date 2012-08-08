@@ -32,7 +32,7 @@ namespace PushSharp.Apple
 		{
 			var encoding = Encoding.ASCII;
 
-			var certificate = new X509Certificate2(settings.CertificateData, settings.CertificateFilePassword, X509KeyStorageFlags.MachineKeySet | X509KeyStorageFlags.PersistKeySet | X509KeyStorageFlags.Exportable);	
+			var certificate = settings.Certificate;
 
 			var certificates = new X509CertificateCollection();
 			certificates.Add(certificate);
