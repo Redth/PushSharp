@@ -13,6 +13,7 @@ using Android.Util;
 
 namespace GCMSharp.Client
 {
+  [Android.Runtime.Preserve(AllMembers=true)]
 	public abstract class GCMBaseIntentService : IntentService
 	{
 		const string TAG = "GCMBaseIntentService";
