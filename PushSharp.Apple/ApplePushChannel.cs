@@ -362,8 +362,8 @@ namespace PushSharp.Apple
 
 				try
 				{
-					//stream.AuthenticateAsClient(this.appleSettings.Host, this.certificates, System.Security.Authentication.SslProtocols.Ssl3, false);
-					stream.AuthenticateAsClient(this.appleSettings.Host);
+					stream.AuthenticateAsClient(this.appleSettings.Host, this.certificates, System.Security.Authentication.SslProtocols.Ssl3, false);
+					//stream.AuthenticateAsClient(this.appleSettings.Host);
 				}
 				catch (System.Security.Authentication.AuthenticationException ex)
 				{
