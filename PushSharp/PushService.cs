@@ -19,6 +19,18 @@ namespace PushSharp
 		Blackberry.BlackberryPushService bbService = null;
 		Android.GcmPushService gcmService = null;
 
+		static PushService instance = null;
+		public static PushService Instance
+		{
+			get
+			{
+				if (instance == null)
+					instance = new PushService();
+
+				return instance;
+			}
+		}
+
 		public PushService()
 		{
 			this.Events = new ChannelEvents();
