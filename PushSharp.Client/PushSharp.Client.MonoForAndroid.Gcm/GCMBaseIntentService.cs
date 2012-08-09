@@ -32,6 +32,7 @@ namespace GCMSharp.Client
 		string TOKEN = "";
 		const string EXTRA_TOKEN = "token";
 
+		protected GCMBaseIntentService() : base() {}
 
 		public GCMBaseIntentService(string senderId) : base("GCMIntentService-" + senderId)
 		{

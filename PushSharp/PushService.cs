@@ -67,7 +67,7 @@ namespace PushSharp
 				gcmService.Stop(waitForQueueToFinish);
 		}
 
-		public void StartWindowsPhonePushService(WindowsPhone.WindowsPhonePushChannelSettings channelSettings, PushServiceSettings serviceSettings = null)
+		public void StartWindowsPhonePushService(WindowsPhone.WindowsPhonePushChannelSettings channelSettings = null, PushServiceSettings serviceSettings = null)
 		{
 			wpService = new WindowsPhone.WindowsPhonePushService(channelSettings, serviceSettings);
 			wpService.Events.RegisterProxyHandler(this.Events);
