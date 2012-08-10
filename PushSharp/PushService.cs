@@ -14,7 +14,7 @@ namespace PushSharp
 		public bool WaitForQueuesToFinish { get; set; }
 
 		Apple.ApplePushService appleService = null;
-		Android.AndroidPushService androidService = null;
+		Android.C2dmPushService androidService = null;
 		WindowsPhone.WindowsPhonePushService wpService = null;
 		Blackberry.BlackberryPushService bbService = null;
 		Android.GcmPushService gcmService = null;
@@ -54,9 +54,9 @@ namespace PushSharp
 		}
 
 		[Obsolete("Google has Deprecated C2DM, and you should now use GCM Instead.  See the StartGoogleCloudMessagingPushService(...) method!")]
-		public void StartAndroidPushService(Android.AndroidPushChannelSettings channelSettings, PushServiceSettings serviceSettings = null)
+		public void StartAndroidPushService(Android.C2dmPushChannelSettings channelSettings, PushServiceSettings serviceSettings = null)
 		{
-			androidService = new Android.AndroidPushService(channelSettings, serviceSettings);
+			androidService = new Android.C2dmPushService(channelSettings, serviceSettings);
 			androidService.Events.RegisterProxyHandler(this.Events);
 		}
 

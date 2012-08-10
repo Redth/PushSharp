@@ -9,13 +9,13 @@ using PushSharp.Common;
 namespace PushSharp.Android
 {
 	[Obsolete("Google has Deprecated C2DM, and you should now use GCM Instead.")]
-	public class AndroidPushChannel : PushChannelBase
+	public class C2dmPushChannel : PushChannelBase
 	{
-		AndroidPushChannelSettings androidSettings = null;
+		C2dmPushChannelSettings androidSettings = null;
 		string googleAuthToken = string.Empty;
 		C2dmMessageTransportAsync transport;
 
-		public AndroidPushChannel(AndroidPushChannelSettings channelSettings, PushServiceSettings serviceSettings = null) : base(channelSettings, serviceSettings) 
+		public C2dmPushChannel(C2dmPushChannelSettings channelSettings, PushServiceSettings serviceSettings = null) : base(channelSettings, serviceSettings) 
 		{
 			androidSettings = channelSettings;
 
@@ -37,10 +37,10 @@ namespace PushSharp.Android
 
 			transport.MessageResponseReceived += new Action<C2dmMessageTransportResponse>(transport_MessageResponseReceived);
 
-			transport.UnhandledException += new Action<AndroidNotification, Exception>(transport_UnhandledException);
+			transport.UnhandledException += new Action<C2dmNotification, Exception>(transport_UnhandledException);
 		}
 
-		void transport_UnhandledException(AndroidNotification notification, Exception exception)
+		void transport_UnhandledException(C2dmNotification notification, Exception exception)
 		{
 			this.Events.RaiseChannelException(exception);
 		}
@@ -68,7 +68,7 @@ namespace PushSharp.Android
 
 		protected override void SendNotification(Notification notification)
 		{
-			transport.Send(notification as AndroidNotification, this.googleAuthToken, androidSettings.SenderID, androidSettings.ApplicationID);
+			transport.Send(notification as C2dmNotification, this.googleAuthToken, androidSettings.SenderID, androidSettings.ApplicationID);
 		}
 
 

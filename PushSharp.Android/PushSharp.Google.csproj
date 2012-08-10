@@ -46,11 +46,11 @@
     <Compile Include="..\PushSharp.Common\AssemblyVersionInfo.cs">
       <Link>AssemblyVersionInfo.cs</Link>
     </Compile>
-    <Compile Include="C2dm\AndroidFluentNotification.cs" />
-    <Compile Include="C2dm\AndroidNotification.cs" />
-    <Compile Include="C2dm\AndroidPushChannel.cs" />
-    <Compile Include="C2dm\AndroidPushChannelSettings.cs" />
-    <Compile Include="C2dm\AndroidPushService.cs" />
+    <Compile Include="C2dm\C2dmFluentNotification.cs" />
+    <Compile Include="C2dm\C2dmNotification.cs" />
+    <Compile Include="C2dm\C2dmPushChannel.cs" />
+    <Compile Include="C2dm\C2dmPushChannelSettings.cs" />
+    <Compile Include="C2dm\C2dmPushService.cs" />
     <Compile Include="C2dm\C2dmMessageTransportAsync.cs" />
     <Compile Include="C2dm\C2dmMessageTransportResponse.cs" />
     <Compile Include="C2dm\C2dmExceptions.cs" />

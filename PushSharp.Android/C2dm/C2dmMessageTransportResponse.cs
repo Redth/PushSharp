@@ -13,7 +13,7 @@ namespace PushSharp.Android
 			set;
 		}
 
-		public AndroidNotification Message
+		public C2dmNotification Message
 		{
 			get;
 			set;

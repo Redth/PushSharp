@@ -30,9 +30,9 @@ namespace PushSharp
 		}
 
 		[Obsolete("Google has Deprecated C2DM, and you should now use GCM Instead.  See the AndroidGcm() factory method!")]
-		public static Android.AndroidNotification Android()
+		public static Android.C2dmNotification Android()
 		{
-			return new Android.AndroidNotification();
+			return new Android.C2dmNotification();
 		}
 
 		public static Android.GcmNotification AndroidGcm()
