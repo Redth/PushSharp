@@ -1,6 +1,6 @@
 ﻿
-Microsoft Visual Studio Solution File, Format Version 11.00
-# Visual Studio 2010
+Microsoft Visual Studio Solution File, Format Version 12.00
+# Visual Studio 2012
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "PushSharp", "PushSharp\PushSharp.csproj", "{09414728-3728-4105-A149-EC2E315355F9}"
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "PushSharp.Common", "PushSharp.Common\PushSharp.Common.csproj", "{836F225F-6CD9-48DE-910C-70F8A7CF54AA}"
@@ -100,17 +100,17 @@ Global
 		{9947F510-BA9A-4045-A648-BAB687D8F513}.Release|Mixed Platforms.Build.0 = Release|Any CPU
 		{9947F510-BA9A-4045-A648-BAB687D8F513}.Release|x86.ActiveCfg = Release|Any CPU
 	EndGlobalSection
+	GlobalSection(SolutionProperties) = preSolution
+		HideSolutionNode = FALSE
+	EndGlobalSection
 	GlobalSection(NestedProjects) = preSolution
-		{9947F510-BA9A-4045-A648-BAB687D8F513} = {C09BBA3E-9CF3-4479-A4C3-3006820E2046}
-		{83C67156-893D-4AFF-9169-DB34771989CB} = {C09BBA3E-9CF3-4479-A4C3-3006820E2046}
+		{1B9A3A8B-3690-4435-BF9C-B557BF2713DB} = {04A9AE38-795E-4CB5-A9AD-C1FA83DC342C}
 		{5250980B-BD11-4201-B083-AEDB8C62C471} = {C09BBA3E-9CF3-4479-A4C3-3006820E2046}
 		{71E27C37-FBBF-481B-934B-1F7DBDE3C5D6} = {C09BBA3E-9CF3-4479-A4C3-3006820E2046}
-		{1B9A3A8B-3690-4435-BF9C-B557BF2713DB} = {04A9AE38-795E-4CB5-A9AD-C1FA83DC342C}
+		{83C67156-893D-4AFF-9169-DB34771989CB} = {C09BBA3E-9CF3-4479-A4C3-3006820E2046}
+		{9947F510-BA9A-4045-A648-BAB687D8F513} = {C09BBA3E-9CF3-4479-A4C3-3006820E2046}
 	EndGlobalSection
 	GlobalSection(MonoDevelopProperties) = preSolution
 		StartupItem = PushSharp.Sample\PushSharp.Sample.csproj
-	EndGlobalSection
-	GlobalSection(SolutionProperties) = preSolution
-		HideSolutionNode = FALSE
 	EndGlobalSection
 EndGlobal

@@ -79,7 +79,7 @@ namespace PushSharp.Blackberry
 				HttpWRes.Close();
 				requestStream.Close();
 			}
-			catch (System.Exception e)
+			catch (System.Exception)
 			{
 				success = false;
 			}

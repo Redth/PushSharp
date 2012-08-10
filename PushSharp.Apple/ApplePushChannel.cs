@@ -102,7 +102,7 @@ namespace PushSharp.Apple
 						}
 					}
 				}
-				catch (Exception ex)
+				catch (Exception)
 				{ 
 					this.QueueNotification(notification); 
 				} //If this failed, we probably had a networking error, so let's requeue the notification
