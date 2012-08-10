@@ -9,11 +9,9 @@ namespace PushSharp.Android
 	[Obsolete("Google has Deprecated C2DM, and you should now use GCM Instead.")]
 	public class C2dmPushService : PushServiceBase
 	{
-		public C2dmPushService(PushChannelSettings channelSettings, PushServiceSettings serviceSettings = null)
+		public C2dmPushService(C2dmPushChannelSettings channelSettings, PushServiceSettings serviceSettings = null)
 			: base(channelSettings, serviceSettings)
 		{
-			if (!(channelSettings is C2dmPushChannelSettings))
-				throw new ArgumentException("channelSettings must be typeof(AndroidPushChannelSettings)");
 		}
 
 		protected override PushChannelBase CreateChannel(PushChannelSettings channelSettings)

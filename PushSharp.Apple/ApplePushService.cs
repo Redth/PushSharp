@@ -15,7 +15,7 @@ namespace PushSharp.Apple
 		CancellationTokenSource cancelTokenSource;
 		Timer timerFeedback;
 
-		public ApplePushService(PushChannelSettings channelSettings, PushServiceSettings serviceSettings = null)
+		public ApplePushService(ApplePushChannelSettings channelSettings, PushServiceSettings serviceSettings = null)
 			: base(channelSettings, serviceSettings)
 		{
 			var appleChannelSettings = channelSettings as ApplePushChannelSettings;

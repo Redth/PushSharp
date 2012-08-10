@@ -8,7 +8,7 @@ namespace PushSharp.WindowsPhone
 {
 	public class WindowsPhonePushService : PushServiceBase
 	{
-		public WindowsPhonePushService(PushChannelSettings channelSettings, PushServiceSettings serviceSettings = null)
+		public WindowsPhonePushService(WindowsPhonePushChannelSettings channelSettings, PushServiceSettings serviceSettings = null)
 			: base(channelSettings, serviceSettings)
 		{
 		}
