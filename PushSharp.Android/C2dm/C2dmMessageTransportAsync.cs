@@ -181,7 +181,8 @@ namespace PushSharp.Android
 						break;
 				}
 
-				throw new MessageTransportException(wrErr, result);
+				result.ResponseCode = MessageTransportResponseCode.Error;
+				//throw new MessageTransportException(wrErr, result);
 			}
 			else
 			{

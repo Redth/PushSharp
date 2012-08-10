@@ -48,7 +48,7 @@ namespace PushSharp.Android
 		void transport_MessageResponseReceived(C2dmMessageTransportResponse response)
 		{
 			if (response.ResponseStatus == MessageTransportResponseStatus.Ok)
-				this.Events.RaiseNotificationSent(response.Message);
+				this.Events.RaiseNotificationSent(response.Message); //Msg ok!
 			else if (response.ResponseStatus == MessageTransportResponseStatus.InvalidRegistration)
 			{
 				//Device subscription is no good!
@@ -61,7 +61,7 @@ namespace PushSharp.Android
 			}
 			else
 			{
-				//TODO: Raise error response
+				//Message Failed some other way
 				this.Events.RaiseNotificationSendFailure(response.Message, new Exception(response.ResponseStatus.ToString()));
 			}
 		}
