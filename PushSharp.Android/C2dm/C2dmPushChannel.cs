@@ -4,6 +4,7 @@ using System.Collections.Specialized;
 using System.Linq;
 using System.Net;
 using System.Text;
+using System.Threading;
 using PushSharp.Common;
 
 namespace PushSharp.Android
@@ -14,6 +15,7 @@ namespace PushSharp.Android
 		C2dmPushChannelSettings androidSettings = null;
 		string googleAuthToken = string.Empty;
 		C2dmMessageTransportAsync transport;
+		long waitCounter = 0;
 
 		public C2dmPushChannel(C2dmPushChannelSettings channelSettings, PushServiceSettings serviceSettings = null) : base(channelSettings, serviceSettings) 
 		{
@@ -42,8 +44,9 @@ namespace PushSharp.Android
 
 		void transport_UnhandledException(C2dmNotification notification, Exception exception)
 		{
-			
 			this.Events.RaiseChannelException(exception);
+
+			Interlocked.Decrement(ref waitCounter);
 		}
 
 		void transport_MessageResponseReceived(C2dmMessageTransportResponse response)
@@ -73,13 +76,27 @@ namespace PushSharp.Android
 				//Message Failed some other way
 				this.Events.RaiseNotificationSendFailure(response.Message, new Exception(response.ResponseStatus.ToString()));
 			}
+
+			Interlocked.Decrement(ref waitCounter);
 		}
 
 		protected override void SendNotification(Notification notification)
 		{
+			Interlocked.Increment(ref waitCounter);
 			transport.Send(notification as C2dmNotification, this.googleAuthToken, androidSettings.SenderID, androidSettings.ApplicationID);
 		}
 
+		public override void Stop(bool waitForQueueToDrain)
+		{
+			base.Stop(waitForQueueToDrain);
+
+			var slept = 0;
+			while (Interlocked.Read(ref waitCounter) > 0 && slept <= 30000)
+			{
+				slept += 100;
+				Thread.Sleep(100);
+			}
+		}
 
 		/// <summary>
 		/// Explicitly refreshes the Google Auth Token.  Usually not necessary.
