@@ -34,7 +34,7 @@ namespace PushSharp.Sample
 			//  (so you would leave the first arg in the ctor of ApplePushChannelSettings as 'false')
 			//  If you are using an AdHoc or AppStore provisioning profile, you must use the Production push notification server
 			//  (so you would change the first arg in the ctor of ApplePushChannelSettings to 'true')
-			push.StartApplePushService(new ApplePushChannelSettings(false, appleCert, "pushsharp"));
+		//	push.StartApplePushService(new ApplePushChannelSettings(false, appleCert, "pushsharp"));
 			
 			//Configure and start Android GCM
 			//IMPORTANT: The SENDER_ID is your Google API Console App Project ID.
@@ -44,31 +44,43 @@ namespace PushSharp.Sample
 			push.StartGoogleCloudMessagingPushService(new GcmPushChannelSettings("785671162406", "AIzaSyC2PZNXQDVaUpZGmtsF_Vp8tHtIABVjazI", "com.pushsharp.test"));
 
 			//Configure and start Windows Phone Notifications
-			push.StartWindowsPhonePushService(new WindowsPhone.WindowsPhonePushChannelSettings());
+		//	push.StartWindowsPhonePushService(new WindowsPhone.WindowsPhonePushChannelSettings());
 
 			//Fluent construction of a Windows Phone Toast notification
-			push.QueueNotification(NotificationFactory.WindowsPhone().Toast()
-				.ForEndpointUri(new Uri("http://sn1.notify.live.net/throttledthirdparty/01.00/AAFCoNoCXidwRpn5NOxvwSxPAgAAAAADAgAAAAQUZm52OkJCMjg1QTg1QkZDMkUxREQ"))
-				.ForOSVersion(WindowsPhone.WindowsPhoneDeviceOSVersion.MangoSevenPointFive)
-				.WithBatchingInterval(WindowsPhone.BatchingInterval.Immediate)
-				.WithNavigatePath("/MainPage.xaml")
-				.WithText1("PushSharp")
-				.WithText2("This is a Toast"));
+			//push.QueueNotification(NotificationFactory.WindowsPhone().Toast()
+			//	.ForEndpointUri(new Uri("http://sn1.notify.live.net/throttledthirdparty/01.00/AAFCoNoCXidwRpn5NOxvwSxPAgAAAAADAgAAAAQUZm52OkJCMjg1QTg1QkZDMkUxREQ"))
+			//	.ForOSVersion(WindowsPhone.WindowsPhoneDeviceOSVersion.MangoSevenPointFive)
+			//	.WithBatchingInterval(WindowsPhone.BatchingInterval.Immediate)
+			//	.WithNavigatePath("/MainPage.xaml")
+			//	.WithText1("PushSharp")
+			//	.WithText2("This is a Toast"));
 
-			//Fluent construction of an iOS notification
-			//IMPORTANT: For iOS you MUST MUST MUST use your own DeviceToken here that gets generated within your iOS app itself when the Application Delegate
-			//  for registered for remote notifications is called, and the device token is passed back to you
-			push.QueueNotification(NotificationFactory.Apple()
-				.ForDeviceToken("1071737321559691b28fffa1aa4c8259d970fe0fc496794ad0486552fc9ec3db")
-				.WithAlert("1 Alert Text!")
-				.WithSound("default")
-				.WithBadge(7));
+			////Fluent construction of an iOS notification
+			////IMPORTANT: For iOS you MUST MUST MUST use your own DeviceToken here that gets generated within your iOS app itself when the Application Delegate
+			////  for registered for remote notifications is called, and the device token is passed back to you
+			//push.QueueNotification(NotificationFactory.Apple()
+			//	.ForDeviceToken("1071737321559691b28fffa1aa4c8259d970fe0fc496794ad0486552fc9ec3db")
+			//	.WithAlert("1 Alert Text!")
+			//	.WithSound("default")
+			//	.WithBadge(7));
 
 			//Fluent construction of an Android GCM Notification
 			push.QueueNotification(NotificationFactory.AndroidGcm()
 				.ForDeviceRegistrationId("APA91bG7J-cZjkURrqi58cEd5ain6hzi4i06T0zg9eM2kQAprV-fslFiq60hnBUVlnJPlPV-4K7X39aHIe55of8fJugEuYMyAZSUbmDyima5ZTC7hn4euQ0Yflj2wMeTxnyMOZPuwTLuYNiJ6EREeI9qJuJZH9Zu9g")
 				.WithCollapseKey("NONE")
 				.WithJson("{\"alert\":\"Alert Text!\",\"badge\":\"7\"}"));
+
+			//Fluent construction of an Android GCM Notification
+			push.QueueNotification(NotificationFactory.AndroidGcm()
+				.ForDeviceRegistrationId("2APA91bG7J-cZjkURrqi58cEd5ain6hzi4i06T0zg9eM2kQAprV-fslFiq60hnBUVlnJPlPV-4K7X39aHIe55of8fJugEuYMyAZSUbmDyima5ZTC7hn4euQ0Yflj2wMeTxnyMOZPuwTLuYNiJ6EREeI9qJuJZH9Zu9g")
+				.WithCollapseKey("NONE2")
+				.WithJson("{\"alert\":\"Alert Text!\",\"badge\":\"6\"}"));
+
+			//Fluent construction of an Android GCM Notification
+			push.QueueNotification(NotificationFactory.AndroidGcm()
+				.ForDeviceRegistrationId("1APA91bG7J-cZjkURrqi58cEd5ain6hzi4i06T0zg9eM2kQAprV-fslFiq60hnBUVlnJPlPV-4K7X39aHIe55of8fJugEuYMyAZSUbmDyima5ZTC7hn4euQ0Yflj2wMeTxnyMOZPuwTLuYNiJ6EREeI9qJuJZH9Zu9g")
+				.WithCollapseKey("NONE3")
+				.WithJson("{\"alert\":\"Alert Text!\",\"badge\":\"5\"}"));
 
 				
 			Console.WriteLine("Waiting for Queue to Finish...");

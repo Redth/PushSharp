@@ -42,11 +42,20 @@ namespace PushSharp.Android
 
 		void transport_UnhandledException(C2dmNotification notification, Exception exception)
 		{
+			
 			this.Events.RaiseChannelException(exception);
 		}
 
 		void transport_MessageResponseReceived(C2dmMessageTransportResponse response)
 		{
+			//Check if our token was expired and refresh/requeue if need be
+			if (response.ResponseCode == MessageTransportResponseCode.InvalidAuthToken)
+			{
+				this.QueueNotification(response.Message, false);
+				this.RefreshGoogleAuthToken();
+				return;
+			}
+
 			if (response.ResponseStatus == MessageTransportResponseStatus.Ok)
 				this.Events.RaiseNotificationSent(response.Message); //Msg ok!
 			else if (response.ResponseStatus == MessageTransportResponseStatus.InvalidRegistration)

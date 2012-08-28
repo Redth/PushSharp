@@ -212,7 +212,7 @@ namespace PushSharp.Android
 				//401 bad auth token
 				result.ResponseCode = MessageTransportResponseCode.InvalidAuthToken;
 				result.ResponseStatus = MessageTransportResponseStatus.Error;
-				throw new InvalidAuthenticationTokenTransportException(result);
+				//throw new InvalidAuthenticationTokenTransportException(result);
 			}
 			else if (asyncParam.WebResponse.StatusCode == HttpStatusCode.ServiceUnavailable)
 			{
