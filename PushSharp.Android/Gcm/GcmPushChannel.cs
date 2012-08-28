@@ -35,7 +35,7 @@ namespace PushSharp.Android
 					exception);
 			}
 
-			this.Events.RaiseChannelException(exception);
+			this.Events.RaiseChannelException(exception, notification);
 
 			Interlocked.Decrement(ref waitCounter);
 		}
@@ -61,7 +61,7 @@ namespace PushSharp.Android
 					//Swap Registrations Id's
 					var newRegistrationId = r.CanonicalRegistrationId;
 
-					this.Events.RaiseDeviceSubscriptionIdChanged(PlatformType.AndroidGcm, singleResultNotification.RegistrationIds[0], newRegistrationId);
+					this.Events.RaiseDeviceSubscriptionIdChanged(PlatformType.AndroidGcm, singleResultNotification.RegistrationIds[0], newRegistrationId, singleResultNotification);
 
 				}
 				else if (r.ResponseStatus == GcmMessageTransportResponseStatus.Unavailable)
@@ -71,7 +71,7 @@ namespace PushSharp.Android
 				else if (r.ResponseStatus == GcmMessageTransportResponseStatus.NotRegistered)
 				{
 					//Raise failure and device expired
-					this.Events.RaiseDeviceSubscriptionExpired(PlatformType.AndroidGcm, singleResultNotification.RegistrationIds[0]);
+					this.Events.RaiseDeviceSubscriptionExpired(PlatformType.AndroidGcm, singleResultNotification.RegistrationIds[0], singleResultNotification);
 				}
 				else
 				{

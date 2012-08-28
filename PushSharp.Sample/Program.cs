@@ -81,7 +81,7 @@ namespace PushSharp.Sample
 			Console.ReadLine();			
 		}
 
-		static void Events_OnDeviceSubscriptionIdChanged(Common.PlatformType platform, string oldDeviceInfo, string newDeviceInfo)
+		static void Events_OnDeviceSubscriptionIdChanged(Common.PlatformType platform, string oldDeviceInfo, string newDeviceInfo, Common.Notification notification)
 		{
 			//Currently this event will only ever happen for Android GCM
 			Console.WriteLine("Device Registration Changed:  Old-> " + oldDeviceInfo + "  New-> " + newDeviceInfo);
@@ -97,12 +97,12 @@ namespace PushSharp.Sample
 			Console.WriteLine("Failure: " + notification.Platform.ToString() + " -> " + notificationFailureException.Message + " -> " + notification.ToString());
 		}
 
-		static void Events_OnChannelException(Exception exception)
+		static void Events_OnChannelException(Exception exception, Common.Notification notification)
 		{
 			Console.WriteLine("Channel Exception: " + exception.ToString());
 		}
 
-		static void Events_OnDeviceSubscriptionExpired(Common.PlatformType platform, string deviceInfo)
+		static void Events_OnDeviceSubscriptionExpired(Common.PlatformType platform, string deviceInfo, Common.Notification notification)
 		{
 			Console.WriteLine("Device Subscription Expired: " + platform.ToString() + " -> " + deviceInfo);
 		}
