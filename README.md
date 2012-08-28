@@ -3,6 +3,8 @@ PushSharp
 
 A server-side library for sending Push Notifications to iOS (iPhone/iPad APNS), Android (C2DM - soon Google Cloud Message), Windows Phone, and Blackberry devices!
 
+**UPDATE: August 28, 2012** Windows 8 support is now in master, however it's very untested!
+
 **UPDATE: July 13, 2012** I've started working on Windows 8 support, check out the Windows-8 branch!
 
 **UPDATE: July 3, 2012** Google GCM branch has now been merged into the master branch, and we now support Google Cloud Messaging!
@@ -15,8 +17,8 @@ Features
    - Apple (APNS - iPhone, iPad, Mountain Lion)
    - Android (GCM/C2DM - Phones/Tablets)
    - Windows Phone 7 / 7.5 (and 8 presumably when it's released)
-   - Windows 8 (Work in progress, see Windows-8 branch)
-   - Blackberry (Not fully functional)
+   - Windows 8 (BETA - Not well tested yet!)
+   - Blackberry (Not fully functional / Tested - Looking for help here)
  - Fluent API for constructing Notifications for each platform
  - Auto Scaling of notification channels (more workers/connections are added as demand increases, and scaled down as it decreases)
  - Asynchronous code where possible, use of library is very event oriented
