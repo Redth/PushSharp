@@ -54,8 +54,9 @@ namespace PushSharp.Sample
 			
 			//Fluent construction of a Windows Toast Notification
 			push.QueueNotification(NotificationFactory.Windows().Toast().AsToastText01("This is a test").ForChannelUri("YOUR_CHANNEL_URI_HERE"));
-			
+
 			//Fluent construction of a Windows Phone Toast notification
+			//IMPORTANT: For Windows Phone you MUST use your own Endpoint Uri here that gets generated within your Windows Phone app itself!
 			push.QueueNotification(NotificationFactory.WindowsPhone().Toast()
 				.ForEndpointUri(new Uri("http://sn1.notify.live.net/throttledthirdparty/01.00/AAFCoNoCXidwRpn5NOxvwSxPAgAAAAADAgAAAAQUZm52OkJCMjg1QTg1QkZDMkUxREQ"))
 				.ForOSVersion(WindowsPhone.WindowsPhoneDeviceOSVersion.MangoSevenPointFive)
@@ -74,12 +75,12 @@ namespace PushSharp.Sample
 				.WithBadge(7));
 
 			//Fluent construction of an Android GCM Notification
+			//IMPORTANT: For Android you MUST use your own RegistrationId here that gets generated within your Android app itself!
 			push.QueueNotification(NotificationFactory.AndroidGcm()
 				.ForDeviceRegistrationId("APA91bG7J-cZjkURrqi58cEd5ain6hzi4i06T0zg9eM2kQAprV-fslFiq60hnBUVlnJPlPV-4K7X39aHIe55of8fJugEuYMyAZSUbmDyima5ZTC7hn4euQ0Yflj2wMeTxnyMOZPuwTLuYNiJ6EREeI9qJuJZH9Zu9g")
 				.WithCollapseKey("NONE")
 				.WithJson("{\"alert\":\"Alert Text!\",\"badge\":\"7\"}"));
-
-				
+										
 			Console.WriteLine("Waiting for Queue to Finish...");
 
 			//Stop and wait for the queues to drains
@@ -89,7 +90,7 @@ namespace PushSharp.Sample
 			Console.ReadLine();			
 		}
 
-		static void Events_OnDeviceSubscriptionIdChanged(Common.PlatformType platform, string oldDeviceInfo, string newDeviceInfo)
+		static void Events_OnDeviceSubscriptionIdChanged(Common.PlatformType platform, string oldDeviceInfo, string newDeviceInfo, Common.Notification notification)
 		{
 			//Currently this event will only ever happen for Android GCM
 			Console.WriteLine("Device Registration Changed:  Old-> " + oldDeviceInfo + "  New-> " + newDeviceInfo);
@@ -105,12 +106,12 @@ namespace PushSharp.Sample
 			Console.WriteLine("Failure: " + notification.Platform.ToString() + " -> " + notificationFailureException.Message + " -> " + notification.ToString());
 		}
 
-		static void Events_OnChannelException(Exception exception)
+		static void Events_OnChannelException(Exception exception, Common.Notification notification)
 		{
 			Console.WriteLine("Channel Exception: " + exception.ToString());
 		}
 
-		static void Events_OnDeviceSubscriptionExpired(Common.PlatformType platform, string deviceInfo)
+		static void Events_OnDeviceSubscriptionExpired(Common.PlatformType platform, string deviceInfo, Common.Notification notification)
 		{
 			Console.WriteLine("Device Subscription Expired: " + platform.ToString() + " -> " + deviceInfo);
 		}

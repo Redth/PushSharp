@@ -13,6 +13,7 @@ using Android.Util;
 
 namespace GCMSharp.Client
 {
+  [Android.Runtime.Preserve(AllMembers=true)]
 	public abstract class GCMBaseIntentService : IntentService
 	{
 		const string TAG = "GCMBaseIntentService";
@@ -31,6 +32,7 @@ namespace GCMSharp.Client
 		string TOKEN = "";
 		const string EXTRA_TOKEN = "token";
 
+		protected GCMBaseIntentService() : base() {}
 
 		public GCMBaseIntentService(string senderId) : base("GCMIntentService-" + senderId)
 		{

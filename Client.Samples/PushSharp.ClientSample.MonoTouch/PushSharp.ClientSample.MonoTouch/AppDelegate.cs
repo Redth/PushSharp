@@ -47,14 +47,14 @@ namespace PushSharp.ClientSample.AppleMonoTouch
 
 		public override void RegisteredForRemoteNotifications (UIApplication application, NSData deviceToken)
 		{
-			var deviceToken = NSUserDefaults.StandardUserDefaults.StringForKey("PushDeviceToken");
+			var oldDeviceToken = NSUserDefaults.StandardUserDefaults.StringForKey("PushDeviceToken");
 
 			//There's probably a better way to do this
 		  	var strFormat = new NSString("%@");
 		  	var dt = new NSString(MonoTouch.ObjCRuntime.Messaging.IntPtr_objc_msgSend_IntPtr_IntPtr(new MonoTouch.ObjCRuntime.Class("NSString").Handle, new MonoTouch.ObjCRuntime.Selector("stringWithFormat:").Handle, strFormat.Handle, deviceToken.Handle));
 			var newDeviceToken = dt.ToString().Replace("<", "").Replace(">", "").Replace(" ", "");
 
-			if (string.IsNullOrEmpty(deviceToken) || !deviceToken.Equals(newDeviceToken))
+			if (string.IsNullOrEmpty(oldDeviceToken) || !deviceToken.Equals(newDeviceToken))
 			{
 				//TODO: Put your own logic here to notify your server that the device token has changed/been created!
 			}

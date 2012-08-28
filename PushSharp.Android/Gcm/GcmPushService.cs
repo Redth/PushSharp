@@ -8,7 +8,7 @@ namespace PushSharp.Android
 {
 	public class GcmPushService : PushServiceBase
 	{
-		public GcmPushService(PushChannelSettings channelSettings, PushServiceSettings serviceSettings = null)
+		public GcmPushService(GcmPushChannelSettings channelSettings, PushServiceSettings serviceSettings = null)
 			: base(channelSettings, serviceSettings)
 		{
 		}

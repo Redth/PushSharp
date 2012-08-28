@@ -83,6 +83,9 @@ namespace PushSharp.Common
 
 		public void QueueNotification(Notification notification, bool countsAsRequeue = true)
 		{
+			if (this.CancelToken.IsCancellationRequested)
+				throw new ObjectDisposedException("Channel", "Channel has already been signaled to stop");
+
 			//If the count is -1, it can be queued infinitely, otherwise check that it's less than the max
 			if (this.ServiceSettings.MaxNotificationRequeues < 0 || notification.QueuedCount <= this.ServiceSettings.MaxNotificationRequeues)
 			{
@@ -98,7 +101,7 @@ namespace PushSharp.Common
 
 		void Sender()
 		{
-			while (!this.CancelToken.IsCancellationRequested)
+			while (!this.CancelToken.IsCancellationRequested || QueuedNotificationCount > 0)
 			{
 				Notification notification = null;
 

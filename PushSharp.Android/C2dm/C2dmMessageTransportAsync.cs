@@ -14,7 +14,7 @@ namespace PushSharp.Android
 	{
 		public event Action<string> UpdateGoogleClientAuthToken;
 		public event Action<C2dmMessageTransportResponse> MessageResponseReceived;
-		public event Action<AndroidNotification, Exception> UnhandledException;
+		public event Action<C2dmNotification, Exception> UnhandledException;
 
 		static C2dmMessageTransportAsync()
 		{
@@ -23,7 +23,7 @@ namespace PushSharp.Android
 		
 		private const string C2DM_SEND_URL = "https://android.apis.google.com/c2dm/send";
 
-		public void Send(AndroidNotification msg, string googleLoginAuthorizationToken, string senderID, string applicationID)
+		public void Send(C2dmNotification msg, string googleLoginAuthorizationToken, string senderID, string applicationID)
 		{
 			try
 			{
@@ -38,7 +38,7 @@ namespace PushSharp.Android
 			}
 		}
 
-		void send(AndroidNotification msg, string googleLoginAuthorizationToken, string senderID, string applicationID)
+		void send(C2dmNotification msg, string googleLoginAuthorizationToken, string senderID, string applicationID)
 		{
 			C2dmMessageTransportResponse result = new C2dmMessageTransportResponse();
 			result.Message = msg;
@@ -65,7 +65,7 @@ namespace PushSharp.Android
 
 		void requestStreamCallback(IAsyncResult result)
 		{
-			var msg = new AndroidNotification();
+			var msg = new C2dmNotification();
 
 			try
 			{
@@ -105,7 +105,7 @@ namespace PushSharp.Android
 
 		void responseCallback(IAsyncResult result)
 		{
-			var msg = new AndroidNotification();
+			var msg = new C2dmNotification();
 
 			try
 			{
@@ -181,7 +181,8 @@ namespace PushSharp.Android
 						break;
 				}
 
-				throw new MessageTransportException(wrErr, result);
+				result.ResponseCode = MessageTransportResponseCode.Error;
+				//throw new MessageTransportException(wrErr, result);
 			}
 			else
 			{
@@ -211,7 +212,7 @@ namespace PushSharp.Android
 				//401 bad auth token
 				result.ResponseCode = MessageTransportResponseCode.InvalidAuthToken;
 				result.ResponseStatus = MessageTransportResponseStatus.Error;
-				throw new InvalidAuthenticationTokenTransportException(result);
+				//throw new InvalidAuthenticationTokenTransportException(result);
 			}
 			else if (asyncParam.WebResponse.StatusCode == HttpStatusCode.ServiceUnavailable)
 			{
@@ -249,7 +250,7 @@ namespace PushSharp.Android
 
 		class C2dmAsyncParameters
 		{
-			public AndroidNotification Message
+			public C2dmNotification Message
 			{
 				get;
 				set;

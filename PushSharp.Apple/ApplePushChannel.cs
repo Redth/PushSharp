@@ -41,13 +41,7 @@ namespace PushSharp.Apple
 		{
 			this.appleSettings = channelSettings;
 
-			//Need to load the private key seperately from apple
-			// Fixed by danielgindi@gmail.com :
-			//      The default is UserKeySet, which has caused internal encryption errors,
-			//      Because of lack of permissions on most hosting services.
-			//      So MachineKeySet should be used instead.
-			certificate = new X509Certificate2(this.appleSettings.CertificateData, this.appleSettings.CertificateFilePassword, 
-				X509KeyStorageFlags.MachineKeySet | X509KeyStorageFlags.PersistKeySet | X509KeyStorageFlags.Exportable);
+			certificate = this.appleSettings.Certificate;
 
 			certificates = new X509CertificateCollection();
 			certificates.Add(certificate);
@@ -108,7 +102,7 @@ namespace PushSharp.Apple
 						}
 					}
 				}
-				catch (Exception ex)
+				catch (Exception)
 				{ 
 					this.QueueNotification(notification); 
 				} //If this failed, we probably had a networking error, so let's requeue the notification
@@ -237,10 +231,10 @@ namespace PushSharp.Apple
 
 		void Cleanup()
 		{
-			bool wasRemoved = false;
-
 			while (true)
 			{
+				bool wasRemoved = false;
+
 				lock (sentLock)
 				{
 					//See if anything is here to process
@@ -368,8 +362,8 @@ namespace PushSharp.Apple
 
 				try
 				{
-					//stream.AuthenticateAsClient(this.appleSettings.Host, this.certificates, System.Security.Authentication.SslProtocols.Ssl3, false);
-					stream.AuthenticateAsClient(this.appleSettings.Host);
+					stream.AuthenticateAsClient(this.appleSettings.Host, this.certificates, System.Security.Authentication.SslProtocols.Ssl3, false);
+					//stream.AuthenticateAsClient(this.appleSettings.Host);
 				}
 				catch (System.Security.Authentication.AuthenticationException ex)
 				{

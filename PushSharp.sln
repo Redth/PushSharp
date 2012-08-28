@@ -5,7 +5,7 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "PushSharp", "PushSharp\Push
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "PushSharp.Common", "PushSharp.Common\PushSharp.Common.csproj", "{836F225F-6CD9-48DE-910C-70F8A7CF54AA}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "PushSharp.Google", "PushSharp.Android\PushSharp.Google.csproj", "{71E27C37-FBBF-481B-934B-1F7DBDE3C5D6}"
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Platforms", "Platforms", "{C09BBA3E-9CF3-4479-A4C3-3006820E2046}"
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "PushSharp.WindowsPhone", "PushSharp.WindowsPhone\PushSharp.WindowsPhone.csproj", "{9947F510-BA9A-4045-A648-BAB687D8F513}"
 EndProject
@@ -13,7 +13,7 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "PushSharp.Apple", "PushShar
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "PushSharp.Blackberry", "PushSharp.Blackberry\PushSharp.Blackberry.csproj", "{5250980B-BD11-4201-B083-AEDB8C62C471}"
 EndProject
-Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Platforms", "Platforms", "{C09BBA3E-9CF3-4479-A4C3-3006820E2046}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "PushSharp.Google", "PushSharp.Android\PushSharp.Google.csproj", "{71E27C37-FBBF-481B-934B-1F7DBDE3C5D6}"
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Samples", "Samples", "{04A9AE38-795E-4CB5-A9AD-C1FA83DC342C}"
 EndProject
@@ -122,5 +122,8 @@ Global
 		{71E27C37-FBBF-481B-934B-1F7DBDE3C5D6} = {C09BBA3E-9CF3-4479-A4C3-3006820E2046}
 		{83C67156-893D-4AFF-9169-DB34771989CB} = {C09BBA3E-9CF3-4479-A4C3-3006820E2046}
 		{9947F510-BA9A-4045-A648-BAB687D8F513} = {C09BBA3E-9CF3-4479-A4C3-3006820E2046}
+	EndGlobalSection
+	GlobalSection(MonoDevelopProperties) = preSolution
+		StartupItem = PushSharp.Sample\PushSharp.Sample.csproj
 	EndGlobalSection
 EndGlobal
