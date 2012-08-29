@@ -15,7 +15,7 @@ namespace PushSharp.Common
 		public abstract PlatformType Platform { get; }
 		
 		public PushServiceSettings ServiceSettings { get; private set; }
-		public PushChannelSettings ChannelSettings { get; private set; }
+		public TChannelSettings ChannelSettings { get; private set; }
 		public bool IsStopping { get { return stopping; } }
 
 		Timer timerCheckScale;
