@@ -12,7 +12,7 @@ namespace PushSharp
 		public ChannelEvents Events;
 
 		public bool WaitForQueuesToFinish { get; set; }
-
+				
 		Apple.ApplePushService appleService = null;
 		Android.C2dmPushService androidService = null;
 		WindowsPhone.WindowsPhonePushService wpService = null;

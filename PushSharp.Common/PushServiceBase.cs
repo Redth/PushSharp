@@ -8,9 +8,11 @@ using System.Threading.Tasks;
 
 namespace PushSharp.Common
 {
-	public abstract class PushServiceBase : IDisposable
+	public abstract class PushServiceBase<TChannelSettings> : IDisposable where TChannelSettings : PushChannelSettings
 	{
 		public ChannelEvents Events = new ChannelEvents();
+
+		public abstract PlatformType Platform { get; }
 		
 		public PushServiceSettings ServiceSettings { get; private set; }
 		public PushChannelSettings ChannelSettings { get; private set; }
@@ -26,7 +28,7 @@ namespace PushSharp.Common
 
 		protected abstract PushChannelBase CreateChannel(PushChannelSettings channelSettings);
 
-		public PushServiceBase(PushChannelSettings channelSettings, PushServiceSettings serviceSettings = null)
+		public PushServiceBase(TChannelSettings channelSettings, PushServiceSettings serviceSettings = null)
 		{
 			this.ServiceSettings = serviceSettings ?? new PushServiceSettings();
 			this.ChannelSettings = channelSettings;

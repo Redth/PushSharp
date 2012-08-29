@@ -9,7 +9,7 @@ using PushSharp.Common;
 
 namespace PushSharp.Apple
 {
-	public class ApplePushService : Common.PushServiceBase, IDisposable
+	public class ApplePushService : Common.PushServiceBase<ApplePushChannelSettings>, IDisposable
 	{
 		FeedbackService feedbackService;
 		CancellationTokenSource cancelTokenSource;
@@ -45,6 +45,11 @@ namespace PushSharp.Apple
 		protected override Common.PushChannelBase CreateChannel(Common.PushChannelSettings channelSettings)
 		{
 			return new ApplePushChannel(channelSettings as ApplePushChannelSettings);
-		}		
+		}
+
+		public override PlatformType Platform
+		{
+			get { return PlatformType.Apple; }
+		}
 	}
 }
