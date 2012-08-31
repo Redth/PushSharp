@@ -31,6 +31,12 @@ Head over to the [Wiki](https://github.com/Redth/PushSharp/wiki) for some docume
  - [How to Configure & Send Apple Push Notifications using PushSharp](https://github.com/Redth/PushSharp/wiki/How-to-Configure-&-Send-Apple-Push-Notifications-using-PushSharp)
  - [How to Configure & Send Android GCM Google Cloud Messaging Push Notifications using PushSharp](https://github.com/Redth/PushSharp/wiki/How-to-Configure-&-Send-GCM-Google-Cloud-Messaging-Push-Notifications-using-PushSharp)
 
+PushSharp Featured in Xamarin Seminar!
+--------------------------------------
+On August 9th, 2012, I had the great honor of hosting a Xamarin Seminar on Push Notifications, and introducing PushSharp.  If you missed it, the video and slides are all online now!
+ - [Push Notifications - Introduction to PushSharp - Video](http://www.youtube.com/watch?v=MytQ6vqrE5g)
+ - [Push Notifications - Introduction to PushSharp - Slides](http://www.slideshare.net/Xamarin/push-notifications-introduction-to-pushsharp-seminar)
+
 Some sample action!
 -------------------
 
