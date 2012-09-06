@@ -93,9 +93,19 @@ namespace PushSharp.Android
 		internal string GetJson()
 		{
 			var json = new JObject();
-			
+
 			if (!string.IsNullOrEmpty(this.CollapseKey))
+			{
 				json["collapse_key"] = this.CollapseKey;
+			}
+			else
+			{
+				//HACK ALERT: Google GCM Currently uses the collapse_key 'no_collapse_key' if you do not pass in a collapse key
+				// This means that effectively instead of no collapse key, your messages all use the exact SAME collapse key
+				// Please refer to issue #: 34 on Github ( https://github.com/Redth/PushSharp/issues/34 ) for more info
+				// At this time, as a workaround we are sending a new GUID to ensure the same desired effect as no collapse key :)
+				json["collapse_key"] = Guid.NewGuid().ToString("N");
+			}
 			
 			if (this.TimeToLive.HasValue)
 				json["time_to_live"] = this.TimeToLive.Value;
