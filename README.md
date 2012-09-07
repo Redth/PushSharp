@@ -90,6 +90,33 @@ push.QueueNotification(NotificationFactory.Android()
 	.WithJson("{\"alert\":\"Alert Text!\",\"badge\":\"7\"}"));
 ```	
 	
+The Bare Metal
+-----------------
+The primary goal of PushSharp is to allow you to ***easily*** send notifications without thinking to much about it.  However, there are going to be cases where you want more raw power.  Luckily, PushSharp was designed with that in mind!  See the diagram and explanation of the structure of PushSharp below:
+
+![PushSharp Structure Diagram](https://github.com/Redth/PushSharp/raw/master/Resources/PushSharp-Structure.png)
+
+PushSharp is composed of several tiers with each higher tier building upon the lower.
+
+**PushService**
+
+The purpose of PushService is to group all of the various push service platforms into a single class, so you have a single starting point for using all the services.
+
+**PushServiceBase** 
+
+Each platform has its own implementation of the PushServiceBase class.  The PushServiceBase for each platform is responsible for maintaining a collection of instances of PushChannelBase and distribute Queued notifications to them.  
+
+Settings for the PushServiceBase instance can be changed through the PushServiceSettings object.  By default the PushServiceBase instance will attempt to auto scale up and down the instances of PushChannelBase, however this behaviour can be changed in the settings.  Each platform has an implementation of PushServiceBase (eg: ApplePushService, GcmPushService, WindowsPushService, etc.).
+
+**PushChannelBase**
+
+The Channel instance is the closest to the metal that you can get in PushSharp.  Each PushChannelBase instance represents a single *connection* or a single *channel* to the push service provider's cloud service.  In the case of Apple (ApplePushChannel), this means a single, open, TCP Socket connection to Apple's Push Notification gateway server.  However in the case of GCM, and Windows/WindowsPhone because the notification protocol is HTTP, it represents a single queue and a single worker for processing that queue.  
+
+PushChannelBase requires a PushChannelSettings which has a different implementation for each platform (each platform requires different parameters for connecting to the platform's specific cloud service - eg: ApplePushChannelSettings, GcmPushChannelSettings, WindowsPushChannelSettings, etc).  
+
+You can create instances of any of the implementations of PushChannelBase (ApplePushChannel, GcmPushChannel, WindowsPushChannel, etc.) and queue notifications to them directly, bypassing any of the PushService channel management features in the library, so that you are able to implement scaling as you see fit!
+
+
 
 **MonoTouch** and **Mono for Android** Client Application Integration
 ---------------------------------------------------------------------
