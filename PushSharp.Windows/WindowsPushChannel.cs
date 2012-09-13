@@ -37,7 +37,7 @@ namespace PushSharp.Windows
 			var response = string.Empty;
 
 			try { response = wc.UploadString("https://login.live.com/accesstoken.srf", "POST", postData.ToString()); }
-			catch (Exception ex) { this.Events.RaiseChannelException(ex); }
+			catch (Exception ex) { this.Events.RaiseChannelException(ex, PlatformType.Windows); }
 
 			var json = new JObject();
 
@@ -54,7 +54,7 @@ namespace PushSharp.Windows
 			}
 			else
 			{
-				this.Events.RaiseChannelException(new UnauthorizedAccessException("Could not retrieve access token for the supplied Package Security Identifier (SID) and client secret"));
+				this.Events.RaiseChannelException(new UnauthorizedAccessException("Could not retrieve access token for the supplied Package Security Identifier (SID) and client secret"), PlatformType.Windows);
 			}
 		}
 

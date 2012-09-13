@@ -29,7 +29,7 @@ namespace PushSharp.Apple
 				timerFeedback = new Timer(new TimerCallback((state) =>
 				{
 					try { feedbackService.Run(channelSettings as ApplePushChannelSettings, this.cancelTokenSource.Token); }
-					catch (Exception ex) { this.Events.RaiseChannelException(ex); }
+					catch (Exception ex) { this.Events.RaiseChannelException(ex, PlatformType.Apple); }
 
 					//Timer will run first after 10 seconds, then every 10 minutes to get feedback!
 				}), null, TimeSpan.FromSeconds(10), TimeSpan.FromMinutes(appleChannelSettings.FeedbackIntervalMinutes));

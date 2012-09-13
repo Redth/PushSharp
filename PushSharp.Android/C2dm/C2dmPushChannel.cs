@@ -28,7 +28,7 @@ namespace PushSharp.Android
 			}
 			catch (GoogleLoginAuthorizationException glaex)
 			{
-				this.Events.RaiseChannelException(glaex);
+				this.Events.RaiseChannelException(glaex, PlatformType.AndroidC2dm);
 			}
 
 			transport = new C2dmMessageTransportAsync();
@@ -44,7 +44,7 @@ namespace PushSharp.Android
 
 		void transport_UnhandledException(C2dmNotification notification, Exception exception)
 		{
-			this.Events.RaiseChannelException(exception);
+			this.Events.RaiseChannelException(exception, PlatformType.AndroidC2dm);
 
 			Interlocked.Decrement(ref waitCounter);
 		}

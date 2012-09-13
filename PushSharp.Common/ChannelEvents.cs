@@ -27,14 +27,14 @@ namespace PushSharp.Common
 				evt(notification);
 		}
 
-		public delegate void ChannelExceptionDelegate(Exception exception, Notification notification = null);
+		public delegate void ChannelExceptionDelegate(Exception exception, PlatformType platformType, Notification notification = null);
 		public event ChannelExceptionDelegate OnChannelException;
 
-		public void RaiseChannelException(Exception exception, Notification notification = null)
+		public void RaiseChannelException(Exception exception, PlatformType platformType, Notification notification = null)
 		{
 			var evt = this.OnChannelException;
 			if (evt != null)
-				evt(exception, notification);
+				evt(exception, platformType, notification);
 		}
 
 
@@ -61,7 +61,7 @@ namespace PushSharp.Common
 
 		public void RegisterProxyHandler(ChannelEvents proxy)
 		{
-			this.OnChannelException += new ChannelExceptionDelegate((exception, notification) => proxy.RaiseChannelException(exception, notification));
+			this.OnChannelException += new ChannelExceptionDelegate((exception, platformType, notification) => proxy.RaiseChannelException(exception, platformType, notification));
 
 			this.OnNotificationSendFailure += new NotificationSendFailureDelegate((notification, exception) => proxy.RaiseNotificationSendFailure(notification, exception));
 
@@ -74,7 +74,7 @@ namespace PushSharp.Common
 
 		public void UnRegisterProxyHandler(ChannelEvents proxy)
 		{
-			this.OnChannelException -= new ChannelExceptionDelegate((exception, notification) => proxy.RaiseChannelException(exception, notification));
+			this.OnChannelException -= new ChannelExceptionDelegate((exception, platformType, notification) => proxy.RaiseChannelException(exception, platformType, notification));
 
 			this.OnNotificationSendFailure -= new NotificationSendFailureDelegate((notification, exception) => proxy.RaiseNotificationSendFailure(notification, exception));
 

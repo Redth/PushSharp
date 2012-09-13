@@ -106,9 +106,9 @@ namespace PushSharp.Sample
 			Console.WriteLine("Failure: " + notification.Platform.ToString() + " -> " + notificationFailureException.Message + " -> " + notification.ToString());
 		}
 
-		static void Events_OnChannelException(Exception exception, Common.Notification notification)
+		static void Events_OnChannelException(Exception exception, Common.PlatformType platformType, Common.Notification notification)
 		{
-			Console.WriteLine("Channel Exception: " + exception.ToString());
+			Console.WriteLine("Channel Exception: " + platformType.ToString() + " -> " + exception.ToString());
 		}
 
 		static void Events_OnDeviceSubscriptionExpired(Common.PlatformType platform, string deviceInfo, Common.Notification notification)

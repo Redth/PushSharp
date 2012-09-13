@@ -35,7 +35,7 @@ namespace PushSharp.Android
 					exception);
 			}
 
-			this.Events.RaiseChannelException(exception, notification);
+			this.Events.RaiseChannelException(exception, PlatformType.AndroidGcm, notification);
 
 			Interlocked.Decrement(ref waitCounter);
 		}

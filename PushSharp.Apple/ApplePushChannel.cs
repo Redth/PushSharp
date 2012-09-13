@@ -295,7 +295,7 @@ namespace PushSharp.Apple
 						cf(ex);
 
 					//Raise a channel exception
-					this.Events.RaiseChannelException(ex);
+					this.Events.RaiseChannelException(ex, PlatformType.Apple);
 				}
 
 				if (!connected)
