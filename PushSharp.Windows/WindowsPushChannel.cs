@@ -228,11 +228,11 @@ namespace PushSharp.Windows
 			}
 			else if (status.HttpStatus == HttpStatusCode.NotFound) //404
 			{
-				Events.RaiseDeviceSubscriptionExpired(PlatformType.Windows, status.Notification.ChannelUri);
+				Events.RaiseDeviceSubscriptionExpired(PlatformType.Windows, status.Notification.ChannelUri, status.Notification);
 			}
 			else if (status.HttpStatus == HttpStatusCode.Gone) //410
 			{
-				Events.RaiseDeviceSubscriptionExpired(PlatformType.Windows, status.Notification.ChannelUri);
+				Events.RaiseDeviceSubscriptionExpired(PlatformType.Windows, status.Notification.ChannelUri, status.Notification);
 			}
 
 			Events.RaiseNotificationSendFailure(status.Notification, new WindowsNotificationSendFailureException(status));
