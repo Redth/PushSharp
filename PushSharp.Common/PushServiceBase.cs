@@ -62,6 +62,10 @@ namespace PushSharp.Common
 		{
 			stopping = true;
 
+			//Stop the timer for checking scale
+			if (this.timerCheckScale != null)
+				this.timerCheckScale.Change(Timeout.Infinite, Timeout.Infinite);
+
 			//Stop all channels
 			Parallel.ForEach<PushChannelBase>(channels,
 				(channel) =>
@@ -125,7 +129,7 @@ namespace PushSharp.Common
 
 		void CheckScale()
 		{
-			if (ServiceSettings.AutoScaleChannels)
+			if (ServiceSettings.AutoScaleChannels && !this.cancelTokenSource.IsCancellationRequested && !stopping)
 			{
 				if (channels.Count <= 0)
 				{
@@ -158,10 +162,10 @@ namespace PushSharp.Common
 			}
 			else
 			{
-				while (channels.Count > ServiceSettings.Channels)
+				while (channels.Count > ServiceSettings.Channels && !this.cancelTokenSource.IsCancellationRequested && !stopping)
 					TeardownChannel();
 
-				while (channels.Count < ServiceSettings.Channels)
+				while (channels.Count < ServiceSettings.Channels && !this.cancelTokenSource.IsCancellationRequested && !stopping)
 					SpinupChannel();
 			}
 		}
