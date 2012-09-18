@@ -36,8 +36,8 @@ namespace PushSharp.Sample
 			//  (so you would leave the first arg in the ctor of ApplePushChannelSettings as 'false')
 			//  If you are using an AdHoc or AppStore provisioning profile, you must use the Production push notification server
 			//  (so you would change the first arg in the ctor of ApplePushChannelSettings to 'true')
-			push.StartApplePushService(new ApplePushChannelSettings(false, appleCert, "pushsharp"));
-			
+			push.StartApplePushService(new ApplePushChannelSettings(appleCert, "pushsharp"));
+
 			//Configure and start Android GCM
 			//IMPORTANT: The SENDER_ID is your Google API Console App Project ID.
 			//  Be sure to get the right Project ID from your Google APIs Console.  It's not the named project ID that appears in the Overview,
@@ -49,9 +49,9 @@ namespace PushSharp.Sample
 			push.StartWindowsPhonePushService(new WindowsPhonePushChannelSettings());
 
 			//Configure and start Windows Notifications
-			push.StartWindowsPushService(new WindowsPushChannelSettings("BUILD.64beb1a1-5444-4660-8b27-bcc740f9c7ca", 
+			push.StartWindowsPushService(new WindowsPushChannelSettings("BUILD.64beb1a1-5444-4660-8b27-bcc740f9c7ca",
 				"ms-app://s-1-15-2-259456210-2622405444-520366611-1750679940-1314087242-2560077863-3994015833", "7-GIUO1ubmrqOwQUBzXpnqiSw30LS2xr"));
-			
+
 			//Fluent construction of a Windows Toast Notification
 			push.QueueNotification(NotificationFactory.Windows().Toast().AsToastText01("This is a test").ForChannelUri("YOUR_CHANNEL_URI_HERE"));
 

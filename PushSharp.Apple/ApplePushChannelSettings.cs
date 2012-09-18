@@ -25,6 +25,8 @@ namespace PushSharp.Apple
 		public ApplePushChannelSettings(bool production, string certificateFile, string certificateFilePwd) 
 			: this(production, System.IO.File.ReadAllBytes(certificateFile), certificateFilePwd) { }
 
+		public ApplePushChannelSettings(string certificateFile, string certificateFilePwd)
+			: this(System.IO.File.ReadAllBytes(certificateFile), certificateFilePwd) { }
 
 		//Need to load the private key seperately from apple
 		// Fixed by danielgindi@gmail.com :
@@ -35,7 +37,21 @@ namespace PushSharp.Apple
 			: this(production, new X509Certificate2(certificateData, certificateFilePwd,
 				X509KeyStorageFlags.MachineKeySet | X509KeyStorageFlags.PersistKeySet | X509KeyStorageFlags.Exportable)) { }
 
+		public ApplePushChannelSettings(byte[] certificateData, string certificateFilePwd)
+			: this(new X509Certificate2(certificateData, certificateFilePwd,
+				X509KeyStorageFlags.MachineKeySet | X509KeyStorageFlags.PersistKeySet | X509KeyStorageFlags.Exportable)) { }
+
+		public ApplePushChannelSettings(X509Certificate2 certificate)
+		{
+			Initialize(DetectProduction(certificate), certificate);
+		}
+
 		public ApplePushChannelSettings(bool production, X509Certificate2 certificate)
+		{
+			Initialize(production, certificate);
+		}
+
+		void Initialize(bool production, X509Certificate2 certificate)
 		{
 			this.Host = production ? APNS_PRODUCTION_HOST : APNS_SANDBOX_HOST;
 			this.FeedbackHost = production ? APNS_PRODUCTION_FEEDBACK_HOST : APNS_SANDBOX_FEEDBACK_HOST;
@@ -48,6 +64,42 @@ namespace PushSharp.Apple
 
 			this.FeedbackIntervalMinutes = 10;
 			this.FeedbackTimeIsUTC = false;
+
+			CheckProductionCertificateMatching(production);
+		}
+
+		public bool DetectProduction(X509Certificate2 certificate)
+		{
+			bool production = false;
+
+			if (this.Certificate != null)
+			{
+				var subjectName = this.Certificate.SubjectName.Name;
+
+				if (subjectName.Contains("Apple Production IOS Push Services"))
+					production = true;
+			}
+			
+			return production;
+		}
+
+		void CheckProductionCertificateMatching(bool production)
+		{
+			if (this.Certificate != null)
+			{
+				var issuerName = this.Certificate.IssuerName.Name;
+				var subjectName = this.Certificate.SubjectName.Name;
+
+				if (!issuerName.Contains("Apple"))
+					throw new ArgumentException("Your Certificate does not appear to be issued by Apple!  Please check to ensure you have the correct certificate!");
+
+				if (production && !subjectName.Contains("Apple Production IOS Push Services"))
+					throw new ArgumentException("You have selected the Production server, yet your Certificate does not appear to be the Production certificate!  Please check to ensure you have the correct certificate!");
+
+
+				if (!production && !subjectName.Contains("Apple Development IOS Push Services"))
+						throw new ArgumentException("You have selected the Development/Sandbox (Not production) server, yet your Certificate does not appear to be the Development/Sandbox certificate!  Please check to ensure you have the correct certificate!");				
+			}
 		}
 
 		public string Host
