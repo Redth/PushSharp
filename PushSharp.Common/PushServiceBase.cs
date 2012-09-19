@@ -55,6 +55,8 @@ namespace PushSharp.Common
 				
 		public void QueueNotification(Notification notification)
 		{
+			notification.EnqueuedTimestamp = DateTime.UtcNow;
+
 			queuedNotifications.Enqueue(notification);
 		}
 
@@ -133,40 +135,38 @@ namespace PushSharp.Common
 			{
 				if (channels.Count <= 0)
 				{
-					SpinupChannel();
+					ScaleChannels(ChannelScaleAction.Create);
 					return;
 				}
 
 				var avgTime = GetAverageQueueWait();
 
-				if (avgTime < 1 && channels.Count > 1)
+				if (avgTime < 100 && channels.Count > 1)
 				{
-					TeardownChannel();
+					ScaleChannels(ChannelScaleAction.Destroy);
 				}
-				else if (avgTime > 5 && channels.Count < this.ServiceSettings.MaxAutoScaleChannels)
+				else if (channels.Count < this.ServiceSettings.MaxAutoScaleChannels)
 				{
 					var numChannelsToSpinUp = 1;
 
 					//Depending on the wait time, let's spin up more than 1 channel at a time
-					if (avgTime > 500)
-						numChannelsToSpinUp = 19;
-					else if (avgTime > 250)
-						numChannelsToSpinUp = 10;
-					else if (avgTime > 100)
+					if (avgTime > 5000)
 						numChannelsToSpinUp = 5;
+					else if (avgTime > 1000)
+						numChannelsToSpinUp = 2;
+					else if (avgTime > 100)
+						numChannelsToSpinUp = 1;
 
-					for (int i = 0; i < numChannelsToSpinUp; i++)
-						if (channels.Count < this.ServiceSettings.MaxAutoScaleChannels)
-							SpinupChannel();
+					ScaleChannels(ChannelScaleAction.Create, numChannelsToSpinUp);
 				}
 			}
 			else
 			{
 				while (channels.Count > ServiceSettings.Channels && !this.cancelTokenSource.IsCancellationRequested && !stopping)
-					TeardownChannel();
+					ScaleChannels(ChannelScaleAction.Destroy);
 
 				while (channels.Count < ServiceSettings.Channels && !this.cancelTokenSource.IsCancellationRequested && !stopping)
-					SpinupChannel();
+					ScaleChannels(ChannelScaleAction.Create);
 			}
 		}
 
@@ -177,6 +177,7 @@ namespace PushSharp.Common
 			{
 				measurements.Add(queueTimeMilliseconds);
 
+				//Remove old measurements
 				while (measurements.Count > 1000)
 					measurements.RemoveAt(0);
 			}				
@@ -196,30 +197,54 @@ namespace PushSharp.Common
 			}
 		}
 
-		void SpinupChannel()
+		void ScaleChannels(ChannelScaleAction action, int count = 1)
 		{
-			lock (channels)
+			for (int i = 0; i < count; i++)
 			{
-				var newChannel = this.CreateChannel(this.ChannelSettings);
+				var newCount = 0;
+				bool? destroyed= null;
 
-				newChannel.Events.RegisterProxyHandler(this.Events);
+				lock (channels)
+				{
+					if (action == ChannelScaleAction.Create)
+					{
+						var newChannel = this.CreateChannel(this.ChannelSettings);
 
-				newChannel.OnQueueTimed += new Action<double>(newChannel_OnQueueTimed);
+						newChannel.Events.RegisterProxyHandler(this.Events);
 
-				channels.Add(newChannel);
+						newChannel.OnQueueTimed += new Action<double>(newChannel_OnQueueTimed);
+
+						channels.Add(newChannel);
+
+						newCount = channels.Count;
+						destroyed = false;
+					}
+					else if (action == ChannelScaleAction.Destroy && channels.Count > 1)
+					{
+						var channelOn = channels[0];
+						channels.RemoveAt(0);
+
+						//Now stop the channel but let it finish
+						channelOn.Stop(true);
+
+						channelOn.Events.UnRegisterProxyHandler(this.Events);
+
+						newCount = channels.Count;
+						destroyed = true;
+					}
+				}
+
+				if (destroyed.HasValue && !destroyed.Value)
+					this.Events.RaiseChannelCreated(this.Platform, newCount);
+				else if (destroyed.HasValue && destroyed.Value)
+					this.Events.RaiseChannelDestroyed(this.Platform, newCount);
 			}
 		}
+	}
 
-		void TeardownChannel()
-		{
-			lock (channels)
-			{
-				var channelOn = channels[0];
-				channels.RemoveAt(0);
-
-				channelOn.Events.UnRegisterProxyHandler(this.Events);
-			}
-		}
-
+	public enum ChannelScaleAction
+	{
+		Create,
+		Destroy
 	}
 }

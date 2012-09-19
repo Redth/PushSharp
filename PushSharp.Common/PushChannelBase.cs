@@ -23,7 +23,8 @@ namespace PushSharp.Common
 
 		object queuedNotificationsLock = new object();
 		ConcurrentQueue<Notification> queuedNotifications;
-		
+		ManualResetEventSlim waitQueuedNotification;
+
 		protected bool stopping;
 		protected Task taskSender;
 		protected CancellationTokenSource CancelTokenSource;
@@ -41,6 +42,7 @@ namespace PushSharp.Common
 		
 			this.ChannelSettings = channelSettings;
 			this.ServiceSettings = serviceSettings ?? new PushServiceSettings();
+			this.waitQueuedNotification = new ManualResetEventSlim();
 
 			//Start our sending task
 			taskSender = new Task(() => Sender(), TaskCreationOptions.LongRunning);
@@ -89,11 +91,17 @@ namespace PushSharp.Common
 			//If the count is -1, it can be queued infinitely, otherwise check that it's less than the max
 			if (this.ServiceSettings.MaxNotificationRequeues < 0 || notification.QueuedCount <= this.ServiceSettings.MaxNotificationRequeues)
 			{
+				//Reset the Enqueued time in case this is a requeue
+				notification.EnqueuedTimestamp = DateTime.UtcNow;
+
 				//Increase the queue counter
 				if (countsAsRequeue)
 					notification.QueuedCount++;
 
 				queuedNotifications.Enqueue(notification);
+
+				//Signal a possibly wait-stated Sender loop that there's work to do
+				waitQueuedNotification.Set();
 			}
 			else
 				Events.RaiseNotificationSendFailure(notification, new MaxSendAttemptsReachedException());
@@ -107,8 +115,9 @@ namespace PushSharp.Common
 
 				if (!queuedNotifications.TryDequeue(out notification))
 				{
-					//No notifications in queue, sleep a bit!
-					Thread.Sleep(250);
+					//No notifications in queue, go into wait state
+					waitQueuedNotification.Reset();
+					waitQueuedNotification.Wait(5000, this.CancelToken);
 					continue;
 				}
 

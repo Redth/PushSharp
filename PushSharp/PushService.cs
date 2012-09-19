@@ -11,7 +11,7 @@ namespace PushSharp
 	{
 		public ChannelEvents Events;
 
-		public bool WaitForQueuesToFinish { get; set; }
+		public bool WaitForQueuesToFinish { get; private set; }
 				
 		Apple.ApplePushService appleService = null;
 		Android.C2dmPushService androidService = null;

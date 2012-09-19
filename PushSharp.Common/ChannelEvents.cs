@@ -7,6 +7,26 @@ namespace PushSharp.Common
 {
 	public class ChannelEvents
 	{
+		public delegate void ChannelCreatedDelegate(PlatformType platformType, int newChannelCount);
+		public event ChannelCreatedDelegate OnChannelCreated;
+
+		public void RaiseChannelCreated(PlatformType platformType, int newChannelCount)
+		{
+			var evt = this.OnChannelCreated;
+			if (evt != null)
+				evt(platformType, newChannelCount);
+		}
+
+		public delegate void ChannelDestroyedDelegate(PlatformType platformType, int newChannelCount);
+		public event ChannelDestroyedDelegate OnChannelDestroyed;
+
+		public void RaiseChannelDestroyed(PlatformType platformType, int newChannelCount)
+		{
+			var evt = this.OnChannelDestroyed;
+			if (evt != null)
+				evt(platformType, newChannelCount);
+		}
+
 		public delegate void NotificationSendFailureDelegate(Notification notification, Exception notificationFailureException);
 		public event NotificationSendFailureDelegate OnNotificationSendFailure;
 
@@ -61,6 +81,10 @@ namespace PushSharp.Common
 
 		public void RegisterProxyHandler(ChannelEvents proxy)
 		{
+			this.OnChannelCreated += new ChannelCreatedDelegate((platformType, newCount) => proxy.RaiseChannelCreated(platformType, newCount));
+			
+			this.OnChannelDestroyed += new ChannelDestroyedDelegate((platformType, newCount) => proxy.RaiseChannelDestroyed(platformType, newCount));
+
 			this.OnChannelException += new ChannelExceptionDelegate((exception, platformType, notification) => proxy.RaiseChannelException(exception, platformType, notification));
 
 			this.OnNotificationSendFailure += new NotificationSendFailureDelegate((notification, exception) => proxy.RaiseNotificationSendFailure(notification, exception));
@@ -74,6 +98,10 @@ namespace PushSharp.Common
 
 		public void UnRegisterProxyHandler(ChannelEvents proxy)
 		{
+			this.OnChannelCreated -= new ChannelCreatedDelegate((platformType, newCount) => proxy.RaiseChannelCreated(platformType, newCount));
+
+			this.OnChannelDestroyed -= new ChannelDestroyedDelegate((platformType, newCount) => proxy.RaiseChannelDestroyed(platformType, newCount));
+
 			this.OnChannelException -= new ChannelExceptionDelegate((exception, platformType, notification) => proxy.RaiseChannelException(exception, platformType, notification));
 
 			this.OnNotificationSendFailure -= new NotificationSendFailureDelegate((notification, exception) => proxy.RaiseNotificationSendFailure(notification, exception));
