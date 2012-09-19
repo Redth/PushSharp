@@ -60,6 +60,15 @@ namespace PushSharp.Windows
 
 		protected override void SendNotification(Common.Notification notification)
 		{
+			try { sendNotification(notification); }
+			catch (Exception ex)
+			{
+				this.Events.RaiseChannelException(ex, PlatformType.Windows, notification);
+			}
+		}
+
+		void sendNotification(Common.Notification notification)
+		{
 			//See if we need an access token
 			if (string.IsNullOrEmpty(AccessToken))
 				RenewAccessToken();
@@ -87,7 +96,7 @@ namespace PushSharp.Windows
 					break;
 			}
 
-			var request = (HttpWebRequest)HttpWebRequest.Create("https://cloud.notify.windows.com");
+			var request = (HttpWebRequest)HttpWebRequest.Create(winNotification.ChannelUri); // "https://notify.windows.com");
 			request.Method = "POST";
 			request.Headers.Add("X-WNS-Type", wnsType);
 			request.Headers.Add("Authorization", string.Format("Bearer {0}", this.AccessToken));
