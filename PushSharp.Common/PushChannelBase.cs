@@ -54,6 +54,9 @@ namespace PushSharp.Common
 		{
 			stopping = true;
 
+			if (waitQueuedNotification != null)
+				waitQueuedNotification.Set();
+
 			//See if we want to wait for the queue to drain before stopping
 			if (waitForQueueToDrain)
 			{
@@ -117,7 +120,8 @@ namespace PushSharp.Common
 				{
 					//No notifications in queue, go into wait state
 					waitQueuedNotification.Reset();
-					waitQueuedNotification.Wait(5000, this.CancelToken);
+					try { waitQueuedNotification.Wait(5000, this.CancelToken); }
+					catch { }
 					continue;
 				}
 

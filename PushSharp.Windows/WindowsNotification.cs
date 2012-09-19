@@ -32,6 +32,14 @@ namespace PushSharp.Windows
 
 	public class WindowsTileNotification : WindowsNotification
 	{
+		public WindowsTileNotification()
+			: base()
+		{
+			this.Texts = new List<string>();
+			this.Images = new Dictionary<string, string>();
+			this.TileTemplate = TileNotificationTemplate.TileSquareBlock;
+		}
+
 		public override WindowsNotificationType Type
 		{
 			get { return WindowsNotificationType.Tile; }
@@ -84,6 +92,14 @@ namespace PushSharp.Windows
 
 	public class WindowsToastNotification : WindowsNotification
 	{
+		public WindowsToastNotification()
+			: base()
+		{
+			this.Texts = new List<string>();
+			this.Images = new Dictionary<string, string>();
+			this.TextTemplate = ToastNotificationTemplate.ToastImageAndText01;
+		}
+
 		public override WindowsNotificationType Type
 		{
 			get { return WindowsNotificationType.Toast; }

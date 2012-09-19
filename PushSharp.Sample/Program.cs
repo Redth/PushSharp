@@ -25,6 +25,8 @@ namespace PushSharp.Sample
 			push.Events.OnChannelException += new Common.ChannelEvents.ChannelExceptionDelegate(Events_OnChannelException);
 			push.Events.OnNotificationSendFailure += new Common.ChannelEvents.NotificationSendFailureDelegate(Events_OnNotificationSendFailure);
 			push.Events.OnNotificationSent += new Common.ChannelEvents.NotificationSentDelegate(Events_OnNotificationSent);
+			push.Events.OnChannelCreated += new Common.ChannelEvents.ChannelCreatedDelegate(Events_OnChannelCreated);
+			push.Events.OnChannelDestroyed += new Common.ChannelEvents.ChannelDestroyedDelegate(Events_OnChannelDestroyed);
 
 			//Configure and start Apple APNS
 			// IMPORTANT: Make sure you use the right Push certificate.  Apple allows you to generate one for connecting to Sandbox,
@@ -114,6 +116,16 @@ namespace PushSharp.Sample
 		static void Events_OnDeviceSubscriptionExpired(Common.PlatformType platform, string deviceInfo, Common.Notification notification)
 		{
 			Console.WriteLine("Device Subscription Expired: " + platform.ToString() + " -> " + deviceInfo);
+		}
+
+		static void Events_OnChannelDestroyed(Common.PlatformType platformType, int newChannelCount)
+		{
+			Console.WriteLine("Channel Destroyed for: " + platformType.ToString() + " Channel Count: " + newChannelCount);
+		}
+
+		static void Events_OnChannelCreated(Common.PlatformType platformType, int newChannelCount)
+		{
+			Console.WriteLine("Channel Created for: " + platformType.ToString() + " Channel Count: " + newChannelCount);
 		}
 	}
 }
