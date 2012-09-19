@@ -11,8 +11,6 @@ namespace PushSharp
 	{
 		public ChannelEvents Events;
 
-		public bool WaitForQueuesToFinish { get; private set; }
-				
 		Apple.ApplePushService appleService = null;
 		Android.C2dmPushService androidService = null;
 		WindowsPhone.WindowsPhonePushService wpService = null;
@@ -35,11 +33,6 @@ namespace PushSharp
 		public PushService()
 		{
 			this.Events = new ChannelEvents();
-		}
-
-		public PushService(bool waitForQueuesToFinish) : this()
-		{
-			this.WaitForQueuesToFinish = waitForQueuesToFinish;
 		}
 
 		public void StartApplePushService(Apple.ApplePushChannelSettings channelSettings, PushServiceSettings serviceSettings = null)
@@ -168,7 +161,7 @@ namespace PushSharp
 
 		void IDisposable.Dispose()
 		{
-			StopAllServices(this.WaitForQueuesToFinish);
+			StopAllServices(false);
 		}
 	}	
 }
