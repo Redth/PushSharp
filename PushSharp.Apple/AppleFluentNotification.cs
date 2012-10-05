@@ -98,6 +98,16 @@ namespace PushSharp
 			return n;
 		}
 
+        public static AppleNotification WithPasskitUpdate(this AppleNotification n)
+        {
+            var payLoad = new AppleNotificationPayload();
+            payLoad.AddCustom("aps", string.Empty);
+
+            n.Payload = payLoad;
+
+            return n;
+        }
+
         public static AppleNotification WithTag(this AppleNotification n, object tag)
         {
             n.Tag = tag;
