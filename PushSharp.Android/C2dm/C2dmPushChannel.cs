@@ -42,6 +42,11 @@ namespace PushSharp.Android
 			transport.UnhandledException += new Action<C2dmNotification, Exception>(transport_UnhandledException);
 		}
 
+        public override PlatformType PlatformType
+        {
+            get { return PlatformType.AndroidC2dm; }
+        }
+
 		void transport_UnhandledException(C2dmNotification notification, Exception exception)
 		{
 			this.Events.RaiseChannelException(exception, PlatformType.AndroidC2dm);

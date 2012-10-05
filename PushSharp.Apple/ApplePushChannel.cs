@@ -52,6 +52,11 @@ namespace PushSharp.Apple
 			taskCleanup.Start();
 		}
 
+        public override PlatformType PlatformType
+        {
+            get { return Common.PlatformType.Apple; }
+        }
+
 		object sentLock = new object();
 		object streamWriteLock = new object();
 		int reconnectDelay = 3000;

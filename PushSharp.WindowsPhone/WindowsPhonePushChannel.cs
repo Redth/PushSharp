@@ -16,6 +16,11 @@ namespace PushSharp.WindowsPhone
 			windowsPhoneSettings = channelSettings;
 		}
 
+        public override PlatformType PlatformType
+        {
+            get { return Common.PlatformType.WindowsPhone; }
+        }
+
 		protected override void SendNotification(Notification notification)
 		{
 			var wpNotification = notification as WindowsPhoneNotification;

@@ -22,6 +22,11 @@ namespace PushSharp.Windows
 			this.channelSettings = channelSettings;
 		}
 
+        public override PlatformType PlatformType
+        {
+            get { return Common.PlatformType.Windows; }
+        }
+
 		void RenewAccessToken()
 		{
 			var postData = new StringBuilder();
