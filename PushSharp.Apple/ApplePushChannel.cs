@@ -43,8 +43,22 @@ namespace PushSharp.Apple
 
 			certificate = this.appleSettings.Certificate;
 
-			certificates = new X509CertificateCollection();
+            certificates = new X509CertificateCollection();
+
+            if (appleSettings.AddLocalAndMachineCertificateStores)
+            {
+                var store = new X509Store(StoreLocation.LocalMachine);
+                certificates.AddRange(store.Certificates);
+
+                store = new X509Store(StoreLocation.CurrentUser);
+                certificates.AddRange(store.Certificates);
+            }
+
 			certificates.Add(certificate);
+
+            if (this.appleSettings.AdditionalCertificates != null)
+                foreach (var addlCert in this.appleSettings.AdditionalCertificates)
+                    certificates.Add(addlCert);
 
 			//Start our cleanup task
 			taskCleanup = new Task(() => Cleanup(), TaskCreationOptions.LongRunning);

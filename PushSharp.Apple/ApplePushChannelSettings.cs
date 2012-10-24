@@ -65,6 +65,9 @@ namespace PushSharp.Apple
 			this.FeedbackIntervalMinutes = 10;
 			this.FeedbackTimeIsUTC = false;
 
+            this.AdditionalCertificates = new List<X509Certificate2>();
+            this.AddLocalAndMachineCertificateStores = false;
+
 			CheckProductionCertificateMatching(production);
 		}
 
@@ -72,9 +75,9 @@ namespace PushSharp.Apple
 		{
 			bool production = false;
 
-			if (this.Certificate != null)
+			if (certificate != null)
 			{
-				var subjectName = this.Certificate.SubjectName.Name;
+				var subjectName = certificate.SubjectName.Name;
 
 				if (subjectName.Contains("Apple Production IOS Push Services"))
 					production = true;
@@ -131,6 +134,18 @@ namespace PushSharp.Apple
 			get;
 			private set;
 		}
+
+        public List<X509Certificate2> AdditionalCertificates
+        {
+            get;
+            private set;
+        }
+
+        public bool AddLocalAndMachineCertificateStores
+        {
+            get;
+            set;
+        }
 
 		public bool SkipSsl
 		{
