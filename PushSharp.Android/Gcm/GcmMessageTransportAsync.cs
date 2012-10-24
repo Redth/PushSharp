@@ -200,6 +200,15 @@ namespace PushSharp.Android
 						case "messagetoobig":
 							msgResult.ResponseStatus = GcmMessageTransportResponseStatus.MessageTooBig;
 							break;
+                        case "invaliddatakey":
+                            msgResult.ResponseStatus = GcmMessageTransportResponseStatus.InvalidDataKey;
+                            break;
+                        case "invalidttl":
+                            msgResult.ResponseStatus = GcmMessageTransportResponseStatus.InvalidTtl;
+                            break;
+                        case "internalservererror":
+                            msgResult.ResponseStatus = GcmMessageTransportResponseStatus.InternalServerError;
+                            break;
 						default:
 							msgResult.ResponseStatus = GcmMessageTransportResponseStatus.Error;
 							break;
@@ -234,32 +243,37 @@ namespace PushSharp.Android
 				result.ResponseCode = GcmMessageTransportResponseCode.BadRequest;
 				throw new GcmBadRequestTransportException(result);
 			}
-			else if (asyncParam.WebResponse.StatusCode == HttpStatusCode.ServiceUnavailable)
-			{
-				//First try grabbing the retry-after header and parsing it.
-				TimeSpan retryAfter = new TimeSpan(0, 0, 120);
+            else if (asyncParam.WebResponse.StatusCode == HttpStatusCode.InternalServerError)
+            {
+                result.ResponseCode = GcmMessageTransportResponseCode.InternalServiceError;
+                throw new GcmMessageTransportException("Internal Service Error", result);
+            }
+            else if (asyncParam.WebResponse.StatusCode == HttpStatusCode.ServiceUnavailable)
+            {
+                //First try grabbing the retry-after header and parsing it.
+                TimeSpan retryAfter = new TimeSpan(0, 0, 120);
 
-				var wrRetryAfter = asyncParam.WebResponse.GetResponseHeader("Retry-After");
+                var wrRetryAfter = asyncParam.WebResponse.GetResponseHeader("Retry-After");
 
-				if (!string.IsNullOrEmpty(wrRetryAfter))
-				{
-					DateTime wrRetryAfterDate = DateTime.UtcNow;
+                if (!string.IsNullOrEmpty(wrRetryAfter))
+                {
+                    DateTime wrRetryAfterDate = DateTime.UtcNow;
 
-					if (DateTime.TryParse(wrRetryAfter, out wrRetryAfterDate))
-						retryAfter = wrRetryAfterDate - DateTime.UtcNow;
-					else
-					{
-						int wrRetryAfterSeconds = 120;
-						if (int.TryParse(wrRetryAfter, out wrRetryAfterSeconds))
-							retryAfter = new TimeSpan(0, 0, wrRetryAfterSeconds);
-					}
-				}
+                    if (DateTime.TryParse(wrRetryAfter, out wrRetryAfterDate))
+                        retryAfter = wrRetryAfterDate - DateTime.UtcNow;
+                    else
+                    {
+                        int wrRetryAfterSeconds = 120;
+                        if (int.TryParse(wrRetryAfter, out wrRetryAfterSeconds))
+                            retryAfter = new TimeSpan(0, 0, wrRetryAfterSeconds);
+                    }
+                }
 
-				//503 exponential backoff, get retry-after header
-				result.ResponseCode = GcmMessageTransportResponseCode.ServiceUnavailable;
-			
-				throw new GcmServiceUnavailableTransportException(retryAfter, result);
-			}
+                //503 exponential backoff, get retry-after header
+                result.ResponseCode = GcmMessageTransportResponseCode.ServiceUnavailable;
+
+                throw new GcmServiceUnavailableTransportException(retryAfter, result);
+            }
 
 			asyncParam.WebResponse.Close();
 

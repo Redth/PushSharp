@@ -36,19 +36,20 @@ namespace PushSharp.Android
 		InvalidAuthToken
 	}
 
-	public enum GcmMessageTransportResponseStatus
-	{
-		Ok,
-		Error,
-		QuotaExceeded,
-		DeviceQuotaExceeded,
-		InvalidRegistration,
-		NotRegistered,
-		MessageTooBig,
-		MissingCollapseKey,
-		MissingRegistrationId,
-		Unavailable,
-		MismatchSenderId,
-		CanonicalRegistrationId
-	}
+    public enum GcmMessageTransportResponseStatus
+    {
+        Ok,
+        Error,
+        QuotaExceeded,
+        DeviceQuotaExceeded,
+        InvalidRegistration,
+        NotRegistered,
+        MessageTooBig,
+        MissingCollapseKey,
+        MissingRegistrationId,
+        Unavailable,
+        MismatchSenderId,
+        CanonicalRegistrationId,
+        InvalidDataKey
+    }
 }
