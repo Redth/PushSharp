@@ -27,14 +27,15 @@ namespace PushSharp.Android
 		public GcmMessageTransportResponseCode ResponseCode { get; set; }
 	}
 
-	public enum GcmMessageTransportResponseCode
-	{
-		Ok,
-		Error,
-		BadRequest,
-		ServiceUnavailable,
-		InvalidAuthToken
-	}
+    public enum GcmMessageTransportResponseCode
+    {
+        Ok,
+        Error,
+        BadRequest,
+        ServiceUnavailable,
+        InvalidAuthToken,
+        InternalServiceError
+    }
 
     public enum GcmMessageTransportResponseStatus
     {
@@ -50,6 +51,8 @@ namespace PushSharp.Android
         Unavailable,
         MismatchSenderId,
         CanonicalRegistrationId,
-        InvalidDataKey
+        InvalidDataKey,
+        InvalidTtl,
+        InternalServerError
     }
 }
