@@ -141,7 +141,7 @@ namespace PushSharp.Common
 
 				var avgTime = GetAverageQueueWait();
 
-                if (avgTime < ServiceSettings.MinAvgTimeToScaleChannels && channels.Count > 1)
+				if (avgTime < ServiceSettings.MinAvgTimeToScaleChannels && channels.Count > 1)
 				{
 					ScaleChannels(ChannelScaleAction.Destroy);
 				}
