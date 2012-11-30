@@ -141,20 +141,20 @@ namespace PushSharp.Common
 
 				var avgTime = GetAverageQueueWait();
 
-				if (avgTime < 100 && channels.Count > 1)
+                if (avgTime < ServiceSettings.MinAvgTimeToScaleChannels && channels.Count > 1)
 				{
 					ScaleChannels(ChannelScaleAction.Destroy);
 				}
 				else if (channels.Count < this.ServiceSettings.MaxAutoScaleChannels)
 				{
-					var numChannelsToSpinUp = 1;
+					var numChannelsToSpinUp = 0;
 
 					//Depending on the wait time, let's spin up more than 1 channel at a time
 					if (avgTime > 5000)
 						numChannelsToSpinUp = 5;
 					else if (avgTime > 1000)
 						numChannelsToSpinUp = 2;
-					else if (avgTime > 100)
+					else if (avgTime > ServiceSettings.MinAvgTimeToScaleChannels)
 						numChannelsToSpinUp = 1;
 
 					ScaleChannels(ChannelScaleAction.Create, numChannelsToSpinUp);
