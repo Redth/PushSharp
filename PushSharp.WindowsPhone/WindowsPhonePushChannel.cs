@@ -65,7 +65,7 @@ namespace PushSharp.WindowsPhone
 			if (wpNotification is WindowsPhoneToastNotification)
 				wr.Headers.Add("X-WindowsPhone-Target", "toast");
 			else if (wpNotification is WindowsPhoneTileNotification)
-				wr.Headers.Add("X-WindowsPhone-Target", "Tile");
+				wr.Headers.Add("X-WindowsPhone-Target", "token");
 
 			var payload = wpNotification.PayloadToString();
 
@@ -148,6 +148,12 @@ namespace PushSharp.WindowsPhone
 				Events.RaiseNotificationSent(status.Notification);
 				return;
 			}
+			
+			if(status.SubscriptionStatus == WPSubscriptionStatus.Expired)
+            		{
+                		Events.RaiseDeviceSubscriptionExpired(PlatformType.WindowsPhone, status.Notification.EndPointUrl, status.Notification);
+                		return;
+            		}
 			
 			Events.RaiseNotificationSendFailure(status.Notification, new WindowsPhoneNotificationSendFailureException(status));
 		}
