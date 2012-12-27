@@ -65,7 +65,7 @@ namespace PushSharp.WindowsPhone
 			if (wpNotification is WindowsPhoneToastNotification)
 				wr.Headers.Add("X-WindowsPhone-Target", "toast");
 			else if (wpNotification is WindowsPhoneTileNotification)
-				wr.Headers.Add("X-WindowsPhone-Target", "Tile");
+				wr.Headers.Add("X-WindowsPhone-Target", "token");
 
 			var payload = wpNotification.PayloadToString();
 
@@ -87,7 +87,7 @@ namespace PushSharp.WindowsPhone
 				//Handle different httpstatuses
 				var status = ParseStatus(wex.Response as HttpWebResponse, wpNotification);
 
-				HandleStatus(status);
+				HandleStatus(status, wpNotification);
 			}
 		}
 
@@ -106,7 +106,7 @@ namespace PushSharp.WindowsPhone
 
 			var status = ParseStatus(resp, wpNotification);
 
-			HandleStatus(status);
+			HandleStatus(status, wpNotification);
 		}
 
 		WindowsPhoneMessageStatus ParseStatus(HttpWebResponse resp, WindowsPhoneNotification notification)
@@ -139,9 +139,16 @@ namespace PushSharp.WindowsPhone
 
 			return result;
 		}
+		
+		void HandleStatus(WindowsPhoneMessageStatus status, WindowsPhoneNotification notification = null)
+		{	
+			if (status.SubscriptionStatus == WPSubscriptionStatus.Expired)
+			{
+				Events.RaiseDeviceSubscriptionExpired(PlatformType.WindowsPhone, notification.EndPointUrl, notification);
+				Events.RaiseNotificationSendFailure(notification, new WindowsPhoneNotificationSendFailureException(status));
+				return;
+			}
 
-		void HandleStatus(WindowsPhoneMessageStatus status)
-		{
 			if (status.HttpStatus == HttpStatusCode.OK
 				&& status.NotificationStatus == WPNotificationStatus.Received)
 			{
