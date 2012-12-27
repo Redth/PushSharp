@@ -105,7 +105,10 @@ namespace PushSharp.Apple
 
 			byte[] deviceToken = new byte[DeviceToken.Length / 2];
 			for (int i = 0; i < deviceToken.Length; i++)
-				deviceToken[i] = byte.Parse(DeviceToken.Substring(i * 2, 2), System.Globalization.NumberStyles.HexNumber);
+			{
+				try { deviceToken[i] = byte.Parse(DeviceToken.Substring(i*2, 2), System.Globalization.NumberStyles.HexNumber); }
+				catch (Exception) { throw new NotificationFailureException(8, this); }
+			}
 
 			if (deviceToken.Length != DEVICE_TOKEN_BINARY_SIZE)
 				throw new NotificationFailureException(5, this);
