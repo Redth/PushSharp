@@ -156,6 +156,12 @@ namespace PushSharp.WindowsPhone
 				return;
 			}
 			
+			if(status.SubscriptionStatus == WPSubscriptionStatus.Expired)
+            		{
+                		Events.RaiseDeviceSubscriptionExpired(PlatformType.WindowsPhone, status.Notification.EndPointUrl, status.Notification);
+                		return;
+            		}
+			
 			Events.RaiseNotificationSendFailure(status.Notification, new WindowsPhoneNotificationSendFailureException(status));
 		}
 	}
