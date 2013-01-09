@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Net;
+using System.Security.Cryptography.X509Certificates;
 using System.Text;
 using PushSharp.Common;
 
@@ -10,10 +11,12 @@ namespace PushSharp.WindowsPhone
 	public class WindowsPhonePushChannel : PushChannelBase
 	{
 		WindowsPhonePushChannelSettings windowsPhoneSettings;
+		X509Certificate2 certificate;
 
 		public WindowsPhonePushChannel(WindowsPhonePushChannelSettings channelSettings, PushServiceSettings serviceSettings = null) : base(channelSettings, serviceSettings)
 		{
 			windowsPhoneSettings = channelSettings;
+			certificate = channelSettings.Certificate;
 		}
 
         public override PlatformType PlatformType
@@ -72,6 +75,9 @@ namespace PushSharp.WindowsPhone
 			var data = Encoding.Default.GetBytes(payload);
 
 			wr.ContentLength = data.Length;
+
+			if (certificate != null)
+				wr.ClientCertificates.Add(certificate);
 
 			using (var rs = wr.GetRequestStream())
 			{
