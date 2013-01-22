@@ -73,6 +73,9 @@ namespace PushSharp.WindowsPhone
 
 			wr.ContentLength = data.Length;
 
+			if (this.windowsPhoneSettings.WebServiceCertificate != null)
+				wr.ClientCertificates.Add(this.windowsPhoneSettings.WebServiceCertificate);
+
 			using (var rs = wr.GetRequestStream())
 			{
 				rs.Write(data, 0, data.Length);
