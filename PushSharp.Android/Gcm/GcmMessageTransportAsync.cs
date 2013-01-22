@@ -232,6 +232,9 @@ namespace PushSharp.Android
 			var result = new GcmMessageTransportResponse();
 			result.ResponseCode = GcmMessageTransportResponseCode.Error;
 
+			if (asyncParam == null || asyncParam.WebResponse == null)
+				throw new GcmMessageTransportException("Unknown Transport Error", result);
+
 			if (asyncParam.WebResponse.StatusCode == HttpStatusCode.Unauthorized)
 			{
 				//401 bad auth token
