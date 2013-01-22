@@ -22,36 +22,36 @@ namespace PushSharp.Apple
 		private const int APNS_PRODUCTION_FEEDBACK_PORT = 2196;
 		#endregion
 
-		public ApplePushChannelSettings(bool production, string certificateFile, string certificateFilePwd) 
-			: this(production, System.IO.File.ReadAllBytes(certificateFile), certificateFilePwd) { }
+		public ApplePushChannelSettings(bool production, string certificateFile, string certificateFilePwd, bool disableCertificateCheck = false) 
+			: this(production, System.IO.File.ReadAllBytes(certificateFile), certificateFilePwd, disableCertificateCheck) { }
 
-		public ApplePushChannelSettings(string certificateFile, string certificateFilePwd)
-			: this(System.IO.File.ReadAllBytes(certificateFile), certificateFilePwd) { }
+		public ApplePushChannelSettings(string certificateFile, string certificateFilePwd, bool disableCertificateCheck = false)
+			: this(System.IO.File.ReadAllBytes(certificateFile), certificateFilePwd, disableCertificateCheck) { }
 
 		//Need to load the private key seperately from apple
 		// Fixed by danielgindi@gmail.com :
 		//      The default is UserKeySet, which has caused internal encryption errors,
 		//      Because of lack of permissions on most hosting services.
 		//      So MachineKeySet should be used instead.
-		public ApplePushChannelSettings(bool production, byte[] certificateData, string certificateFilePwd)
+		public ApplePushChannelSettings(bool production, byte[] certificateData, string certificateFilePwd, bool disableCertificateCheck = false)
 			: this(production, new X509Certificate2(certificateData, certificateFilePwd,
-				X509KeyStorageFlags.MachineKeySet | X509KeyStorageFlags.PersistKeySet | X509KeyStorageFlags.Exportable)) { }
+				X509KeyStorageFlags.MachineKeySet | X509KeyStorageFlags.PersistKeySet | X509KeyStorageFlags.Exportable), disableCertificateCheck) { }
 
-		public ApplePushChannelSettings(byte[] certificateData, string certificateFilePwd)
+		public ApplePushChannelSettings(byte[] certificateData, string certificateFilePwd, bool disableCertificateCheck = false)
 			: this(new X509Certificate2(certificateData, certificateFilePwd,
-				X509KeyStorageFlags.MachineKeySet | X509KeyStorageFlags.PersistKeySet | X509KeyStorageFlags.Exportable)) { }
+				X509KeyStorageFlags.MachineKeySet | X509KeyStorageFlags.PersistKeySet | X509KeyStorageFlags.Exportable), disableCertificateCheck) { }
 
-		public ApplePushChannelSettings(X509Certificate2 certificate)
+		public ApplePushChannelSettings(X509Certificate2 certificate, bool disableCertificateCheck = false)
 		{
-			Initialize(DetectProduction(certificate), certificate);
+			Initialize(DetectProduction(certificate), certificate, disableCertificateCheck);
 		}
 
-		public ApplePushChannelSettings(bool production, X509Certificate2 certificate)
+		public ApplePushChannelSettings(bool production, X509Certificate2 certificate, bool disableCertificateCheck = false)
 		{
-			Initialize(production, certificate);
+			Initialize(production, certificate, disableCertificateCheck);
 		}
 
-		void Initialize(bool production, X509Certificate2 certificate)
+		void Initialize(bool production, X509Certificate2 certificate, bool disableCertificateCheck)
 		{
 			this.Host = production ? APNS_PRODUCTION_HOST : APNS_SANDBOX_HOST;
 			this.FeedbackHost = production ? APNS_PRODUCTION_FEEDBACK_HOST : APNS_SANDBOX_FEEDBACK_HOST;
@@ -68,7 +68,8 @@ namespace PushSharp.Apple
             this.AdditionalCertificates = new List<X509Certificate2>();
             this.AddLocalAndMachineCertificateStores = false;
 
-			CheckProductionCertificateMatching(production);
+			if (!disableCertificateCheck)	
+				CheckProductionCertificateMatching(production);
 		}
 
 		public bool DetectProduction(X509Certificate2 certificate)
@@ -103,6 +104,8 @@ namespace PushSharp.Apple
 				if (!production && !subjectName.Contains("Apple Development IOS Push Services"))
 						throw new ArgumentException("You have selected the Development/Sandbox (Not production) server, yet your Certificate does not appear to be the Development/Sandbox certificate!  Please check to ensure you have the correct certificate!");				
 			}
+			else
+				throw new ArgumentNullException("You must provide a Certificate to connect to APNS with!");
 		}
 
 		public string Host
