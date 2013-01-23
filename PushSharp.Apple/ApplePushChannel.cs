@@ -61,7 +61,7 @@ namespace PushSharp.Apple
                     certificates.Add(addlCert);
 
 			//Start our cleanup task
-			taskCleanup = new Task(() => Cleanup(), TaskCreationOptions.LongRunning);
+			taskCleanup = new Task(() => { Cleanup(); }, TaskCreationOptions.LongRunning);
 			taskCleanup.ContinueWith((t) => { var ex = t.Exception; }, TaskContinuationOptions.OnlyOnFaulted);
 			taskCleanup.Start();
 		}
@@ -85,46 +85,68 @@ namespace PushSharp.Apple
 		SslStream stream;
 		System.IO.Stream networkStream;
 		Task taskCleanup;
-		
+
+		protected long trackedNotificationCount = 0;
+
+
+		public override bool QueueNotification(Notification notification, bool countsAsRequeue = true, bool ignoreStoppingChannel = false)
+		{
+			if (base.QueueNotification(notification, countsAsRequeue, ignoreStoppingChannel))
+			{
+				if (!ignoreStoppingChannel)
+					Interlocked.Increment(ref trackedNotificationCount);
+
+				return true;
+			}
+
+			return false;
+		}
+
 		protected override void SendNotification(Common.Notification notification)
 		{
-			var appleNotification = notification as AppleNotification;
-
-			bool isOkToSend = true;
-			byte[] notificationData = new byte[] {};
-
-			try
+			lock (sentLock)
 			{
-				notificationData = appleNotification.ToBytes();
-			}
-			catch (NotificationFailureException nfex)
-			{
-				//Bad notification format already
-				isOkToSend = false;
+				var appleNotification = notification as AppleNotification;
 
-				this.Events.RaiseNotificationSendFailure(notification, nfex);
-			}
+				bool isOkToSend = true;
+				byte[] notificationData = new byte[] {};
 
-			if (isOkToSend)
-			{
-				Connect();
-				
-				try 
+				try
 				{
-					lock (streamWriteLock)
-					{
-						lock (sentLock)
-						{
-							networkStream.Write(notificationData, 0, notificationData.Length);
+					notificationData = appleNotification.ToBytes();
+				}
+				catch (NotificationFailureException nfex)
+				{
+					//Bad notification format already
+					isOkToSend = false;
 
-							sentNotifications.Add(new SentNotification(appleNotification));
+					Interlocked.Decrement(ref trackedNotificationCount);
+					
+					this.Events.RaiseNotificationSendFailure(notification, nfex);
+				}
+
+				if (isOkToSend)
+				{
+					Connect();
+
+					try
+					{
+						lock (streamWriteLock)
+						{
+							lock (sentLock)
+							{
+								networkStream.Write(notificationData, 0, notificationData.Length);
+
+								sentNotifications.Add(new SentNotification(appleNotification));
+							}
 						}
 					}
+					catch (Exception)
+					{
+						//If this failed, we probably had a networking error, so let's requeue the notification
+						this.QueueNotification(notification, true, true);
+					} 
 				}
-				catch (Exception)
-				{ 
-					this.QueueNotification(notification); 
-				} //If this failed, we probably had a networking error, so let's requeue the notification
 			}
 		}
 
@@ -135,19 +157,24 @@ namespace PushSharp.Apple
 			//See if we want to wait for the queue to drain before stopping
 			if (waitForQueueToDrain)
 			{
-				while (QueuedNotificationCount > 0 || sentNotifications.Count > 0)
-					Thread.Sleep(50);
-			}
+				var sentNotificationCount = 0;
+				lock (sentLock)
+					sentNotificationCount = sentNotifications.Count;
 
-			//Sleep a bit to prevent any race conditions
-			//especially since our cleanup method may need 3 seconds
-			Thread.Sleep(5000);
+				while (QueuedNotificationCount > 0 || sentNotificationCount > 0 || Interlocked.Read(ref trackedNotificationCount) > 0)
+				{
+					Thread.Sleep(100);
+	
+					lock (sentLock)
+						sentNotificationCount = sentNotifications.Count;
+				}
+			}
 
 			if (!CancelTokenSource.IsCancellationRequested)
 				CancelTokenSource.Cancel();
 
-			//Wait on our tasks for a maximum of 30 seconds
-			Task.WaitAll(new Task[] { base.taskSender, taskCleanup }, 30000);
+			//Wait on our tasks for a maximum of 5 seconds
+			Task.WaitAll(new Task[] { base.taskSender, taskCleanup }, 5000);
 		}
 		
 		void Reader()
@@ -178,53 +205,8 @@ namespace PushSharp.Apple
 								var status = readBuffer[1];
 								var identifier = IPAddress.NetworkToHostOrder(BitConverter.ToInt32(readBuffer, 2));
 
-								int failedNotificationIndex = -1;
-								SentNotification failedNotification = null;
-
-								//Try and find the failed notification in our sent list
-								for (int i = 0; i < sentNotifications.Count; i++)
-								{
-									var n = sentNotifications[i];
-
-									if (n.Identifier.Equals(identifier))
-									{
-										failedNotificationIndex = i;
-										failedNotification = n;
-										break;
-									}
-								}
-
-								//Don't bother doing anything unless we know what failed
-								if (failedNotification != null && failedNotificationIndex > -1)
-								{
-									//Anything before the failed message must have sent OK
-									// so let's expedite the success status Success for all those before the failed one
-									if (failedNotificationIndex > 0)
-									{
-										for (int i = 0; i < failedNotificationIndex; i++)
-											this.Events.RaiseNotificationSent(sentNotifications[i].Notification);
-									}
-
-									//The notification that failed needs to have a failure event raised
-									// we don't requeue it because apple told us it failed for real
-									this.Events.RaiseNotificationSendFailure(failedNotification.Notification,
-										new NotificationFailureException(status, failedNotification.Notification));
-
-									// finally, raise failure for anything after the index of this failed one
-									// in the sent list, since we may have sent them but apple will have disregarded
-									// anything after the failed one and not told us about it
-									if (failedNotificationIndex < sentNotifications.Count - 1)
-									{
-										//Requeue the failed notification since we're not sure it's a bad
-										// notification, just that it was sent after a bad one was
-										for (int i = failedNotificationIndex + 1; i <= sentNotifications.Count - 1; i++)
-											this.QueueNotification(sentNotifications[i].Notification, false);
-									}
-
-									//Now clear out the sent list since we processed them all manually above
-									sentNotifications.Clear();
-								} 
-
+								HandleFailedNotification(identifier, status);
+								
 								//Start reading again
 								Reader();
 							}
@@ -246,6 +228,36 @@ namespace PushSharp.Apple
 			{
 				connected = false;
 			}
+		}
+
+		void HandleFailedNotification(int identifier, byte status)
+		{
+			//Get the index of our failed notification (by identifier)
+			var failedIndex = sentNotifications.FindIndex(n => n.Identifier == identifier);
+			
+			if (failedIndex < 0)
+				return;
+
+			//Get the failed notification itself
+			var failedNotification = sentNotifications[failedIndex];
+			
+			//Fail and remove the failed index from the list
+			Interlocked.Decrement(ref trackedNotificationCount);
+			this.Events.RaiseNotificationSendFailure(failedNotification.Notification, new NotificationFailureException(status, failedNotification.Notification));
+			sentNotifications.RemoveAt(failedIndex);
+			
+			//All Notifications after the failed one have been shifted back one space now
+			//Grab all the notifications from the list that are after the failed index
+			var toRequeue = sentNotifications.GetRange(failedIndex, sentNotifications.Count - (failedIndex + 1)).ToList();
+			//Remove that same range (those ones failed since they were sent after the one apple told us failed, so
+			// apple will ignore them, and we need to requeue them to be tried again
+			sentNotifications.RemoveRange(failedIndex, sentNotifications.Count - (failedIndex + 1));
+
+			//Requeue all the messages that were sent afte the failed one, be sure it doesn't count as a 'requeue' to go towards the maximum # of retries
+			//Also ignore that the channel is stopping
+			foreach (var n in toRequeue)
+				this.QueueNotification(n.Notification, false, true);
+			
 		}
 
 		void Cleanup()
@@ -270,6 +282,9 @@ namespace PushSharp.Apple
 							if (n.SentAt < DateTime.UtcNow.AddMilliseconds(-1 * appleSettings.MillisecondsToWaitBeforeMessageDeclaredSuccess))
 							{
 								wasRemoved = true;
+								
+								Interlocked.Decrement(ref trackedNotificationCount);
+
 								this.Events.RaiseNotificationSent(n.Notification);
 								sentNotifications.RemoveAt(0);
 							}

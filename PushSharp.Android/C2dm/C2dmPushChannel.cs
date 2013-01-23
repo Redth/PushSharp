@@ -96,7 +96,7 @@ namespace PushSharp.Android
 			base.Stop(waitForQueueToDrain);
 
 			var slept = 0;
-			while (Interlocked.Read(ref waitCounter) > 0 && slept <= 30000)
+			while (Interlocked.Read(ref waitCounter) > 0 && slept <= 5000)
 			{
 				slept += 100;
 				Thread.Sleep(100);

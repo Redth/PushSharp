@@ -21,7 +21,7 @@ namespace PushSharp.ClientSample.WindowsPhone
 			HttpNotificationChannel pushChannel;
 
 			// The name of our push channel.
-			string channelName = "PushSharp.NotificationChannel";
+			string channelName = "PushSharp.NotificationChannel.Tile";
 						
 			// Try to find the push channel.
 			pushChannel = HttpNotificationChannel.Find(channelName);
@@ -50,11 +50,6 @@ namespace PushSharp.ClientSample.WindowsPhone
 				//});
 
 				pushChannel.Open();
-
-				// Bind this new channel for toast events.
-				pushChannel.BindToShellToast();
-				
-
 			}
 			else
 			{
@@ -69,15 +64,38 @@ namespace PushSharp.ClientSample.WindowsPhone
 					System.Diagnostics.Debug.WriteLine("PushChannel Error: " + e.ErrorType.ToString() + " -> " + e.ErrorCode + " -> " + e.Message + " -> " + e.ErrorAdditionalData);
 				});
 
+				// Bind this new channel for toast events.
+				if (pushChannel.IsShellToastBound)
+					Console.WriteLine("Already Bound to Toast");
+				else
+					pushChannel.BindToShellToast();
+
+				if (pushChannel.IsShellTileBound)
+					Console.WriteLine("Already Bound to Tile");
+				else
+					pushChannel.BindToShellTile();
+
 				//// Register for this notification only if you need to receive the notifications while your application is running.
 				//pushChannel.ShellToastNotificationReceived += new EventHandler<NotificationEventArgs>((sender, e) =>
 				//{
 				//	//Yay
 				//});
-
-				// Display the URI for testing purposes. Normally, the URI would be passed back to your web service at this point.
-				System.Diagnostics.Debug.WriteLine(pushChannel.ChannelUri.ToString());
 			}
+
+			// Bind this new channel for toast events.
+			if (pushChannel.IsShellToastBound)
+				Console.WriteLine("Already Bound to Toast");
+			else
+				pushChannel.BindToShellToast();
+
+			if (pushChannel.IsShellTileBound)
+				Console.WriteLine("Already Bound to Tile");
+			else
+				pushChannel.BindToShellTile();
+
+			// Display the URI for testing purposes. Normally, the URI would be passed back to your web service at this point.
+			if (pushChannel != null && pushChannel.ChannelUri != null)
+				System.Diagnostics.Debug.WriteLine(pushChannel.ChannelUri.ToString());
 		}
 	}
 }

@@ -10,26 +10,35 @@ namespace PushSharp.Windows
 	{
 		public static WindowsToastNotification ForChannelUri(this WindowsToastNotification notification, string channelUri)
 		{
+			ValidateUri(channelUri);	
 			notification.ChannelUri = channelUri;
 			return notification;
 		}
 
 		public static WindowsTileNotification ForChannelUri(this WindowsTileNotification notification, string channelUri)
 		{
+			ValidateUri(channelUri);	
 			notification.ChannelUri = channelUri;
 			return notification;
 		}
 
 		public static WindowsRawNotification ForChannelUri(this WindowsRawNotification notification, string channelUri)
 		{
+			ValidateUri(channelUri);	
 			notification.ChannelUri = channelUri;
 			return notification;
 		}
 
 		public static WindowsBadgeNotification ForChannelUri(this WindowsBadgeNotification notification, string channelUri)
 		{
+			ValidateUri(channelUri);	
 			notification.ChannelUri = channelUri;
 			return notification;
+		}
+
+		static void ValidateUri(string url)
+		{
+			var uri = new Uri(url);
 		}
 
 		public static WindowsTileNotification WithTag(this WindowsTileNotification notification, string tag)

@@ -190,7 +190,7 @@ namespace PushSharp.Windows
 			var wnsDeviceConnectionStatus = resp.Headers["X-WNS-DeviceConnectionStatus"] ?? "connected";
 			var wnsErrorDescription = resp.Headers["X-WNS-Error-Description"];
 			var wnsMsgId = resp.Headers["X-WNS-Msg-ID"];
-			var wnsNotificationStatus = resp.Headers["X-WNS-NotificationStatus"];
+			var wnsNotificationStatus = resp.Headers["X-WNS-NotificationStatus"] ?? "";
 
 			result.DebugTrace = wnsDebugTrace;
 			result.ErrorDescription = wnsErrorDescription;
@@ -237,19 +237,19 @@ namespace PushSharp.Windows
 			if (status.HttpStatus == HttpStatusCode.OK
 				&& status.NotificationStatus == WindowsNotificationSendStatus.Received)
 			{
-				Events.RaiseNotificationSent(status.Notification);
+				this.Events.RaiseNotificationSent(status.Notification);
 				return;
 			}
 			else if (status.HttpStatus == HttpStatusCode.NotFound) //404
 			{
-				Events.RaiseDeviceSubscriptionExpired(PlatformType.Windows, status.Notification.ChannelUri, status.Notification);
+				this.Events.RaiseDeviceSubscriptionExpired(PlatformType.Windows, status.Notification.ChannelUri, status.Notification);
 			}
 			else if (status.HttpStatus == HttpStatusCode.Gone) //410
 			{
-				Events.RaiseDeviceSubscriptionExpired(PlatformType.Windows, status.Notification.ChannelUri, status.Notification);
+				this.Events.RaiseDeviceSubscriptionExpired(PlatformType.Windows, status.Notification.ChannelUri, status.Notification);
 			}
 
-			Events.RaiseNotificationSendFailure(status.Notification, new WindowsNotificationSendFailureException(status));
+			this.Events.RaiseNotificationSendFailure(status.Notification, new WindowsNotificationSendFailureException(status));
 		}
 	}
 }

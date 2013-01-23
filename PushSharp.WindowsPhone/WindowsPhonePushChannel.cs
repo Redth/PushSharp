@@ -29,10 +29,7 @@ namespace PushSharp.WindowsPhone
 			var wr = HttpWebRequest.Create(wpNotification.EndPointUrl) as HttpWebRequest;
 			wr.ContentType = "text/xml";
 			wr.Method = "POST";
-
-			if (wpNotification.MessageID != null)
-				wr.Headers.Add("X-MessageID", wpNotification.MessageID.ToString());
-
+			
 			if (wpNotification.NotificationClass.HasValue)
 			{
 				var immediateValue = 3;
@@ -66,6 +63,9 @@ namespace PushSharp.WindowsPhone
 				wr.Headers.Add("X-WindowsPhone-Target", "toast");
 			else if (wpNotification is WindowsPhoneTileNotification)
 				wr.Headers.Add("X-WindowsPhone-Target", "token");
+
+			if (wpNotification.MessageID != null)
+				wr.Headers.Add("X-MessageID", wpNotification.MessageID.ToString());
 
 			var payload = wpNotification.PayloadToString();
 
@@ -147,19 +147,19 @@ namespace PushSharp.WindowsPhone
 		{	
 			if (status.SubscriptionStatus == WPSubscriptionStatus.Expired)
 			{
-				Events.RaiseDeviceSubscriptionExpired(PlatformType.WindowsPhone, notification.EndPointUrl, notification);
-				Events.RaiseNotificationSendFailure(notification, new WindowsPhoneNotificationSendFailureException(status));
+				this.Events.RaiseDeviceSubscriptionExpired(PlatformType.WindowsPhone, notification.EndPointUrl, notification);
+				this.Events.RaiseNotificationSendFailure(notification, new WindowsPhoneNotificationSendFailureException(status));
 				return;
 			}
 
 			if (status.HttpStatus == HttpStatusCode.OK
 				&& status.NotificationStatus == WPNotificationStatus.Received)
 			{
-				Events.RaiseNotificationSent(status.Notification);
+				this.Events.RaiseNotificationSent(status.Notification);
 				return;
 			}
 			
-			Events.RaiseNotificationSendFailure(status.Notification, new WindowsPhoneNotificationSendFailureException(status));
+			this.Events.RaiseNotificationSendFailure(status.Notification, new WindowsPhoneNotificationSendFailureException(status));
 		}
 	}
 }

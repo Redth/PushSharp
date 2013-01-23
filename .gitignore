@@ -21,3 +21,4 @@ TestResults
 packages/
 
 Xamarin/
+PushSharp.Sample.LocalTesting/

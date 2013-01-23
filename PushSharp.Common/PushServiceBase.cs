@@ -55,6 +55,12 @@ namespace PushSharp.Common
 				
 		public void QueueNotification(Notification notification)
 		{
+			if (this.cancelTokenSource.IsCancellationRequested)
+			{
+				Events.RaiseChannelException(new ObjectDisposedException("Service", "Service has already been signaled to stop"), this.Platform, notification);
+				return;
+			}
+
 			notification.EnqueuedTimestamp = DateTime.UtcNow;
 
 			queuedNotifications.Enqueue(notification);
@@ -63,11 +69,18 @@ namespace PushSharp.Common
 		public void Stop(bool waitForQueueToFinish)
 		{
 			stopping = true;
+			var started = DateTime.UtcNow;
 
 			//Stop the timer for checking scale
 			if (this.timerCheckScale != null)
 				this.timerCheckScale.Change(Timeout.Infinite, Timeout.Infinite);
 
+			if (waitForQueueToFinish)
+			{
+				while (this.queuedNotifications.Count > 0)
+					Thread.Sleep(100);				
+			}
+			
 			//Stop all channels
 			Parallel.ForEach<PushChannelBase>(channels,
 				(channel) =>
@@ -78,9 +91,6 @@ namespace PushSharp.Common
 
 			this.channels.Clear();
 			
-			//Sleep a bit to avoid race conditions
-			Thread.Sleep(2000);
-
 			this.cancelTokenSource.Cancel();
 		}
 
@@ -131,18 +141,24 @@ namespace PushSharp.Common
 
 		void CheckScale()
 		{
+			Log.Info("{0} -> Checking Scale", Platform);
+
 			if (ServiceSettings.AutoScaleChannels && !this.cancelTokenSource.IsCancellationRequested && !stopping)
 			{
 				if (channels.Count <= 0)
 				{
+					Log.Info("{0} -> Creating Channel", Platform);
 					ScaleChannels(ChannelScaleAction.Create);
 					return;
 				}
 
 				var avgTime = GetAverageQueueWait();
 
+				Log.Info("{0} -> Avg Queue Wait Time {1} ms", Platform, avgTime);
+
 				if (avgTime < ServiceSettings.MinAvgTimeToScaleChannels && channels.Count > 1)
 				{
+					Log.Info("{0} -> Destroying Channel", Platform);
 					ScaleChannels(ChannelScaleAction.Destroy);
 				}
 				else if (channels.Count < this.ServiceSettings.MaxAutoScaleChannels)
@@ -157,16 +173,22 @@ namespace PushSharp.Common
 					else if (avgTime > ServiceSettings.MinAvgTimeToScaleChannels)
 						numChannelsToSpinUp = 1;
 
+					Log.Info("{0} -> Creating {1} Channel(s)", Platform, numChannelsToSpinUp);
 					ScaleChannels(ChannelScaleAction.Create, numChannelsToSpinUp);
 				}
 			}
 			else
 			{
 				while (channels.Count > ServiceSettings.Channels && !this.cancelTokenSource.IsCancellationRequested && !stopping)
+				{
+					Log.Info("{0} -> Destroying Channel", Platform);
 					ScaleChannels(ChannelScaleAction.Destroy);
-
+				}
 				while (channels.Count < ServiceSettings.Channels && !this.cancelTokenSource.IsCancellationRequested && !stopping)
+				{
+					Log.Info("{0} -> Creating Channel", Platform);
 					ScaleChannels(ChannelScaleAction.Create);
+				}
 			}
 		}
 

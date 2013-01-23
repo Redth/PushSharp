@@ -36,8 +36,7 @@ namespace PushSharp.Android
 			//Raise individual failures for each registration id for the notification
 			foreach (var r in notification.RegistrationIds)
 			{
-				this.Events.RaiseNotificationSendFailure(GcmNotification.ForSingleRegistrationId(notification, r),
-					exception);
+				this.Events.RaiseNotificationSendFailure(GcmNotification.ForSingleRegistrationId(notification, r), exception);
 			}
 
 			this.Events.RaiseChannelException(exception, PlatformType.AndroidGcm, notification);
@@ -102,7 +101,7 @@ namespace PushSharp.Android
 			base.Stop(waitForQueueToDrain);
 
 			var slept = 0;
-			while (Interlocked.Read(ref waitCounter) > 0 && slept <= 30000)
+			while (Interlocked.Read(ref waitCounter) > 0 && slept <= 5000)
 			{
 				slept += 100;
 				Thread.Sleep(100);

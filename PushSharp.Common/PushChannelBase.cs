@@ -47,15 +47,15 @@ namespace PushSharp.Common
 			this.waitQueuedNotification = new ManualResetEventSlim();
 
 			//Start our sending task
-			taskSender = new Task(() => Sender(), TaskCreationOptions.LongRunning);
+			taskSender = new Task(Sender, TaskCreationOptions.LongRunning);
 			taskSender.ContinueWith((t) => { var ex = t.Exception; }, TaskContinuationOptions.OnlyOnFaulted);
 			taskSender.Start();
 		}
-
+		
 		public virtual void Stop(bool waitForQueueToDrain)
 		{
 			stopping = true;
-
+			
 			if (waitQueuedNotification != null)
 				waitQueuedNotification.Set();
 
@@ -63,17 +63,14 @@ namespace PushSharp.Common
 			if (waitForQueueToDrain)
 			{
 				while (QueuedNotificationCount > 0)
-					Thread.Sleep(50);
+					Thread.Sleep(100);
 			}
-
-			//Sleep a bit to prevent any race conditions
-			Thread.Sleep(2000);
-
+			
 			if (!CancelTokenSource.IsCancellationRequested)
 				CancelTokenSource.Cancel();
-
-			//Wait on our tasks for a maximum of 30 seconds
-			Task.WaitAll(new Task[] { taskSender }, 30000);
+			
+			//Wait on our tasks for a maximum of 5 seconds
+			Task.WaitAll(new Task[] { taskSender }, 5000);
 		}
 
 		public virtual void Dispose()
@@ -88,12 +85,17 @@ namespace PushSharp.Common
 			get { return queuedNotifications.Count; }
 		}
 
-		public void QueueNotification(Notification notification, bool countsAsRequeue = true)
+		public bool QueueNotification(Notification notification)
 		{
-            if (this.CancelToken.IsCancellationRequested)
+			return QueueNotification(notification, true, false);
+		}
+
+		public virtual bool QueueNotification(Notification notification, bool countsAsRequeue = true, bool ignoreStoppingChannel = false)
+		{
+            if (this.CancelToken.IsCancellationRequested && !ignoreStoppingChannel)
             {
                 Events.RaiseChannelException(new ObjectDisposedException("Channel", "Channel has already been signaled to stop"), this.PlatformType, notification);
-                return;
+                return false;
             }
 
 			//If the count is -1, it can be queued infinitely, otherwise check that it's less than the max
@@ -107,12 +109,18 @@ namespace PushSharp.Common
 					notification.QueuedCount++;
 
 				queuedNotifications.Enqueue(notification);
-
+				
 				//Signal a possibly wait-stated Sender loop that there's work to do
 				waitQueuedNotification.Set();
+
+				return true;
 			}
 			else
-				Events.RaiseNotificationSendFailure(notification, new MaxSendAttemptsReachedException());
+			{
+				Log.Info("Notification ReQueued Too Many Times: {0}", notification.QueuedCount);
+				this.Events.RaiseNotificationSendFailure(notification, new MaxSendAttemptsReachedException());
+				return false;
+			}
 		}
 
 		void Sender()
@@ -125,7 +133,7 @@ namespace PushSharp.Common
 				{
 					//No notifications in queue, go into wait state
 					waitQueuedNotification.Reset();
-					try { waitQueuedNotification.Wait(5000, this.CancelToken); }
+					try { waitQueuedNotification.Wait(1000, this.CancelToken); }
 					catch { }
 					continue;
 				}
