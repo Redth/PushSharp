@@ -7,6 +7,8 @@ A server-side library for sending Push Notifications to iOS (iPhone/iPad APNS), 
 *********
 News
 ----
+**January 23, 2013** New version with some substantial improvements to how Apple Notifications are processed :)
+
 **September 6, 2012** Blog Post: [The Problem with Apple's Push Notification Service... Solutions and Workarounds...](http://redth.info/the-problem-with-apples-push-notification-ser)
 
 **August 28, 2012** Windows 8 support is now in master, however it's very untested!
