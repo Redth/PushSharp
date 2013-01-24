@@ -21,6 +21,8 @@ News
 Messaging!
 
 *******
+Join the PushSharp Jabbr Channel! http://jabbr.net/#/rooms/PushSharp
+******
 
 Features
 --------
