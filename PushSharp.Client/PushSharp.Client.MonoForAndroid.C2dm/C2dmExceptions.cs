@@ -11,7 +11,7 @@ using Android.Runtime;
 using Android.Views;
 using Android.Widget;
 
-namespace PushSharp.Client.MonoForAndroid
+namespace PushSharp.Client
 {
 	public class NoGoogleAccountsOnDeviceRegistrationException : Exception
 	{

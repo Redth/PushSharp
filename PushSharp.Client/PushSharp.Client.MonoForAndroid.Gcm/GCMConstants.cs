@@ -10,7 +10,7 @@ using Android.Runtime;
 using Android.Views;
 using Android.Widget;
 
-namespace GCMSharp.Client
+namespace PushSharp.Client
 {
 	public class GCMConstants
 	{

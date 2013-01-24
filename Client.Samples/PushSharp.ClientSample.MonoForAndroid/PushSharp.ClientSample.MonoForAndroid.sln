@@ -1,11 +1,11 @@
 ﻿
-Microsoft Visual Studio Solution File, Format Version 11.00
-# Visual Studio 2010
+Microsoft Visual Studio Solution File, Format Version 12.00
+# Visual Studio 2012
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "GCM", "GCM", "{F78A1A03-5FE1-4C6A-BB08-ED61494A490F}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "PushSharp.ClientSample.MonoForAndroid.Gcm", "PushSharp.ClientSample.MonoForAndroid.Gcm\PushSharp.ClientSample.MonoForAndroid.Gcm.csproj", "{b3f5a628-e5fc-4e46-ad50-e5babc79dd3a}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "PushSharp.ClientSample.MonoForAndroid.Gcm", "PushSharp.ClientSample.MonoForAndroid.Gcm\PushSharp.ClientSample.MonoForAndroid.Gcm.csproj", "{B3F5A628-E5FC-4E46-AD50-E5BABC79DD3A}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "PushSharp.Client.MonoForAndroid.Gcm", "..\..\PushSharp.Client\PushSharp.Client.MonoForAndroid.Gcm\PushSharp.Client.MonoForAndroid.Gcm.csproj", "{1466d096-69fa-4b75-bbb6-533ffaf5d4eb}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "PushSharp.Client.MonoForAndroid.Gcm", "..\..\PushSharp.Client\PushSharp.Client.MonoForAndroid.Gcm\PushSharp.Client.MonoForAndroid.Gcm.csproj", "{1466D096-69FA-4B75-BBB6-533FFAF5D4EB}"
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "C2DM", "C2DM", "{C651BAEB-5BD8-4B51-A882-346FF765D529}"
 EndProject
@@ -19,10 +19,16 @@ Global
 		Release|Any CPU = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(ProjectConfigurationPlatforms) = postSolution
-		{1466d096-69fa-4b75-bbb6-533ffaf5d4eb}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
-		{1466d096-69fa-4b75-bbb6-533ffaf5d4eb}.Debug|Any CPU.Build.0 = Debug|Any CPU
-		{1466d096-69fa-4b75-bbb6-533ffaf5d4eb}.Release|Any CPU.ActiveCfg = Release|Any CPU
-		{1466d096-69fa-4b75-bbb6-533ffaf5d4eb}.Release|Any CPU.Build.0 = Release|Any CPU
+		{B3F5A628-E5FC-4E46-AD50-E5BABC79DD3A}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{B3F5A628-E5FC-4E46-AD50-E5BABC79DD3A}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{B3F5A628-E5FC-4E46-AD50-E5BABC79DD3A}.Debug|Any CPU.Deploy.0 = Debug|Any CPU
+		{B3F5A628-E5FC-4E46-AD50-E5BABC79DD3A}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{B3F5A628-E5FC-4E46-AD50-E5BABC79DD3A}.Release|Any CPU.Build.0 = Release|Any CPU
+		{B3F5A628-E5FC-4E46-AD50-E5BABC79DD3A}.Release|Any CPU.Deploy.0 = Release|Any CPU
+		{1466D096-69FA-4B75-BBB6-533FFAF5D4EB}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{1466D096-69FA-4B75-BBB6-533FFAF5D4EB}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{1466D096-69FA-4B75-BBB6-533FFAF5D4EB}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{1466D096-69FA-4B75-BBB6-533FFAF5D4EB}.Release|Any CPU.Build.0 = Release|Any CPU
 		{3F402F02-F634-4D1B-A6B0-0D70D79CF992}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
 		{3F402F02-F634-4D1B-A6B0-0D70D79CF992}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{3F402F02-F634-4D1B-A6B0-0D70D79CF992}.Release|Any CPU.ActiveCfg = Release|Any CPU
@@ -31,14 +37,13 @@ Global
 		{887745C1-B5C2-4BA7-9473-0617C1E5378B}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{887745C1-B5C2-4BA7-9473-0617C1E5378B}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{887745C1-B5C2-4BA7-9473-0617C1E5378B}.Release|Any CPU.Build.0 = Release|Any CPU
-		{b3f5a628-e5fc-4e46-ad50-e5babc79dd3a}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
-		{b3f5a628-e5fc-4e46-ad50-e5babc79dd3a}.Debug|Any CPU.Build.0 = Debug|Any CPU
-		{b3f5a628-e5fc-4e46-ad50-e5babc79dd3a}.Release|Any CPU.ActiveCfg = Release|Any CPU
-		{b3f5a628-e5fc-4e46-ad50-e5babc79dd3a}.Release|Any CPU.Build.0 = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(SolutionProperties) = preSolution
+		HideSolutionNode = FALSE
 	EndGlobalSection
 	GlobalSection(NestedProjects) = preSolution
-		{b3f5a628-e5fc-4e46-ad50-e5babc79dd3a} = {F78A1A03-5FE1-4C6A-BB08-ED61494A490F}
-		{1466d096-69fa-4b75-bbb6-533ffaf5d4eb} = {F78A1A03-5FE1-4C6A-BB08-ED61494A490F}
+		{B3F5A628-E5FC-4E46-AD50-E5BABC79DD3A} = {F78A1A03-5FE1-4C6A-BB08-ED61494A490F}
+		{1466D096-69FA-4B75-BBB6-533FFAF5D4EB} = {F78A1A03-5FE1-4C6A-BB08-ED61494A490F}
 		{3F402F02-F634-4D1B-A6B0-0D70D79CF992} = {C651BAEB-5BD8-4B51-A882-346FF765D529}
 		{887745C1-B5C2-4BA7-9473-0617C1E5378B} = {C651BAEB-5BD8-4B51-A882-346FF765D529}
 	EndGlobalSection

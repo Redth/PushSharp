@@ -7,6 +7,7 @@ using Android.Views;
 using Android.Widget;
 using Android.OS;
 using Android.Util;
+using PushSharp.Client;
 
 namespace PushSharp.ClientSample.MonoForAndroid
 {
@@ -44,12 +45,12 @@ namespace PushSharp.ClientSample.MonoForAndroid
 				if (!registered)
 				{
 					Log.Info("C2DM-Sharp", "Registering...");
-					PushSharp.Client.MonoForAndroid.C2dmClient.Register(this, senderIdEmail);
+					PushClient.Register(this, senderIdEmail);
 				}
 				else
 				{
 					Log.Info("C2DM-Sharp", "Unregistering...");
-					PushSharp.Client.MonoForAndroid.C2dmClient.Unregister(this);
+					PushClient.UnRegister(this);
 				}
 
 				RunOnUiThread(() =>
@@ -71,7 +72,7 @@ namespace PushSharp.ClientSample.MonoForAndroid
 		void updateView()
 		{
 			//Get the stored latest registration id
-			var registrationId = PushSharp.Client.MonoForAndroid.C2dmClient.GetRegistrationId(this);
+			var registrationId = PushClient.GetRegistrationId(this);
 
 			//If it's empty, we need to register
 			if (string.IsNullOrEmpty(registrationId))

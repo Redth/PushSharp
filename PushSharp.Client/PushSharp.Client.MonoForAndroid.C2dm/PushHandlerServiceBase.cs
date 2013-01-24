@@ -11,11 +11,11 @@ using Android.Runtime;
 using Android.Views;
 using Android.Widget;
 
-namespace PushSharp.Client.MonoForAndroid
+namespace PushSharp.Client
 {
-	public class C2dmService : IntentService
+	public class PushHandlerServiceBase : IntentService
 	{
-		public C2dmService()
+		public PushHandlerServiceBase()
 			: base()
 		{
 		}
@@ -32,7 +32,7 @@ namespace PushSharp.Client.MonoForAndroid
 					return;
 
 				//Handle the c2dm intent, decide which it is
-				if (c2dmAction == C2dmClient.GOOGLE_ACTION_C2DM_INTENT_REGISTRATION)
+				if (c2dmAction == PushClient.GOOGLE_ACTION_C2DM_INTENT_REGISTRATION)
 				{
 					var registrationId = intent.GetStringExtra("registration_id");
 
@@ -71,7 +71,7 @@ namespace PushSharp.Client.MonoForAndroid
 						return;
 					}
 				}
-				else if (c2dmAction == C2dmClient.GOOGLE_ACTION_C2DM_INTENT_RECEIVE)
+				else if (c2dmAction == PushClient.GOOGLE_ACTION_C2DM_INTENT_RECEIVE)
 				{
 					this.OnMessageReceived(intent.Extras);
 				}

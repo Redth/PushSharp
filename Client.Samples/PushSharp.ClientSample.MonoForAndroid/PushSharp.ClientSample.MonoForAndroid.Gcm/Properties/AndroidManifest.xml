@@ -1,11 +1,6 @@
-<?xml version="1.0" encoding="utf-8"?>
-<manifest xmlns:android="http://schemas.android.com/apk/res/android" android:versionCode="1" android:versionName="1.0" package="com.pushsharp.test">
-	<uses-sdk android:minSdkVersion="10" />
-	<application android:label="PushSharp"></application>
-	<permission android:name="com.pushsharp.test.permission.C2D_MESSAGE" android:protectionLevel="signature" />
-	<uses-permission android:name="android.permission.GET_ACCOUNTS" />
-	<uses-permission android:name="android.permission.INTERNET" />
-	<uses-permission android:name="com.pushsharp.test.permission.C2D_MESSAGE" />
-	<uses-permission android:name="com.google.android.c2dm.permission.RECEIVE" />
-	<uses-permission android:name="android.permission.WAKE_LOCK" />
+﻿<?xml version="1.0" encoding="utf-8"?>
+<manifest xmlns:android="http://schemas.android.com/apk/res/android" package="com.pushsharp.test" android:installLocation="internalOnly" android:versionCode="2" android:versionName="2.0">
+  <uses-sdk android:targetSdkVersion="8" />
+  <application android:label="PushSharp Test GCM">
+  </application>
 </manifest>

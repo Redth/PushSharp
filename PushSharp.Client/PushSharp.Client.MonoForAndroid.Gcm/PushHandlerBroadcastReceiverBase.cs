@@ -11,11 +11,11 @@ using Android.Views;
 using Android.Widget;
 using Android.Util;
 
-namespace GCMSharp.Client
+namespace PushSharp.Client
 {
-	public class GCMBroadcastReceiver<TIntentService> : BroadcastReceiver where TIntentService : GCMBaseIntentService
+	public class PushHandlerBroadcastReceiverBase<TIntentService> : BroadcastReceiver where TIntentService : PushHandlerServiceBase
 	{
-		const string TAG = "GCMBroadcastReceiver";
+		const string TAG = "PushHandlerBroadcastReceiver";
 
 		public override void OnReceive(Context context, Intent intent)
 		{
@@ -24,7 +24,7 @@ namespace GCMSharp.Client
 
 			Log.Verbose(TAG, "GCM IntentService Class: " + className);
 
-			GCMBaseIntentService.RunIntentInService(context, intent, typeof(TIntentService));
+			PushHandlerServiceBase.RunIntentInService(context, intent, typeof(TIntentService));
 			SetResult(Result.Ok, null, null);
 		}
 	}

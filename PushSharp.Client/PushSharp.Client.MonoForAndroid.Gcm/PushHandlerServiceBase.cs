@@ -11,10 +11,10 @@ using Android.Views;
 using Android.Widget;
 using Android.Util;
 
-namespace GCMSharp.Client
+namespace PushSharp.Client
 {
   [Android.Runtime.Preserve(AllMembers=true)]
-	public abstract class GCMBaseIntentService : IntentService
+	public abstract class PushHandlerServiceBase : IntentService
 	{
 		const string TAG = "GCMBaseIntentService";
 
@@ -22,8 +22,10 @@ namespace GCMSharp.Client
 		static PowerManager.WakeLock sWakeLock;
 
 		static object LOCK = new object();
+		static int serviceId = 1;
 
-		string mSenderId;
+		static string[] SenderIds = new string[] {};
+
 		//int sCounter = 1;
 		Random sRandom = new Random();
 
@@ -32,11 +34,12 @@ namespace GCMSharp.Client
 		string TOKEN = "";
 		const string EXTRA_TOKEN = "token";
 
-		protected GCMBaseIntentService() : base() {}
+		protected PushHandlerServiceBase() : base() {}
 
-		public GCMBaseIntentService(string senderId) : base("GCMIntentService-" + senderId)
+		public PushHandlerServiceBase(params string[] senderIds)
+			: base("GCMIntentService-" + (serviceId++).ToString())
 		{
-			mSenderId = senderId;
+			SenderIds = senderIds;
 		}
 
 
@@ -114,10 +117,10 @@ namespace GCMSharp.Client
 					}
 
 					// retry last call
-					if (GCMRegistrar.IsRegistered(context))
-						GCMRegistrar.internalUnRegister(context);
+					if (PushClient.IsRegistered(context))
+						PushClient.internalUnRegister(context);
 					else
-						GCMRegistrar.internalRegister(context, mSenderId);
+						PushClient.internalRegister(context, SenderIds);
 				}
 			}
 			finally
@@ -178,8 +181,8 @@ namespace GCMSharp.Client
 			// registration succeeded
 			if (registrationId != null)
 			{
-				GCMRegistrar.ResetBackoff(context);
-				GCMRegistrar.SetRegistrationId(context, registrationId);
+				PushClient.ResetBackoff(context);
+				PushClient.SetRegistrationId(context, registrationId);
 				OnRegistered(context, registrationId);
 				return;
 			}
@@ -188,8 +191,8 @@ namespace GCMSharp.Client
 			if (unregistered != null)
 			{
 				// Remember we are unregistered
-				GCMRegistrar.ResetBackoff(context);
-				var oldRegistrationId = GCMRegistrar.ClearRegistrationId(context);
+				PushClient.ResetBackoff(context);
+				var oldRegistrationId = PushClient.ClearRegistrationId(context);
 				OnUnRegistered(context, oldRegistrationId);
 				return;
 			}
@@ -203,7 +206,7 @@ namespace GCMSharp.Client
 
 				if (retry)
 				{
-					int backoffTimeMs = GCMRegistrar.GetBackoff(context);
+					int backoffTimeMs = PushClient.GetBackoff(context);
 					int nextAttempt = backoffTimeMs / 2 + sRandom.Next(backoffTimeMs);
 
 					Log.Debug(TAG, "Scheduling registration retry, backoff = " + nextAttempt + " (" + backoffTimeMs + ")");
@@ -219,7 +222,7 @@ namespace GCMSharp.Client
 					// Next retry should wait longer.
 					if (backoffTimeMs < MAX_BACKOFF_MS)
 					{
-						GCMRegistrar.SetBackoff(context, backoffTimeMs * 2);
+						PushClient.SetBackoff(context, backoffTimeMs * 2);
 					}
 				}
 				else

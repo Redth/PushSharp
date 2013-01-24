@@ -1,51 +1,49 @@
-
-using System;
-using System.Collections.Generic;
-using System.Linq;
 using System.Text;
-
 using Android.App;
 using Android.Content;
-using Android.OS;
-using Android.Runtime;
-using Android.Views;
-using Android.Widget;
 using Android.Util;
-using GCMSharp.Client;
+using PushSharp.Client;
+
+//VERY VERY VERY IMPORTANT NOTE!!!!
+// Your package name MUST NOT start with an uppercase letter.
+// Android does not allow permissions to start with an upper case letter
+// If it does you will get a very cryptic error in logcat and it will not be obvious why you are crying!
+// So please, for the love of all that is kind on this earth, use a LOWERCASE first letter in your Package Name!!!!
+[assembly: Permission(Name = "@PACKAGE_NAME@.permission.C2D_MESSAGE")] //, ProtectionLevel = Android.Content.PM.Protection.Signature)]
+[assembly: UsesPermission(Name = "@PACKAGE_NAME@.permission.C2D_MESSAGE")]
+[assembly: UsesPermission(Name = "com.google.android.c2dm.permission.RECEIVE")]
+
+[assembly: UsesPermission(Name = "android.permission.GET_ACCOUNTS")]
+[assembly: UsesPermission(Name = "android.permission.INTERNET")]
+[assembly: UsesPermission(Name = "android.permission.WAKE_LOCK")]
 
 namespace PushSharp.ClientSample.MonoForAndroid
 {
 	//You must subclass this!
 	[BroadcastReceiver(Permission=GCMConstants.PERMISSION_GCM_INTENTS)]
-	[IntentFilter(new string[] { GCMConstants.INTENT_FROM_GCM_MESSAGE },
-		Categories = new string[] { "com.pushsharp.test" })]
-	[IntentFilter(new string[] { GCMConstants.INTENT_FROM_GCM_REGISTRATION_CALLBACK },
-		Categories = new string[] { "com.pushsharp.test" })]
-	[IntentFilter(new string[] { GCMConstants.INTENT_FROM_GCM_LIBRARY_RETRY },
-		Categories = new string[] { "com.pushsharp.test" })]
-	//[C2dmReceiver]
-	//[C2dmReceiveIntentFilter("c2dmsharp.client.sample")]
-	//[C2dmRegistrationIntentFilter("c2dmsharp.client.sample")]
-	public class SampleBroadcastReceiver : GCMBroadcastReceiver<GCMIntentService>
+	[IntentFilter(new string[] { GCMConstants.INTENT_FROM_GCM_MESSAGE }, Categories = new string[] { "@PACKAGE_NAME@" })]
+	[IntentFilter(new string[] { GCMConstants.INTENT_FROM_GCM_REGISTRATION_CALLBACK }, Categories = new string[] { "@PACKAGE_NAME@" })]
+	[IntentFilter(new string[] { GCMConstants.INTENT_FROM_GCM_LIBRARY_RETRY }, Categories = new string[] { "@PACKAGE_NAME@" })]
+	public class PushHandlerBroadcastReceiver : PushHandlerBroadcastReceiverBase<PushHandlerService>
 	{
 		//IMPORTANT: Change this to your own Sender ID!
 		//The SENDER_ID is your Google API Console App Project ID.
 		//  Be sure to get the right Project ID from your Google APIs Console.  It's not the named project ID that appears in the Overview,
 		//  but instead the numeric project id in the url: eg: https://code.google.com/apis/console/?pli=1#project:785671162406:overview
 		//  where 785671162406 is the project id, which is the SENDER_ID to use!
-		public const string SENDER_ID = "785671162406"; 
+		public static string[] SENDER_IDS = new string[] {"785671162406"};
 
 		public const string TAG = "PushSharp-GCM";
 	}
 
 	[Service] //Must use the service tag
-	public class GCMIntentService : GCMBaseIntentService
+	public class PushHandlerService : PushHandlerServiceBase
 	{
-		public GCMIntentService() : base(SampleBroadcastReceiver.SENDER_ID) {}
+		public PushHandlerService() : base(PushHandlerBroadcastReceiver.SENDER_IDS) { }
 
 		protected override void OnRegistered (Context context, string registrationId)
 		{
-			Log.Verbose(SampleBroadcastReceiver.TAG, "GCM Registered: " + registrationId);
+			Log.Verbose(PushHandlerBroadcastReceiver.TAG, "GCM Registered: " + registrationId);
 			//Send back to the server
 			//	var wc = new WebClient();
 			//	var result = wc.UploadString("http://your.server.com/api/register/", "POST", 
@@ -56,7 +54,7 @@ namespace PushSharp.ClientSample.MonoForAndroid
 
 		protected override void OnUnRegistered (Context context, string registrationId)
 		{
-			Log.Verbose(SampleBroadcastReceiver.TAG, "GCM Unregistered: " + registrationId);
+			Log.Verbose(PushHandlerBroadcastReceiver.TAG, "GCM Unregistered: " + registrationId);
 			//Remove from the web service
 			//	var wc = new WebClient();
 			//	var result = wc.UploadString("http://your.server.com/api/unregister/", "POST",
@@ -67,7 +65,7 @@ namespace PushSharp.ClientSample.MonoForAndroid
 
 		protected override void OnMessage (Context context, Intent intent)
 		{
-			Log.Info(SampleBroadcastReceiver.TAG, "GCM Message Received!");
+			Log.Info(PushHandlerBroadcastReceiver.TAG, "GCM Message Received!");
 
 			var msg = new StringBuilder();
 
@@ -88,14 +86,14 @@ namespace PushSharp.ClientSample.MonoForAndroid
 
 		protected override bool OnRecoverableError (Context context, string errorId)
 		{
-			Log.Warn(SampleBroadcastReceiver.TAG, "Recoverable Error: " + errorId);
+			Log.Warn(PushHandlerBroadcastReceiver.TAG, "Recoverable Error: " + errorId);
 
 			return base.OnRecoverableError (context, errorId);
 		}
 
 		protected override void OnError (Context context, string errorId)
 		{
-			Log.Error(SampleBroadcastReceiver.TAG, "GCM Error: " + errorId);
+			Log.Error(PushHandlerBroadcastReceiver.TAG, "GCM Error: " + errorId);
 		}
 
 		void createNotification(string title, string desc)
@@ -115,10 +113,7 @@ namespace PushSharp.ClientSample.MonoForAndroid
 			//Set the notification info
 			//we use the pending intent, passing our ui intent over which will get called
 			//when the notification is tapped.
-			notification.SetLatestEventInfo(this,
-				title,
-				desc,
-				PendingIntent.GetActivity(this, 0, uiIntent, 0));
+			notification.SetLatestEventInfo(this, title, desc, PendingIntent.GetActivity(this, 0, uiIntent, 0));
 
 			//Show the notification
 			notificationManager.Notify(1, notification);

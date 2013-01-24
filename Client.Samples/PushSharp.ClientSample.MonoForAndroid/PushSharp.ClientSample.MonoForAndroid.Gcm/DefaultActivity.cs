@@ -7,16 +7,16 @@ using Android.Views;
 using Android.Widget;
 using Android.OS;
 using Android.Util;
+using PushSharp.Client;
 
 namespace PushSharp.ClientSample.MonoForAndroid
 {
-	[Activity(Label = "C2DM-Sharp Sample", MainLauncher = true, 
+	[Activity(Label = "PushSharp GCM Sample", MainLauncher = true, 
 		LaunchMode= Android.Content.PM.LaunchMode.SingleTask)]
 	public class DefaultActivity : Activity
 	{
 		//NOTE: You need to put your own email here!
 		// Whichever one you registered as the 'Role' email with google
-
 		const string TAG = "PushSharp-GCM";
 
 		TextView textRegistrationStatus = null;
@@ -40,8 +40,8 @@ namespace PushSharp.ClientSample.MonoForAndroid
 			Log.Info(TAG, "Hello World");
 
 			//Check to ensure everything's setup right
-			GCMSharp.Client.GCMRegistrar.CheckDevice(this);
-			GCMSharp.Client.GCMRegistrar.CheckManifest(this);
+			PushClient.CheckDevice(this);
+			PushClient.CheckManifest(this);
 								
 
 			this.buttonRegister.Click += delegate
@@ -51,14 +51,14 @@ namespace PushSharp.ClientSample.MonoForAndroid
 					Log.Info(TAG, "Registering...");
 
 					//Call to register
-					GCMSharp.Client.GCMRegistrar.Register(this, SampleBroadcastReceiver.SENDER_ID);
+					PushClient.Register(this, PushHandlerBroadcastReceiver.SENDER_IDS);
 				}
 				else
 				{
 					Log.Info(TAG, "Unregistering...");
 
 					//Call to unregister
-					GCMSharp.Client.GCMRegistrar.UnRegister(this);
+					PushClient.UnRegister(this);
 				}
 
 				RunOnUiThread(() =>
@@ -80,7 +80,7 @@ namespace PushSharp.ClientSample.MonoForAndroid
 		void updateView()
 		{
 			//Get the stored latest registration id
-			var registrationId = GCMSharp.Client.GCMRegistrar.GetRegistrationId(this);
+			var registrationId = PushClient.GetRegistrationId(this);
 					
 			//If it's empty, we need to register
 			if (string.IsNullOrEmpty(registrationId))

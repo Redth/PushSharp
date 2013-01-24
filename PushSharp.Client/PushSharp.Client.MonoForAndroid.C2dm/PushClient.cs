@@ -11,9 +11,9 @@ using Android.Runtime;
 using Android.Views;
 using Android.Widget;
 
-namespace PushSharp.Client.MonoForAndroid
+namespace PushSharp.Client
 {
-	public class C2dmClient
+	public class PushClient
 	{
 		/// <summary>
 		/// Incoming Intents have this action which indicates a Message was received
@@ -60,13 +60,12 @@ namespace PushSharp.Client.MonoForAndroid
 		/// Unregisters the Device from C2DM Messages
 		/// </summary>
 		/// <param name="context">Context</param>
-		public static void Unregister(Context context)
+		public static void UnRegister(Context context)
 		{
 			Intent unregIntent = new Intent(GOOGLE_ACTION_C2DM_INTENT_UNREGISTER);
 			unregIntent.PutExtra("app", PendingIntent.GetBroadcast(context, 0, new Intent(), 0));
 			context.StartService(unregIntent);
 		}
-
 
 		public static string GetRegistrationId(Context context)
 		{

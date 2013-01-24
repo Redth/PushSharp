@@ -1,35 +1,38 @@
 
 using System;
-using System.Collections.Generic;
-using System.Linq;
 using System.Text;
 
 using Android.App;
 using Android.Content;
 using Android.OS;
-using Android.Runtime;
-using Android.Views;
-using Android.Widget;
 using Android.Util;
-using PushSharp.Client.MonoForAndroid;
+using PushSharp.Client;
+
+//VERY VERY VERY IMPORTANT NOTE!!!!
+// Your package name MUST NOT start with an uppercase letter.
+// Android does not allow permissions to start with an upper case letter
+// If it does you will get a very cryptic error in logcat and it will not be obvious why you are crying!
+// So please, for the love of all that is kind on this earth, use a LOWERCASE first letter in your Package Name!!!!
+[assembly: Permission(Name = "@PACKAGE_NAME@.permission.C2D_MESSAGE")] //, ProtectionLevel = Android.Content.PM.Protection.Signature)]
+[assembly: UsesPermission(Name = "@PACKAGE_NAME@.permission.C2D_MESSAGE")]
+[assembly: UsesPermission(Name = "com.google.android.c2dm.permission.RECEIVE")]
+
+[assembly: UsesPermission(Name = "android.permission.GET_ACCOUNTS")]
+[assembly: UsesPermission(Name = "android.permission.INTERNET")]
+[assembly: UsesPermission(Name = "android.permission.WAKE_LOCK")]
 
 namespace PushSharp.ClientSample.MonoForAndroid
 {
 	//You must subclass this!
-	[BroadcastReceiver(Permission = C2dmClient.GOOGLE_PERMISSION_C2DM_SEND)]
-	[IntentFilter(new string[] { C2dmClient.GOOGLE_ACTION_C2DM_INTENT_RECEIVE },
-		Categories = new string[] { "com.pushsharp.test" })]
-	[IntentFilter(new string[] { C2dmClient.GOOGLE_ACTION_C2DM_INTENT_REGISTRATION },
-		Categories = new string[] { "com.pushsharp.test" })]
-	//[C2dmReceiver]
-	//[C2dmReceiveIntentFilter("c2dmsharp.client.sample")]
-	//[C2dmRegistrationIntentFilter("c2dmsharp.client.sample")]
-	public class SampleBroadcastReceiver : C2dmBroadcastReceiver<PushService>
+	[BroadcastReceiver(Permission = PushClient.GOOGLE_PERMISSION_C2DM_SEND)]
+	[IntentFilter(new string[] { PushClient.GOOGLE_ACTION_C2DM_INTENT_RECEIVE }, Categories = new string[] { "@PACKAGE_NAME@" })]
+	[IntentFilter(new string[] { PushClient.GOOGLE_ACTION_C2DM_INTENT_REGISTRATION }, Categories = new string[] { "com.pushsharp.test" })]
+	public class PushHandlerBroadcastReceiver : PushHandlerBroadcastReceiverBase<PushService>
 	{
 	}
 
 	[Service] //Must use the service tag
-	public class PushService : C2dmService
+	public class PushService : PushHandlerServiceBase
 	{
 		public override void OnRegistrationError(Exception ex)
 		{
@@ -94,10 +97,7 @@ namespace PushSharp.ClientSample.MonoForAndroid
 			//Set the notification info
 			//we use the pending intent, passing our ui intent over which will get called
 			//when the notification is tapped.
-			notification.SetLatestEventInfo(this,
-				title,
-				desc,
-				PendingIntent.GetActivity(this, 0, uiIntent, 0));
+			notification.SetLatestEventInfo(this, title, desc, PendingIntent.GetActivity(this, 0, uiIntent, 0));
 
 			//Show the notification
 			notificationManager.Notify(1, notification);

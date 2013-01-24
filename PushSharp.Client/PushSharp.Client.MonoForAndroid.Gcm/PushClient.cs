@@ -11,9 +11,9 @@ using Android.Views;
 using Android.Widget;
 using Android.Util;
 
-namespace GCMSharp.Client
+namespace PushSharp.Client
 {
-	public class GCMRegistrar
+	public class PushClient
 	{
 		const string TAG = "GCMRegistrar";
 		const string BACKOFF_MS = "backoff_ms";
