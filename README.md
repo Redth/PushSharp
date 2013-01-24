@@ -7,6 +7,8 @@ A server-side library for sending Push Notifications to iOS (iPhone/iPad APNS), 
 *********
 News
 ----
+**January 24, 2013** Another update, with Windows Phone 8 new tile templates, and some other general improvements!
+
 **January 23, 2013** New version with some substantial improvements to how Apple Notifications are processed :)
 
 **September 6, 2012** Blog Post: [The Problem with Apple's Push Notification Service... Solutions and Workarounds...](http://redth.info/the-problem-with-apples-push-notification-ser)
@@ -25,8 +27,8 @@ Features
  - Supports sending push notifications for many platforms:
    - Apple (APNS - iPhone, iPad, Mountain Lion)
    - Android (GCM/C2DM - Phones/Tablets)
-   - Windows Phone 7 / 7.5 (and 8 presumably when it's released)
-   - Windows 8 (BETA - Not well tested yet!)
+   - Windows Phone 7 / 7.5 / 8 (including FlipTile, CycleTile, and IconicTile Templates!)
+   - Windows 8
    - Blackberry (Not fully functional / Tested - Looking for help here)
  - Fluent API for constructing Notifications for each platform
  - Auto Scaling of notification channels (more workers/connections are added as demand increases, and scaled down as it decreases)
@@ -141,13 +143,13 @@ You PushChannelBase implementation should get all of its connection parameters f
 
 ********************
 
-**MonoTouch** and **Mono for Android** Client Application Integration
+MonoTouch and Mono for Android Client Application Integration
 ---------------------------------------------------------------------
 Given that PushSharp is written in C#, you probably thought there was a good chance that it's being used somewhere with MonoTouch or Mono for Android... and you would be correct!  There are samples of how to setup the client app push notification end of things included in the PushSharp project source!  There's even a Windows Phone 7.5 project to show how to register for notifications!
 
 All client samples can be found in the **/Client.Samples/** folder.  
 
-PushSharp.ClientSample.**MonoForAndroid** 
+PushSharp.ClientSample.MonoForAndroid
 -----------------------------------------
 There are two projects for Mono For Android:
 
@@ -164,7 +166,7 @@ Eg: my.package.name is ok, but My.package.name is NOT
 Next, take a look at the PushService.cs file in the sample project.  You can copy much of this class into your own App, but again be sure to substitute your own package name in where applicable (the BroadcastReceiver attributes need to be changed).  You will also need to change the SENDER_ID constant to your own (see the documentation for Configuring GCM with PushSharp in the wiki).  Finally, in this class, you will probably want to change what happens in some of the GCMIntentService methods.  In the OnRegistered, you would want to send the registration ID to your server, so that you can use it to send the device notifications.  You get the point.
 
 
-PushSharp.ClientSample.**MonoTouch**
+PushSharp.ClientSample.MonoTouch
 ------------------------------------
 Registering for remote notifications in MonoTouch is fairly trivial.  The only real tricky part is figuring out how to get the deviceToken into a nice string that you can send to your server.  Check out *AppDelegate.cs* for details on how this is done in MonoTouch!
 
