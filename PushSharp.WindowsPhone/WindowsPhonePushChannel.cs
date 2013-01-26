@@ -40,7 +40,10 @@ namespace PushSharp.WindowsPhone
 				mediumValue = 12;
 				slowValue = 22;
 			}
-			else if (wpNotification is WindowsPhoneTileNotification)
+			else if (wpNotification is WindowsPhoneTileNotification ||
+                wpNotification is WindowsPhoneCycleTile ||
+                wpNotification is WindowsPhoneFlipTile ||
+                wpNotification is WindowsPhoneIconicTile)
 			{
 				immediateValue = 1;
 				mediumValue = 11;
@@ -61,7 +64,10 @@ namespace PushSharp.WindowsPhone
 			
 			if (wpNotification is WindowsPhoneToastNotification)
 				wr.Headers.Add("X-WindowsPhone-Target", "toast");
-			else if (wpNotification is WindowsPhoneTileNotification)
+            else if (wpNotification is WindowsPhoneTileNotification ||
+                wpNotification is WindowsPhoneCycleTile ||
+                wpNotification is WindowsPhoneFlipTile ||
+                wpNotification is WindowsPhoneIconicTile)
 				wr.Headers.Add("X-WindowsPhone-Target", "token");
 
 			if (wpNotification.MessageID != null)

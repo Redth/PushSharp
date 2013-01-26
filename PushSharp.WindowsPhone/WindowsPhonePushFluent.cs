@@ -263,6 +263,12 @@ namespace PushSharp
 			return n;
 		}
 
+        public static WindowsPhoneTileNotification WithTileId(this WindowsPhoneTileNotification n, string tileId)
+        {
+            n.TileId = tileId;
+            return n;
+        }
+
 		public static WindowsPhoneFlipTile WithCount(this WindowsPhoneFlipTile n, int count)
 		{
 			n.Count = count;
@@ -392,6 +398,12 @@ namespace PushSharp
 			n.EndPointUrl = endpointUri.ToString();
 			return n;
 		}
+
+        public static WindowsPhoneTileNotification WithTileId(this WindowsPhoneTileNotification n, string tileId)
+        {
+            n.TileId = tileId;
+            return n;
+        }
 
 		public static WindowsPhoneIconicTile WithCallbackUri(this WindowsPhoneIconicTile n, Uri callbackUri)
 		{
@@ -526,6 +538,12 @@ namespace PushSharp
 			n.EndPointUrl = endpointUri.ToString();
 			return n;
 		}
+
+        public static WindowsPhoneTileNotification WithTileId(this WindowsPhoneTileNotification n, string tileId)
+        {
+            n.TileId = tileId;
+            return n;
+        }
 
 		public static WindowsPhoneCycleTile WithCallbackUri(this WindowsPhoneCycleTile n, Uri callbackUri)
 		{
