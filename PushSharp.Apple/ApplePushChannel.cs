@@ -272,7 +272,7 @@ namespace PushSharp.Apple
 					if (sentNotifications.Count > 0)
 					{
 						//Don't expire any notifications while we are in a connecting state
-						if (connected || CancelToken.IsCancellationRequested)
+						if ((connected || CancelToken.IsCancellationRequested) || (!connected && QueuedNotificationCount <= 0))
 						{
 							//Get the oldest sent message
 							var n = sentNotifications[0];
