@@ -29,9 +29,16 @@ namespace PushSharp.Windows
 			return notification;
 		}
 
-		public static WindowsBadgeNotification ForChannelUri(this WindowsBadgeNotification notification, string channelUri)
+		public static WindowsBadgeGlyphNotification ForChannelUri(this WindowsBadgeGlyphNotification notification, string channelUri)
 		{
 			ValidateUri(channelUri);	
+			notification.ChannelUri = channelUri;
+			return notification;
+		}
+
+		public static WindowsBadgeNumericNotification ForChannelUri(this WindowsBadgeNumericNotification notification, string channelUri)
+		{
+			ValidateUri(channelUri);
 			notification.ChannelUri = channelUri;
 			return notification;
 		}
@@ -53,7 +60,13 @@ namespace PushSharp.Windows
 			return notification;
 		}
 
-		public static WindowsBadgeNotification WithCachePolicy(this WindowsBadgeNotification notification, WindowsNotificationCachePolicyType cachePolicy)
+		public static WindowsBadgeGlyphNotification WithCachePolicy(this WindowsBadgeGlyphNotification notification, WindowsNotificationCachePolicyType cachePolicy)
+		{
+			notification.CachePolicy = cachePolicy;
+			return notification;
+		}
+
+		public static WindowsBadgeNumericNotification WithCachePolicy(this WindowsBadgeNumericNotification notification, WindowsNotificationCachePolicyType cachePolicy)
 		{
 			notification.CachePolicy = cachePolicy;
 			return notification;
@@ -77,7 +90,13 @@ namespace PushSharp.Windows
 			return notification;
 		}
 
-		public static WindowsBadgeNotification WithRequestForStatus(this WindowsBadgeNotification notification, bool requestForStatus)
+		public static WindowsBadgeGlyphNotification WithRequestForStatus(this WindowsBadgeGlyphNotification notification, bool requestForStatus)
+		{
+			notification.RequestForStatus = requestForStatus;
+			return notification;
+		}
+
+		public static WindowsBadgeNumericNotification WithRequestForStatus(this WindowsBadgeNumericNotification notification, bool requestForStatus)
 		{
 			notification.RequestForStatus = requestForStatus;
 			return notification;
@@ -101,12 +120,98 @@ namespace PushSharp.Windows
 			return notification;
 		}
 
-		public static WindowsBadgeNotification WithTimeToLive(this WindowsBadgeNotification notification, int timeToLive)
+		public static WindowsBadgeGlyphNotification WithTimeToLive(this WindowsBadgeGlyphNotification notification, int timeToLive)
 		{
 			notification.TimeToLive = timeToLive;
 			return notification;
 		}
 
+		public static WindowsBadgeNumericNotification WithTimeToLive(this WindowsBadgeNumericNotification notification, int timeToLive)
+		{
+			notification.TimeToLive = timeToLive;
+			return notification;
+		}
+
+		public static WindowsBadgeGlyphNotification WithGlyph(this WindowsBadgeGlyphNotification notification, BadgeGlyphValue glyph)
+		{
+			notification.Glyph = glyph;
+			return notification;
+		}
+
+		public static WindowsBadgeNumericNotification WithBadgeNumber(this WindowsBadgeNumericNotification notification, int badgeNumber)
+		{
+			notification.BadgeNumber = badgeNumber;
+			return notification;
+		}
+
+		public static WindowsToastNotification WithVersion(this WindowsToastNotification notification, int version = 1)
+		{
+			notification.Version = version;
+			return notification;
+		}
+
+		public static WindowsTileNotification WithVersion(this WindowsTileNotification notification, int version = 1)
+		{
+			notification.Version = version;
+			return notification;
+		}
+
+		public static WindowsToastNotification WithLanguage(this WindowsToastNotification notification, string language)
+		{
+			notification.Language = language;
+			return notification;
+		}
+
+		public static WindowsTileNotification WithLanguage(this WindowsTileNotification notification, string language)
+		{
+			notification.Language = language;
+			return notification;
+		}
+
+		public static WindowsToastNotification WithBaseUri(this WindowsToastNotification notification, string baseUri)
+		{
+			notification.BaseUri = baseUri;
+			return notification;
+		}
+
+		public static WindowsTileNotification WithBaseUri(this WindowsTileNotification notification, string baseUri)
+		{
+			notification.BaseUri = baseUri;
+			return notification;
+		}
+
+		public static WindowsToastNotification WithAddImageQuery(this WindowsToastNotification notification, bool addImageQuery)
+		{
+			notification.AddImageQuery = addImageQuery;
+			return notification;
+		}
+
+		public static WindowsTileNotification WithAddImageQuery(this WindowsTileNotification notification, bool addImageQuery)
+		{
+			notification.AddImageQuery = addImageQuery;
+			return notification;
+		}
+
+		public static WindowsToastNotification WithLaunch(this WindowsToastNotification notification, string launch)
+		{
+			notification.Launch = launch;
+			return notification;
+		}
+
+		public static WindowsToastNotification WithAudio(this WindowsToastNotification notification, ToastAudioType audioType, bool loop = false, ToastDuration duration = ToastDuration.Short)
+		{
+			notification.AudioType = audioType;
+			notification.AudioLoop = loop;
+			notification.Duration = duration;
+			return notification;
+		}
+
+		public static WindowsTileNotification WithBranding(this WindowsTileNotification notification, string branding)
+		{
+			notification.Branding = branding;
+			return notification;
+		}
+		
 		/// <summary>
 		/// A single string wrapped across a maximum of three lines of text. For more information and example screenshots of the various Toast Layouts see http://msdn.microsoft.com/en-us/library/windows/apps/hh761494.aspx
 		/// </summary>

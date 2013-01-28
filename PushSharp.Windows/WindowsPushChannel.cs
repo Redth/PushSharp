@@ -116,10 +116,21 @@ namespace PushSharp.Windows
 			}
 			else if (winNotification.Type == WindowsNotificationType.Badge)
 			{
-				var winTileBadge = winNotification as WindowsBadgeNotification;
+				if (winNotification is WindowsBadgeNumericNotification)
+				{
+					var winTileBadge = winNotification as WindowsBadgeNumericNotification;
 
-				if (winTileBadge != null && winTileBadge.CachePolicy.HasValue)
-					request.Headers.Add("X-WNS-Cache-Policy", winTileBadge.CachePolicy == WindowsNotificationCachePolicyType.Cache ? "cache" : "no-cache");
+					if (winTileBadge != null && winTileBadge.CachePolicy.HasValue)
+						request.Headers.Add("X-WNS-Cache-Policy", winTileBadge.CachePolicy == WindowsNotificationCachePolicyType.Cache ? "cache" : "no-cache");
+					
+				}
+				else if (winNotification is WindowsBadgeGlyphNotification)
+				{
+					var winTileBadge = winNotification as WindowsBadgeGlyphNotification;
+
+					if (winTileBadge != null && winTileBadge.CachePolicy.HasValue)
+						request.Headers.Add("X-WNS-Cache-Policy", winTileBadge.CachePolicy == WindowsNotificationCachePolicyType.Cache ? "cache" : "no-cache");
+				}
 			}
 			
 			if (winNotification.RequestForStatus.HasValue)
@@ -248,7 +259,7 @@ namespace PushSharp.Windows
 			{
 				this.Events.RaiseDeviceSubscriptionExpired(PlatformType.Windows, status.Notification.ChannelUri, status.Notification);
 			}
-
+			
 			this.Events.RaiseNotificationSendFailure(status.Notification, new WindowsNotificationSendFailureException(status));
 		}
 	}

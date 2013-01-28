@@ -22,10 +22,15 @@ namespace PushSharp.Windows
 		{
 			return new WindowsRawNotification();
 		}
-
-		public WindowsBadgeNotification Badge()
+		
+		public WindowsBadgeNumericNotification BadgeNumeric()
 		{
-			return new WindowsBadgeNotification();
+			return new WindowsBadgeNumericNotification();
+		}
+
+		public WindowsBadgeGlyphNotification BadgeGlyph()
+		{
+			return new WindowsBadgeGlyphNotification();
 		}
 	}
 }
