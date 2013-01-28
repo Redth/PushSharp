@@ -191,7 +191,7 @@ namespace PushSharp.Windows
 		public Dictionary<string, string> Images { get; set; }
 		public List<string> Texts { get; set; }
 		public string Language { get; set; }
-		public string Branding { get; set; }
+		public TileBrandingType Branding { get; set; }
 		public string BaseUri { get; set; }
 		public bool AddImageQuery { get; set; }
 
@@ -305,7 +305,7 @@ namespace PushSharp.Windows
 	public enum ToastDuration
 	{
 		Short = 0,
-		Long
+		Long = 1
 	}
 
 	public enum ToastAudioType
@@ -433,6 +433,13 @@ namespace PushSharp.Windows
 		ToastImageAndText02,
 		ToastImageAndText03,
 		ToastImageAndText04
+	}
+
+	public enum TileBrandingType
+	{
+		None = 0,
+		Logo = 1,
+		Name = 2
 	}
 	
 }

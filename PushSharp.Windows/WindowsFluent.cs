@@ -206,11 +206,18 @@ namespace PushSharp.Windows
 			return notification;
 		}
 
-		public static WindowsTileNotification WithBranding(this WindowsTileNotification notification, string branding)
+		public static WindowsTileNotification WithBranding(this WindowsTileNotification notification, TileBrandingType branding)
 		{
 			notification.Branding = branding;
 			return notification;
 		}
+
+		public static WindowsToastNotification WithDuration(this WindowsToastNotification notification, ToastDuration duration)
+		{
+			notification.Duration = duration;
+			return notification;
+		}
+
 		
 		/// <summary>
 		/// A single string wrapped across a maximum of three lines of text. For more information and example screenshots of the various Toast Layouts see http://msdn.microsoft.com/en-us/library/windows/apps/hh761494.aspx
