@@ -72,6 +72,7 @@ namespace PushSharp.Apple
         }
 
 		object sentLock = new object();
+		object connectLock = new object();
 		object streamWriteLock = new object();
 		int reconnectDelay = 3000;
 		float reconnectBackoffMultiplier = 1.5f;
@@ -127,7 +128,8 @@ namespace PushSharp.Apple
 
 				if (isOkToSend)
 				{
-					Connect();
+					lock(connectLock)
+						Connect();
 
 					try
 					{
@@ -264,6 +266,9 @@ namespace PushSharp.Apple
 		{
 			while (true)
 			{
+				lock(connectLock)
+					Connect();
+
 				bool wasRemoved = false;
 
 				lock (sentLock)
@@ -272,7 +277,7 @@ namespace PushSharp.Apple
 					if (sentNotifications.Count > 0)
 					{
 						//Don't expire any notifications while we are in a connecting state
-						if ((connected || CancelToken.IsCancellationRequested) || (!connected && QueuedNotificationCount <= 0))
+						if (connected || CancelToken.IsCancellationRequested)
 						{
 							//Get the oldest sent message
 							var n = sentNotifications[0];
@@ -307,7 +312,7 @@ namespace PushSharp.Apple
 					Thread.Sleep(250);
 			}
 		}
-
+	
 		void Connect()
 		{
 			//Keep trying to connect
