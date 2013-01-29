@@ -18,7 +18,6 @@ namespace PushSharp.Windows
 
 		public bool? RequestForStatus { get; set; }
 		public int? TimeToLive { get; set; }
-		public int Version = 1;
 		
 		public abstract string PayloadToString();
 
@@ -188,7 +187,7 @@ namespace PushSharp.Windows
 			var binding = new XElement("binding", new XAttribute("template", ToastTemplate.ToString()));
 
 			if (!string.IsNullOrEmpty(Fallback))
-				binding.Add(new XAttribute("lang", XmlEncode(Fallback)));
+				binding.Add(new XAttribute("fallback", XmlEncode(Fallback)));
 
 			if (!string.IsNullOrEmpty(Language))
 				binding.Add(new XAttribute("lang", XmlEncode(Language)));
@@ -370,11 +369,15 @@ namespace PushSharp.Windows
 		public WindowsNotificationCachePolicyType? CachePolicy { get; set; }
 
 		public BadgeGlyphValue Glyph { get; set; }
+		public int? Version { get; set; }
 	
 		public override string PayloadToString()
 		{
 			var badge = new XElement("badge");
-			badge.Add(new XAttribute("version", this.Version));
+
+			if (Version.HasValue)
+				badge.Add(new XAttribute("version", this.Version.Value.ToString()));
+
 			badge.Add(new XAttribute("value", Glyph.ToString().ToLowerInvariant()));
 
 			return badge.ToString();
@@ -391,11 +394,15 @@ namespace PushSharp.Windows
 		public WindowsNotificationCachePolicyType? CachePolicy { get; set; }
 
 		public int BadgeNumber { get; set; }
+		public int? Version { get; set; }
 
 		public override string PayloadToString()
 		{
 			var badge = new XElement("badge");
-			badge.Add(new XAttribute("version", this.Version));
+			
+			if (Version.HasValue)
+				badge.Add(new XAttribute("version", this.Version.Value));
+
 			badge.Add(new XAttribute("value", BadgeNumber.ToString().ToLowerInvariant()));
 
 			return badge.ToString();
@@ -466,6 +473,9 @@ namespace PushSharp.Windows
 			if (!string.IsNullOrEmpty(Language))
 				text.Add(new XAttribute("lang", XmlEncode(Language)));
 
+			if (!string.IsNullOrEmpty(Text))
+				text.Add(XmlEncode(Text));
+	
 			return text;
 		}
 
@@ -487,6 +497,9 @@ namespace PushSharp.Windows
 			if (!string.IsNullOrEmpty(Language))
 				text.Add(new XAttribute("lang", XmlEncode(Language)));
 
+			if (!string.IsNullOrEmpty(Text))
+				text.Add(XmlEncode(Text));
+	
 			return text;
 		}
 

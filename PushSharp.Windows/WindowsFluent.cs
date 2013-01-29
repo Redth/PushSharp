@@ -146,13 +146,13 @@ namespace PushSharp.Windows
 
 		public static WindowsToastNotification WithVersion(this WindowsToastNotification notification, int version = 1)
 		{
-			notification.Version = version;
+			notification.Visual.Version = version;
 			return notification;
 		}
 
 		public static WindowsTileNotification WithVersion(this WindowsTileNotification notification, int version = 1)
 		{
-			notification.Version = version;
+			notification.Visual.Version = version;
 			return notification;
 		}
 
