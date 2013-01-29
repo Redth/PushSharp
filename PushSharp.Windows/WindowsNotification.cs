@@ -28,155 +28,13 @@ namespace PushSharp.Windows
 		{
 			return System.Security.SecurityElement.Escape(text);
 		}
-
-		protected string GeneratePayload(XElement rootElement, WindowsNotification notification, string template, Dictionary<string, string> images, List<string> texts)
-		{
-			var visual = new XElement("visual");
-			var binding = new XElement("binding", new XAttribute("template", template.ToString()));
-
-			if (notification is WindowsTileNotification)
-			{
-				var tileNotification = notification as WindowsTileNotification;
-
-				visual.Add(new XAttribute("version", tileNotification.Version));
-				binding.Add(new XAttribute("version", tileNotification.Version));
-				
-				if (!string.IsNullOrEmpty(tileNotification.Language))
-				{
-					visual.Add(new XAttribute("lang", XmlEncode(tileNotification.Language)));
-					binding.Add(new XAttribute("lang", XmlEncode(tileNotification.Language)));
-				}
-
-				if (!string.IsNullOrEmpty(tileNotification.Branding))
-				{
-					visual.Add(new XAttribute("branding", XmlEncode(tileNotification.Branding.ToLowerInvariant())));
-					binding.Add(new XAttribute("branding", XmlEncode(tileNotification.Branding.ToLowerInvariant())));
-				}
-
-				if (!string.IsNullOrEmpty(tileNotification.BaseUri))
-				{
-					visual.Add(new XAttribute("baseUri", XmlEncode(tileNotification.BaseUri)));
-					binding.Add(new XAttribute("baseUri", XmlEncode(tileNotification.BaseUri)));
-				}
-
-				if (tileNotification.AddImageQuery)
-				{
-					visual.Add(new XAttribute("addImageQuery", true));
-					binding.Add(new XAttribute("addImageQuery", true));
-				}
-			}
-			else if (notification is WindowsToastNotification)
-			{
-				var toastNotification = notification as WindowsToastNotification;
-
-				visual.Add(new XAttribute("version", toastNotification.Version));
-			
-				if (!string.IsNullOrEmpty(toastNotification.Language))
-					visual.Add(new XAttribute("lang", XmlEncode(toastNotification.Language)));
-			
-				if (!string.IsNullOrEmpty(toastNotification.BaseUri))
-					visual.Add(new XAttribute("baseUri", XmlEncode(toastNotification.BaseUri)));
-			
-				if (toastNotification.AddImageQuery)
-					visual.Add(new XAttribute("addImageQuery", true));
-			}
-
-			
-
-			int idOn = 1;
-
-			foreach (var imgSrc in images.Keys)
-			{
-				var alt = images[imgSrc];
-
-				var image = new XElement("image", new XAttribute("id", idOn), new XAttribute("src", XmlEncode(imgSrc)));
-
-				if (!string.IsNullOrEmpty(alt))
-					image.Add(new XAttribute("alt", XmlEncode(alt)));
-
-				binding.Add(image);
-
-				idOn++;
-			}
-
-			idOn = 1;
-
-			foreach (var text in texts)
-			{
-				binding.Add(new XElement("text", new XAttribute("id", idOn), XmlEncode(text)));
-				idOn++;
-			}
-
-			visual.Add(binding);
-			rootElement.Add(visual);
-
-			//If Toast, add audio
-			if (notification is WindowsToastNotification)
-			{
-				var toastNotification = notification as WindowsToastNotification;
-
-				var audio = new XElement("audio");
-
-				if (toastNotification.AudioType == ToastAudioType.Silent)
-				{
-					audio.Add(new XAttribute("silent", "true"));
-				}
-				else
-				{
-					if (toastNotification.AudioLoop)
-						audio.Add(new XAttribute("loop", "true"));
-
-					//Default sound is LoopingCall, so don't need to add it if that's the case
-					if (toastNotification.AudioType != ToastAudioType.LoopingCall)
-					{
-						string audioSrc = null;
-						switch (toastNotification.AudioType)
-						{
-							case ToastAudioType.IM:
-								audioSrc = "ms-winsoundevent:Notification.IM";
-								break;
-							case ToastAudioType.Mail:
-								audioSrc = "ms-winsoundevent:Notification.Mail";
-								break;
-							case ToastAudioType.Reminder:
-								audioSrc = "ms-winsoundevent:Notification.Reminder";
-								break;
-							case ToastAudioType.SMS:
-								audioSrc = "ms-winsoundevent:Notification.SMS";
-								break;
-							case ToastAudioType.LoopingAlarm:
-								audioSrc = "ms-winsoundevent:Notification.Looping.Alarm";
-								break;
-							case ToastAudioType.LoopingAlarm2:
-								audioSrc = "ms-winsoundevent:Notification.Looping.Alarm2";
-								break;
-							case ToastAudioType.LoopingCall:
-								audioSrc = "ms-winsoundevent:Notification.Looping.Call";
-								break;
-							case ToastAudioType.LoopingCall2:
-								audioSrc = "ms-winsoundevent:Notification.Looping.Call2";
-								break;
-						}
-
-						audio.Add(new XAttribute("src", audioSrc));
-					}
-				}
-
-				rootElement.Add(audio);
-			}
-
-			return rootElement.ToString();
-		}
 	}
 
 	public class WindowsTileNotification : WindowsNotification
 	{
-		public WindowsTileNotification()
-			: base()
+		public WindowsTileNotification() : base()
 		{
-			this.Texts = new List<string>();
-			this.Images = new Dictionary<string, string>();
-			this.TileTemplate = TileNotificationTemplate.TileSquareBlock;
+			Visual = new TileVisual();
 		}
 
 		public override WindowsNotificationType Type
@@ -186,18 +44,280 @@ namespace PushSharp.Windows
 
 		public WindowsNotificationCachePolicyType? CachePolicy { get; set; }
 		public string NotificationTag { get; set; }
-
-		public TileNotificationTemplate TileTemplate { get; set; }
-		public Dictionary<string, string> Images { get; set; }
-		public List<string> Texts { get; set; }
-		public string Language { get; set; }
-		public TileBrandingType Branding { get; set; }
-		public string BaseUri { get; set; }
-		public bool AddImageQuery { get; set; }
-
+	
+		public TileVisual Visual { get; set; }
+	
 		public override string PayloadToString()
 		{
-			return this.GeneratePayload(new XElement("tile"), this, this.TileTemplate.ToString(), Images, Texts);
+			var tile = new XElement("tile");
+
+			if (Visual != null)
+				tile.Add(Visual.GenerateXmlElement());
+
+			return tile.ToString();
+		}
+	}
+
+	public class TileBinding
+	{
+		public TileBinding()
+		{
+			Images = new List<TileImage>();
+			Texts = new List<TileText>();
+		}
+
+		public TileNotificationTemplate TileTemplate { get; set; }
+		public string Fallback { get; set; }
+		public string Language { get; set; }
+		public string BaseUri { get; set; }
+		public BrandingType? Branding { get; set; }
+		public bool? AddImageQuery { get; set; }
+
+		public List<TileImage> Images { get; set; }
+		public List<TileText> Texts { get; set; }
+
+		public XElement GenerateXmlElement()
+		{
+			var binding = new XElement("binding", new XAttribute("template", this.TileTemplate.ToString()));	
+
+			if (!string.IsNullOrEmpty(Language))
+				binding.Add(new XAttribute("lang", XmlEncode(Language)));
+
+			if (Branding.HasValue)
+				binding.Add(new XAttribute("branding", XmlEncode(Branding.Value.ToString().ToLowerInvariant())));
+
+			if (!string.IsNullOrEmpty(BaseUri))
+				binding.Add(new XAttribute("baseUri", XmlEncode(BaseUri)));
+
+			if (AddImageQuery.HasValue)
+				binding.Add(new XAttribute("addImageQuery", AddImageQuery.Value.ToString().ToLowerInvariant()));
+
+			int idOn = 1;
+
+			if (Images != null)
+			{
+				foreach (var img in Images)
+					binding.Add(img.GenerateXmlElement(idOn++));
+			}
+
+			idOn = 1;
+
+			if (Texts != null)
+			{
+				foreach (var text in Texts)
+					binding.Add(text.GenerateXmlElement(idOn++));
+			}
+
+			return binding;
+		}
+
+		protected string XmlEncode(string text)
+		{
+			return System.Security.SecurityElement.Escape(text);
+		}
+	}
+
+	public class TileVisual
+	{
+		public TileVisual()
+		{
+			Bindings = new List<TileBinding>();
+		}
+
+		public int? Version { get; set; }
+		public string Language { get; set;}
+		public string BaseUri { get; set; }
+		public BrandingType? Branding { get; set;}
+		public bool? AddImageQuery { get; set; }
+
+		public List<TileBinding> Bindings { get; set; }
+
+		public XElement GenerateXmlElement()
+		{
+			var visual = new XElement("visual");
+
+			if (Version.HasValue)
+				visual.Add(new XAttribute("version", Version.Value.ToString()));
+
+			if (!string.IsNullOrEmpty(Language))
+				visual.Add(new XAttribute("lang", XmlEncode(Language)));
+
+			if (!string.IsNullOrEmpty(BaseUri))
+				visual.Add(new XAttribute("baseUri", XmlEncode(BaseUri)));
+
+			if (Branding.HasValue)
+				visual.Add(new XAttribute("branding", Branding.Value.ToString().ToLowerInvariant()));
+
+			if (AddImageQuery.HasValue)
+				visual.Add(new XAttribute("addImageQuery", AddImageQuery.Value.ToString().ToLowerInvariant()));
+
+			if (Bindings != null)
+			{
+				foreach (var binding in Bindings)
+					visual.Add(binding.GenerateXmlElement());
+			}
+
+			return visual;
+		}
+
+		protected string XmlEncode(string text)
+		{
+			return System.Security.SecurityElement.Escape(text);
+		}
+	} 
+
+	public class ToastBinding
+	{
+		public ToastBinding()
+		{
+			Texts = new List<ToastText>();
+			Images = new List<ToastImage>();
+		}
+
+		public ToastNotificationTemplate ToastTemplate { get; set; }
+		public List<ToastText> Texts { get; set; }
+		public List<ToastImage> Images { get; set; } 
+		public string Fallback { get; set; }
+		public string Language { get; set; }
+		public string BaseUri { get; set; }
+		public BrandingType? Branding { get; set; }
+		public bool? AddImageQuery { get; set; }
+
+		public XElement GenerateXmlElement()
+		{
+			var binding = new XElement("binding", new XAttribute("template", ToastTemplate.ToString()));
+
+			if (!string.IsNullOrEmpty(Fallback))
+				binding.Add(new XAttribute("lang", XmlEncode(Fallback)));
+
+			if (!string.IsNullOrEmpty(Language))
+				binding.Add(new XAttribute("lang", XmlEncode(Language)));
+
+			if (!string.IsNullOrEmpty(BaseUri))
+				binding.Add(new XAttribute("baseUri", XmlEncode(BaseUri)));
+
+			if (AddImageQuery.HasValue)
+				binding.Add(new XAttribute("addImageQuery", AddImageQuery.Value.ToString().ToLowerInvariant()));
+
+			int idOn = 1;
+			if (Images != null)
+			{
+				foreach (var img in Images)
+					binding.Add(img.GenerateXmlElement(idOn));
+			}
+
+			idOn = 1;
+			if (Texts != null)
+			{
+				foreach (var text in Texts)
+					binding.Add(text.GenerateXmlElement(idOn++));
+			}
+
+			return binding;
+		}
+
+		protected string XmlEncode(string text)
+		{
+			return System.Security.SecurityElement.Escape(text);
+		}
+	}
+
+	public class ToastAudio
+	{
+		public ToastAudioSource Source { get; set; }
+		public bool Loop { get; set; }
+		
+		public XElement GenerateXmlElement()
+		{
+			var audio = new XElement("audio");
+
+			if (Source == ToastAudioSource.Silent)
+			{
+				audio.Add(new XAttribute("silent", "true"));
+			}
+			else
+			{
+				if (Loop)
+					audio.Add(new XAttribute("loop", "true"));
+
+				//Default sound is LoopingCall, so don't need to add it if that's the case
+				if (Source != ToastAudioSource.LoopingCall)
+				{
+					string audioSrc = null;
+					switch (Source)
+					{
+						case ToastAudioSource.IM:
+							audioSrc = "ms-winsoundevent:Notification.IM";
+							break;
+						case ToastAudioSource.Mail:
+							audioSrc = "ms-winsoundevent:Notification.Mail";
+							break;
+						case ToastAudioSource.Reminder:
+							audioSrc = "ms-winsoundevent:Notification.Reminder";
+							break;
+						case ToastAudioSource.SMS:
+							audioSrc = "ms-winsoundevent:Notification.SMS";
+							break;
+						case ToastAudioSource.LoopingAlarm:
+							audioSrc = "ms-winsoundevent:Notification.Looping.Alarm";
+							break;
+						case ToastAudioSource.LoopingAlarm2:
+							audioSrc = "ms-winsoundevent:Notification.Looping.Alarm2";
+							break;
+						case ToastAudioSource.LoopingCall:
+							audioSrc = "ms-winsoundevent:Notification.Looping.Call";
+							break;
+						case ToastAudioSource.LoopingCall2:
+							audioSrc = "ms-winsoundevent:Notification.Looping.Call2";
+							break;
+					}
+
+					audio.Add(new XAttribute("src", audioSrc));
+				}
+			}
+
+			return audio;
+		}
+	}
+
+	public class ToastVisual
+	{
+		public int? Version { get; set; }
+		public string Language { get; set; }
+		public string BaseUri { get; set; }
+		public BrandingType? Branding { get; set; }
+		public bool? AddImageQuery { get; set; }
+
+		public ToastBinding Binding { get; set; }
+
+		public XElement GenerateXmlElement()
+		{
+			var visual = new XElement("visual");
+
+			if (Version.HasValue)
+				visual.Add(new XAttribute("version", Version.Value.ToString()));
+
+			if (!string.IsNullOrEmpty(Language))
+				visual.Add(new XAttribute("lang", XmlEncode(Language)));
+
+			if (!string.IsNullOrEmpty(BaseUri))
+				visual.Add(new XAttribute("baseUri", XmlEncode(BaseUri)));
+
+			if (Branding.HasValue)
+				visual.Add(new XAttribute("branding", Branding.Value.ToString().ToLowerInvariant()));
+
+			if (AddImageQuery.HasValue)
+				visual.Add(new XAttribute("addImageQuery", AddImageQuery.Value.ToString().ToLowerInvariant()));
+
+			if (Binding != null)
+				visual.Add(Binding.GenerateXmlElement());
+
+			return visual;
+		}
+
+		protected string XmlEncode(string text)
+		{
+			return System.Security.SecurityElement.Escape(text);
 		}
 	}
 
@@ -205,31 +325,20 @@ namespace PushSharp.Windows
 	{
 		public WindowsToastNotification()
 			: base()
-		{
-			this.Texts = new List<string>();
-			this.Images = new Dictionary<string, string>();
-			this.TextTemplate = ToastNotificationTemplate.ToastImageAndText01;
+		{	
+			Visual = new ToastVisual();
 		}
 
 		public override WindowsNotificationType Type
 		{
 			get { return WindowsNotificationType.Toast; }
 		}
-
-		public ToastNotificationTemplate TextTemplate { get; set; }
-		public Dictionary<string, string> Images { get; set; }
-		public List<string> Texts { get; set; }
-
-		public string Language { get; set; }
-		public string BaseUri { get; set; }
-		public bool AddImageQuery { get; set; }
-
+		
 		public string Launch { get; set; }
 		public ToastDuration Duration { get; set; }
-		public ToastAudioType AudioType { get; set; }
-		public bool AudioLoop { get; set; }
-		
 
+		public ToastAudio Audio { get; set; }
+		public ToastVisual Visual { get; set; }
 
 		public override string PayloadToString()
 		{
@@ -241,7 +350,13 @@ namespace PushSharp.Windows
 			if (Duration != ToastDuration.Short)
 				toast.Add(new XAttribute("duration", Duration.ToString().ToLowerInvariant()));
 			
-			return this.GeneratePayload(toast, this, this.TextTemplate.ToString(), Images, Texts);
+			if (Audio != null)
+				toast.Add(Audio.GenerateXmlElement());
+
+			if (Visual != null)
+				toast.Add(Visual.GenerateXmlElement());
+
+			return toast.ToString();
 		}
 	}
 
@@ -287,6 +402,100 @@ namespace PushSharp.Windows
 		}
 	}
 
+	public class TileImage
+	{
+		public string Source { get; set; }
+		public string Alt { get; set; }
+		public bool? AddImageQuery { get; set; }
+
+		public XElement GenerateXmlElement(int id)
+		{
+			var img = new XElement("image", new XAttribute("id", id.ToString()),
+				new XAttribute("src", Source));
+		
+			if (!string.IsNullOrEmpty(Alt))
+				img.Add(new XAttribute("alt", XmlEncode(Alt)));
+
+			if (AddImageQuery.HasValue)
+				img.Add(new XAttribute("addImageQuery", AddImageQuery.Value.ToString().ToLowerInvariant()));
+
+			return img;
+		}
+
+		protected string XmlEncode(string text)
+		{
+			return System.Security.SecurityElement.Escape(text);
+		}
+	}
+
+	public class ToastImage
+	{
+		public string Source { get; set; }
+		public string Alt { get; set; }
+		public bool? AddImageQuery { get; set; }
+
+		public XElement GenerateXmlElement(int id)
+		{
+			var img = new XElement("image", new XAttribute("id", id.ToString()),
+				new XAttribute("src", Source));
+
+			if (!string.IsNullOrEmpty(Alt))
+				img.Add(new XAttribute("alt", XmlEncode(Alt)));
+
+			if (AddImageQuery.HasValue)
+				img.Add(new XAttribute("addImageQuery", AddImageQuery.Value.ToString().ToLowerInvariant()));
+
+			return img;
+		}
+
+		protected string XmlEncode(string text)
+		{
+			return System.Security.SecurityElement.Escape(text);
+		}
+	}
+
+	public class TileText
+	{
+		public string Text { get; set; }
+		public string Language { get; set; }
+
+		public XElement GenerateXmlElement(int id)
+		{
+			var text = new XElement("text", new XAttribute("id", id.ToString()));
+
+			if (!string.IsNullOrEmpty(Language))
+				text.Add(new XAttribute("lang", XmlEncode(Language)));
+
+			return text;
+		}
+
+		protected string XmlEncode(string text)
+		{
+			return System.Security.SecurityElement.Escape(text);
+		}
+	}
+
+	public class ToastText
+	{
+		public string Text { get; set; }
+		public string Language { get; set; }
+
+		public XElement GenerateXmlElement(int id)
+		{
+			var text = new XElement("text", new XAttribute("id", id.ToString()));
+
+			if (!string.IsNullOrEmpty(Language))
+				text.Add(new XAttribute("lang", XmlEncode(Language)));
+
+			return text;
+		}
+
+		protected string XmlEncode(string text)
+		{
+			return System.Security.SecurityElement.Escape(text);
+		}
+	}
+
 	public class WindowsRawNotification : WindowsNotification
 	{
 		public override WindowsNotificationType Type
@@ -308,7 +517,7 @@ namespace PushSharp.Windows
 		Long = 1
 	}
 
-	public enum ToastAudioType
+	public enum ToastAudioSource
 	{
 		/// <summary>
 		/// The default toast audio sound.
@@ -435,7 +644,7 @@ namespace PushSharp.Windows
 		ToastImageAndText04
 	}
 
-	public enum TileBrandingType
+	public enum BrandingType
 	{
 		None = 0,
 		Logo = 1,
