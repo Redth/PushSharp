@@ -26,6 +26,12 @@ namespace PushSharp
 			return n;
 		}
 
+        public static GcmNotification WithTimeToLive(this GcmNotification n, int ttlSeconds)
+        {
+            n.TimeToLive = ttlSeconds;
+            return n;
+        }
+
 		public static GcmNotification WithJson(this GcmNotification n, string json)
 		{
 			try { var nobj = Newtonsoft.Json.Linq.JObject.Parse(json); }
