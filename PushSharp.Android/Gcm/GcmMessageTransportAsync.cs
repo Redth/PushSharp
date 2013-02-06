@@ -14,7 +14,6 @@ namespace PushSharp.Android
 {
 	internal class GcmMessageTransportAsync
 	{
-		public event Action<string> UpdateGoogleClientAuthToken;
 		public event Action<GcmMessageTransportResponse> MessageResponseReceived;
 		public event Action<GcmNotification, Exception> UnhandledException;
 
@@ -142,11 +141,6 @@ namespace PushSharp.Android
 				ResponseCode = GcmMessageTransportResponseCode.Ok,
 				Message = asyncParam.Message
 			};
-
-			var updateClientAuth = asyncParam.WebResponse.GetResponseHeader("Update-Client-Auth");
-
-			if (!string.IsNullOrEmpty(updateClientAuth) && UpdateGoogleClientAuthToken != null)
-				UpdateGoogleClientAuthToken(updateClientAuth);
 
 			//Get the response body
 			var json = new JObject();
