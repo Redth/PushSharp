@@ -107,6 +107,9 @@ namespace PushSharp.Windows
 			request.Headers.Add("Authorization", string.Format("Bearer {0}", this.AccessToken));
 			request.ContentType = "text/xml";
 
+			if (winNotification.Type == WindowsNotificationType.Raw)
+				request.ContentType = "application/octet-stream";
+
 			if (winNotification.Type == WindowsNotificationType.Tile)
 			{
 				var winTileNot = winNotification as WindowsTileNotification;
