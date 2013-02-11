@@ -203,46 +203,52 @@ namespace PushSharp.Android
 			{
 				ResponseCode = MessageTransportResponseCode.Error,
 				ResponseStatus = MessageTransportResponseStatus.Error,
-				Message = asyncParam.Message,
+				Message = asyncParam != null ? asyncParam.Message : null,
 				MessageId = string.Empty
 			};
 
-			if (asyncParam.WebResponse.StatusCode == HttpStatusCode.Unauthorized)
+			try
 			{
-				//401 bad auth token
-				result.ResponseCode = MessageTransportResponseCode.InvalidAuthToken;
-				result.ResponseStatus = MessageTransportResponseStatus.Error;
-				//throw new InvalidAuthenticationTokenTransportException(result);
-			}
-			else if (asyncParam.WebResponse.StatusCode == HttpStatusCode.ServiceUnavailable)
-			{
-				//First try grabbing the retry-after header and parsing it.
-				TimeSpan retryAfter = new TimeSpan(0, 0, 120);
-
-				var wrRetryAfter = asyncParam.WebResponse.GetResponseHeader("Retry-After");
-
-				if (!string.IsNullOrEmpty(wrRetryAfter))
+				if (asyncParam.WebResponse.StatusCode == HttpStatusCode.Unauthorized)
 				{
-					DateTime wrRetryAfterDate = DateTime.UtcNow;
-
-					if (DateTime.TryParse(wrRetryAfter, out wrRetryAfterDate))
-						retryAfter = wrRetryAfterDate - DateTime.UtcNow;
-					else
-					{
-						int wrRetryAfterSeconds = 120;
-						if (int.TryParse(wrRetryAfter, out wrRetryAfterSeconds))
-							retryAfter = new TimeSpan(0, 0, wrRetryAfterSeconds);
-					}
+					//401 bad auth token
+					result.ResponseCode = MessageTransportResponseCode.InvalidAuthToken;
+					result.ResponseStatus = MessageTransportResponseStatus.Error;
+					//throw new InvalidAuthenticationTokenTransportException(result);
 				}
+				else if (asyncParam.WebResponse.StatusCode == HttpStatusCode.ServiceUnavailable)
+				{
+					//First try grabbing the retry-after header and parsing it.
+					TimeSpan retryAfter = new TimeSpan(0, 0, 120);
 
-				//503 exponential backoff, get retry-after header
-				result.ResponseCode = MessageTransportResponseCode.ServiceUnavailable;
-				result.ResponseStatus = MessageTransportResponseStatus.Error;
+					var wrRetryAfter = asyncParam.WebResponse.GetResponseHeader("Retry-After");
 
-				throw new ServiceUnavailableTransportException(retryAfter, result);
+					if (!string.IsNullOrEmpty(wrRetryAfter))
+					{
+						DateTime wrRetryAfterDate = DateTime.UtcNow;
+
+						if (DateTime.TryParse(wrRetryAfter, out wrRetryAfterDate))
+							retryAfter = wrRetryAfterDate - DateTime.UtcNow;
+						else
+						{
+							int wrRetryAfterSeconds = 120;
+							if (int.TryParse(wrRetryAfter, out wrRetryAfterSeconds))
+								retryAfter = new TimeSpan(0, 0, wrRetryAfterSeconds);
+						}
+					}
+
+					//503 exponential backoff, get retry-after header
+					result.ResponseCode = MessageTransportResponseCode.ServiceUnavailable;
+					result.ResponseStatus = MessageTransportResponseStatus.Error;
+
+					throw new ServiceUnavailableTransportException(retryAfter, result);
+				}
 			}
-
-			asyncParam.WebResponse.Close();
+			finally
+			{
+				if (asyncParam != null && asyncParam.WebResponse != null)
+					asyncParam.WebResponse.Close();
+			}
 
 			if (MessageResponseReceived != null)
 				MessageResponseReceived(result);
