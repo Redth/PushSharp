@@ -75,7 +75,7 @@ namespace PushSharp.WindowsPhone
 
 			var payload = wpNotification.PayloadToString();
 
-			var data = Encoding.Default.GetBytes(payload);
+			var data = Encoding.UTF8.GetBytes(payload);
 
 			wr.ContentLength = data.Length;
 
@@ -125,25 +125,25 @@ namespace PushSharp.WindowsPhone
 			result.Notification = notification;
 			result.HttpStatus = resp.StatusCode;
 
-			var wpStatus = resp.Headers["X-NotificationStatus"];
-			var wpChannelStatus = resp.Headers["X-SubscriptionStatus"];
-			var wpDeviceConnectionStatus = resp.Headers["X-DeviceConnectionStatus"];
+            var wpStatus = resp.Headers["X-NotificationStatus"];
+            var wpChannelStatus = resp.Headers["X-SubscriptionStatus"];
+            var wpDeviceConnectionStatus = resp.Headers["X-DeviceConnectionStatus"];
 			var messageID = resp.Headers["X-MessageID"];
 
 			Guid msgGuid = Guid.NewGuid();
 			if (Guid.TryParse(messageID, out msgGuid))
 				result.MessageID = msgGuid;
 
-			WPDeviceConnectionStatus devConStatus = WPDeviceConnectionStatus.InActive;
-			Enum.TryParse<WPDeviceConnectionStatus>(wpDeviceConnectionStatus, out devConStatus);
+			WPDeviceConnectionStatus devConStatus = WPDeviceConnectionStatus.NotAvailable;
+            Enum.TryParse<WPDeviceConnectionStatus>(wpDeviceConnectionStatus, true, out devConStatus);
 			result.DeviceConnectionStatus = devConStatus;
 
-			WPNotificationStatus notStatus = WPNotificationStatus.Dropped;
-			Enum.TryParse<WPNotificationStatus>(wpStatus, out notStatus);
+			WPNotificationStatus notStatus = WPNotificationStatus.NotAvailable;
+            Enum.TryParse<WPNotificationStatus>(wpStatus, true, out notStatus);
 			result.NotificationStatus = notStatus;
 
-			WPSubscriptionStatus subStatus = WPSubscriptionStatus.Expired;
-			Enum.TryParse<WPSubscriptionStatus>(wpChannelStatus, out subStatus);
+			WPSubscriptionStatus subStatus = WPSubscriptionStatus.NotAvailable;
+            Enum.TryParse<WPSubscriptionStatus>(wpChannelStatus, true, out subStatus);
 			result.SubscriptionStatus = subStatus;
 
 			return result;
