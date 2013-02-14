@@ -154,7 +154,7 @@ namespace PushSharp.Windows
 			request.ServicePoint.Expect100Continue = false;
 
 			var payload = winNotification.PayloadToString();
-			var data = Encoding.Default.GetBytes(payload);
+			var data = Encoding.UTF8.GetBytes(payload);
 
 			request.ContentLength = data.Length;
 
