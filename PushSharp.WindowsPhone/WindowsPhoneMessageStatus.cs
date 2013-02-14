@@ -19,6 +19,7 @@ namespace PushSharp.WindowsPhone
 
 	public enum WPNotificationStatus
 	{
+        NotAvailable,
 		Received,
 		Dropped,
 		Suppressed,
@@ -27,6 +28,7 @@ namespace PushSharp.WindowsPhone
 
 	public enum WPDeviceConnectionStatus
 	{
+        NotAvailable,
 		Connected,
 		InActive,
 		Disconnected,
@@ -35,6 +37,7 @@ namespace PushSharp.WindowsPhone
 
 	public enum WPSubscriptionStatus
 	{
+        NotAvailable,
 		Active,
 		Expired
 	}
