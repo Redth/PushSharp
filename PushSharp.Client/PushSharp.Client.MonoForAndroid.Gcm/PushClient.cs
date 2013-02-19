@@ -196,6 +196,7 @@ namespace PushSharp.Client
 				Log.Verbose(TAG, "App version changed from " + oldVersion + " to " + newVersion + "; resetting registration id");
 				
 				ClearRegistrationId(context);
+				registrationId = string.Empty;
 			}
 
 			return registrationId;
