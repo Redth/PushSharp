@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
@@ -21,15 +21,25 @@ namespace PushSharp
 			return n;
 		}
 		
-		public static AppleNotification WithAlert(this AppleNotification n, string alert)
+		public static AppleNotification WithAlert(this AppleNotification n, string body)
 		{
 			if (n.Payload == null)
 				n.Payload = new AppleNotificationPayload();
 
-			n.Payload.Alert = new AppleNotificationAlert() { Body = alert };
+			n.Payload.Alert = new AppleNotificationAlert() { Body = body };
 						
 			return n;
 		}
+
+        public static AppleNotification WithAlert(this AppleNotification n, string body, string launchImage)
+        {
+            if (n.Payload == null)
+                n.Payload = new AppleNotificationPayload();
+
+            n.Payload.Alert = new AppleNotificationAlert() { Body = body, LaunchImage = launchImage };
+
+            return n;
+        }
 
 		public static AppleNotification WithAlert(this AppleNotification n, AppleNotificationAlert alert)
 		{
@@ -50,6 +60,16 @@ namespace PushSharp
 
 			return n;
 		}
+
+        public static AppleNotification WithAlert(this AppleNotification n, string body, string localizedKey, string actionLocalizedKey, IEnumerable<object> localizedArgs, string launchImage)
+        {
+            if (n.Payload == null)
+                n.Payload = new AppleNotificationPayload();
+
+            n.Payload.Alert = new AppleNotificationAlert() { Body = body, LocalizedKey = localizedKey, ActionLocalizedKey = actionLocalizedKey, LocalizedArgs = localizedArgs.ToList(), LaunchImage = launchImage };
+
+            return n;
+        }
 
 		public static AppleNotification WithBadge(this AppleNotification n, int badge)
 		{
