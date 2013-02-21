@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Net;
@@ -72,11 +72,12 @@ namespace PushSharp.Apple
 
 			if (!this.Alert.IsEmpty)
 			{
-				if (!string.IsNullOrEmpty(this.Alert.Body)
+                if (!string.IsNullOrEmpty(this.Alert.Body)
 					&& string.IsNullOrEmpty(this.Alert.LocalizedKey)
 					&& string.IsNullOrEmpty(this.Alert.ActionLocalizedKey)
 					&& (this.Alert.LocalizedArgs == null || this.Alert.LocalizedArgs.Count <= 0)
-					&& !this.HideActionButton)
+					&& string.IsNullOrEmpty(this.Alert.LaunchImage)
+                    && !this.HideActionButton)
 				{
 					aps["alert"] = new JValue(this.Alert.Body);
 				}
@@ -97,6 +98,9 @@ namespace PushSharp.Apple
 						jsonAlert["action-loc-key"] = new JValue((string)null);
 					else if (!string.IsNullOrEmpty(this.Alert.ActionLocalizedKey))
 						jsonAlert["action-loc-key"] = new JValue(this.Alert.ActionLocalizedKey);
+
+                    if (!string.IsNullOrEmpty(this.Alert.LaunchImage))
+                        jsonAlert["launch-image"] = new JValue(this.Alert.LaunchImage);
 
 					aps["alert"] = jsonAlert;
 				}
