@@ -121,20 +121,23 @@ namespace PushSharp.Common
 
 				PushChannelBase channelOn = null;
 
-				//Get the channel with the smallest queue
-				if (channels.Count == 1)
-					channelOn = channels[0];
-				else
-					channelOn = (from c in channels
-								 orderby c.QueuedNotificationCount
-								 select c).FirstOrDefault();
-
-				if (channelOn != null)
+				lock (channels)
 				{
-					//Measure when the message entered the queue
-					notification.EnqueuedTimestamp = DateTime.UtcNow;
+					//Get the channel with the smallest queue
+					if (channels.Count == 1)
+						channelOn = channels[0];
+					else
+						channelOn = (from c in channels
+						             orderby c.QueuedNotificationCount
+						             select c).FirstOrDefault();
 
-					channelOn.QueueNotification(notification);
+					if (channelOn != null)
+					{
+						//Measure when the message entered the queue
+						notification.EnqueuedTimestamp = DateTime.UtcNow;
+
+						channelOn.QueueNotification(notification);
+					}
 				}
 			}
 		}
