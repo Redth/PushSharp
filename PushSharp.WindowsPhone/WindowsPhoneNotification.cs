@@ -111,10 +111,10 @@ namespace PushSharp.WindowsPhone
 			var toast = new XElement(wp + "Toast");
 
 			if (!string.IsNullOrEmpty(Text1))
-				toast.Add(new XElement(wp + "Text1", XmlEncode(Text1)));
+				toast.Add(new XElement(wp + "Text1", Text1));
 
 			if (!string.IsNullOrEmpty(Text2))
-				toast.Add(new XElement(wp + "Text2", XmlEncode(Text2)));
+				toast.Add(new XElement(wp + "Text2", Text2));
 
 
 			if (this.OSVersion > WindowsPhoneDeviceOSVersion.Seven)
