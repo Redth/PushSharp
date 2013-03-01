@@ -35,6 +35,17 @@ namespace PushSharp
 			return n;
 		}
 
+        public static C2dmNotification WithData<T>(this C2dmNotification n, string key, T? value)
+            where T : struct
+        {
+            if (n.Data == null)
+                n.Data = new System.Collections.Specialized.NameValueCollection();
+
+            if (value.HasValue)
+                n.Data.Add(key, value.ToString());
+            return n;
+        }
+
         public static C2dmNotification WithTag(this C2dmNotification n, object tag)
         {
             n.Tag = tag;
