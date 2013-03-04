@@ -90,6 +90,15 @@ namespace PushSharp.Android
 			set;
 		}
 
+		/// <summary>
+		/// If true, dry_run attribute will be sent in payload causing the notification not to be actually sent, but the result returned simulating the message
+		/// </summary>
+		public bool? DryRun 
+		{ 
+			get; 
+			set; 
+		}
+
 		internal string GetJson()
 		{
 			var json = new JObject();
@@ -104,6 +113,9 @@ namespace PushSharp.Android
 				
 			if (this.DelayWhileIdle.HasValue)
 				json["delay_while_idle"] = this.DelayWhileIdle.Value;
+
+			if (DryRun.HasValue && DryRun.Value)
+				json["dry_run"] = true;
 
 			if (!string.IsNullOrEmpty(this.JsonData))
 			{

@@ -46,5 +46,11 @@ namespace PushSharp
             n.Tag = tag;
             return n;
         }
+
+		public static GcmNotification WithDryRun(this GcmNotification n)
+		{
+			n.DryRun = true;
+			return n;
+		}
 	}
 }
