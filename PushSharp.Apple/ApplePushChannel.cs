@@ -61,8 +61,14 @@ namespace PushSharp.Apple
                     certificates.Add(addlCert);
 
 			//Start our cleanup task
-			taskCleanup = new Task(() => { Cleanup(); }, TaskCreationOptions.LongRunning);
-			taskCleanup.ContinueWith((t) => { var ex = t.Exception; }, TaskContinuationOptions.OnlyOnFaulted);
+			taskCleanup = new Task(Cleanup, TaskCreationOptions.LongRunning);
+			taskCleanup.ContinueWith(t => 
+			{
+				var ex = t.Exception; 
+
+				if (this.Events != null)
+					this.Events.RaiseChannelException(ex, PlatformType.Apple, null);
+			}, TaskContinuationOptions.OnlyOnFaulted);
 			taskCleanup.Start();
 		}
 
