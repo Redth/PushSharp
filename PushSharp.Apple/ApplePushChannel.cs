@@ -247,19 +247,22 @@ namespace PushSharp.Apple
 			Interlocked.Decrement(ref trackedNotificationCount);
 			this.Events.RaiseNotificationSendFailure(failedNotification.Notification, new NotificationFailureException(status, failedNotification.Notification));
 			sentNotifications.RemoveAt(failedIndex);
-			
-			//All Notifications after the failed one have been shifted back one space now
-			//Grab all the notifications from the list that are after the failed index
-			var toRequeue = sentNotifications.GetRange(failedIndex, sentNotifications.Count - (failedIndex + 1)).ToList();
-			//Remove that same range (those ones failed since they were sent after the one apple told us failed, so
-			// apple will ignore them, and we need to requeue them to be tried again
-			sentNotifications.RemoveRange(failedIndex, sentNotifications.Count - (failedIndex + 1));
 
-			//Requeue all the messages that were sent afte the failed one, be sure it doesn't count as a 'requeue' to go towards the maximum # of retries
-			//Also ignore that the channel is stopping
-			foreach (var n in toRequeue)
-				this.QueueNotification(n.Notification, false, true);
-			
+			//Don't GetRange if there's 0 items to get, or the call will fail
+			if (sentNotifications.Count - (failedIndex + 1) > 0)
+			{
+				//All Notifications after the failed one have been shifted back one space now
+				//Grab all the notifications from the list that are after the failed index
+				var toRequeue = sentNotifications.GetRange(failedIndex, sentNotifications.Count - (failedIndex + 1)).ToList();
+				//Remove that same range (those ones failed since they were sent after the one apple told us failed, so
+				// apple will ignore them, and we need to requeue them to be tried again
+				sentNotifications.RemoveRange(failedIndex, sentNotifications.Count - (failedIndex + 1));
+
+				//Requeue all the messages that were sent afte the failed one, be sure it doesn't count as a 'requeue' to go towards the maximum # of retries
+				//Also ignore that the channel is stopping
+				foreach (var n in toRequeue)
+					this.QueueNotification(n.Notification, false, true);
+			}
 		}
 
 		void Cleanup()
