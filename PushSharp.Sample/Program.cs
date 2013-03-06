@@ -74,7 +74,7 @@ namespace PushSharp.Sample
             //Fluent construction of an iOS notification
             //IMPORTANT: For iOS you MUST MUST MUST use your own DeviceToken here that gets generated within your iOS app itself when the Application Delegate
             //  for registered for remote notifications is called, and the device token is passed back to you
-            push.QueueNotification(NotificationFactory.Apple()
+            push.QueueNotification(new AppleNotification()
                 .ForDeviceToken("1071737321559691b28fffa1aa4c8259d970fe0fc496794ad0486552fc9ec3db")
                 .WithAlert("1 Alert Text!")
                 .WithSound("default")
