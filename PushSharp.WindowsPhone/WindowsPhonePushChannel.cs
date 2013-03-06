@@ -75,7 +75,7 @@ namespace PushSharp.WindowsPhone
 
 			var payload = wpNotification.PayloadToString();
 
-			var data = Encoding.UTF8.GetBytes(payload);
+			var data = Encoding.Unicode.GetBytes(payload);
 
 			wr.ContentLength = data.Length;
 
