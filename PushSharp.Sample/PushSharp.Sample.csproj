@@ -63,33 +63,13 @@
     <Compile Include="Properties\AssemblyInfo.cs" />
   </ItemGroup>
   <ItemGroup>
-    <ProjectReference Include="..\PushSharp.Android\PushSharp.Google.csproj">
-      <Project>{71E27C37-FBBF-481B-934B-1F7DBDE3C5D6}</Project>
-      <Name>PushSharp.Google</Name>
-    </ProjectReference>
     <ProjectReference Include="..\PushSharp.Apple\PushSharp.Apple.csproj">
       <Project>{83C67156-893D-4AFF-9169-DB34771989CB}</Project>
       <Name>PushSharp.Apple</Name>
     </ProjectReference>
-    <ProjectReference Include="..\PushSharp.Blackberry\PushSharp.Blackberry.csproj">
-      <Project>{5250980B-BD11-4201-B083-AEDB8C62C471}</Project>
-      <Name>PushSharp.Blackberry</Name>
-    </ProjectReference>
-    <ProjectReference Include="..\PushSharp.Common\PushSharp.Common.csproj">
+    <ProjectReference Include="..\PushSharp.Common\PushSharp.Core.csproj">
       <Project>{836F225F-6CD9-48DE-910C-70F8A7CF54AA}</Project>
-      <Name>PushSharp.Common</Name>
-    </ProjectReference>
-    <ProjectReference Include="..\PushSharp.WindowsPhone\PushSharp.WindowsPhone.csproj">
-      <Project>{9947F510-BA9A-4045-A648-BAB687D8F513}</Project>
-      <Name>PushSharp.WindowsPhone</Name>
-    </ProjectReference>
-    <ProjectReference Include="..\PushSharp.Windows\PushSharp.Windows.csproj">
-      <Project>{0ec3a31e-b869-4465-abdc-90c2e3ccc17d}</Project>
-      <Name>PushSharp.Windows</Name>
-    </ProjectReference>
-    <ProjectReference Include="..\PushSharp\PushSharp.csproj">
-      <Project>{09414728-3728-4105-A149-EC2E315355F9}</Project>
-      <Name>PushSharp</Name>
+      <Name>PushSharp.Core</Name>
     </ProjectReference>
   </ItemGroup>
   <ItemGroup>

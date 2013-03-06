@@ -9,12 +9,12 @@ using PushSharp.Common;
 
 namespace PushSharp.Apple
 {
-	public class ApplePushService : Common.PushServiceBase<ApplePushChannelSettings>, IDisposable
+	public class ApplePushService : Common.PushServiceBase
 	{
 		FeedbackService feedbackService;
 		CancellationTokenSource cancelTokenSource;
 		Timer timerFeedback;
-
+		
 		public ApplePushService(ApplePushChannelSettings channelSettings, PushServiceSettings serviceSettings = null)
 			: base(channelSettings, serviceSettings)
 		{
@@ -29,7 +29,7 @@ namespace PushSharp.Apple
 				timerFeedback = new Timer(new TimerCallback((state) =>
 				{
 					try { feedbackService.Run(channelSettings as ApplePushChannelSettings, this.cancelTokenSource.Token); }
-					catch (Exception ex) { this.Events.RaiseChannelException(ex, PlatformType.Apple); }
+					catch (Exception ex) { this.Events.RaiseChannelException(this, ex); }
 
 					//Timer will run first after 10 seconds, then every 10 minutes to get feedback!
 				}), null, TimeSpan.FromSeconds(10), TimeSpan.FromMinutes(appleChannelSettings.FeedbackIntervalMinutes));
@@ -39,7 +39,7 @@ namespace PushSharp.Apple
 
 		void feedbackService_OnFeedbackReceived(string deviceToken, DateTime timestamp)
 		{
-			this.Events.RaiseDeviceSubscriptionExpired(PlatformType.Apple, deviceToken);
+			this.Events.RaiseDeviceSubscriptionExpired(this, deviceToken);
 		}
 
 		protected override Common.PushChannelBase CreateChannel(Common.PushChannelSettings channelSettings)
@@ -47,9 +47,5 @@ namespace PushSharp.Apple
 			return new ApplePushChannel(channelSettings as ApplePushChannelSettings);
 		}
 
-		public override PlatformType Platform
-		{
-			get { return PlatformType.Apple; }
-		}
 	}
 }

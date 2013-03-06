@@ -8,14 +8,12 @@ using System.Threading.Tasks;
 
 namespace PushSharp.Common
 {
-	public abstract class PushServiceBase<TChannelSettings> : IDisposable where TChannelSettings : PushChannelSettings
+	public abstract class PushServiceBase : IDisposable
 	{
 		public ChannelEvents Events = new ChannelEvents();
-
-		public abstract PlatformType Platform { get; }
 		
 		public PushServiceSettings ServiceSettings { get; private set; }
-		public TChannelSettings ChannelSettings { get; private set; }
+		public PushChannelSettings ChannelSettings { get; private set; }
 		public bool IsStopping { get { return stopping; } }
 
 		Timer timerCheckScale;
@@ -28,7 +26,7 @@ namespace PushSharp.Common
 
 		protected abstract PushChannelBase CreateChannel(PushChannelSettings channelSettings);
 
-		public PushServiceBase(TChannelSettings channelSettings, PushServiceSettings serviceSettings = null)
+		protected PushServiceBase(PushChannelSettings channelSettings, PushServiceSettings serviceSettings = null)
 		{
 			this.ServiceSettings = serviceSettings ?? new PushServiceSettings();
 			this.ChannelSettings = channelSettings;
@@ -57,7 +55,7 @@ namespace PushSharp.Common
 		{
 			if (this.cancelTokenSource.IsCancellationRequested)
 			{
-				Events.RaiseChannelException(new ObjectDisposedException("Service", "Service has already been signaled to stop"), this.Platform, notification);
+				Events.RaiseChannelException(this, new ObjectDisposedException("Service", "Service has already been signaled to stop"), notification);
 				return;
 			}
 
@@ -144,24 +142,24 @@ namespace PushSharp.Common
 
 		void CheckScale()
 		{
-			Log.Info("{0} -> Checking Scale", Platform);
+			Log.Info("{0} -> Checking Scale", this);
 
 			if (ServiceSettings.AutoScaleChannels && !this.cancelTokenSource.IsCancellationRequested && !stopping)
 			{
 				if (channels.Count <= 0)
 				{
-					Log.Info("{0} -> Creating Channel", Platform);
+					Log.Info("{0} -> Creating Channel", this);
 					ScaleChannels(ChannelScaleAction.Create);
 					return;
 				}
 
 				var avgTime = GetAverageQueueWait();
 
-				Log.Info("{0} -> Avg Queue Wait Time {1} ms", Platform, avgTime);
+				Log.Info("{0} -> Avg Queue Wait Time {1} ms", this, avgTime);
 
 				if (avgTime < ServiceSettings.MinAvgTimeToScaleChannels && channels.Count > 1)
 				{
-					Log.Info("{0} -> Destroying Channel", Platform);
+					Log.Info("{0} -> Destroying Channel", this);
 					ScaleChannels(ChannelScaleAction.Destroy);
 				}
 				else if (channels.Count < this.ServiceSettings.MaxAutoScaleChannels)
@@ -176,7 +174,7 @@ namespace PushSharp.Common
 					else if (avgTime > ServiceSettings.MinAvgTimeToScaleChannels)
 						numChannelsToSpinUp = 1;
 
-					Log.Info("{0} -> Creating {1} Channel(s)", Platform, numChannelsToSpinUp);
+					Log.Info("{0} -> Creating {1} Channel(s)", this, numChannelsToSpinUp);
 					ScaleChannels(ChannelScaleAction.Create, numChannelsToSpinUp);
 				}
 			}
@@ -184,12 +182,12 @@ namespace PushSharp.Common
 			{
 				while (channels.Count > ServiceSettings.Channels && !this.cancelTokenSource.IsCancellationRequested && !stopping)
 				{
-					Log.Info("{0} -> Destroying Channel", Platform);
+					Log.Info("{0} -> Destroying Channel", this);
 					ScaleChannels(ChannelScaleAction.Destroy);
 				}
 				while (channels.Count < ServiceSettings.Channels && !this.cancelTokenSource.IsCancellationRequested && !stopping)
 				{
-					Log.Info("{0} -> Creating Channel", Platform);
+					Log.Info("{0} -> Creating Channel", this);
 					ScaleChannels(ChannelScaleAction.Create);
 				}
 			}
@@ -260,9 +258,9 @@ namespace PushSharp.Common
 				}
 
 				if (destroyed.HasValue && !destroyed.Value)
-					this.Events.RaiseChannelCreated(this.Platform, newCount);
+					this.Events.RaiseChannelCreated(this, newCount);
 				else if (destroyed.HasValue && destroyed.Value)
-					this.Events.RaiseChannelDestroyed(this.Platform, newCount);
+					this.Events.RaiseChannelDestroyed(this, newCount);
 			}
 		}
 	}

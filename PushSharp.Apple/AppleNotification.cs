@@ -42,8 +42,6 @@ namespace PushSharp.Apple
 
 		public AppleNotification()
 		{
-			this.Platform = Common.PlatformType.Apple;
-
 			DeviceToken = string.Empty;
 			Payload = new AppleNotificationPayload();
 

@@ -67,15 +67,11 @@ namespace PushSharp.Apple
 				var ex = t.Exception; 
 
 				if (this.Events != null)
-					this.Events.RaiseChannelException(ex, PlatformType.Apple, null);
+					this.Events.RaiseChannelException(this, ex, null);
 			}, TaskContinuationOptions.OnlyOnFaulted);
 			taskCleanup.Start();
 		}
-
-        public override PlatformType PlatformType
-        {
-            get { return Common.PlatformType.Apple; }
-        }
+		
 
 		object sentLock = new object();
 		object connectLock = new object();
@@ -129,7 +125,7 @@ namespace PushSharp.Apple
 
 					Interlocked.Decrement(ref trackedNotificationCount);
 					
-					this.Events.RaiseNotificationSendFailure(notification, nfex);
+					this.Events.RaiseNotificationSendFailure(this, notification, nfex);
 				}
 
 				if (isOkToSend)
@@ -251,7 +247,7 @@ namespace PushSharp.Apple
 			
 			//Fail and remove the failed index from the list
 			Interlocked.Decrement(ref trackedNotificationCount);
-			this.Events.RaiseNotificationSendFailure(failedNotification.Notification, new NotificationFailureException(status, failedNotification.Notification));
+			this.Events.RaiseNotificationSendFailure(this, failedNotification.Notification, new NotificationFailureException(status, failedNotification.Notification));
 			sentNotifications.RemoveAt(failedIndex);
 
 			//Don't GetRange if there's 0 items to get, or the call will fail
@@ -300,7 +296,7 @@ namespace PushSharp.Apple
 								
 								Interlocked.Decrement(ref trackedNotificationCount);
 
-								this.Events.RaiseNotificationSent(n.Notification);
+								this.Events.RaiseNotificationSent(this, n.Notification);
 								sentNotifications.RemoveAt(0);
 							}
 							else
@@ -344,7 +340,7 @@ namespace PushSharp.Apple
 						cf(ex);
 
 					//Raise a channel exception
-					this.Events.RaiseChannelException(ex, PlatformType.Apple);
+					this.Events.RaiseChannelException(this, ex);
 				}
 
 				if (!connected)

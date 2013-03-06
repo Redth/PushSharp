@@ -5,14 +5,9 @@ using System.Text;
 
 namespace PushSharp.Common
 {
-	public enum PlatformType
+	public interface IPushServiceRegistry
 	{
-		Apple,
-		AndroidC2dm,
-		AndroidGcm,
-		Windows,
-		WindowsPhone,
-		Blackberry,
-        None
+		void Register(PushNotificationBroker notificationBroker);
 	}
+
 }

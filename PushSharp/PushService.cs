@@ -37,6 +37,7 @@ namespace PushSharp
 
 		public void StartApplePushService(Apple.ApplePushChannelSettings channelSettings, PushServiceSettings serviceSettings = null)
 		{
+			
 			appleService = new Apple.ApplePushService(channelSettings, serviceSettings);
 			appleService.Events.RegisterProxyHandler(this.Events);
 		}
@@ -53,7 +54,7 @@ namespace PushSharp
 			androidService = new Android.C2dmPushService(channelSettings, serviceSettings);
 			androidService.Events.RegisterProxyHandler(this.Events);
 		}
-
+		
 		[Obsolete("Google has Deprecated C2DM, and you should now use GCM Instead.  See the StopGoogleCloudMessagingPushService() method!")]
 		public void StopAndroidPushService(bool waitForQueueToFinish = true)
 		{

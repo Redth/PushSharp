@@ -1,14 +1,7 @@
 ﻿using System;
-using System.Collections.Generic;
 using System.Collections.Concurrent;
-using System.Security.Cryptography.X509Certificates;
-using System.Linq;
-using System.Net.Sockets;
-using System.Net.Security;
-using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
-using System.Net;
 
 namespace PushSharp.Common
 {
@@ -32,9 +25,7 @@ namespace PushSharp.Common
 
 		protected abstract void SendNotification(Notification notification);
 
-        public abstract PlatformType PlatformType { get; }
-
-		public PushChannelBase(PushChannelSettings channelSettings, PushServiceSettings serviceSettings = null)
+		protected PushChannelBase(PushChannelSettings channelSettings, PushServiceSettings serviceSettings = null)
 		{
 			this.stopping = false;
 			this.CancelTokenSource = new CancellationTokenSource();
@@ -94,7 +85,7 @@ namespace PushSharp.Common
 		{
             if (this.CancelToken.IsCancellationRequested && !ignoreStoppingChannel)
             {
-                Events.RaiseChannelException(new ObjectDisposedException("Channel", "Channel has already been signaled to stop"), this.PlatformType, notification);
+                Events.RaiseChannelException(this, new ObjectDisposedException("Channel", "Channel has already been signaled to stop"), notification);
                 return false;
             }
 
@@ -118,7 +109,7 @@ namespace PushSharp.Common
 			else
 			{
 				Log.Info("Notification ReQueued Too Many Times: {0}", notification.QueuedCount);
-				this.Events.RaiseNotificationSendFailure(notification, new MaxSendAttemptsReachedException());
+				this.Events.RaiseNotificationSendFailure(this, notification, new MaxSendAttemptsReachedException());
 				return false;
 			}
 		}

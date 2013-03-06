@@ -67,9 +67,9 @@
     <Compile Include="WindowsPushService.cs" />
   </ItemGroup>
   <ItemGroup>
-    <ProjectReference Include="..\PushSharp.Common\PushSharp.Common.csproj">
+    <ProjectReference Include="..\PushSharp.Common\PushSharp.Core.csproj">
       <Project>{836f225f-6cd9-48de-910c-70f8a7cf54aa}</Project>
-      <Name>PushSharp.Common</Name>
+      <Name>PushSharp.Core</Name>
     </ProjectReference>
   </ItemGroup>
   <ItemGroup>
