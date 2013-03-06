@@ -402,11 +402,8 @@ namespace PushSharp.Apple
 			else
 			{
 				stream = new SslStream(client.GetStream(), false,
-					new RemoteCertificateValidationCallback((sender, cert, chain, sslPolicyErrors) => { return true; }),
-					new LocalCertificateSelectionCallback((sender, targetHost, localCerts, remoteCert, acceptableIssuers) =>
-					{
-						return certificate;
-					}));
+					(sender, cert, chain, sslPolicyErrors) => true, //Don't validate remote cert
+					(sender, targetHost, localCerts, remoteCert, acceptableIssuers) => certificate); //
 
 				try
 				{
