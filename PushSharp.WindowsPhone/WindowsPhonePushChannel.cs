@@ -3,7 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Net;
 using System.Text;
-using PushSharp.Common;
+using PushSharp.Core;
 
 namespace PushSharp.WindowsPhone
 {
@@ -11,17 +11,12 @@ namespace PushSharp.WindowsPhone
 	{
 		WindowsPhonePushChannelSettings windowsPhoneSettings;
 
-		public WindowsPhonePushChannel(WindowsPhonePushChannelSettings channelSettings, PushServiceSettings serviceSettings = null) : base(channelSettings, serviceSettings)
+		public WindowsPhonePushChannel(PushServiceBase pushService) : base(pushService)
 		{
-			windowsPhoneSettings = channelSettings;
+			windowsPhoneSettings = pushService.ChannelSettings as WindowsPhonePushChannelSettings;
 		}
 
-        public override PlatformType PlatformType
-        {
-            get { return Common.PlatformType.WindowsPhone; }
-        }
-
-		protected override void SendNotification(Notification notification)
+		public override void SendNotification(Notification notification)
 		{
 			var wpNotification = notification as WindowsPhoneNotification;
 
@@ -41,9 +36,9 @@ namespace PushSharp.WindowsPhone
 				slowValue = 22;
 			}
 			else if (wpNotification is WindowsPhoneTileNotification ||
-                wpNotification is WindowsPhoneCycleTile ||
-                wpNotification is WindowsPhoneFlipTile ||
-                wpNotification is WindowsPhoneIconicTile)
+                wpNotification is WindowsPhoneCycleTileNotification ||
+                wpNotification is WindowsPhoneFlipTileNotification ||
+                wpNotification is WindowsPhoneIconicTileNotification)
 			{
 				immediateValue = 1;
 				mediumValue = 11;
@@ -65,9 +60,9 @@ namespace PushSharp.WindowsPhone
 			if (wpNotification is WindowsPhoneToastNotification)
 				wr.Headers.Add("X-WindowsPhone-Target", "toast");
             else if (wpNotification is WindowsPhoneTileNotification ||
-                wpNotification is WindowsPhoneCycleTile ||
-                wpNotification is WindowsPhoneFlipTile ||
-                wpNotification is WindowsPhoneIconicTile)
+                wpNotification is WindowsPhoneCycleTileNotification ||
+                wpNotification is WindowsPhoneFlipTileNotification ||
+                wpNotification is WindowsPhoneIconicTileNotification)
 				wr.Headers.Add("X-WindowsPhone-Target", "token");
 
 			if (wpNotification.MessageID != null)
@@ -153,19 +148,19 @@ namespace PushSharp.WindowsPhone
 		{	
 			if (status.SubscriptionStatus == WPSubscriptionStatus.Expired)
 			{
-				this.Events.RaiseDeviceSubscriptionExpired(PlatformType.WindowsPhone, notification.EndPointUrl, notification);
-				this.Events.RaiseNotificationSendFailure(notification, new WindowsPhoneNotificationSendFailureException(status));
+				this.Events.RaiseDeviceSubscriptionExpired(this, notification.EndPointUrl, notification);
+				this.Events.RaiseNotificationSendFailure(this, notification, new WindowsPhoneNotificationSendFailureException(status));
 				return;
 			}
 
 			if (status.HttpStatus == HttpStatusCode.OK
 				&& status.NotificationStatus == WPNotificationStatus.Received)
 			{
-				this.Events.RaiseNotificationSent(status.Notification);
+				this.Events.RaiseNotificationSent(this, status.Notification);
 				return;
 			}
 			
-			this.Events.RaiseNotificationSendFailure(status.Notification, new WindowsPhoneNotificationSendFailureException(status));
+			this.Events.RaiseNotificationSendFailure(this, status.Notification, new WindowsPhoneNotificationSendFailureException(status));
 		}
 	}
 }
