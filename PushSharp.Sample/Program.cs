@@ -41,9 +41,17 @@ namespace PushSharp.Sample
             //push.StartApplePushService(new ApplePushChannelSettings(appleCert, "pushsharp"));
 
 			var appleSettings = new ApplePushChannelSettings(appleCert, "pushsharp");
-			push.RegisterService<AppleNotification, ApplePushService>(new ApplePushService(typeof(ApplePushChannel), appleSettings));
-
 			
+			
+			push.RegisterAppleService(appleSettings);
+			
+			push.QueueNotification(push.AppleNotification().ForDeviceToken(""));
+
+
+
+
+
+
             //Configure and start Android GCM
             //IMPORTANT: The SENDER_ID is your Google API Console App Project ID.
             //  Be sure to get the right Project ID from your Google APIs Console.  It's not the named project ID that appears in the Overview,

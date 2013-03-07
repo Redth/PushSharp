@@ -5,9 +5,9 @@ using System.Text;
 
 namespace PushSharp.Core
 {
-	public interface IPushServiceRegistry
+	public interface IPushChannelFactory
 	{
-		void Register(PushNotificationBroker notificationBroker);
+		PushChannelBase CreateChannel(PushServiceBase pushService);
 	}
 
 }

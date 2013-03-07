@@ -58,7 +58,6 @@
     <Compile Include="PushServiceBase.cs" />
     <Compile Include="PushServiceSettings.cs" />
     <Compile Include="PushSettings.cs" />
-    <Compile Include="TinyIoc.cs" />
   </ItemGroup>
   <ItemGroup>
     <None Include="PushSharp-Signing.snk" />

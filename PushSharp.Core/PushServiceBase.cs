@@ -5,7 +5,6 @@ using System.Linq;
 using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
-using TinyIoC;
 
 namespace PushSharp.Core
 {
@@ -13,7 +12,7 @@ namespace PushSharp.Core
 	{
 		public ChannelEvents Events = new ChannelEvents();
 
-		public Type PushChannelType { get; private set; }
+		public IPushChannelFactory PushChannelFactory { get; private set; }
 		public PushServiceSettings ServiceSettings { get; private set; }
 		public PushChannelSettings ChannelSettings { get; private set; }
 		public bool IsStopping { get { return stopping; } }
@@ -26,25 +25,25 @@ namespace PushSharp.Core
 		CancellationTokenSource cancelTokenSource = new CancellationTokenSource();
 		List<double> measurements = new List<double>();
 
-		protected PushServiceBase(Type pushChannelType, PushChannelSettings channelSettings, PushServiceSettings serviceSettings = null)
+		protected PushServiceBase(IPushChannelFactory pushChannelFactory, PushChannelSettings channelSettings, PushServiceSettings serviceSettings = null)
 		{
-			this.PushChannelType = pushChannelType;
+			this.PushChannelFactory = pushChannelFactory;
 			this.ServiceSettings = serviceSettings ?? new PushServiceSettings();
 			this.ChannelSettings = channelSettings;
 
 			this.queuedNotifications = new ConcurrentQueue<Notification>();
 
-			timerCheckScale = new Timer(new TimerCallback((state) =>
-			{
-				CheckScale();
-			}), null, TimeSpan.FromSeconds(15), TimeSpan.FromSeconds(15));
+			timerCheckScale = new Timer(CheckScale, null, TimeSpan.FromSeconds(15), TimeSpan.FromSeconds(15));
 			
 			CheckScale();
 
 			distributerTask = new Task(Distributer, TaskCreationOptions.LongRunning);
-			distributerTask.ContinueWith((ft) =>
+			distributerTask.ContinueWith(ft =>
 			{
 				var ex = ft.Exception;
+
+				if (this.Events != null)
+					this.Events.RaiseChannelException(this, ex, null);
 
 			}, TaskContinuationOptions.OnlyOnFaulted);
 			distributerTask.Start();
@@ -141,6 +140,7 @@ namespace PushSharp.Core
 
 				lock (channels)
 				{
+					//Get a random channel to use
 					var next = rnd.Next(0, channels.Count - 1);
 
 					//Get the channel with the smallest queue
@@ -154,13 +154,13 @@ namespace PushSharp.Core
 						//Measure when the message entered the queue
 						notification.EnqueuedTimestamp = DateTime.UtcNow;
 
-						channelOn.SendNotification(notification);
+						Task.Factory.StartNew(() => channelOn.SendNotification(notification));
 					}
 				}
 			}
 		}
 
-		void CheckScale()
+		void CheckScale(object state = null)
 		{
 			Log.Info("{0} -> Checking Scale", this);
 
@@ -212,20 +212,7 @@ namespace PushSharp.Core
 				}
 			}
 		}
-
-		void newChannel_OnQueueTimed(double queueTimeMilliseconds)
-		{
-			//We got a measurement for how long a message waited in the queue
-			lock (measurements)
-			{
-				measurements.Add(queueTimeMilliseconds);
-
-				//Remove old measurements
-				while (measurements.Count > 1000)
-					measurements.RemoveAt(0);
-			}				
-		}
-
+		
 		double GetAverageQueueWait()
 		{
 			if (measurements == null)
@@ -251,7 +238,7 @@ namespace PushSharp.Core
 				{
 					if (action == ChannelScaleAction.Create)
 					{
-						var newChannel = (PushChannelBase)Activator.CreateInstance(PushChannelType, this, this.ChannelSettings, this.ServiceSettings);
+						var newChannel = this.PushChannelFactory.CreateChannel(this);
 						
 						newChannel.Events.RegisterProxyHandler(this.Events);
 

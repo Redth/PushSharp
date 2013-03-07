@@ -9,18 +9,14 @@ namespace PushSharp.Core
 	{
 		public ChannelEvents Events = new ChannelEvents();
 		
-		public PushChannelSettings ChannelSettings { get; private set; }
-		public PushServiceSettings ServiceSettings { get; private set; }
 		public PushServiceBase PushService { get; set; }
 		
 
 		public abstract void SendNotification(Notification notification);
 
-		protected PushChannelBase(PushServiceBase pushService, PushChannelSettings channelSettings, PushServiceSettings serviceSettings = null)
+		protected PushChannelBase(PushServiceBase pushService)
 		{
-			this.PushService = pushService;
-			this.ChannelSettings = channelSettings;
-			this.ServiceSettings = serviceSettings ?? new PushServiceSettings();
+			this.PushService = pushService;			
 		}
 
 		public virtual void Stop()

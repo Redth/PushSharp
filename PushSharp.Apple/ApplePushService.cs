@@ -15,8 +15,8 @@ namespace PushSharp.Apple
 		CancellationTokenSource cancelTokenSource;
 		Timer timerFeedback;
 		
-		public ApplePushService(Type pushChannelType, ApplePushChannelSettings channelSettings, PushServiceSettings serviceSettings = null)
-			: base(pushChannelType, channelSettings, serviceSettings)
+		public ApplePushService(IPushChannelFactory pushChannelFactory, ApplePushChannelSettings channelSettings, PushServiceSettings serviceSettings = null)
+			: base(pushChannelFactory, channelSettings, serviceSettings)
 		{
 			var appleChannelSettings = channelSettings as ApplePushChannelSettings;
 			cancelTokenSource = new CancellationTokenSource();
@@ -42,5 +42,13 @@ namespace PushSharp.Apple
 			this.Events.RaiseDeviceSubscriptionExpired(this, deviceToken);
 		}
 		
+	}
+
+	public class ApplePushChannelFactory : IPushChannelFactory
+	{
+		public PushChannelBase CreateChannel(PushServiceBase pushService)
+		{
+			return new ApplePushChannel(pushService);
+		}
 	}
 }
