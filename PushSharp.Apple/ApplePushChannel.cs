@@ -142,6 +142,7 @@ namespace PushSharp.Apple
 					catch (Exception)
 					{
 						//If this failed, we probably had a networking error, so let's requeue the notification
+						Interlocked.Decrement(ref trackedNotificationCount);
 						this.PushService.QueueNotification(notification, true, true);
 					} 
 				}
@@ -253,7 +254,10 @@ namespace PushSharp.Apple
 				//Requeue all the messages that were sent afte the failed one, be sure it doesn't count as a 'requeue' to go towards the maximum # of retries
 				//Also ignore that the channel is stopping
 				foreach (var n in toRequeue)
+				{
+					Interlocked.Decrement(ref trackedNotificationCount);
 					this.PushService.QueueNotification(n.Notification, false, true);
+				}
 			}
 		}
 
