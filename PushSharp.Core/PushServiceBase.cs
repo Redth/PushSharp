@@ -75,10 +75,6 @@ namespace PushSharp.Core
 				Log.Info("Notification ReQueued Too Many Times: {0}", notification.QueuedCount);
 				this.Events.RaiseNotificationSendFailure(this, notification, new MaxSendAttemptsReachedException());
 			}
-
-			notification.EnqueuedTimestamp = DateTime.UtcNow;
-
-			queuedNotifications.Enqueue(notification);
 		}
 
 		public void Stop(bool waitForQueueToFinish)
@@ -154,7 +150,15 @@ namespace PushSharp.Core
 						//Measure when the message entered the queue
 						notification.EnqueuedTimestamp = DateTime.UtcNow;
 
-						Task.Factory.StartNew(() => channelOn.SendNotification(notification));
+						try
+						{
+							channelOn.SendNotification(notification);
+						}
+						catch (Exception ex)
+						{
+							Events.RaiseChannelException(this, ex, notification);
+						}
+						//Task.Factory.StartNew(() => channelOn.SendNotification(notification));
 					}
 				}
 			}

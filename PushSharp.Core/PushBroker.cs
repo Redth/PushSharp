@@ -21,6 +21,8 @@ namespace PushSharp
 
 		public void RegisterService<TPushNotification>(PushServiceBase pushService) where TPushNotification : Notification
 		{
+			pushService.Events.RegisterProxyHandler(this.Events);
+
 			var pushNotificationType = typeof (TPushNotification);
 
 			if (registeredServices.ContainsKey(pushNotificationType))
@@ -39,7 +41,7 @@ namespace PushSharp
 
 		public void StopAllServices(bool waitForQueuesToFinish = true)
 		{
-			//TODO: Make it happen, cap'n
+			registeredServices.Values.AsParallel().ForAll(svc => svc.ForEach(svcOn => svcOn.Stop(waitForQueuesToFinish)));
 		}
 
 		void IDisposable.Dispose()

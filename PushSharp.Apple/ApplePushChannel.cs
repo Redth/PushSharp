@@ -37,7 +37,7 @@ namespace PushSharp.Apple
 		private CancellationToken cancelToken;
 		ApplePushChannelSettings appleSettings = null;
 		List<SentNotification> sentNotifications = new List<SentNotification>();
-
+		
 		public ApplePushChannel(PushServiceBase pushService) : base(pushService)
 		{
 			cancelToken = cancelTokenSrc.Token;
@@ -97,10 +97,10 @@ namespace PushSharp.Apple
 
 		public override void SendNotification(Core.Notification notification)
 		{
-			Interlocked.Increment(ref trackedNotificationCount);
-
 			lock (sentLock)
 			{
+				Interlocked.Increment(ref trackedNotificationCount);
+
 				var appleNotification = notification as AppleNotification;
 
 				//TODO: Handle not an apple notification?
@@ -152,11 +152,8 @@ namespace PushSharp.Apple
 		{
 			if (cancelToken.IsCancellationRequested)
 				return;
-
-			cancelTokenSrc.Cancel();
-
-			//See if we want to wait for the queue to drain before stopping
 			
+			//See if we want to wait for the queue to drain before stopping
 			var sentNotificationCount = 0;
 			lock (sentLock)
 				sentNotificationCount = sentNotifications.Count;
@@ -168,7 +165,10 @@ namespace PushSharp.Apple
 				lock (sentLock)
 					sentNotificationCount = sentNotifications.Count;
 			}
-			
+
+			cancelTokenSrc.Cancel();
+
+			Console.WriteLine("Apple Channel Stopped");
 		}
 		
 		void Reader()
@@ -305,9 +305,10 @@ namespace PushSharp.Apple
 					}
 				}
 
-				if (this.cancelToken.IsCancellationRequested)
-					break;
-				else if (!wasRemoved)
+				//if (this.cancelToken.IsCancellationRequested)
+				//	break;
+				//else
+				if (!wasRemoved)
 					Thread.Sleep(250);
 			}
 		}
