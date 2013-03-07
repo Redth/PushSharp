@@ -19,8 +19,7 @@ namespace PushSharp.WindowsPhone
 		public override void SendNotification(Notification notification)
 		{
 			var wpNotification = notification as WindowsPhoneNotification;
-
-
+			
 			var wr = HttpWebRequest.Create(wpNotification.EndPointUrl) as HttpWebRequest;
 			wr.ContentType = "text/xml";
 			wr.Method = "POST";
