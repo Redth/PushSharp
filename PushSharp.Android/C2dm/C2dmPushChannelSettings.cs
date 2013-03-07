@@ -2,7 +2,7 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
-using PushSharp.Common;
+using PushSharp.Core;
 
 namespace PushSharp.Android
 {

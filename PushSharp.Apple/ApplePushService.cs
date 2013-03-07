@@ -9,7 +9,7 @@ using PushSharp.Core;
 
 namespace PushSharp.Apple
 {
-	public class ApplePushService : Core.PushServiceBase
+	public class ApplePushService : PushServiceBase
 	{
 		FeedbackService feedbackService;
 		CancellationTokenSource cancelTokenSource;

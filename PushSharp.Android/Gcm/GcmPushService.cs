@@ -2,25 +2,23 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
-using PushSharp.Common;
+using PushSharp.Core;
 
 namespace PushSharp.Android
 {
-	public class GcmPushService : PushServiceBase<GcmPushChannelSettings>
+	public class GcmPushService : PushServiceBase
 	{
-		public GcmPushService(GcmPushChannelSettings channelSettings, PushServiceSettings serviceSettings = null)
-			: base(channelSettings, serviceSettings)
+		public GcmPushService(IPushChannelFactory pushChannelFactory, GcmPushChannelSettings channelSettings, PushServiceSettings serviceSettings = null)
+			: base(pushChannelFactory, channelSettings, serviceSettings)
 		{
 		}
+	}
 
-		protected override PushChannelBase CreateChannel(PushChannelSettings channelSettings)
+	public class GcmPushChannelFactory : IPushChannelFactory
+	{
+		public PushChannelBase CreateChannel(PushServiceBase pushService)
 		{
-			return new GcmPushChannel(channelSettings as GcmPushChannelSettings);
-		}
-
-		public override PlatformType Platform
-		{
-			get { return PlatformType.AndroidGcm; }
+			return new GcmPushChannel(pushService);
 		}
 	}
 }

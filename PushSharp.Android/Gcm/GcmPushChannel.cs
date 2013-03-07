@@ -5,7 +5,7 @@ using System.Linq;
 using System.Net;
 using System.Text;
 using System.Threading;
-using PushSharp.Common;
+using PushSharp.Core;
 
 namespace PushSharp.Android
 {
@@ -15,9 +15,9 @@ namespace PushSharp.Android
 		GcmMessageTransportAsync transport;
 		long waitCounter = 0;
 
-		public GcmPushChannel(GcmPushChannelSettings channelSettings, PushServiceSettings serviceSettings = null) : base(channelSettings, serviceSettings) 
+		public GcmPushChannel(PushServiceBase pushService) : base(pushService)
 		{
-			gcmSettings = channelSettings;
+			gcmSettings = pushService.ChannelSettings as GcmPushChannelSettings;
 			
 			transport = new GcmMessageTransportAsync();
 			
@@ -26,20 +26,15 @@ namespace PushSharp.Android
 			transport.UnhandledException += new Action<GcmNotification, Exception>(transport_UnhandledException);
 		}
 
-        public override PlatformType PlatformType
-        {
-            get { return PlatformType.AndroidGcm; }
-        }
-
 		void transport_UnhandledException(GcmNotification notification, Exception exception)
 		{
 			//Raise individual failures for each registration id for the notification
 			foreach (var r in notification.RegistrationIds)
 			{
-				this.Events.RaiseNotificationSendFailure(GcmNotification.ForSingleRegistrationId(notification, r), exception);
+				this.Events.RaiseNotificationSendFailure(this, GcmNotification.ForSingleRegistrationId(notification, r), exception);
 			}
 
-			this.Events.RaiseChannelException(exception, PlatformType.AndroidGcm, notification);
+			this.Events.RaiseChannelException(this, exception, notification);
 
 			Interlocked.Decrement(ref waitCounter);
 		}
@@ -58,29 +53,29 @@ namespace PushSharp.Android
 				if (r.ResponseStatus == GcmMessageTransportResponseStatus.Ok)
 				{
 					//It worked! Raise success
-					this.Events.RaiseNotificationSent(singleResultNotification); 
+					this.Events.RaiseNotificationSent(this, singleResultNotification); 
 				}
 				else if (r.ResponseStatus == GcmMessageTransportResponseStatus.CanonicalRegistrationId)
 				{
 					//Swap Registrations Id's
 					var newRegistrationId = r.CanonicalRegistrationId;
 
-					this.Events.RaiseDeviceSubscriptionIdChanged(PlatformType.AndroidGcm, singleResultNotification.RegistrationIds[0], newRegistrationId, singleResultNotification);
+					this.Events.RaiseDeviceSubscriptionIdChanged(this, singleResultNotification.RegistrationIds[0], newRegistrationId, singleResultNotification);
 
 				}
 				else if (r.ResponseStatus == GcmMessageTransportResponseStatus.Unavailable)
 				{
-					this.QueueNotification(singleResultNotification);
+					this.PushService.QueueNotification(singleResultNotification);
 				}
 				else if (r.ResponseStatus == GcmMessageTransportResponseStatus.NotRegistered)
 				{
 					//Raise failure and device expired
-					this.Events.RaiseDeviceSubscriptionExpired(PlatformType.AndroidGcm, singleResultNotification.RegistrationIds[0], singleResultNotification);
+					this.Events.RaiseDeviceSubscriptionExpired(this, singleResultNotification.RegistrationIds[0], singleResultNotification);
 				}
 				else
 				{
 					//Raise failure, for unknown reason
-					this.Events.RaiseNotificationSendFailure(singleResultNotification, new GcmMessageTransportException(r.ResponseStatus.ToString(), response));
+					this.Events.RaiseNotificationSendFailure(this, singleResultNotification, new GcmMessageTransportException(r.ResponseStatus.ToString(), response));
 				}
 
 				index++;
@@ -89,16 +84,16 @@ namespace PushSharp.Android
 			Interlocked.Decrement(ref waitCounter);
 		}
 
-		protected override void SendNotification(Notification notification)
+		public override void SendNotification(Notification notification)
 		{
 			Interlocked.Increment(ref waitCounter);
 
 			transport.Send(notification as GcmNotification, gcmSettings.SenderAuthToken, gcmSettings.SenderID, gcmSettings.ApplicationIdPackageName);
 		}
 
-		public override void Stop(bool waitForQueueToDrain)
+		public override void Stop()
 		{
-			base.Stop(waitForQueueToDrain);
+			base.Stop();
 
 			var slept = 0;
 			while (Interlocked.Read(ref waitCounter) > 0 && slept <= 5000)

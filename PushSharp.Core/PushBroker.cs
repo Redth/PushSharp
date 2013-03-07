@@ -7,19 +7,19 @@ using PushSharp.Core;
 
 namespace PushSharp
 {
-	public class PushNotificationBroker : IDisposable
+	public class PushBroker : IDisposable
 	{
 		private Dictionary<Type, List<PushServiceBase>> registeredServices;
 
 		public ChannelEvents Events;
 		
-		public PushNotificationBroker(bool autoRegisterPushServices = true)
+		public PushBroker(bool autoRegisterPushServices = true)
 		{
 			this.Events = new ChannelEvents();
 			registeredServices = new Dictionary<Type, List<PushServiceBase>>();
 		}
 
-		public void RegisterService<TPushNotification, TPushService>(TPushService pushService) where TPushNotification : Notification where TPushService : PushServiceBase
+		public void RegisterService<TPushNotification>(PushServiceBase pushService) where TPushNotification : Notification
 		{
 			var pushNotificationType = typeof (TPushNotification);
 

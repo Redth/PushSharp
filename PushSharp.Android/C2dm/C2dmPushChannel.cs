@@ -5,7 +5,7 @@ using System.Linq;
 using System.Net;
 using System.Text;
 using System.Threading;
-using PushSharp.Common;
+using PushSharp.Core;
 
 namespace PushSharp.Android
 {
@@ -17,9 +17,9 @@ namespace PushSharp.Android
 		C2dmMessageTransportAsync transport;
 		long waitCounter = 0;
 
-		public C2dmPushChannel(C2dmPushChannelSettings channelSettings, PushServiceSettings serviceSettings = null) : base(channelSettings, serviceSettings) 
+		public C2dmPushChannel(PushServiceBase pushService) : base(pushService)
 		{
-			androidSettings = channelSettings;
+			androidSettings = pushService.ChannelSettings as C2dmPushChannelSettings;
 
 			//Go get the auth token from google
 			try
@@ -28,7 +28,7 @@ namespace PushSharp.Android
 			}
 			catch (GoogleLoginAuthorizationException glaex)
 			{
-				this.Events.RaiseChannelException(glaex, PlatformType.AndroidC2dm);
+				this.Events.RaiseChannelException(this, glaex);
 			}
 
 			transport = new C2dmMessageTransportAsync();
@@ -42,14 +42,9 @@ namespace PushSharp.Android
 			transport.UnhandledException += new Action<C2dmNotification, Exception>(transport_UnhandledException);
 		}
 
-        public override PlatformType PlatformType
-        {
-            get { return PlatformType.AndroidC2dm; }
-        }
-
 		void transport_UnhandledException(C2dmNotification notification, Exception exception)
 		{
-			this.Events.RaiseChannelException(exception, PlatformType.AndroidC2dm);
+			this.Events.RaiseChannelException(this, exception);
 
 			Interlocked.Decrement(ref waitCounter);
 		}
@@ -59,41 +54,41 @@ namespace PushSharp.Android
 			//Check if our token was expired and refresh/requeue if need be
 			if (response.ResponseCode == MessageTransportResponseCode.InvalidAuthToken)
 			{
-				this.QueueNotification(response.Message, false);
+				this.PushService.QueueNotification(response.Message, false);
 				this.RefreshGoogleAuthToken();
 				return;
 			}
 
 			if (response.ResponseStatus == MessageTransportResponseStatus.Ok)
-				this.Events.RaiseNotificationSent(response.Message); //Msg ok!
+				this.Events.RaiseNotificationSent(this, response.Message); //Msg ok!
 			else if (response.ResponseStatus == MessageTransportResponseStatus.InvalidRegistration)
 			{
 				//Device subscription is no good!
-				this.Events.RaiseDeviceSubscriptionExpired(PlatformType.AndroidC2dm, response.Message.RegistrationId, response.Message);
+				this.Events.RaiseDeviceSubscriptionExpired(this, response.Message.RegistrationId, response.Message);
 			}
 			else if (response.ResponseStatus == MessageTransportResponseStatus.NotRegistered)
 			{
 				//Device must have uninstalled app
-				this.Events.RaiseDeviceSubscriptionExpired(PlatformType.AndroidC2dm, response.Message.RegistrationId, response.Message);
+				this.Events.RaiseDeviceSubscriptionExpired(this, response.Message.RegistrationId, response.Message);
 			}
 			else
 			{
 				//Message Failed some other way
-				this.Events.RaiseNotificationSendFailure(response.Message, new Exception(response.ResponseStatus.ToString()));
+				this.Events.RaiseNotificationSendFailure(this, response.Message, new Exception(response.ResponseStatus.ToString()));
 			}
 
 			Interlocked.Decrement(ref waitCounter);
 		}
 
-		protected override void SendNotification(Notification notification)
+		public override void SendNotification(Notification notification)
 		{
 			Interlocked.Increment(ref waitCounter);
 			transport.Send(notification as C2dmNotification, this.googleAuthToken, androidSettings.SenderID, androidSettings.ApplicationID);
 		}
 
-		public override void Stop(bool waitForQueueToDrain)
+		public override void Stop()
 		{
-			base.Stop(waitForQueueToDrain);
+			base.Stop();
 
 			var slept = 0;
 			while (Interlocked.Read(ref waitCounter) > 0 && slept <= 5000)

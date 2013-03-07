@@ -17,7 +17,7 @@ namespace PushSharp.Sample
 		static void Main(string[] args)
 		{		
 			//Create our service	
-			var push = new PushNotificationBroker();
+			var push = new PushBroker();
 
 			//Wire up the events
 			push.Events.OnDeviceSubscriptionExpired += Events_OnDeviceSubscriptionExpired;
@@ -48,7 +48,7 @@ namespace PushSharp.Sample
 			push.QueueNotification(push.AppleNotification().ForDeviceToken(""));
 
 
-
+			
 
 
 

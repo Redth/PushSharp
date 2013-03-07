@@ -25,6 +25,8 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "PushSharp.Sample.LocalTesti
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "PushSharp.Core", "PushSharp.Core\PushSharp.Core.csproj", "{836F225F-6CD9-48DE-910C-70F8A7CF54AA}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "PushSharp.Google", "PushSharp.Android\PushSharp.Google.csproj", "{71E27C37-FBBF-481B-934B-1F7DBDE3C5D6}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -75,12 +77,23 @@ Global
 		{836F225F-6CD9-48DE-910C-70F8A7CF54AA}.Release|Mixed Platforms.ActiveCfg = Release|Any CPU
 		{836F225F-6CD9-48DE-910C-70F8A7CF54AA}.Release|Mixed Platforms.Build.0 = Release|Any CPU
 		{836F225F-6CD9-48DE-910C-70F8A7CF54AA}.Release|x86.ActiveCfg = Release|Any CPU
+		{71E27C37-FBBF-481B-934B-1F7DBDE3C5D6}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{71E27C37-FBBF-481B-934B-1F7DBDE3C5D6}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{71E27C37-FBBF-481B-934B-1F7DBDE3C5D6}.Debug|Mixed Platforms.ActiveCfg = Debug|Any CPU
+		{71E27C37-FBBF-481B-934B-1F7DBDE3C5D6}.Debug|Mixed Platforms.Build.0 = Debug|Any CPU
+		{71E27C37-FBBF-481B-934B-1F7DBDE3C5D6}.Debug|x86.ActiveCfg = Debug|Any CPU
+		{71E27C37-FBBF-481B-934B-1F7DBDE3C5D6}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{71E27C37-FBBF-481B-934B-1F7DBDE3C5D6}.Release|Any CPU.Build.0 = Release|Any CPU
+		{71E27C37-FBBF-481B-934B-1F7DBDE3C5D6}.Release|Mixed Platforms.ActiveCfg = Release|Any CPU
+		{71E27C37-FBBF-481B-934B-1F7DBDE3C5D6}.Release|Mixed Platforms.Build.0 = Release|Any CPU
+		{71E27C37-FBBF-481B-934B-1F7DBDE3C5D6}.Release|x86.ActiveCfg = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
 	EndGlobalSection
 	GlobalSection(NestedProjects) = preSolution
 		{83C67156-893D-4AFF-9169-DB34771989CB} = {C09BBA3E-9CF3-4479-A4C3-3006820E2046}
+		{71E27C37-FBBF-481B-934B-1F7DBDE3C5D6} = {C09BBA3E-9CF3-4479-A4C3-3006820E2046}
 		{1B9A3A8B-3690-4435-BF9C-B557BF2713DB} = {04A9AE38-795E-4CB5-A9AD-C1FA83DC342C}
 		{5961A8F2-DE0A-4BBA-BEB3-B99C19C301A8} = {04A9AE38-795E-4CB5-A9AD-C1FA83DC342C}
 	EndGlobalSection

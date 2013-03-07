@@ -65,6 +65,7 @@
     <Compile Include="AppleFluentNotification.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="ApplePushService.cs" />
+    <Compile Include="ApplePushBrokerExtensions.cs" />
   </ItemGroup>
   <ItemGroup>
     <None Include="packages.config" />
