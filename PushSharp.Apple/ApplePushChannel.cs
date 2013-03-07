@@ -9,7 +9,7 @@ using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
 using System.Net;
-using PushSharp.Common;
+using PushSharp.Core;
 
 namespace PushSharp.Apple
 {
@@ -33,12 +33,15 @@ namespace PushSharp.Apple
 		public delegate void WaitBeforeReconnectDelegate(int millisecondsToWait);
 		public event WaitBeforeReconnectDelegate OnWaitBeforeReconnect;
 
-
+		private CancellationTokenSource cancelTokenSrc = new CancellationTokenSource();
+		private CancellationToken cancelToken;
 		ApplePushChannelSettings appleSettings = null;
 		List<SentNotification> sentNotifications = new List<SentNotification>();
 
-		public ApplePushChannel(ApplePushChannelSettings channelSettings, PushServiceSettings serviceSettings = null) : base(channelSettings, serviceSettings)
+		public ApplePushChannel(PushServiceBase pushService, ApplePushChannelSettings channelSettings, PushServiceSettings serviceSettings = null) : base(pushService, channelSettings, serviceSettings)
 		{
+			cancelToken = cancelTokenSrc.Token;
+
 			this.appleSettings = channelSettings;
 
 			certificate = this.appleSettings.Certificate;
@@ -90,26 +93,17 @@ namespace PushSharp.Apple
 		Task taskCleanup;
 
 		protected long trackedNotificationCount = 0;
+		
 
-
-		public override bool QueueNotification(Notification notification, bool countsAsRequeue = true, bool ignoreStoppingChannel = false)
+		public override void SendNotification(Core.Notification notification)
 		{
-			if (base.QueueNotification(notification, countsAsRequeue, ignoreStoppingChannel))
-			{
-				if (!ignoreStoppingChannel)
-					Interlocked.Increment(ref trackedNotificationCount);
+			Interlocked.Increment(ref trackedNotificationCount);
 
-				return true;
-			}
-
-			return false;
-		}
-
-		protected override void SendNotification(Common.Notification notification)
-		{
 			lock (sentLock)
 			{
 				var appleNotification = notification as AppleNotification;
+
+				//TODO: Handle not an apple notification?
 
 				bool isOkToSend = true;
 				byte[] notificationData = new byte[] {};
@@ -148,37 +142,33 @@ namespace PushSharp.Apple
 					catch (Exception)
 					{
 						//If this failed, we probably had a networking error, so let's requeue the notification
-						this.QueueNotification(notification, true, true);
+						this.PushService.QueueNotification(notification, true, true);
 					} 
 				}
 			}
 		}
 
-		public override void Stop(bool waitForQueueToDrain)
+		public override void Stop()
 		{
-			stopping = true;
+			if (cancelToken.IsCancellationRequested)
+				return;
+
+			cancelTokenSrc.Cancel();
 
 			//See if we want to wait for the queue to drain before stopping
-			if (waitForQueueToDrain)
+			
+			var sentNotificationCount = 0;
+			lock (sentLock)
+				sentNotificationCount = sentNotifications.Count;
+
+			while (sentNotificationCount > 0 || Interlocked.Read(ref trackedNotificationCount) > 0)
 			{
-				var sentNotificationCount = 0;
+				Thread.Sleep(100);
+	
 				lock (sentLock)
 					sentNotificationCount = sentNotifications.Count;
-
-				while (QueuedNotificationCount > 0 || sentNotificationCount > 0 || Interlocked.Read(ref trackedNotificationCount) > 0)
-				{
-					Thread.Sleep(100);
-	
-					lock (sentLock)
-						sentNotificationCount = sentNotifications.Count;
-				}
 			}
-
-			if (!CancelTokenSource.IsCancellationRequested)
-				CancelTokenSource.Cancel();
-
-			//Wait on our tasks for a maximum of 5 seconds
-			Task.WaitAll(new Task[] { base.taskSender, taskCleanup }, 5000);
+			
 		}
 		
 		void Reader()
@@ -263,7 +253,7 @@ namespace PushSharp.Apple
 				//Requeue all the messages that were sent afte the failed one, be sure it doesn't count as a 'requeue' to go towards the maximum # of retries
 				//Also ignore that the channel is stopping
 				foreach (var n in toRequeue)
-					this.QueueNotification(n.Notification, false, true);
+					this.PushService.QueueNotification(n.Notification, false, true);
 			}
 		}
 
@@ -281,9 +271,12 @@ namespace PushSharp.Apple
 					//See if anything is here to process
 					if (sentNotifications.Count > 0)
 					{
+						lock(connectLock)
+							Connect();
+
 						//Don't expire any notifications while we are in a connecting state, o rat least ensure all notifications have been sent
 						// in case we may have no connection because no notifications were causing a connection to be initiated
-						if ((connected || CancelToken.IsCancellationRequested) || (!connected && QueuedNotificationCount <= 0))
+						if (connected)
 						{
 							//Get the oldest sent message
 							var n = sentNotifications[0];
@@ -312,7 +305,7 @@ namespace PushSharp.Apple
 					}
 				}
 
-				if (this.CancelToken.IsCancellationRequested)
+				if (this.cancelToken.IsCancellationRequested)
 					break;
 				else if (!wasRemoved)
 					Thread.Sleep(250);
@@ -322,7 +315,7 @@ namespace PushSharp.Apple
 		void Connect()
 		{
 			//Keep trying to connect
-			while (!connected && !CancelToken.IsCancellationRequested)
+			while (!connected && !cancelToken.IsCancellationRequested)
 			{
 				try
 				{
@@ -352,7 +345,7 @@ namespace PushSharp.Apple
 
 					//Sleep for a delay
 					int slept = 0;
-					while (slept <= reconnectDelay && !this.CancelToken.IsCancellationRequested)
+					while (slept <= reconnectDelay && !this.cancelToken.IsCancellationRequested)
 					{
 						Thread.Sleep(250);
 						slept += 250;

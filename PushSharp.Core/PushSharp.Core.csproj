@@ -8,8 +8,8 @@
     <ProjectGuid>{836F225F-6CD9-48DE-910C-70F8A7CF54AA}</ProjectGuid>
     <OutputType>Library</OutputType>
     <AppDesignerFolder>Properties</AppDesignerFolder>
-    <RootNamespace>PushSharp.Common</RootNamespace>
-    <AssemblyName>PushSharp.Common</AssemblyName>
+    <RootNamespace>PushSharp.Core</RootNamespace>
+    <AssemblyName>PushSharp.Core</AssemblyName>
     <FileAlignment>512</FileAlignment>
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|AnyCPU' ">

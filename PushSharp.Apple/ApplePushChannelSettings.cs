@@ -6,7 +6,7 @@ using System.Security.Cryptography.X509Certificates;
 
 namespace PushSharp.Apple
 {
-	public class ApplePushChannelSettings : Common.PushChannelSettings
+	public class ApplePushChannelSettings : Core.PushChannelSettings
 	{
 		#region Constants
 		private const string APNS_SANDBOX_HOST = "gateway.sandbox.push.apple.com";

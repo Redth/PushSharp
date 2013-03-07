@@ -5,18 +5,18 @@ using System.Linq;
 using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
-using PushSharp.Common;
+using PushSharp.Core;
 
 namespace PushSharp.Apple
 {
-	public class ApplePushService : Common.PushServiceBase
+	public class ApplePushService : Core.PushServiceBase
 	{
 		FeedbackService feedbackService;
 		CancellationTokenSource cancelTokenSource;
 		Timer timerFeedback;
 		
-		public ApplePushService(ApplePushChannelSettings channelSettings, PushServiceSettings serviceSettings = null)
-			: base(channelSettings, serviceSettings)
+		public ApplePushService(Type pushChannelType, ApplePushChannelSettings channelSettings, PushServiceSettings serviceSettings = null)
+			: base(pushChannelType, channelSettings, serviceSettings)
 		{
 			var appleChannelSettings = channelSettings as ApplePushChannelSettings;
 			cancelTokenSource = new CancellationTokenSource();
@@ -41,11 +41,6 @@ namespace PushSharp.Apple
 		{
 			this.Events.RaiseDeviceSubscriptionExpired(this, deviceToken);
 		}
-
-		protected override Common.PushChannelBase CreateChannel(Common.PushChannelSettings channelSettings)
-		{
-			return new ApplePushChannel(channelSettings as ApplePushChannelSettings);
-		}
-
+		
 	}
 }

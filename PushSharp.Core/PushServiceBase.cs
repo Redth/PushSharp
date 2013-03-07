@@ -5,13 +5,15 @@ using System.Linq;
 using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
+using TinyIoC;
 
-namespace PushSharp.Common
+namespace PushSharp.Core
 {
 	public abstract class PushServiceBase : IDisposable
 	{
 		public ChannelEvents Events = new ChannelEvents();
-		
+
+		public Type PushChannelType { get; private set; }
 		public PushServiceSettings ServiceSettings { get; private set; }
 		public PushChannelSettings ChannelSettings { get; private set; }
 		public bool IsStopping { get { return stopping; } }
@@ -24,10 +26,9 @@ namespace PushSharp.Common
 		CancellationTokenSource cancelTokenSource = new CancellationTokenSource();
 		List<double> measurements = new List<double>();
 
-		protected abstract PushChannelBase CreateChannel(PushChannelSettings channelSettings);
-
-		protected PushServiceBase(PushChannelSettings channelSettings, PushServiceSettings serviceSettings = null)
+		protected PushServiceBase(Type pushChannelType, PushChannelSettings channelSettings, PushServiceSettings serviceSettings = null)
 		{
+			this.PushChannelType = pushChannelType;
 			this.ServiceSettings = serviceSettings ?? new PushServiceSettings();
 			this.ChannelSettings = channelSettings;
 
@@ -50,13 +51,30 @@ namespace PushSharp.Common
 
 			stopping = false;
 		}
-				
-		public void QueueNotification(Notification notification)
+
+		public void QueueNotification(Notification notification, bool countsAsRequeue = true, bool ignoreStoppingChannel = false)
 		{
 			if (this.cancelTokenSource.IsCancellationRequested)
 			{
 				Events.RaiseChannelException(this, new ObjectDisposedException("Service", "Service has already been signaled to stop"), notification);
 				return;
+			}
+
+			if (this.ServiceSettings.MaxNotificationRequeues < 0 || notification.QueuedCount <= this.ServiceSettings.MaxNotificationRequeues)
+			{
+				//Reset the Enqueued time in case this is a requeue
+				notification.EnqueuedTimestamp = DateTime.UtcNow;
+
+				//Increase the queue counter
+				if (countsAsRequeue)
+					notification.QueuedCount++;
+
+				queuedNotifications.Enqueue(notification);
+			}
+			else
+			{
+				Log.Info("Notification ReQueued Too Many Times: {0}", notification.QueuedCount);
+				this.Events.RaiseNotificationSendFailure(this, notification, new MaxSendAttemptsReachedException());
 			}
 
 			notification.EnqueuedTimestamp = DateTime.UtcNow;
@@ -83,7 +101,7 @@ namespace PushSharp.Common
 			Parallel.ForEach<PushChannelBase>(channels,
 				(channel) =>
 				{
-					channel.Stop(waitForQueueToFinish);
+					channel.Stop();
 					channel.Events.UnRegisterProxyHandler(this.Events);
 				});
 
@@ -100,6 +118,8 @@ namespace PushSharp.Common
 
 		void Distributer()
 		{
+			var rnd = new Random();
+
 			while (!this.cancelTokenSource.IsCancellationRequested)
 			{
 				if (channels == null || channels.Count <= 0)
@@ -121,20 +141,20 @@ namespace PushSharp.Common
 
 				lock (channels)
 				{
+					var next = rnd.Next(0, channels.Count - 1);
+
 					//Get the channel with the smallest queue
 					if (channels.Count == 1)
 						channelOn = channels[0];
 					else
-						channelOn = (from c in channels
-						             orderby c.QueuedNotificationCount
-						             select c).FirstOrDefault();
+						channelOn = channels[next];
 
 					if (channelOn != null)
 					{
 						//Measure when the message entered the queue
 						notification.EnqueuedTimestamp = DateTime.UtcNow;
 
-						channelOn.QueueNotification(notification);
+						channelOn.SendNotification(notification);
 					}
 				}
 			}
@@ -231,11 +251,9 @@ namespace PushSharp.Common
 				{
 					if (action == ChannelScaleAction.Create)
 					{
-						var newChannel = this.CreateChannel(this.ChannelSettings);
-
+						var newChannel = (PushChannelBase)Activator.CreateInstance(PushChannelType, this, this.ChannelSettings, this.ServiceSettings);
+						
 						newChannel.Events.RegisterProxyHandler(this.Events);
-
-						newChannel.OnQueueTimed += new Action<double>(newChannel_OnQueueTimed);
 
 						channels.Add(newChannel);
 
@@ -248,7 +266,7 @@ namespace PushSharp.Common
 						channels.RemoveAt(0);
 
 						//Now stop the channel but let it finish
-						channelOn.Stop(true);
+						channelOn.Stop();
 
 						channelOn.Events.UnRegisterProxyHandler(this.Events);
 

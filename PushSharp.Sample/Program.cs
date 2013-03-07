@@ -17,7 +17,7 @@ namespace PushSharp.Sample
 		static void Main(string[] args)
 		{		
 			//Create our service	
-			PushNotificationBroker push = new PushNotificationBroker();
+			var push = new PushNotificationBroker();
 
 			//Wire up the events
 			push.Events.OnDeviceSubscriptionExpired += Events_OnDeviceSubscriptionExpired;
@@ -41,7 +41,7 @@ namespace PushSharp.Sample
             //push.StartApplePushService(new ApplePushChannelSettings(appleCert, "pushsharp"));
 
 			var appleSettings = new ApplePushChannelSettings(appleCert, "pushsharp");
-			push.RegisterService<AppleNotification, ApplePushService>(new ApplePushService(appleSettings));
+			push.RegisterService<AppleNotification, ApplePushService>(new ApplePushService(typeof(ApplePushChannel), appleSettings));
 
 			
             //Configure and start Android GCM
@@ -102,28 +102,28 @@ namespace PushSharp.Sample
 			Console.ReadLine();			
 		}
 
-		static void Events_OnDeviceSubscriptionIdChanged(object sender, string oldDeviceInfo, string newDeviceInfo, Common.Notification notification)
+		static void Events_OnDeviceSubscriptionIdChanged(object sender, string oldDeviceInfo, string newDeviceInfo, Core.Notification notification)
 		{
 			//Currently this event will only ever happen for Android GCM
 			Console.WriteLine("Device Registration Changed:  Old-> " + oldDeviceInfo + "  New-> " + newDeviceInfo);
 		}
 
-		static void Events_OnNotificationSent(object sender, Common.Notification notification)
+		static void Events_OnNotificationSent(object sender, Core.Notification notification)
 		{
 			Console.WriteLine("Sent: " + sender.ToString() + " -> " + notification.ToString());
 		}
 
-		static void Events_OnNotificationSendFailure(object sender, Common.Notification notification, Exception notificationFailureException)
+		static void Events_OnNotificationSendFailure(object sender, Core.Notification notification, Exception notificationFailureException)
 		{
 			Console.WriteLine("Failure: " + sender.ToString() + " -> " + notificationFailureException.Message + " -> " + notification.ToString());
 		}
 
-		static void Events_OnChannelException(object sender, Exception exception, Common.Notification notification)
+		static void Events_OnChannelException(object sender, Exception exception, Core.Notification notification)
 		{
 			Console.WriteLine("Channel Exception: " + sender.ToString() + " -> " + exception.ToString());
 		}
 
-		static void Events_OnDeviceSubscriptionExpired(object sender, string deviceInfo, Common.Notification notification)
+		static void Events_OnDeviceSubscriptionExpired(object sender, string deviceInfo, Core.Notification notification)
 		{
 			Console.WriteLine("Device Subscription Expired: " + sender.ToString() + " -> " + deviceInfo);
 		}

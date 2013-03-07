@@ -56,9 +56,6 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="..\PushSharp.Common\AssemblyVersionInfo.cs">
-      <Link>AssemblyVersionInfo.cs</Link>
-    </Compile>
     <Compile Include="Program.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
   </ItemGroup>
@@ -67,8 +64,8 @@
       <Project>{83C67156-893D-4AFF-9169-DB34771989CB}</Project>
       <Name>PushSharp.Apple</Name>
     </ProjectReference>
-    <ProjectReference Include="..\PushSharp.Common\PushSharp.Core.csproj">
-      <Project>{836F225F-6CD9-48DE-910C-70F8A7CF54AA}</Project>
+    <ProjectReference Include="..\PushSharp.Core\PushSharp.Core.csproj">
+      <Project>{836f225f-6cd9-48de-910c-70f8a7cf54aa}</Project>
       <Name>PushSharp.Core</Name>
     </ProjectReference>
   </ItemGroup>
