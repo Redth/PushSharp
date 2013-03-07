@@ -38,7 +38,7 @@ namespace PushSharp.Apple
 		ApplePushChannelSettings appleSettings = null;
 		List<SentNotification> sentNotifications = new List<SentNotification>();
 		
-		public ApplePushChannel(PushServiceBase pushService) : base(pushService)
+		public ApplePushChannel(IPushService pushService) : base(pushService)
 		{
 			cancelToken = cancelTokenSrc.Token;
 

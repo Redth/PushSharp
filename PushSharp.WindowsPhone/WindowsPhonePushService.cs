@@ -15,7 +15,7 @@ namespace PushSharp.WindowsPhone
 	}
 	public class WindowsPhonePushChannelFactory : IPushChannelFactory
 	{
-		public PushChannelBase CreateChannel(PushServiceBase pushService)
+		public IPushChannel CreateChannel(IPushService pushService)
 		{
 			return new WindowsPhonePushChannel(pushService);
 		}

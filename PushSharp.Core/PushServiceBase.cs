@@ -8,10 +8,9 @@ using System.Threading.Tasks;
 
 namespace PushSharp.Core
 {
-	public abstract class PushServiceBase : IDisposable
+	public abstract class PushServiceBase : IPushService
 	{
-		public ChannelEvents Events = new ChannelEvents();
-
+		public ChannelEvents Events { get; set; }
 		public IPushChannelFactory PushChannelFactory { get; private set; }
 		public PushServiceSettings ServiceSettings { get; private set; }
 		public PushChannelSettings ChannelSettings { get; private set; }
@@ -20,13 +19,14 @@ namespace PushSharp.Core
 		Timer timerCheckScale;
 		Task distributerTask;
 		bool stopping;
-		List<PushChannelBase> channels = new List<PushChannelBase>();
+		List<IPushChannel> channels = new List<IPushChannel>();
 		ConcurrentQueue<Notification> queuedNotifications = new ConcurrentQueue<Notification>();
 		CancellationTokenSource cancelTokenSource = new CancellationTokenSource();
 		List<double> measurements = new List<double>();
 
 		protected PushServiceBase(IPushChannelFactory pushChannelFactory, PushChannelSettings channelSettings, PushServiceSettings serviceSettings = null)
 		{
+			this.Events = new ChannelEvents();
 			this.PushChannelFactory = pushChannelFactory;
 			this.ServiceSettings = serviceSettings ?? new PushServiceSettings();
 			this.ChannelSettings = channelSettings;
@@ -77,7 +77,7 @@ namespace PushSharp.Core
 			}
 		}
 
-		public void Stop(bool waitForQueueToFinish)
+		public void Stop(bool waitForQueueToFinish = true)
 		{
 			stopping = true;
 			var started = DateTime.UtcNow;
@@ -93,7 +93,7 @@ namespace PushSharp.Core
 			}
 			
 			//Stop all channels
-			Parallel.ForEach<PushChannelBase>(channels,
+			Parallel.ForEach<IPushChannel>(channels,
 				(channel) =>
 				{
 					channel.Stop();
@@ -132,7 +132,7 @@ namespace PushSharp.Core
 					continue;
 				}
 
-				PushChannelBase channelOn = null;
+				IPushChannel channelOn = null;
 
 				lock (channels)
 				{
@@ -150,14 +150,17 @@ namespace PushSharp.Core
 						//Measure when the message entered the queue
 						notification.EnqueuedTimestamp = DateTime.UtcNow;
 
-						try
-						{
-							channelOn.SendNotification(notification);
-						}
-						catch (Exception ex)
-						{
-							Events.RaiseChannelException(this, ex, notification);
-						}
+						Task.Factory.StartNew(() =>
+							{
+								channelOn.SendNotification(notification);
+							}).ContinueWith(t =>
+								{
+									var ex = t.Exception;
+
+									if (ex != null)
+										Events.RaiseChannelException(this, ex, notification);
+								}, TaskContinuationOptions.OnlyOnFaulted);
+						
 						//Task.Factory.StartNew(() => channelOn.SendNotification(notification));
 					}
 				}

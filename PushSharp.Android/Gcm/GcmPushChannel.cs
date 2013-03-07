@@ -15,7 +15,7 @@ namespace PushSharp.Android
 		GcmMessageTransportAsync transport;
 		long waitCounter = 0;
 
-		public GcmPushChannel(PushServiceBase pushService) : base(pushService)
+		public GcmPushChannel(IPushService pushService) : base(pushService)
 		{
 			gcmSettings = pushService.ChannelSettings as GcmPushChannelSettings;
 			

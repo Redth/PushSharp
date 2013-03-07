@@ -17,7 +17,7 @@ namespace PushSharp.Android
 
 	public class C2dmPushChannelFactory : IPushChannelFactory
 	{
-		public PushChannelBase CreateChannel(PushServiceBase pushService)
+		public IPushChannel CreateChannel(IPushService pushService)
 		{
 			return new C2dmPushChannel(pushService);
 		}

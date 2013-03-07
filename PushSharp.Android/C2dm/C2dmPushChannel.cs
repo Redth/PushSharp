@@ -17,7 +17,7 @@ namespace PushSharp.Android
 		C2dmMessageTransportAsync transport;
 		long waitCounter = 0;
 
-		public C2dmPushChannel(PushServiceBase pushService) : base(pushService)
+		public C2dmPushChannel(IPushService pushService) : base(pushService)
 		{
 			androidSettings = pushService.ChannelSettings as C2dmPushChannelSettings;
 

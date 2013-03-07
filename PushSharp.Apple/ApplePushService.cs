@@ -46,7 +46,7 @@ namespace PushSharp.Apple
 
 	public class ApplePushChannelFactory : IPushChannelFactory
 	{
-		public PushChannelBase CreateChannel(PushServiceBase pushService)
+		public IPushChannel CreateChannel(IPushService pushService)
 		{
 			return new ApplePushChannel(pushService);
 		}

@@ -17,7 +17,7 @@ namespace PushSharp.Windows
 
 		WindowsPushChannelSettings channelSettings;
 
-		public WindowsPushChannel(PushServiceBase pushService)
+		public WindowsPushChannel(IPushService pushService)
 			: base(pushService)
 		{
 			this.channelSettings = this.PushService.ChannelSettings as WindowsPushChannelSettings;

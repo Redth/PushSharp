@@ -16,7 +16,7 @@ namespace PushSharp.Android
 
 	public class GcmPushChannelFactory : IPushChannelFactory
 	{
-		public PushChannelBase CreateChannel(PushServiceBase pushService)
+		public IPushChannel CreateChannel(IPushService pushService)
 		{
 			return new GcmPushChannel(pushService);
 		}

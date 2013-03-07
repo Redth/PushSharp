@@ -5,24 +5,21 @@ using System.Threading.Tasks;
 
 namespace PushSharp.Core
 {
-	public abstract class PushChannelBase
+	public abstract class PushChannelBase : IPushChannel
 	{
-		public ChannelEvents Events = new ChannelEvents();
-		
-		public PushServiceBase PushService { get; set; }
-		
-
-		public abstract void SendNotification(Notification notification);
-
-		protected PushChannelBase(PushServiceBase pushService)
+		protected PushChannelBase(IPushService pushService)
 		{
-			this.PushService = pushService;			
+			this.PushService = pushService;
+			this.Events = new ChannelEvents();
 		}
 
+		public ChannelEvents Events { get; set; }
+		public IPushService PushService { get; set; }
+		
+		public abstract void SendNotification(Notification notification);
+		
 		public virtual void Stop()
 		{
-
 		}
-
 	}
 }
