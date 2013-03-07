@@ -3,10 +3,11 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using PushSharp.Core;
 
 namespace PushSharp.Windows
 {
-    public class WindowsPushChannelSettings : Common.PushChannelSettings
+    public class WindowsPushChannelSettings : PushChannelSettings
     {
 		public WindowsPushChannelSettings(string packageName, string packageSecurityIdentifier, string clientSecret)
 		{

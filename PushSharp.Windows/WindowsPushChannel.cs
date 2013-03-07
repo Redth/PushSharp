@@ -6,27 +6,23 @@ using System.Text;
 using System.Threading.Tasks;
 using System.Web;
 using Newtonsoft.Json.Linq;
-using PushSharp.Common;
+using PushSharp.Core;
 
 namespace PushSharp.Windows
 {
-	public class WindowsPushChannel : Common.PushChannelBase
+	public class WindowsPushChannel : PushChannelBase
 	{
 		public string AccessToken { get; private set; }
 		public string TokenType { get; private set; }
 
 		WindowsPushChannelSettings channelSettings;
 
-		public WindowsPushChannel(WindowsPushChannelSettings channelSettings, PushServiceSettings serviceSettings = null) : base(channelSettings, serviceSettings)
+		public WindowsPushChannel(PushServiceBase pushService)
+			: base(pushService)
 		{
-			this.channelSettings = channelSettings;
+			this.channelSettings = this.PushService.ChannelSettings as WindowsPushChannelSettings;
 		}
-
-        public override PlatformType PlatformType
-        {
-            get { return Common.PlatformType.Windows; }
-        }
-
+		
 		void RenewAccessToken()
 		{
 			var postData = new StringBuilder();
@@ -42,7 +38,7 @@ namespace PushSharp.Windows
 			var response = string.Empty;
 
 			try { response = wc.UploadString("https://login.live.com/accesstoken.srf", "POST", postData.ToString()); }
-			catch (Exception ex) { this.Events.RaiseChannelException(ex, PlatformType.Windows); }
+			catch (Exception ex) { this.Events.RaiseChannelException(this, ex); }
 
 			var json = new JObject();
 
@@ -59,20 +55,20 @@ namespace PushSharp.Windows
 			}
 			else
 			{
-				this.Events.RaiseChannelException(new UnauthorizedAccessException("Could not retrieve access token for the supplied Package Security Identifier (SID) and client secret"), PlatformType.Windows);
+				this.Events.RaiseChannelException(this, new UnauthorizedAccessException("Could not retrieve access token for the supplied Package Security Identifier (SID) and client secret"));
 			}
 		}
 
-		protected override void SendNotification(Common.Notification notification)
+		public override void SendNotification(Notification notification)
 		{
 			try { sendNotification(notification); }
 			catch (Exception ex)
 			{
-				this.Events.RaiseChannelException(ex, PlatformType.Windows, notification);
+				this.Events.RaiseChannelException(this, ex, notification);
 			}
 		}
 
-		void sendNotification(Common.Notification notification)
+		void sendNotification(Notification notification)
 		{
 			//See if we need an access token
 			if (string.IsNullOrEmpty(AccessToken))
@@ -251,19 +247,19 @@ namespace PushSharp.Windows
 			if (status.HttpStatus == HttpStatusCode.OK
 				&& status.NotificationStatus == WindowsNotificationSendStatus.Received)
 			{
-				this.Events.RaiseNotificationSent(status.Notification);
+				this.Events.RaiseNotificationSent(this, status.Notification);
 				return;
 			}
 			else if (status.HttpStatus == HttpStatusCode.NotFound) //404
 			{
-				this.Events.RaiseDeviceSubscriptionExpired(PlatformType.Windows, status.Notification.ChannelUri, status.Notification);
+				this.Events.RaiseDeviceSubscriptionExpired(this, status.Notification.ChannelUri, status.Notification);
 			}
 			else if (status.HttpStatus == HttpStatusCode.Gone) //410
 			{
-				this.Events.RaiseDeviceSubscriptionExpired(PlatformType.Windows, status.Notification.ChannelUri, status.Notification);
+				this.Events.RaiseDeviceSubscriptionExpired(this, status.Notification.ChannelUri, status.Notification);
 			}
 			
-			this.Events.RaiseNotificationSendFailure(status.Notification, new WindowsNotificationSendFailureException(status));
+			this.Events.RaiseNotificationSendFailure(this, status.Notification, new WindowsNotificationSendFailureException(status));
 		}
 	}
 }
