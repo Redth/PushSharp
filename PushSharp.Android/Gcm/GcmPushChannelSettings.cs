@@ -6,7 +6,14 @@ using PushSharp.Core;
 
 namespace PushSharp.Android
 {
-	public class GcmPushChannelSettings : PushChannelSettings
+	public interface IGcmPushChannelSettings : IPushChannelSettings
+	{
+		string SenderID { get; }
+		string SenderAuthToken { get; }
+		string ApplicationIdPackageName { get; }
+	}
+	
+	public class GcmPushChannelSettings : IGcmPushChannelSettings
 	{
 		public GcmPushChannelSettings(string senderAuthToken)
 		{
@@ -22,7 +29,6 @@ namespace PushSharp.Android
 		
 		public string SenderID { get; private set; }
 		public string SenderAuthToken { get; private set; }
-
 		public string ApplicationIdPackageName { get; private set; }
 	}
 }

@@ -3,10 +3,28 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Security.Cryptography.X509Certificates;
+using PushSharp.Core;
 
 namespace PushSharp.Apple
 {
-	public class ApplePushChannelSettings : Core.PushChannelSettings
+	public interface IApplePushChannelSettings : IPushChannelSettings
+	{
+		bool DetectProduction(X509Certificate2 certificate);
+
+		string Host { get; }
+		int Port { get; }
+		string FeedbackHost { get; }
+		int FeedbackPort { get; }
+		X509Certificate2 Certificate { get; }
+		List<X509Certificate2> AdditionalCertificates { get; }
+		bool AddLocalAndMachineCertificateStores { get; set; }
+		bool SkipSsl { get; set; }
+		int MillisecondsToWaitBeforeMessageDeclaredSuccess { get; set; }
+		int FeedbackIntervalMinutes { get; set; }
+		bool FeedbackTimeIsUTC { get; set; }
+	}
+
+	public class ApplePushChannelSettings : IApplePushChannelSettings
 	{
 		#region Constants
 		private const string APNS_SANDBOX_HOST = "gateway.sandbox.push.apple.com";

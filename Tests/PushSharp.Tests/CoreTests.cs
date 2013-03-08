@@ -20,7 +20,7 @@ namespace PushSharp.Tests
 		public void Setup()
 		{
 			appleCert = File.ReadAllBytes(Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "../../../../Resources/PushSharp.Apns.Sandbox.p12"));
-			broker = new PushBroker(false);
+			broker = new PushBroker();
 		}
 		
 		[Test]

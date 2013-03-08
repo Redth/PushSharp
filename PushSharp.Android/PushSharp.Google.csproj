@@ -60,16 +60,14 @@
     <Compile Include="C2dm\C2dmPushChannel.cs" />
     <Compile Include="C2dm\C2dmPushChannelSettings.cs" />
     <Compile Include="C2dm\C2dmPushService.cs" />
-    <Compile Include="C2dm\C2dmMessageTransportAsync.cs" />
     <Compile Include="C2dm\C2dmMessageTransportResponse.cs" />
     <Compile Include="C2dm\C2dmExceptions.cs" />
     <Compile Include="Gcm\GcmFluentNotification.cs" />
     <Compile Include="Gcm\GcmPushBrokerExtensions.cs" />
-    <Compile Include="Gcm\GcmPushChannel.cs" />
     <Compile Include="Gcm\GcmPushChannelSettings.cs" />
     <Compile Include="Gcm\GcmPushService.cs" />
     <Compile Include="Gcm\GcmExceptions.cs" />
-    <Compile Include="Gcm\GcmMessageTransportAsync.cs" />
+    <Compile Include="Gcm\GcmPushChannel.cs" />
     <Compile Include="Gcm\GcmMessageTransportResponse.cs" />
     <Compile Include="Gcm\GcmNotification.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />

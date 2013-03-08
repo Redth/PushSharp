@@ -20,14 +20,7 @@ namespace PushSharp.Sample
 			var push = new PushBroker();
 
 			//Wire up the events
-			push.Events.OnDeviceSubscriptionExpired += Events_OnDeviceSubscriptionExpired;
-			push.Events.OnDeviceSubscriptionIdChanged += Events_OnDeviceSubscriptionIdChanged;
-			push.Events.OnChannelException += Events_OnChannelException;
-			push.Events.OnNotificationSendFailure += Events_OnNotificationSendFailure;
-			push.Events.OnNotificationSent += Events_OnNotificationSent;
-			push.Events.OnChannelCreated += Events_OnChannelCreated;
-			push.Events.OnChannelDestroyed += Events_OnChannelDestroyed;
-
+			
 			//Configure and start Apple APNS
 			// IMPORTANT: Make sure you use the right Push certificate.  Apple allows you to generate one for connecting to Sandbox,
 			//   and one for connecting to Production.  You must use the right one, to match the provisioning profile you build your

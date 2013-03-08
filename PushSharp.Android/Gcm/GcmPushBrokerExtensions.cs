@@ -9,7 +9,7 @@ namespace PushSharp
 {
 	public static class GcmPushBrokerExtensions
 	{
-		public static void RegisterGcmService(this PushBroker broker, GcmPushChannelSettings channelSettings, PushServiceSettings serviceSettings = null)
+		public static void RegisterGcmService(this PushBroker broker, IGcmPushChannelSettings channelSettings, PushServiceSettings serviceSettings = null)
 		{
 			broker.RegisterService<GcmNotification>(new GcmPushService(new GcmPushChannelFactory(), channelSettings, serviceSettings));
 		}

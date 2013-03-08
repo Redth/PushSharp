@@ -9,7 +9,7 @@ namespace PushSharp
 {
 	public static class ApplePushBrokerExtensions
 	{
-		public static void RegisterWindowsPhoneService(this PushBroker broker, WindowsPhonePushChannelSettings channelSettings, PushServiceSettings serviceSettings = null)
+		public static void RegisterWindowsPhoneService(this PushBroker broker, IWindowsPhonePushChannelSettings channelSettings, IPushServiceSettings serviceSettings)
 		{
 			var service = new WindowsPhonePushService(new WindowsPhonePushChannelFactory(), channelSettings, serviceSettings);
 

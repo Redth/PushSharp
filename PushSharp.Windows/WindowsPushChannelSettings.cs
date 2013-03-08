@@ -7,7 +7,15 @@ using PushSharp.Core;
 
 namespace PushSharp.Windows
 {
-    public class WindowsPushChannelSettings : PushChannelSettings
+	public interface IWindowsPushChannelSettings : IPushChannelSettings
+	{
+		string PackageName { get; }
+		string PackageSecurityIdentifier { get; }
+		string ClientSecret { get; }
+	}
+
+
+	public class WindowsPushChannelSettings : IWindowsPushChannelSettings
     {
 		public WindowsPushChannelSettings(string packageName, string packageSecurityIdentifier, string clientSecret)
 		{
@@ -16,8 +24,8 @@ namespace PushSharp.Windows
 			this.ClientSecret = clientSecret;
 		}
 
-		public string PackageName { get; set; }
-		public string PackageSecurityIdentifier { get; set; }
-		public string ClientSecret { get; set; }
+		public string PackageName { get; private set; }
+		public string PackageSecurityIdentifier { get; private set; }
+		public string ClientSecret { get; private set; }
     }
 }

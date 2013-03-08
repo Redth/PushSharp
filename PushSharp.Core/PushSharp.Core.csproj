@@ -46,18 +46,14 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="AssemblyVersionInfo.cs" />
-    <Compile Include="ChannelEvents.cs" />
     <Compile Include="Exceptions.cs" />
     <Compile Include="Interfaces.cs" />
     <Compile Include="Log.cs" />
-    <Compile Include="PushChannelBase.cs" />
-    <Compile Include="PushChannelSettings.cs" />
     <Compile Include="Notification.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="PushBroker.cs" />
     <Compile Include="PushServiceBase.cs" />
     <Compile Include="PushServiceSettings.cs" />
-    <Compile Include="PushSettings.cs" />
   </ItemGroup>
   <ItemGroup>
     <None Include="PushSharp-Signing.snk" />

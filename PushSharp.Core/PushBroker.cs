@@ -10,19 +10,14 @@ namespace PushSharp
 	public class PushBroker : IDisposable
 	{
 		private Dictionary<Type, List<IPushService>> registeredServices;
-
-		public ChannelEvents Events;
 		
-		public PushBroker(bool autoRegisterPushServices = true)
+		public PushBroker()
 		{
-			this.Events = new ChannelEvents();
 			registeredServices = new Dictionary<Type, List<IPushService>>();
 		}
 
-		public void RegisterService<TPushNotification>(PushServiceBase pushService) where TPushNotification : Notification
+		public void RegisterService<TPushNotification>(IPushService pushService) where TPushNotification : Notification
 		{
-			pushService.Events.RegisterProxyHandler(this.Events);
-
 			var pushNotificationType = typeof (TPushNotification);
 
 			if (registeredServices.ContainsKey(pushNotificationType))

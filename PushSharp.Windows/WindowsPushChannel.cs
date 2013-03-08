@@ -10,17 +10,16 @@ using PushSharp.Core;
 
 namespace PushSharp.Windows
 {
-	public class WindowsPushChannel : PushChannelBase
+	public class WindowsPushChannel : IPushChannel
 	{
 		public string AccessToken { get; private set; }
 		public string TokenType { get; private set; }
 
 		WindowsPushChannelSettings channelSettings;
 
-		public WindowsPushChannel(IPushService pushService)
-			: base(pushService)
+		public WindowsPushChannel(IPushChannelSettings channelSettings)
 		{
-			this.channelSettings = this.PushService.ChannelSettings as WindowsPushChannelSettings;
+			this.channelSettings = channelSettings as WindowsPushChannelSettings;
 		}
 		
 		void RenewAccessToken()
@@ -37,8 +36,7 @@ namespace PushSharp.Windows
 
 			var response = string.Empty;
 
-			try { response = wc.UploadString("https://login.live.com/accesstoken.srf", "POST", postData.ToString()); }
-			catch (Exception ex) { this.Events.RaiseChannelException(this, ex); }
+			response = wc.UploadString("https://login.live.com/accesstoken.srf", "POST", postData.ToString()); 
 
 			var json = new JObject();
 
@@ -55,20 +53,11 @@ namespace PushSharp.Windows
 			}
 			else
 			{
-				this.Events.RaiseChannelException(this, new UnauthorizedAccessException("Could not retrieve access token for the supplied Package Security Identifier (SID) and client secret"));
+				throw new UnauthorizedAccessException("Could not retrieve access token for the supplied Package Security Identifier (SID) and client secret");
 			}
 		}
 
-		public override void SendNotification(Notification notification)
-		{
-			try { sendNotification(notification); }
-			catch (Exception ex)
-			{
-				this.Events.RaiseChannelException(this, ex, notification);
-			}
-		}
-
-		void sendNotification(Notification notification)
+		public void SendNotification(INotification notification, SendNotificationCallbackDelegate callback)
 		{
 			//See if we need an access token
 			if (string.IsNullOrEmpty(AccessToken))
@@ -159,14 +148,14 @@ namespace PushSharp.Windows
 			
 			try
 			{
-				request.BeginGetResponse(new AsyncCallback(getResponseCallback), new object[] { request, winNotification });
+				request.BeginGetResponse(new AsyncCallback(getResponseCallback), new object[] { request, winNotification, callback });
 			}
 			catch (WebException wex)
 			{
 				//Handle different httpstatuses
 				var status = ParseStatus(wex.Response as HttpWebResponse, winNotification);
 
-				HandleStatus(status);
+				HandleStatus(status, callback);
 			}
 		}
 
@@ -180,12 +169,13 @@ namespace PushSharp.Windows
 
 			var wr = (HttpWebRequest)objs[0];
 			var winNotification = (WindowsNotification)objs[1];
+			var callback = (SendNotificationCallbackDelegate) objs[2];
 
 			var resp = wr.EndGetResponse(asyncResult) as HttpWebResponse;
 
 			var status = ParseStatus(resp, winNotification);
 
-			HandleStatus(status);
+			HandleStatus(status, callback);
 		}
 
 
@@ -223,8 +213,11 @@ namespace PushSharp.Windows
 			return result;
 		}
 
-		void HandleStatus(WindowsNotificationStatus status)
+		void HandleStatus(WindowsNotificationStatus status, SendNotificationCallbackDelegate callback)
 		{
+			if (callback == null)
+				return;
+
 			//RESPONSE HEADERS
 			// X-WNS-Debug-Trace   string
 			// X-WNS-DeviceConnectionStatus  connected | disconnected | tempdisconnected   (if RequestForStatus was set to true)
@@ -247,19 +240,19 @@ namespace PushSharp.Windows
 			if (status.HttpStatus == HttpStatusCode.OK
 				&& status.NotificationStatus == WindowsNotificationSendStatus.Received)
 			{
-				this.Events.RaiseNotificationSent(this, status.Notification);
+				callback(this, new SendNotificationResult(status.Notification));
 				return;
 			}
-			else if (status.HttpStatus == HttpStatusCode.NotFound) //404
+			else if (status.HttpStatus == HttpStatusCode.NotFound || status.HttpStatus == HttpStatusCode.Gone) //404 or 410
 			{
-				this.Events.RaiseDeviceSubscriptionExpired(this, status.Notification.ChannelUri, status.Notification);
+				callback(this, new SendNotificationResult(status.Notification, false, new Exception("Device Subscription Expired")) { IsSubscriptionExpired = true });
 			}
-			else if (status.HttpStatus == HttpStatusCode.Gone) //410
-			{
-				this.Events.RaiseDeviceSubscriptionExpired(this, status.Notification.ChannelUri, status.Notification);
-			}
-			
-			this.Events.RaiseNotificationSendFailure(this, status.Notification, new WindowsNotificationSendFailureException(status));
+				
+			callback(this, new SendNotificationResult(status.Notification, false, new WindowsNotificationSendFailureException(status)));
+		}
+
+		public void Dispose()
+		{
 		}
 	}
 }

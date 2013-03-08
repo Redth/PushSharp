@@ -5,7 +5,7 @@ using System.Text;
 
 namespace PushSharp.Core
 {
-	public abstract class Notification
+	public abstract class Notification : INotification
 	{
         /// <summary>
         /// Gets or sets the tag. Can use to store miscellaneous information 
@@ -16,7 +16,7 @@ namespace PushSharp.Core
         /// </value>
         public object Tag { get; set; }
 
-		internal DateTime EnqueuedTimestamp { get; set; }
+		public DateTime EnqueuedTimestamp { get; set; }
 
 		/// <summary>
 		/// How many times a message was queued for sending.  This counter will increase every time a message is queued or requeued.

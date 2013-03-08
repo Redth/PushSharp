@@ -5,7 +5,7 @@ using System.Text;
 
 namespace PushSharp.Core
 {
-	public class PushServiceSettings
+	public class PushServiceSettings : IPushServiceSettings
 	{
 		public PushServiceSettings()
 		{

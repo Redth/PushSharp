@@ -7,7 +7,12 @@ using PushSharp.Core;
 
 namespace PushSharp.WindowsPhone
 {
-	public class WindowsPhonePushChannelSettings : PushChannelSettings
+	public interface IWindowsPhonePushChannelSettings : IPushChannelSettings
+	{
+		X509Certificate2 WebServiceCertificate { get; }
+	}
+	
+	public class WindowsPhonePushChannelSettings : IWindowsPhonePushChannelSettings
 	{
 		public WindowsPhonePushChannelSettings() : this(null) { }
 

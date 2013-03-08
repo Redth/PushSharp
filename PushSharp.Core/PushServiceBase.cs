@@ -10,28 +10,73 @@ namespace PushSharp.Core
 {
 	public abstract class PushServiceBase : IPushService
 	{
-		public ChannelEvents Events { get; set; }
+		public delegate void ChannelCreatedDelegate(object sender, IPushChannel pushChannel);
+
+		public event ChannelCreatedDelegate OnChannelCreated;
+
+		public delegate void ChannelDestroyedDelegate(object sender);
+
+		public event ChannelDestroyedDelegate OnChannelDestroyed;
+		
+		public delegate void NotificationSentDelegate(object sender, INotification notification);
+
+		public event NotificationSentDelegate OnNotificationSent;
+
+		public delegate void NotificationFailedDelegate(object sender, INotification notification, Exception error);
+
+		public event NotificationFailedDelegate OnNotificationFailed;
+
+		public delegate void ChannelExceptionDelegate(object sender, IPushChannel pushChannel, Exception error);
+
+		public event ChannelExceptionDelegate OnChannelException;
+
+		public delegate void ServiceExceptionDelegate(object sender, Exception error);
+
+		public event ServiceExceptionDelegate OnServiceException;
+
+		public delegate void DeviceSubscriptionExpiredDelegate(object sender, string expiredSubscriptionId, DateTime expirationDateUtc, INotification notification);
+
+		public event DeviceSubscriptionExpiredDelegate OnDeviceSubscriptionExpired;
+
+		protected void RaiseSubscriptionExpired(string expiredSubscriptionId, DateTime expirationDateUtc, INotification notification)
+		{
+			var evt = OnDeviceSubscriptionExpired;
+			if (evt != null)
+				evt(this, expiredSubscriptionId, expirationDateUtc, notification);
+		}
+
+		protected void RaiseServiceException(Exception error)
+		{
+			var evt = OnServiceException;
+			if (evt != null)
+				evt(this, error);
+		}
+
 		public IPushChannelFactory PushChannelFactory { get; private set; }
-		public PushServiceSettings ServiceSettings { get; private set; }
-		public PushChannelSettings ChannelSettings { get; private set; }
+		public IPushServiceSettings ServiceSettings { get; private set; }
+		public IPushChannelSettings ChannelSettings { get; private set; }
 		public bool IsStopping { get { return stopping; } }
 
 		Timer timerCheckScale;
 		Task distributerTask;
 		bool stopping;
 		List<IPushChannel> channels = new List<IPushChannel>();
-		ConcurrentQueue<Notification> queuedNotifications = new ConcurrentQueue<Notification>();
+		private ConcurrentQueue<INotification> queuedNotifications;
 		CancellationTokenSource cancelTokenSource = new CancellationTokenSource();
 		List<double> measurements = new List<double>();
 
-		protected PushServiceBase(IPushChannelFactory pushChannelFactory, PushChannelSettings channelSettings, PushServiceSettings serviceSettings = null)
+		protected PushServiceBase(IPushChannelFactory pushChannelFactory, IPushChannelSettings channelSettings)
+			: this(pushChannelFactory, channelSettings, default(IPushServiceSettings))
+		{			
+		}
+
+		protected PushServiceBase(IPushChannelFactory pushChannelFactory, IPushChannelSettings channelSettings, IPushServiceSettings serviceSettings)
 		{
-			this.Events = new ChannelEvents();
 			this.PushChannelFactory = pushChannelFactory;
 			this.ServiceSettings = serviceSettings ?? new PushServiceSettings();
 			this.ChannelSettings = channelSettings;
 
-			this.queuedNotifications = new ConcurrentQueue<Notification>();
+			this.queuedNotifications = new ConcurrentQueue<INotification>();
 
 			timerCheckScale = new Timer(CheckScale, null, TimeSpan.FromSeconds(15), TimeSpan.FromSeconds(15));
 			
@@ -42,8 +87,9 @@ namespace PushSharp.Core
 			{
 				var ex = ft.Exception;
 
-				if (this.Events != null)
-					this.Events.RaiseChannelException(this, ex, null);
+				var evt = this.OnServiceException;
+				if (evt != null)
+					evt(this, ex);
 
 			}, TaskContinuationOptions.OnlyOnFaulted);
 			distributerTask.Start();
@@ -51,14 +97,17 @@ namespace PushSharp.Core
 			stopping = false;
 		}
 
-		public void QueueNotification(Notification notification, bool countsAsRequeue = true, bool ignoreStoppingChannel = false)
+		public void QueueNotification(INotification notification)
+		{
+			QueueNotification(notification, false);
+		}
+
+
+		void QueueNotification(INotification notification, bool countsAsRequeue = true, bool ignoreStoppingChannel = false)
 		{
 			if (this.cancelTokenSource.IsCancellationRequested)
-			{
-				Events.RaiseChannelException(this, new ObjectDisposedException("Service", "Service has already been signaled to stop"), notification);
-				return;
-			}
-
+				throw new ObjectDisposedException("Service", "Service has already been signaled to stop");
+				
 			if (this.ServiceSettings.MaxNotificationRequeues < 0 || notification.QueuedCount <= this.ServiceSettings.MaxNotificationRequeues)
 			{
 				//Reset the Enqueued time in case this is a requeue
@@ -72,8 +121,11 @@ namespace PushSharp.Core
 			}
 			else
 			{
+				var evt = this.OnNotificationFailed;
+				if (evt != null)
+					evt(this, notification, new MaxSendAttemptsReachedException());
+
 				Log.Info("Notification ReQueued Too Many Times: {0}", notification.QueuedCount);
-				this.Events.RaiseNotificationSendFailure(this, notification, new MaxSendAttemptsReachedException());
 			}
 		}
 
@@ -93,12 +145,7 @@ namespace PushSharp.Core
 			}
 			
 			//Stop all channels
-			Parallel.ForEach<IPushChannel>(channels,
-				(channel) =>
-				{
-					channel.Stop();
-					channel.Events.UnRegisterProxyHandler(this.Events);
-				});
+			Parallel.ForEach(channels, (channel) => channel.Dispose());
 
 			this.channels.Clear();
 			
@@ -123,7 +170,7 @@ namespace PushSharp.Core
 					continue;
 				}
 
-				Notification notification = null;
+				INotification notification;
 
 				if (!queuedNotifications.TryDequeue(out notification))
 				{
@@ -150,15 +197,32 @@ namespace PushSharp.Core
 						//Measure when the message entered the queue
 						notification.EnqueuedTimestamp = DateTime.UtcNow;
 
-						Task.Factory.StartNew(() =>
+						Task.Factory.StartNew(() => channelOn.SendNotification(notification, (sender, result) =>
 							{
-								channelOn.SendNotification(notification);
-							}).ContinueWith(t =>
+								//Handle the notification send callback here
+								if (result.ShouldRequeue)
+									this.QueueNotification(result.Notification, true, true);
+
+								if (!result.IsSuccess)
+								{
+									var evt = this.OnNotificationFailed;
+									if (evt != null)
+										evt(this, result.Notification, result.Error);
+								}
+								else
+								{
+									var evt = this.OnNotificationSent;
+									if (evt != null)
+										evt(this, result.Notification);
+								}
+
+							})).ContinueWith(t =>
 								{
 									var ex = t.Exception;
+									var evt = this.OnChannelException;
+									if (evt != null && ex != null)
+										evt(this, channelOn, ex);
 
-									if (ex != null)
-										Events.RaiseChannelException(this, ex, notification);
 								}, TaskContinuationOptions.OnlyOnFaulted);
 						
 						//Task.Factory.StartNew(() => channelOn.SendNotification(notification));
@@ -240,17 +304,16 @@ namespace PushSharp.Core
 			{
 				var newCount = 0;
 				bool? destroyed= null;
+				IPushChannel newChannel = default (IPushChannel);
 
 				lock (channels)
 				{
 					if (action == ChannelScaleAction.Create)
 					{
-						var newChannel = this.PushChannelFactory.CreateChannel(this);
+						newChannel = this.PushChannelFactory.CreateChannel(this.ChannelSettings);
 						
-						newChannel.Events.RegisterProxyHandler(this.Events);
-
 						channels.Add(newChannel);
-
+						
 						newCount = channels.Count;
 						destroyed = false;
 					}
@@ -260,9 +323,7 @@ namespace PushSharp.Core
 						channels.RemoveAt(0);
 
 						//Now stop the channel but let it finish
-						channelOn.Stop();
-
-						channelOn.Events.UnRegisterProxyHandler(this.Events);
+						channelOn.Dispose();
 
 						newCount = channels.Count;
 						destroyed = true;
@@ -270,9 +331,17 @@ namespace PushSharp.Core
 				}
 
 				if (destroyed.HasValue && !destroyed.Value)
-					this.Events.RaiseChannelCreated(this, newCount);
+				{
+					var evt = this.OnChannelCreated;
+					if (evt != null)
+						evt(this, newChannel);
+				}
 				else if (destroyed.HasValue && destroyed.Value)
-					this.Events.RaiseChannelDestroyed(this, newCount);
+				{
+					var evt = this.OnChannelDestroyed;
+					if (evt != null)
+						evt(this);
+				}
 			}
 		}
 	}

@@ -13,7 +13,7 @@ using PushSharp.Core;
 
 namespace PushSharp.Apple
 {
-	public class ApplePushChannel : PushChannelBase
+	public class ApplePushChannel : IPushChannel
 	{
 		#region Constants
 		private const string hostSandbox = "gateway.sandbox.push.apple.com";
@@ -33,16 +33,18 @@ namespace PushSharp.Apple
 		public delegate void WaitBeforeReconnectDelegate(int millisecondsToWait);
 		public event WaitBeforeReconnectDelegate OnWaitBeforeReconnect;
 
+		public event PushChannelExceptionDelegate OnException;
+
 		private CancellationTokenSource cancelTokenSrc = new CancellationTokenSource();
 		private CancellationToken cancelToken;
 		ApplePushChannelSettings appleSettings = null;
 		List<SentNotification> sentNotifications = new List<SentNotification>();
 		
-		public ApplePushChannel(IPushService pushService) : base(pushService)
+		public ApplePushChannel(IPushChannelSettings channelSettings)
 		{
 			cancelToken = cancelTokenSrc.Token;
 
-			appleSettings = pushService.ChannelSettings as ApplePushChannelSettings;
+			appleSettings = channelSettings as ApplePushChannelSettings;
 
 			certificate = this.appleSettings.Certificate;
 
@@ -62,17 +64,6 @@ namespace PushSharp.Apple
             if (this.appleSettings.AdditionalCertificates != null)
                 foreach (var addlCert in this.appleSettings.AdditionalCertificates)
                     certificates.Add(addlCert);
-
-			//Start our cleanup task
-			taskCleanup = new Task(Cleanup, TaskCreationOptions.LongRunning);
-			taskCleanup.ContinueWith(t => 
-			{
-				var ex = t.Exception; 
-
-				if (this.Events != null)
-					this.Events.RaiseChannelException(this, ex, null);
-			}, TaskContinuationOptions.OnlyOnFaulted);
-			taskCleanup.Start();
 		}
 		
 
@@ -90,12 +81,11 @@ namespace PushSharp.Apple
 		TcpClient client;
 		SslStream stream;
 		System.IO.Stream networkStream;
-		Task taskCleanup;
-
+		
 		protected long trackedNotificationCount = 0;
 		
 
-		public override void SendNotification(Core.Notification notification)
+		public void SendNotification(INotification notification, SendNotificationCallbackDelegate callback)
 		{
 			lock (sentLock)
 			{
@@ -119,7 +109,8 @@ namespace PushSharp.Apple
 
 					Interlocked.Decrement(ref trackedNotificationCount);
 					
-					this.Events.RaiseNotificationSendFailure(this, notification, nfex);
+					if (callback != null)
+						callback(this, new SendNotificationResult(notification, false, nfex));
 				}
 
 				if (isOkToSend)
@@ -135,21 +126,29 @@ namespace PushSharp.Apple
 							{
 								networkStream.Write(notificationData, 0, notificationData.Length);
 
-								sentNotifications.Add(new SentNotification(appleNotification));
+								sentNotifications.Add(new SentNotification(appleNotification) { Callback = callback });
 							}
+
+							//Initiate the cleanup process
+							Task.Factory.StartNew(Cleanup).ContinueWith(t =>
+								{
+									//TODO: Some useful logging here?
+								}, TaskContinuationOptions.OnlyOnFaulted);
 						}
 					}
-					catch (Exception)
+					catch (Exception ex)
 					{
 						//If this failed, we probably had a networking error, so let's requeue the notification
 						Interlocked.Decrement(ref trackedNotificationCount);
-						this.PushService.QueueNotification(notification, true, true);
+
+						if (callback != null)
+							callback(this, new SendNotificationResult(notification, true, ex));				
 					} 
 				}
 			}
 		}
 
-		public override void Stop()
+		public void Dispose()
 		{
 			if (cancelToken.IsCancellationRequested)
 				return;
@@ -168,8 +167,6 @@ namespace PushSharp.Apple
 			}
 
 			cancelTokenSrc.Cancel();
-
-			Console.WriteLine("Apple Channel Stopped");
 		}
 		
 		void Reader()
@@ -238,7 +235,10 @@ namespace PushSharp.Apple
 			
 			//Fail and remove the failed index from the list
 			Interlocked.Decrement(ref trackedNotificationCount);
-			this.Events.RaiseNotificationSendFailure(this, failedNotification.Notification, new NotificationFailureException(status, failedNotification.Notification));
+
+			if (failedNotification.Callback != null)
+				failedNotification.Callback(this, new SendNotificationResult(failedNotification.Notification, false, new NotificationFailureException(status, failedNotification.Notification) ));
+
 			sentNotifications.RemoveAt(failedIndex);
 
 			//Don't GetRange if there's 0 items to get, or the call will fail
@@ -256,7 +256,9 @@ namespace PushSharp.Apple
 				foreach (var n in toRequeue)
 				{
 					Interlocked.Decrement(ref trackedNotificationCount);
-					this.PushService.QueueNotification(n.Notification, false, true);
+
+					if (failedNotification.Callback != null)
+						failedNotification.Callback(this, new SendNotificationResult(n.Notification, true, new Exception("Sent after previously failed Notification.")));
 				}
 			}
 		}
@@ -290,7 +292,9 @@ namespace PushSharp.Apple
 								
 								Interlocked.Decrement(ref trackedNotificationCount);
 
-								this.Events.RaiseNotificationSent(this, n.Notification);
+								if (n.Callback != null)
+									n.Callback(this, new SendNotificationResult(n.Notification));
+
 								sentNotifications.RemoveAt(0);
 							}
 							else
@@ -310,7 +314,7 @@ namespace PushSharp.Apple
 				//	break;
 				//else
 				if (!wasRemoved)
-					Thread.Sleep(250);
+					break; // Thread.Sleep(250);
 			}
 		}
 	
@@ -334,8 +338,9 @@ namespace PushSharp.Apple
 					if (cf != null)
 						cf(ex);
 
-					//Raise a channel exception
-					this.Events.RaiseChannelException(this, ex);
+					var evt = this.OnException;
+					if (evt != null)
+						evt(this, ex);
 				}
 
 				if (!connected)
@@ -436,5 +441,7 @@ namespace PushSharp.Apple
 		public DateTime SentAt { get; set; }
 
 		public int Identifier { get; set; }
+
+		public SendNotificationCallbackDelegate Callback { get; set; }
 	}
 }
