@@ -94,6 +94,8 @@ namespace PushSharp.Android
 			{
 				if (asyncParam.Callback != null)
 					asyncParam.Callback(this, new SendNotificationResult(asyncParam.Message, true, new Exception("Unknown Network Failure")));
+
+				Interlocked.Decrement(ref waitCounter);
 			}
 		}
 
@@ -118,6 +120,8 @@ namespace PushSharp.Android
 			{
 				if (asyncParam.Callback != null)
 					asyncParam.Callback(this, new SendNotificationResult(asyncParam.Message, true, new Exception("Unknown Network Failure")));
+
+				Interlocked.Decrement(ref waitCounter);
 			}
 		}
 

@@ -6,6 +6,8 @@ using System.Linq;
 using System.Text;
 using PushSharp;
 using PushSharp.Apple;
+using PushSharp.Core;
+
 //using PushSharp.Android;
 //using PushSharp.WindowsPhone;
 //using PushSharp.Windows;
@@ -20,7 +22,14 @@ namespace PushSharp.Sample
 			var push = new PushBroker();
 
 			//Wire up the events
-			
+			push.OnNotificationSent += NotificationSent;
+			push.OnChannelException += ChannelException;
+			push.OnServiceException += ServiceException;
+			push.OnNotificationFailed += NotificationFailed;
+			push.OnDeviceSubscriptionExpired += DeviceSubscriptionExpired;
+			push.OnChannelCreated += ChannelCreated;
+			push.OnChannelDestroyed += ChannelDestroyed;
+
 			//Configure and start Apple APNS
 			// IMPORTANT: Make sure you use the right Push certificate.  Apple allows you to generate one for connecting to Sandbox,
 			//   and one for connecting to Production.  You must use the right one, to match the provisioning profile you build your
@@ -103,40 +112,45 @@ namespace PushSharp.Sample
 			Console.ReadLine();			
 		}
 
-		static void Events_OnDeviceSubscriptionIdChanged(object sender, string oldDeviceInfo, string newDeviceInfo, Core.Notification notification)
+		static void DeviceSubscriptionIdChanged(object sender, string oldDeviceInfo, string newDeviceInfo, Core.Notification notification)
 		{
 			//Currently this event will only ever happen for Android GCM
 			Console.WriteLine("Device Registration Changed:  Old-> " + oldDeviceInfo + "  New-> " + newDeviceInfo);
 		}
 
-		static void Events_OnNotificationSent(object sender, Core.Notification notification)
+		static void NotificationSent(object sender, INotification notification)
 		{
 			Console.WriteLine("Sent: " + sender.ToString() + " -> " + notification.ToString());
 		}
 
-		static void Events_OnNotificationSendFailure(object sender, Core.Notification notification, Exception notificationFailureException)
+		static void NotificationFailed(object sender, INotification notification, Exception notificationFailureException)
 		{
 			Console.WriteLine("Failure: " + sender.ToString() + " -> " + notificationFailureException.Message + " -> " + notification.ToString());
 		}
 
-		static void Events_OnChannelException(object sender, Exception exception, Core.Notification notification)
+		static void ChannelException(object sender, IPushChannel channel, Exception exception)
 		{
 			Console.WriteLine("Channel Exception: " + sender.ToString() + " -> " + exception.ToString());
 		}
 
-		static void Events_OnDeviceSubscriptionExpired(object sender, string deviceInfo, Core.Notification notification)
+		static void ServiceException(object sender, Exception exception)
 		{
-			Console.WriteLine("Device Subscription Expired: " + sender.ToString() + " -> " + deviceInfo);
+			Console.WriteLine("Channel Exception: " + sender.ToString() + " -> " + exception.ToString());
 		}
 
-		static void Events_OnChannelDestroyed(object sender, int newChannelCount)
+		static void DeviceSubscriptionExpired(object sender, string expiredDeviceSubscriptionId, DateTime timestamp, INotification notification)
 		{
-			Console.WriteLine("Channel Destroyed for: " + sender.ToString() + " Channel Count: " + newChannelCount);
+			Console.WriteLine("Device Subscription Expired: " + sender.ToString() + " -> " + expiredDeviceSubscriptionId);
 		}
 
-		static void Events_OnChannelCreated(object sender, int newChannelCount)
+		static void ChannelDestroyed(object sender)
 		{
-			Console.WriteLine("Channel Created for: " + sender.ToString() + " Channel Count: " + newChannelCount);
+			Console.WriteLine("Channel Destroyed for: " + sender.ToString());
+		}
+
+		static void ChannelCreated(object sender, IPushChannel pushChannel)
+		{
+			Console.WriteLine("Channel Created for: " + sender.ToString());
 		}
 	}
 }

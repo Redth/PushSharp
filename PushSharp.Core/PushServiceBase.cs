@@ -8,34 +8,22 @@ using System.Threading.Tasks;
 
 namespace PushSharp.Core
 {
+	public delegate void ChannelCreatedDelegate(object sender, IPushChannel pushChannel);
+	public delegate void ChannelDestroyedDelegate(object sender);
+	public delegate void NotificationSentDelegate(object sender, INotification notification);
+	public delegate void NotificationFailedDelegate(object sender, INotification notification, Exception error);
+	public delegate void ChannelExceptionDelegate(object sender, IPushChannel pushChannel, Exception error);
+	public delegate void ServiceExceptionDelegate(object sender, Exception error);
+	public delegate void DeviceSubscriptionExpiredDelegate(object sender, string expiredSubscriptionId, DateTime expirationDateUtc, INotification notification);
+	
 	public abstract class PushServiceBase : IPushService
 	{
-		public delegate void ChannelCreatedDelegate(object sender, IPushChannel pushChannel);
-
 		public event ChannelCreatedDelegate OnChannelCreated;
-
-		public delegate void ChannelDestroyedDelegate(object sender);
-
 		public event ChannelDestroyedDelegate OnChannelDestroyed;
-		
-		public delegate void NotificationSentDelegate(object sender, INotification notification);
-
 		public event NotificationSentDelegate OnNotificationSent;
-
-		public delegate void NotificationFailedDelegate(object sender, INotification notification, Exception error);
-
 		public event NotificationFailedDelegate OnNotificationFailed;
-
-		public delegate void ChannelExceptionDelegate(object sender, IPushChannel pushChannel, Exception error);
-
 		public event ChannelExceptionDelegate OnChannelException;
-
-		public delegate void ServiceExceptionDelegate(object sender, Exception error);
-
 		public event ServiceExceptionDelegate OnServiceException;
-
-		public delegate void DeviceSubscriptionExpiredDelegate(object sender, string expiredSubscriptionId, DateTime expirationDateUtc, INotification notification);
-
 		public event DeviceSubscriptionExpiredDelegate OnDeviceSubscriptionExpired;
 
 		protected void RaiseSubscriptionExpired(string expiredSubscriptionId, DateTime expirationDateUtc, INotification notification)
@@ -311,7 +299,7 @@ namespace PushSharp.Core
 					if (action == ChannelScaleAction.Create)
 					{
 						newChannel = this.PushChannelFactory.CreateChannel(this.ChannelSettings);
-						
+					
 						channels.Add(newChannel);
 						
 						newCount = channels.Count;

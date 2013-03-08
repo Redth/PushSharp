@@ -9,6 +9,14 @@ namespace PushSharp
 {
 	public class PushBroker : IDisposable
 	{
+		public event ChannelCreatedDelegate OnChannelCreated;
+		public event ChannelDestroyedDelegate OnChannelDestroyed;
+		public event NotificationSentDelegate OnNotificationSent;
+		public event NotificationFailedDelegate OnNotificationFailed;
+		public event ChannelExceptionDelegate OnChannelException;
+		public event ServiceExceptionDelegate OnServiceException;
+		public event DeviceSubscriptionExpiredDelegate OnDeviceSubscriptionExpired;
+		
 		private Dictionary<Type, List<IPushService>> registeredServices;
 		
 		public PushBroker()
@@ -23,7 +31,15 @@ namespace PushSharp
 			if (registeredServices.ContainsKey(pushNotificationType))
 				registeredServices[pushNotificationType].Add(pushService);
 			else
-				registeredServices.Add(pushNotificationType, new List<IPushService>() { pushService });				
+				registeredServices.Add(pushNotificationType, new List<IPushService>() { pushService });
+
+			pushService.OnChannelCreated += OnChannelCreated;
+			pushService.OnChannelDestroyed += OnChannelDestroyed;
+			pushService.OnChannelException += OnChannelException;
+			pushService.OnDeviceSubscriptionExpired += OnDeviceSubscriptionExpired;
+			pushService.OnNotificationFailed += OnNotificationFailed;
+			pushService.OnNotificationSent += OnNotificationSent;
+			pushService.OnServiceException += OnServiceException;
 		}
 
 		public void QueueNotification<TPushNotification>(TPushNotification notification) where TPushNotification : Notification
@@ -48,7 +64,17 @@ namespace PushSharp
 
 		public void StopAllServices(bool waitForQueuesToFinish = true)
 		{
-			registeredServices.Values.AsParallel().ForAll(svc => svc.ForEach(svcOn => svcOn.Stop(waitForQueuesToFinish)));
+			registeredServices.Values.AsParallel().ForAll(svc => svc.ForEach(svcOn => {
+				svcOn.Stop(waitForQueuesToFinish);
+
+				svcOn.OnChannelCreated -= OnChannelCreated;
+				svcOn.OnChannelDestroyed -= OnChannelDestroyed;
+				svcOn.OnChannelException -= OnChannelException;
+				svcOn.OnDeviceSubscriptionExpired -= OnDeviceSubscriptionExpired;
+				svcOn.OnNotificationFailed -= OnNotificationFailed;
+				svcOn.OnNotificationSent -= OnNotificationSent;
+				svcOn.OnServiceException -= OnServiceException;
+			}));
 		}
 
 		void IDisposable.Dispose()

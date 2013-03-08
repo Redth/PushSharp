@@ -16,7 +16,14 @@ namespace PushSharp.Core
 
 	public interface IPushService : IDisposable
 	{
-		
+		event ChannelCreatedDelegate OnChannelCreated;
+		event ChannelDestroyedDelegate OnChannelDestroyed;
+		event NotificationSentDelegate OnNotificationSent;
+		event NotificationFailedDelegate OnNotificationFailed;
+		event ChannelExceptionDelegate OnChannelException;
+		event ServiceExceptionDelegate OnServiceException;
+		event DeviceSubscriptionExpiredDelegate OnDeviceSubscriptionExpired;
+
 		IPushChannelFactory PushChannelFactory { get; }
 		IPushServiceSettings ServiceSettings { get; }
 		IPushChannelSettings ChannelSettings { get; }
@@ -50,29 +57,5 @@ namespace PushSharp.Core
 		int QueuedCount { get; set; }
 		bool IsValidDeviceRegistrationId();
 		DateTime EnqueuedTimestamp { get; set; }
-	}
-
-	public class SendNotificationResult
-	{
-		public SendNotificationResult(INotification notification, bool shouldRequeue = false, Exception error = null)
-		{
-			this.Notification = notification;
-			this.Error = error;
-			this.ShouldRequeue = shouldRequeue;
-			this.IsSubscriptionExpired = false;
-		}
-
-		public INotification Notification { get; set; }
-		public Exception Error { get; set; }
-		public bool ShouldRequeue { get; set; }
-
-		public string NewSubscriptionId { get; set; }
-
-		public bool IsSubscriptionExpired { get; set; }
-
-		public bool IsSuccess
-		{
-			get { return Error == null; }
-		}
 	}
 }
