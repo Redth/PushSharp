@@ -25,9 +25,9 @@ namespace PushSharp.Android
 			ServicePointManager.ServerCertificateValidationCallback += (sender, cert, chain, policyErrs) => true;
 		}
 
-		public C2dmPushChannel(IPushChannelSettings channelSettings)
+		public C2dmPushChannel(C2dmPushChannelSettings channelSettings)
 		{
-			androidSettings = channelSettings as C2dmPushChannelSettings;
+			androidSettings = channelSettings;
 		}
 
 		private const string C2DM_SEND_URL = "https://android.apis.google.com/c2dm/send";

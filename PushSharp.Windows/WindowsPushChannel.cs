@@ -17,9 +17,9 @@ namespace PushSharp.Windows
 
 		WindowsPushChannelSettings channelSettings;
 
-		public WindowsPushChannel(IPushChannelSettings channelSettings)
+		public WindowsPushChannel(WindowsPushChannelSettings channelSettings)
 		{
-			this.channelSettings = channelSettings as WindowsPushChannelSettings;
+			this.channelSettings = channelSettings;
 		}
 		
 		void RenewAccessToken()

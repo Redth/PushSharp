@@ -11,9 +11,9 @@ namespace PushSharp.WindowsPhone
 	{
 		WindowsPhonePushChannelSettings windowsPhoneSettings;
 
-		public WindowsPhonePushChannel(IPushChannelSettings channelSettings)
+		public WindowsPhonePushChannel(WindowsPhonePushChannelSettings channelSettings)
 		{
-			windowsPhoneSettings = channelSettings as WindowsPhonePushChannelSettings;
+			windowsPhoneSettings = channelSettings;
 		}
 
 		public void SendNotification(INotification notification, SendNotificationCallbackDelegate callback)

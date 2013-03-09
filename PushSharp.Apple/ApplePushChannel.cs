@@ -40,11 +40,11 @@ namespace PushSharp.Apple
 		ApplePushChannelSettings appleSettings = null;
 		List<SentNotification> sentNotifications = new List<SentNotification>();
 		
-		public ApplePushChannel(IPushChannelSettings channelSettings)
+		public ApplePushChannel(ApplePushChannelSettings channelSettings)
 		{
 			cancelToken = cancelTokenSrc.Token;
 
-			appleSettings = channelSettings as ApplePushChannelSettings;
+			appleSettings = channelSettings;
 
 			certificate = this.appleSettings.Certificate;
 

@@ -9,26 +9,26 @@ namespace PushSharp.WindowsPhone
 	public class WindowsPhonePushService : PushServiceBase
 	{
 		public WindowsPhonePushService()
-			: this(default(IPushChannelFactory), default(IWindowsPhonePushChannelSettings), default(IPushServiceSettings))
+			: this(default(IPushChannelFactory), null, default(IPushServiceSettings))
 		{
 		}
 
-		public WindowsPhonePushService(IWindowsPhonePushChannelSettings channelSettings)
+		public WindowsPhonePushService(WindowsPhonePushChannelSettings channelSettings)
 			: this(default(IPushChannelFactory), channelSettings, default(IPushServiceSettings))
 		{
 		}
 
-		public WindowsPhonePushService(IWindowsPhonePushChannelSettings channelSettings, IPushServiceSettings serviceSettings)
+		public WindowsPhonePushService(WindowsPhonePushChannelSettings channelSettings, IPushServiceSettings serviceSettings)
 			: this(default(IPushChannelFactory), channelSettings, serviceSettings)
 		{
 		}
 
-		public WindowsPhonePushService(IPushChannelFactory pushChannelFactory, IWindowsPhonePushChannelSettings channelSettings)
+		public WindowsPhonePushService(IPushChannelFactory pushChannelFactory, WindowsPhonePushChannelSettings channelSettings)
 			: this(pushChannelFactory, channelSettings, default(IPushServiceSettings))
 		{
 		}
 
-		public WindowsPhonePushService(IPushChannelFactory pushChannelFactory, IWindowsPhonePushChannelSettings channelSettings, IPushServiceSettings serviceSettings)
+		public WindowsPhonePushService(IPushChannelFactory pushChannelFactory, WindowsPhonePushChannelSettings channelSettings, IPushServiceSettings serviceSettings)
 			: base(pushChannelFactory ?? new WindowsPhonePushChannelFactory(), channelSettings ?? new WindowsPhonePushChannelSettings(), serviceSettings)
 		{
 		}
@@ -37,7 +37,10 @@ namespace PushSharp.WindowsPhone
 	{
 		public IPushChannel CreateChannel(IPushChannelSettings channelSettings)
 		{
-			return new WindowsPhonePushChannel(channelSettings);
+			if (!(channelSettings is WindowsPhonePushChannelSettings))
+				throw new ArgumentException("channelSettings must be of type WindowsPhonePushChannelSettings");
+
+			return new WindowsPhonePushChannel(channelSettings as WindowsPhonePushChannelSettings);
 		}
 	}
 }

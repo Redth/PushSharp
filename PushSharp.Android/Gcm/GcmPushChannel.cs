@@ -18,7 +18,7 @@ namespace PushSharp.Android
 		GcmPushChannelSettings gcmSettings = null;
 		long waitCounter = 0;
 
-		public GcmPushChannel(IPushChannelSettings channelSettings)
+		public GcmPushChannel(GcmPushChannelSettings channelSettings)
 		{
 			gcmSettings = channelSettings as GcmPushChannelSettings;	
 		}

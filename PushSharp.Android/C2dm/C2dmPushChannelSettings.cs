@@ -6,14 +6,6 @@ using PushSharp.Core;
 
 namespace PushSharp.Android
 {
-	public interface IC2dmPushChannelSettings : IPushChannelSettings
-	{
-		string SenderID { get; }
-		string Password { get; }
-		string ApplicationID { get; }
-	}
-
-
 	[Obsolete("Google has Deprecated C2DM, and you should now use GCM Instead.")]
 	public class C2dmPushChannelSettings : IPushChannelSettings
 	{

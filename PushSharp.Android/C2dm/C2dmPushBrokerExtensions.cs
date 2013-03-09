@@ -9,7 +9,7 @@ namespace PushSharp
 {
 	public static class C2dmPushBrokerExtensions
 	{
-		public static void RegisterC2dmService(this PushBroker broker, IC2dmPushChannelSettings channelSettings, IPushServiceSettings serviceSettings = null)
+		public static void RegisterC2dmService(this PushBroker broker, C2dmPushChannelSettings channelSettings, IPushServiceSettings serviceSettings = null)
 		{
 			broker.RegisterService<C2dmNotification>(new C2dmPushService(channelSettings, serviceSettings));
 		}

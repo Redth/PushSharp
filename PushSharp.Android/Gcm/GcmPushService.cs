@@ -8,22 +8,22 @@ namespace PushSharp.Android
 {
 	public class GcmPushService : PushServiceBase
 	{
-		public GcmPushService(IGcmPushChannelSettings channelSettings)
+		public GcmPushService(GcmPushChannelSettings channelSettings)
 			: this(default(IPushChannelFactory), channelSettings, default(IPushServiceSettings))
 		{
 		}
 
-		public GcmPushService(IGcmPushChannelSettings channelSettings, IPushServiceSettings serviceSettings)
+		public GcmPushService(GcmPushChannelSettings channelSettings, IPushServiceSettings serviceSettings)
 			: this(default(IPushChannelFactory), channelSettings, serviceSettings)
 		{
 		}
 
-		public GcmPushService(IPushChannelFactory pushChannelFactory, IGcmPushChannelSettings channelSettings)
+		public GcmPushService(IPushChannelFactory pushChannelFactory, GcmPushChannelSettings channelSettings)
 			: this(pushChannelFactory, channelSettings, default(IPushServiceSettings))
 		{
 		}
-		
-		public GcmPushService(IPushChannelFactory pushChannelFactory, IGcmPushChannelSettings channelSettings, IPushServiceSettings serviceSettings)
+
+		public GcmPushService(IPushChannelFactory pushChannelFactory, GcmPushChannelSettings channelSettings, IPushServiceSettings serviceSettings)
 			: base(pushChannelFactory ?? new GcmPushChannelFactory(), channelSettings, serviceSettings)
 		{
 		}
@@ -33,7 +33,10 @@ namespace PushSharp.Android
 	{
 		public IPushChannel CreateChannel(IPushChannelSettings channelSettings)
 		{
-			return new GcmPushChannel(channelSettings);
+			if (!(channelSettings is GcmPushChannelSettings))
+				throw new ArgumentException("channelSettings must be of type GcmPushChannelSettings");
+
+			return new GcmPushChannel(channelSettings as GcmPushChannelSettings);
 		}
 	}
 }

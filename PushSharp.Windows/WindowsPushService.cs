@@ -9,22 +9,22 @@ namespace PushSharp.Windows
 {
 	public class WindowsPushService : PushServiceBase
 	{
-		public WindowsPushService(IWindowsPushChannelSettings channelSettings)
+		public WindowsPushService(WindowsPushChannelSettings channelSettings)
 			: this(default(IPushChannelFactory), channelSettings, default(IPushServiceSettings))
 		{
 		}
 
-		public WindowsPushService(IWindowsPushChannelSettings channelSettings, IPushServiceSettings serviceSettings)
+		public WindowsPushService(WindowsPushChannelSettings channelSettings, IPushServiceSettings serviceSettings)
 			: this(default(IPushChannelFactory), channelSettings, serviceSettings)
 		{
 		}
 
-		public WindowsPushService(IPushChannelFactory pushChannelFactory, IWindowsPushChannelSettings channelSettings)
+		public WindowsPushService(IPushChannelFactory pushChannelFactory, WindowsPushChannelSettings channelSettings)
 			: this(pushChannelFactory, channelSettings, default(IPushServiceSettings))
 		{
 		}
-		
-		public WindowsPushService(IPushChannelFactory pushChannelFactory, IWindowsPushChannelSettings channelSettings, IPushServiceSettings serviceSettings)
+
+		public WindowsPushService(IPushChannelFactory pushChannelFactory, WindowsPushChannelSettings channelSettings, IPushServiceSettings serviceSettings)
 			: base(pushChannelFactory ?? new WindowsPushChannelFactory(), channelSettings, serviceSettings)
 		{ }
 	}
@@ -33,7 +33,10 @@ namespace PushSharp.Windows
 	{
 		public IPushChannel CreateChannel(IPushChannelSettings channelSettings)
 		{
-			return new WindowsPushChannel(channelSettings);
+			if (!(channelSettings is WindowsPushChannelSettings))
+				throw new ArgumentException("channelSettings must be of type WindowsPushChannelSettings");
+
+			return new WindowsPushChannel(channelSettings as WindowsPushChannelSettings);
 		}
 	}
 }

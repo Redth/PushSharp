@@ -16,22 +16,22 @@ namespace PushSharp.Apple
 		Timer timerFeedback;
 		
 		
-		public ApplePushService(IApplePushChannelSettings channelSettings)
+		public ApplePushService(ApplePushChannelSettings channelSettings)
 			: this(default(IPushChannelFactory), channelSettings, default(IPushServiceSettings))
 		{
 		}
 
-		public ApplePushService(IApplePushChannelSettings channelSettings, IPushServiceSettings serviceSettings)
+		public ApplePushService(ApplePushChannelSettings channelSettings, IPushServiceSettings serviceSettings)
 			: this(default(IPushChannelFactory), channelSettings, serviceSettings)
 		{
 		}
 
-		public ApplePushService(IPushChannelFactory pushChannelFactory, IApplePushChannelSettings channelSettings)
+		public ApplePushService(IPushChannelFactory pushChannelFactory, ApplePushChannelSettings channelSettings)
 			: this(pushChannelFactory, channelSettings, default(IPushServiceSettings))
 		{
 		}
-		
-		public ApplePushService(IPushChannelFactory pushChannelFactory, IApplePushChannelSettings channelSettings, IPushServiceSettings serviceSettings)
+
+		public ApplePushService(IPushChannelFactory pushChannelFactory, ApplePushChannelSettings channelSettings, IPushServiceSettings serviceSettings)
 			: base(pushChannelFactory ?? new ApplePushChannelFactory(), channelSettings, serviceSettings)
 		{
 			var appleChannelSettings = channelSettings;
@@ -64,7 +64,10 @@ namespace PushSharp.Apple
 	{
 		public IPushChannel CreateChannel(IPushChannelSettings channelSettings)
 		{
-			return new ApplePushChannel(channelSettings);
+			if (!(channelSettings is ApplePushChannelSettings))
+				throw new ArgumentException("Channel Settings must be of type ApplePushChannelSettings");
+
+			return new ApplePushChannel(channelSettings as ApplePushChannelSettings);
 		}
 	}
 }

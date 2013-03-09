@@ -7,15 +7,7 @@ using PushSharp.Core;
 
 namespace PushSharp.Windows
 {
-	public interface IWindowsPushChannelSettings : IPushChannelSettings
-	{
-		string PackageName { get; }
-		string PackageSecurityIdentifier { get; }
-		string ClientSecret { get; }
-	}
-
-
-	public class WindowsPushChannelSettings : IWindowsPushChannelSettings
+	public class WindowsPushChannelSettings : IPushChannelSettings
     {
 		public WindowsPushChannelSettings(string packageName, string packageSecurityIdentifier, string clientSecret)
 		{
