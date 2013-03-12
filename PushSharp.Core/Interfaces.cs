@@ -49,6 +49,7 @@ namespace PushSharp.Core
 		long MinAvgTimeToScaleChannels { get; set; }
 		int Channels { get; set; }
 		int MaxNotificationRequeues { get; set; }
+		int NotificationSendTimeout { get; set; }
 	}
 
 	public interface INotification

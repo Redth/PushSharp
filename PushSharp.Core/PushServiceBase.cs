@@ -15,7 +15,7 @@ namespace PushSharp.Core
 	public delegate void ChannelExceptionDelegate(object sender, IPushChannel pushChannel, Exception error);
 	public delegate void ServiceExceptionDelegate(object sender, Exception error);
 	public delegate void DeviceSubscriptionExpiredDelegate(object sender, string expiredSubscriptionId, DateTime expirationDateUtc, INotification notification);
-	
+
 	public abstract class PushServiceBase : IPushService
 	{
 		public event ChannelCreatedDelegate OnChannelCreated;
@@ -43,22 +43,32 @@ namespace PushSharp.Core
 		public IPushChannelFactory PushChannelFactory { get; private set; }
 		public IPushServiceSettings ServiceSettings { get; private set; }
 		public IPushChannelSettings ChannelSettings { get; private set; }
-		public bool IsStopping { get { return stopping; } }
 
-		Timer timerCheckScale;
-		Task distributerTask;
-		bool stopping;
-		List<IPushChannel> channels = new List<IPushChannel>();
+		public bool IsStopping
+		{
+			get { return stopping; }
+		}
+
+		private Timer timerCheckScale;
+		private Task distributerTask;
+		private bool stopping;
+		private List<ChannelWorker> channels = new List<ChannelWorker>();
 		private ConcurrentQueue<INotification> queuedNotifications;
-		CancellationTokenSource cancelTokenSource = new CancellationTokenSource();
-		List<double> measurements = new List<double>();
+		private CancellationTokenSource cancelTokenSource = new CancellationTokenSource();
+		private List<WaitTimeMeasurement> measurements = new List<WaitTimeMeasurement>();
+
+		private long trackedNotificationCount = 0;
+
+		ManualResetEvent waitFreeChannel = new ManualResetEvent(true);
+		ManualResetEvent waitQueuedNotifications = new ManualResetEvent(false);
 
 		protected PushServiceBase(IPushChannelFactory pushChannelFactory, IPushChannelSettings channelSettings)
 			: this(pushChannelFactory, channelSettings, default(IPushServiceSettings))
-		{			
+		{
 		}
 
-		protected PushServiceBase(IPushChannelFactory pushChannelFactory, IPushChannelSettings channelSettings, IPushServiceSettings serviceSettings)
+		protected PushServiceBase(IPushChannelFactory pushChannelFactory, IPushChannelSettings channelSettings,
+		                          IPushServiceSettings serviceSettings)
 		{
 			this.PushChannelFactory = pushChannelFactory;
 			this.ServiceSettings = serviceSettings ?? new PushServiceSettings();
@@ -67,21 +77,9 @@ namespace PushSharp.Core
 			this.queuedNotifications = new ConcurrentQueue<INotification>();
 
 			timerCheckScale = new Timer(CheckScale, null, TimeSpan.FromSeconds(15), TimeSpan.FromSeconds(15));
-			
+
 			CheckScale();
-
-			distributerTask = new Task(Distributer, TaskCreationOptions.LongRunning);
-			distributerTask.ContinueWith(ft =>
-			{
-				var ex = ft.Exception;
-
-				var evt = this.OnServiceException;
-				if (evt != null)
-					evt(this, ex);
-
-			}, TaskContinuationOptions.OnlyOnFaulted);
-			distributerTask.Start();
-
+			
 			stopping = false;
 		}
 
@@ -91,12 +89,19 @@ namespace PushSharp.Core
 		}
 
 
-		void QueueNotification(INotification notification, bool countsAsRequeue = true, bool ignoreStoppingChannel = false)
+		private void QueueNotification(INotification notification, bool countsAsRequeue = true,
+		                               bool ignoreStoppingChannel = false)
 		{
+			Interlocked.Increment(ref trackedNotificationCount);
+
+			//Measure when the message entered the queue
+			notification.EnqueuedTimestamp = DateTime.UtcNow;
+
 			if (this.cancelTokenSource.IsCancellationRequested)
 				throw new ObjectDisposedException("Service", "Service has already been signaled to stop");
-				
-			if (this.ServiceSettings.MaxNotificationRequeues < 0 || notification.QueuedCount <= this.ServiceSettings.MaxNotificationRequeues)
+
+			if (this.ServiceSettings.MaxNotificationRequeues < 0 ||
+			    notification.QueuedCount <= this.ServiceSettings.MaxNotificationRequeues)
 			{
 				//Reset the Enqueued time in case this is a requeue
 				notification.EnqueuedTimestamp = DateTime.UtcNow;
@@ -106,6 +111,9 @@ namespace PushSharp.Core
 					notification.QueuedCount++;
 
 				queuedNotifications.Enqueue(notification);
+
+				//Allow anything waiting on a queued notification to continue faster
+				waitQueuedNotifications.Set();
 			}
 			else
 			{
@@ -122,21 +130,22 @@ namespace PushSharp.Core
 			stopping = true;
 			var started = DateTime.UtcNow;
 
+
+			if (waitForQueueToFinish)
+			{
+				while (this.queuedNotifications.Count > 0 || Interlocked.Read(ref trackedNotificationCount) > 0)
+					Thread.Sleep(100);
+			}
+
 			//Stop the timer for checking scale
 			if (this.timerCheckScale != null)
 				this.timerCheckScale.Change(Timeout.Infinite, Timeout.Infinite);
 
-			if (waitForQueueToFinish)
-			{
-				while (this.queuedNotifications.Count > 0)
-					Thread.Sleep(100);				
-			}
-			
 			//Stop all channels
 			Parallel.ForEach(channels, (channel) => channel.Dispose());
 
 			this.channels.Clear();
-			
+
 			this.cancelTokenSource.Cancel();
 		}
 
@@ -145,85 +154,12 @@ namespace PushSharp.Core
 			if (!stopping)
 				Stop(false);
 		}
-
-		void Distributer()
+		
+		private void CheckScale(object state = null)
 		{
-			var rnd = new Random();
+			Log.Info("{0} -> Checking Scale ({1} Channels Currently)", this, channels.Count);
 
-			while (!this.cancelTokenSource.IsCancellationRequested)
-			{
-				if (channels == null || channels.Count <= 0)
-				{
-					Thread.Sleep(250);
-					continue;
-				}
-
-				INotification notification;
-
-				if (!queuedNotifications.TryDequeue(out notification))
-				{
-					//No notifications in queue, sleep a bit!
-					Thread.Sleep(250);
-					continue;
-				}
-
-				IPushChannel channelOn = null;
-
-				lock (channels)
-				{
-					//Get a random channel to use
-					var next = rnd.Next(0, channels.Count - 1);
-
-					//Get the channel with the smallest queue
-					if (channels.Count == 1)
-						channelOn = channels[0];
-					else
-						channelOn = channels[next];
-
-					if (channelOn != null)
-					{
-						//Measure when the message entered the queue
-						notification.EnqueuedTimestamp = DateTime.UtcNow;
-
-						Task.Factory.StartNew(() => channelOn.SendNotification(notification, (sender, result) =>
-							{
-								//Handle the notification send callback here
-								if (result.ShouldRequeue)
-									this.QueueNotification(result.Notification, true, true);
-
-								if (!result.IsSuccess)
-								{
-									var evt = this.OnNotificationFailed;
-									if (evt != null)
-										evt(this, result.Notification, result.Error);
-								}
-								else
-								{
-									var evt = this.OnNotificationSent;
-									if (evt != null)
-										evt(this, result.Notification);
-								}
-
-							})).ContinueWith(t =>
-								{
-									var ex = t.Exception;
-									var evt = this.OnChannelException;
-									if (evt != null && ex != null)
-										evt(this, channelOn, ex);
-
-								}, TaskContinuationOptions.OnlyOnFaulted);
-						
-						//Task.Factory.StartNew(() => channelOn.SendNotification(notification));
-					}
-				}
-			}
-		}
-
-		void CheckScale(object state = null)
-		{
-			Log.Info("{0} -> Checking Scale", this);
-
-			if (ServiceSettings.AutoScaleChannels && !this.cancelTokenSource.IsCancellationRequested && !stopping)
+			if (ServiceSettings.AutoScaleChannels && !this.cancelTokenSource.IsCancellationRequested)
 			{
 				if (channels.Count <= 0)
 				{
@@ -232,7 +168,7 @@ namespace PushSharp.Core
 					return;
 				}
 
-				var avgTime = GetAverageQueueWait();
+				var avgTime = (int)GetAverageQueueWait();
 
 				Log.Info("{0} -> Avg Queue Wait Time {1} ms", this, avgTime);
 
@@ -247,14 +183,17 @@ namespace PushSharp.Core
 
 					//Depending on the wait time, let's spin up more than 1 channel at a time
 					if (avgTime > 5000)
-						numChannelsToSpinUp = 5;
+						numChannelsToSpinUp = 3;
 					else if (avgTime > 1000)
 						numChannelsToSpinUp = 2;
 					else if (avgTime > ServiceSettings.MinAvgTimeToScaleChannels)
 						numChannelsToSpinUp = 1;
 
-					Log.Info("{0} -> Creating {1} Channel(s)", this, numChannelsToSpinUp);
-					ScaleChannels(ChannelScaleAction.Create, numChannelsToSpinUp);
+					if (numChannelsToSpinUp > 0)
+					{
+						Log.Info("{0} -> Creating {1} Channel(s)", this, numChannelsToSpinUp);
+						ScaleChannels(ChannelScaleAction.Create, numChannelsToSpinUp);
+					}
 				}
 			}
 			else
@@ -271,37 +210,47 @@ namespace PushSharp.Core
 				}
 			}
 		}
-		
-		double GetAverageQueueWait()
+
+		private double GetAverageQueueWait()
 		{
-			if (measurements == null)
+			if (measurements == null || measurements.Count <= 0)
 				return 0;
 
 			lock (measurements)
 			{
+				//Remove old measurements
+				measurements.RemoveAll(m => m.Timestamp < DateTime.UtcNow.AddSeconds(-5));
+
 				if (measurements.Count > 0)
-					return measurements.Average();
-				else
-					return 0;
+					return (from m in measurements select m.Milliseconds).Average();
 			}
+
+			return 0;
 		}
 
-		void ScaleChannels(ChannelScaleAction action, int count = 1)
+		private void ScaleChannels(ChannelScaleAction action, int count = 1)
 		{
 			for (int i = 0; i < count; i++)
 			{
 				var newCount = 0;
-				bool? destroyed= null;
-				IPushChannel newChannel = default (IPushChannel);
+				bool? destroyed = null;
+				IPushChannel newChannel = default(IPushChannel);
 
 				lock (channels)
 				{
 					if (action == ChannelScaleAction.Create)
 					{
 						newChannel = this.PushChannelFactory.CreateChannel(this.ChannelSettings);
-					
-						channels.Add(newChannel);
-						
+
+						var chanWorker = new ChannelWorker(newChannel, DoChannelWork);
+						chanWorker.WorkerTask.ContinueWith(t =>
+						{
+							var ex = t.Exception;
+							Console.WriteLine("Failed Task: " + ex.ToString());
+						}, TaskContinuationOptions.OnlyOnFaulted);
+							
+						channels.Add(chanWorker);
+
 						newCount = channels.Count;
 						destroyed = false;
 					}
@@ -311,7 +260,7 @@ namespace PushSharp.Core
 						channels.RemoveAt(0);
 
 						//Now stop the channel but let it finish
-						channelOn.Dispose();
+						channelOn.Channel.Dispose();
 
 						newCount = channels.Count;
 						destroyed = true;
@@ -320,7 +269,7 @@ namespace PushSharp.Core
 
 				if (destroyed.HasValue && !destroyed.Value)
 				{
-					var evt = this.OnChannelCreated;
+					var evt = OnChannelCreated;
 					if (evt != null)
 						evt(this, newChannel);
 				}
@@ -331,6 +280,96 @@ namespace PushSharp.Core
 						evt(this);
 				}
 			}
+		}
+
+		private void DoChannelWork(IPushChannel channel, CancellationTokenSource cancelTokenSource)
+		{
+			while (!cancelTokenSource.IsCancellationRequested)
+			{
+				var waitForNotification = new ManualResetEvent(false);
+
+				INotification notification;
+
+				if (!queuedNotifications.TryDequeue(out notification))
+				{
+					Thread.Sleep(100);
+					continue;
+				}
+
+				var msWaited = (DateTime.UtcNow - notification.EnqueuedTimestamp).TotalMilliseconds;
+				measurements.Add(new WaitTimeMeasurement((long) msWaited));
+				
+				channel.SendNotification(notification, (sender, result) =>
+					{
+						
+						//Trigger 
+						waitForNotification.Set();
+
+						Interlocked.Decrement(ref trackedNotificationCount);
+
+						//Handle the notification send callback here
+						if (result.ShouldRequeue)
+							this.QueueNotification(result.Notification, true, true);
+
+						if (!result.IsSuccess)
+						{
+							var evt = this.OnNotificationFailed;
+							if (evt != null)
+								evt(this, result.Notification, result.Error);
+						}
+						else
+						{
+							var evt = this.OnNotificationSent;
+							if (evt != null)
+								evt(this, result.Notification);
+						}
+					});
+
+				if (!waitForNotification.WaitOne(ServiceSettings.NotificationSendTimeout))
+				{
+					Interlocked.Decrement(ref trackedNotificationCount);
+
+					var evt = this.OnNotificationFailed;
+					if (evt != null)
+						evt(this, notification, new TimeoutException("Notification send timed out"));
+				}
+			}
+
+			channel.Dispose();
+		}
+
+		internal class WaitTimeMeasurement
+		{
+			public WaitTimeMeasurement(long milliseconds)
+			{
+				this.Timestamp = DateTime.UtcNow;
+				this.Milliseconds = milliseconds;
+			}
+
+			public DateTime Timestamp { get; set; }
+			public long Milliseconds { get; set; }
+		}
+
+		internal class ChannelWorker : IDisposable
+		{
+			public ChannelWorker(IPushChannel channel, Action<IPushChannel, CancellationTokenSource> worker)
+			{
+				this.CancelTokenSource = new CancellationTokenSource();
+				this.Channel = channel;
+				this.WorkerTask = Task.Factory.StartNew(() => worker(channel, this.CancelTokenSource),
+				                                        TaskCreationOptions.LongRunning);
+			}
+
+			public void Dispose()
+			{
+				CancelTokenSource.Cancel();
+			}
+
+			public Task WorkerTask { get; private set; }
+			
+			public IPushChannel Channel { get; set; }
+
+			public CancellationTokenSource CancelTokenSource { get; set; }
 		}
 	}
 
