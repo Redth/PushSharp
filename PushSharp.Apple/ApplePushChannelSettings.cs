@@ -111,6 +111,18 @@ namespace PushSharp.Apple
 				throw new ArgumentNullException("You must provide a Certificate to connect to APNS with!");
 		}
 
+		public void OverrideServer(string host, int port)
+		{
+			this.Host = host;
+			this.Port = port;
+		}
+
+		public void OverrideFeedbackServer(string host, int port)
+		{
+			this.FeedbackHost = host;
+			this.FeedbackPort = port;
+		}
+
 		public string Host
 		{
 			get;

@@ -51,6 +51,7 @@
     <Compile Include="CoreTests.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="PushServiceTests.cs" />
+    <Compile Include="TestServers\AppleTestServer.cs" />
   </ItemGroup>
   <ItemGroup>
     <None Include="packages.config" />

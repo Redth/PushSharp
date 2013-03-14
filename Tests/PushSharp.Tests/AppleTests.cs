@@ -9,132 +9,123 @@ using Moq;
 using NUnit.Framework;
 using PushSharp.Apple;
 using PushSharp.Core;
+using PushSharp.Tests.TestServers;
 
 namespace PushSharp.Tests
 {
 	[TestFixture]
 	public class AppleTests
 	{
-
-		private Mock<AppleNotification> MockUpNotification(string deviceToken)
-		{
-			var mockNotification = new Mock<AppleNotification>();
-			mockNotification.Setup(n => n.EnqueuedTimestamp).Returns(DateTime.UtcNow.AddSeconds(-5));
-			mockNotification.Setup(n => n.IsValidDeviceRegistrationId()).Returns(true);
-			mockNotification.Setup(n => n.QueuedCount).Returns(1);
-			mockNotification.Setup(n => n.Tag).Returns(null);
-			mockNotification.Setup(n => n.DeviceToken).Returns(deviceToken);
-			
-			return mockNotification;
-		}
-
-		private Mock<ApplePushChannel> MockUpChannel(Action<INotification, SendNotificationCallbackDelegate> callbackAction)
-		{
-			var mockChannel = new Mock<ApplePushChannel>();
-
-			mockChannel.Setup(c => c.Dispose());
-			mockChannel.Setup(c => c.SendNotification(It.IsAny<INotification>(), It.IsAny<SendNotificationCallbackDelegate>()))
-				.Callback(callbackAction);
-
-			return mockChannel;
-		}
-
-		private Mock<ApplePushService> MockUpService(Action<INotification, SendNotificationCallbackDelegate> callback)
-		{
-			return MockUpService(new PushServiceSettings(), callback);
-		}
-
-		private Mock<ApplePushService> MockUpService(PushServiceSettings serviceSettings,
-													Action<INotification, SendNotificationCallbackDelegate> callback)
-		{
-			var mockChanSettings = new Mock<IPushChannelSettings>();
-
-			var mockChanFactory = new Mock<IPushChannelFactory>();
-			mockChanFactory.Setup(cf => cf.CreateChannel(It.IsAny<IPushChannelSettings>()))
-						   .Returns(() => MockUpChannel(callback).Object);
-
-			var mockPushService = new Mock<ApplePushService>(mockChanFactory.Object, mockChanSettings.Object, serviceSettings);
-
-			return mockPushService;
-		}
+		private PushBroker broker;
+		private byte[] appleCert;
 
 		[SetUp]
 		public void Setup()
 		{
 			Log.Level = LogLevel.Info;
+
+			appleCert = File.ReadAllBytes(Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "../../../../Resources/PushSharp.Apns.Sandbox.p12"));
+			broker = new PushBroker();
+		}
+		
+		[Test]
+		public void TestAllSuccessfulNotifications()
+		{
+			TestNotifications(10, 10, 0);
 		}
 
 		[Test]
-		public void SentFailedMatchesQueuedCount()
+		public void TestAllFailedNotifications()
 		{
-			int count = 0;
+			var toFail = new int[10];
 
-			var svc = MockUpService((n, callback) =>
+			for (int i = 0; i < toFail.Length; i++)
+				toFail[i] = i;
+
+			TestNotifications(10, 0, 10, toFail);
+		}
+
+		[Test]
+		public void TestFailFirstNotifications()
+		{
+			TestNotifications(10, 9, 1, new int[] { 0 });
+		}
+
+		[Test]
+		public void TestFailLastNotifications()
+		{
+			TestNotifications(10, 9, 1, new int[] { 9 });
+		}
+
+		[Test]
+		public void TestFailMiddleNotifications()
+		{
+			TestNotifications(10, 8, 2, new int[] { 3, 6 });
+		}
+
+
+		public void TestNotifications(int toQueue, int expectSuccessful, int expectFailed, int[] indexesToFail = null)
+		{
+			int serverReceivedCount = 0;
+			int serverReceivedFailCount = 0;
+			int serverReceivedSuccessCount = 0;
+
+			var notification = new AppleNotification("aff441e214b2b2283df799f0b8b16c17a59b7ac077e2867ea54ebf6086e55866").WithAlert("Test");
+
+			var len = notification.ToBytes().Length;
+
+			var server = new TestServers.AppleTestServer(len, (success, identifier, token, payload) =>
 			{
-				//Send some failed, some successful
-				if ((count++) % 100 == 0)
-					callback(this, new SendNotificationResult(n, false, new Exception("Intentional Exception: " + Guid.NewGuid().ToString())));
+				serverReceivedCount++;
+
+				if (success)
+					serverReceivedSuccessCount++;
 				else
-					callback(this, new SendNotificationResult(n));
-			}).Object;
+					serverReceivedFailCount++;
+			});
 
-
-			int toSend = 1000;
-			int queued = 0;
-			int success = 0;
-			int failed = 0;
-
-			svc.OnNotificationSent += (sender, notification) => Interlocked.Increment(ref success);
-			svc.OnNotificationFailed += (sender, notification, error) => Interlocked.Increment(ref failed);
-
-			for (var i = 0; i < toSend; i++)
+			server.ResponseFilters.Add(new ApnsResponseFilter()
 			{
-				svc.QueueNotification(MockUpNotification("").Object);
-				Interlocked.Increment(ref queued);
+				IsMatch = (identifier, token, payload) =>
+				{
+					if (token.StartsWith("x"))
+						return true;
+
+					return false;
+				},
+				Status = ApnsResponseStatus.InvalidToken
+			});
+
+			Task.Factory.StartNew(server.Start).ContinueWith(t =>
+			{
+				var ex = t.Exception;
+
+				Console.WriteLine(ex.ToString());
+			}, TaskContinuationOptions.OnlyOnFaulted);
+
+			var settings = new ApplePushChannelSettings(false, appleCert, "pushsharp", true);
+			settings.OverrideServer("localhost", 2195);
+			settings.SkipSsl = true;
+
+
+			var push = new ApplePushService(settings, new PushServiceSettings() { AutoScaleChannels = false, Channels = 1 });
+
+			for (int i = 0; i < toQueue; i++)
+			{
+				if (indexesToFail != null && indexesToFail.Contains(i))
+					push.QueueNotification(new AppleNotification("xff441e214b2b2283df799f0b8b16c17a59b7ac077e2867ea54ebf6086e55866").WithAlert("Test"));
+				else
+					push.QueueNotification(new AppleNotification("aff441e214b2b2283df799f0b8b16c17a59b7ac077e2867ea54ebf6086e55866").WithAlert("Test"));
 			}
 
-			svc.Stop();
-			svc.Dispose();
+			push.Stop();
+			push.Dispose();
 
-			Assert.IsTrue(queued > 0);
-			Assert.AreEqual((success + failed), toSend);
-		}
+			server.Stop();
 
-
-		[Test]
-		public void RecoverFromLackOfChannelCallback()
-		{
-			int count = 0;
-
-			var svc = MockUpService((n, callback) =>
-			{
-				//Sometimes, don't call back
-				if ((count++) % 300 != 0)
-					callback(this, new SendNotificationResult(n));
-
-			}).Object;
-
-			svc.ServiceSettings.NotificationSendTimeout = 500;
-
-			int toSend = 1000;
-			int queued = 0;
-			int success = 0;
-			int failed = 0;
-
-			svc.OnNotificationSent += (sender, notification) => Interlocked.Increment(ref success);
-			svc.OnNotificationFailed += (sender, notification, error) => Interlocked.Increment(ref failed);
-
-			for (var i = 0; i < toSend; i++)
-			{
-				svc.QueueNotification(MockUpNotification("").Object);
-				Interlocked.Increment(ref queued);
-			}
-
-			svc.Stop();
-			svc.Dispose();
-
-			Assert.IsTrue(queued > 0);
-			Assert.AreEqual((success + failed), toSend);
+			Assert.AreEqual(toQueue, serverReceivedCount);
+			Assert.AreEqual(expectFailed, serverReceivedFailCount);
+			Assert.AreEqual(expectSuccessful, serverReceivedSuccessCount);
 		}
 	}
 }
