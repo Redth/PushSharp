@@ -35,6 +35,11 @@ namespace PushSharp.Tests
 			return mockChannel;
 		}
 
+		private Mock<PushServiceBase> MockUpService(Action<INotification, SendNotificationCallbackDelegate> callback)
+		{
+			return MockUpService(new PushServiceSettings(), callback);
+		}
+
 		private Mock<PushServiceBase> MockUpService(PushServiceSettings serviceSettings,
 		                                            Action<INotification, SendNotificationCallbackDelegate> callback)
 		{
@@ -58,13 +63,12 @@ namespace PushSharp.Tests
 		[Test]
 		public void SentFailedMatchesQueuedCount()
 		{
-			var rnd = new Random();
-			var settings = new PushServiceSettings() {MaxAutoScaleChannels = 10};
+			int count = 0;
 
-			var svc = MockUpService(settings, (n, callback) =>
+			var svc = MockUpService((n, callback) =>
 				{
 					//Send some failed, some successful
-					if (rnd.Next(0, 10) == 5) 
+					if ((count++) % 100 == 0) 
 						callback(this, new SendNotificationResult(n, false, new Exception("Intentional Exception: " + Guid.NewGuid().ToString())));
 					else
 						callback(this, new SendNotificationResult(n));
@@ -79,12 +83,49 @@ namespace PushSharp.Tests
 			svc.OnNotificationSent += (sender, notification) => Interlocked.Increment(ref success);
 			svc.OnNotificationFailed += (sender, notification, error) => Interlocked.Increment(ref failed);
 			
-			for (int i = 0; i < toSend; i++)
+			for (var i = 0; i < toSend; i++)
 			{
 				svc.QueueNotification(MockUpNotification().Object);
 				Interlocked.Increment(ref queued);
 			}
 			
+			svc.Stop();
+			svc.Dispose();
+
+			Assert.IsTrue(queued > 0);
+			Assert.AreEqual((success + failed), toSend);
+		}
+
+
+		[Test]
+		public void RecoverFromLackOfChannelCallback()
+		{
+			int count = 0;
+
+			var svc = MockUpService((n, callback) =>
+			{
+				//Sometimes, don't call back
+				if ((count++) % 300 != 0)					
+					callback(this, new SendNotificationResult(n));
+
+			}).Object;
+
+			svc.ServiceSettings.NotificationSendTimeout = 500;
+
+			int toSend = 1000;
+			int queued = 0;
+			int success = 0;
+			int failed = 0;
+
+			svc.OnNotificationSent += (sender, notification) => Interlocked.Increment(ref success);
+			svc.OnNotificationFailed += (sender, notification, error) => Interlocked.Increment(ref failed);
+
+			for (var i = 0; i < toSend; i++)
+			{
+				svc.QueueNotification(MockUpNotification().Object);
+				Interlocked.Increment(ref queued);
+			}
+
 			svc.Stop();
 			svc.Dispose();
 

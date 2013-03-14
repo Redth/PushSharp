@@ -65,8 +65,12 @@
       <Name>PushSharp.Apple</Name>
     </ProjectReference>
     <ProjectReference Include="..\PushSharp.Core\PushSharp.Core.csproj">
-      <Project>{836f225f-6cd9-48de-910c-70f8a7cf54aa}</Project>
+      <Project>{836F225F-6CD9-48DE-910C-70F8A7CF54AA}</Project>
       <Name>PushSharp.Core</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\PushSharp.Android\PushSharp.Google.csproj">
+      <Project>{71E27C37-FBBF-481B-934B-1F7DBDE3C5D6}</Project>
+      <Name>PushSharp.Google</Name>
     </ProjectReference>
   </ItemGroup>
   <ItemGroup>

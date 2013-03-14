@@ -62,6 +62,8 @@ namespace PushSharp.Apple
 			this.Certificate = certificate;
 
 			this.MillisecondsToWaitBeforeMessageDeclaredSuccess = 3000;
+			this.ConnectionTimeout = 10000;
+			this.MaxConnectionAttempts = 3;
 
 			this.FeedbackIntervalMinutes = 10;
 			this.FeedbackTimeIsUTC = false;
@@ -174,5 +176,8 @@ namespace PushSharp.Apple
 			get;
 			set;
 		}
+
+		public int ConnectionTimeout { get; set; }
+		public int MaxConnectionAttempts { get; set; }
 	}
 }

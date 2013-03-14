@@ -65,24 +65,27 @@ namespace PushSharp.Apple
                 foreach (var addlCert in this.appleSettings.AdditionalCertificates)
                     certificates.Add(addlCert);
 		}
-		
 
+		
+		int connectionAttemptCounter = 0;
 		object sentLock = new object();
 		object connectLock = new object();
 		object streamWriteLock = new object();
+		object cleanupLock = new object();
 		int reconnectDelay = 3000;
 		float reconnectBackoffMultiplier = 1.5f;
 		
 		byte[] readBuffer = new byte[6];
-		bool connected = false;
-		
+		volatile bool connected = false;
+		volatile bool isInCleanup = false;
+
 		X509Certificate certificate;
 		X509CertificateCollection certificates;
 		TcpClient client;
 		SslStream stream;
 		System.IO.Stream networkStream;
 		
-		protected long trackedNotificationCount = 0;
+		long trackedNotificationCount = 0;
 		
 
 		public void SendNotification(INotification notification, SendNotificationCallbackDelegate callback)
@@ -92,9 +95,7 @@ namespace PushSharp.Apple
 				Interlocked.Increment(ref trackedNotificationCount);
 
 				var appleNotification = notification as AppleNotification;
-
-				//TODO: Handle not an apple notification?
-
+				
 				bool isOkToSend = true;
 				byte[] notificationData = new byte[] {};
 
@@ -115,26 +116,42 @@ namespace PushSharp.Apple
 
 				if (isOkToSend)
 				{
-					lock(connectLock)
-						Connect();
-
 					try
 					{
+						lock (connectLock)
+							Connect();
+
 						lock (streamWriteLock)
 						{
 							lock (sentLock)
 							{
 								networkStream.Write(notificationData, 0, notificationData.Length);
 
-								sentNotifications.Add(new SentNotification(appleNotification) { Callback = callback });
+								sentNotifications.Add(new SentNotification(appleNotification) {Callback = callback});
 							}
 
-							//Initiate the cleanup process
-							Task.Factory.StartNew(Cleanup).ContinueWith(t =>
-								{
-									//TODO: Some useful logging here?
-								}, TaskContinuationOptions.OnlyOnFaulted);
+							//Don't initiate cleanup if it's already happening (expensive to start a new task that just exits)
+							if (!isInCleanup)
+							{
+								//Initiate the cleanup process
+								Task.Factory.StartNew(Cleanup).ContinueWith(t =>
+									{
+										var ex = t.Exception;
+
+										if (ex != null)
+											Console.WriteLine("APNS Cleanup() Failed: " + ex.ToString());
+
+									}, TaskContinuationOptions.OnlyOnFaulted);
+							}
 						}
+					}
+					catch (ConnectionFailureException cex)
+					{
+						//If this failed, we probably had a networking error, so let's requeue the notification
+						Interlocked.Decrement(ref trackedNotificationCount);
+
+						if (callback != null)
+							callback(this, new SendNotificationResult(notification, false, cex));
 					}
 					catch (Exception ex)
 					{
@@ -142,8 +159,8 @@ namespace PushSharp.Apple
 						Interlocked.Decrement(ref trackedNotificationCount);
 
 						if (callback != null)
-							callback(this, new SendNotificationResult(notification, true, ex));				
-					} 
+							callback(this, new SendNotificationResult(notification, true, ex));
+					}
 				}
 			}
 		}
@@ -262,9 +279,14 @@ namespace PushSharp.Apple
 				}
 			}
 		}
-
+		
 		void Cleanup()
 		{
+			if (isInCleanup)
+				return;
+
+			isInCleanup = true;
+			
 			while (true)
 			{
 				lock(connectLock)
@@ -316,6 +338,8 @@ namespace PushSharp.Apple
 				if (!wasRemoved)
 					break; // Thread.Sleep(250);
 			}
+
+			isInCleanup = false;
 		}
 	
 		void Connect()
@@ -323,10 +347,15 @@ namespace PushSharp.Apple
 			//Keep trying to connect
 			while (!connected && !cancelToken.IsCancellationRequested)
 			{
+				connectionAttemptCounter++;
+
 				try
 				{
 					connect();
 					connected = true;
+
+					//Reset connection attempt counter
+					connectionAttemptCounter = 0;
 				}
 				catch (ConnectionFailureException ex)
 				{
@@ -341,6 +370,12 @@ namespace PushSharp.Apple
 					var evt = this.OnException;
 					if (evt != null)
 						evt(this, ex);
+				}
+
+				if (!connected && connectionAttemptCounter >= appleSettings.MaxConnectionAttempts)
+				{
+					throw new ConnectionFailureException(string.Format("Maximum number of attempts ({0}) to connect to {1}:{2} was reached!", 
+						appleSettings.MaxConnectionAttempts, appleSettings.Host, appleSettings.Port), new TimeoutException());
 				}
 
 				if (!connected)
@@ -383,15 +418,37 @@ namespace PushSharp.Apple
 			if (eoc != null)
 				eoc(this.appleSettings.Host, this.appleSettings.Port);
 
+
+
 			try
 			{
-				client.Connect(this.appleSettings.Host, this.appleSettings.Port);
+				var connectDone = new AutoResetEvent(false);
+			
+				client.BeginConnect(
+					appleSettings.Host, appleSettings.Port,
+					new AsyncCallback(
+						delegate(IAsyncResult ar)
+						{
+							try
+							{
+								client.EndConnect(ar);
+								connectDone.Set();
+							}
+							catch
+							{
+							}
+						}
+					), client
+				);
+
+				if (!connectDone.WaitOne(appleSettings.ConnectionTimeout))
+					throw new TimeoutException("Connection to Host Timed Out!");
 			}
 			catch (Exception ex)
 			{
 				throw new ConnectionFailureException("Connection to Host Failed", ex);
 			}
-
+			
 			if (appleSettings.SkipSsl)
 			{
 				networkStream = client.GetStream();

@@ -47,8 +47,14 @@ namespace PushSharp.Sample
 			
 			push.RegisterAppleService(appleSettings);
 
-			push.QueueNotification(push.AppleNotification().ForDeviceToken("1071737321559691b28fffa1aa4c8259d970fe0fc496794ad0486552fc9ec3db"));
+			push.QueueNotification(push.AppleNotification().ForDeviceToken("cff441e214b2b2283df799f0b8b16c17a59b7ac077e2867ea54ebf6086e55866")
+				.WithAlert("TEST"));
 
+			//push.RegisterGcmService(new PushSharp.Android.GcmPushChannelSettings("AIzaSyC2PZNXQDVaUpZGmtsF_Vp8tHtIABVjazI"));
+
+
+			//push.QueueNotification(push.GcmNotification().ForDeviceRegistrationId("!APA91bGVsy23QWxcDGB_uQwM3aIJyQ4VtwVj4WWcXEwNcp01azdFFiNu7EwLSUXFEtF_cz8qK82E880VfOYQOacXMBUg-7ReeDiq6rsb1w8y1jc3rmLHj07uYERlp0WWPtT1N29w-EDH5GZeMsiQ_oE355ExJdrfQw")
+			 //                      .WithJson("{\"key\":\"value1\"}"));
 
 			
 

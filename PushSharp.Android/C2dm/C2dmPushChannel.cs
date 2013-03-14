@@ -53,6 +53,7 @@ namespace PushSharp.Android
 
 			webReq.BeginGetRequestStream(requestStreamCallback, new C2dmAsyncParameters()
 			{
+				Callback = callback,
 				WebRequest = webReq,
 				WebResponse = null,
 				Message = msg,

@@ -50,6 +50,7 @@ namespace PushSharp.Android
 
 			webReq.BeginGetRequestStream(new AsyncCallback(requestStreamCallback), new GcmAsyncParameters()
 			{
+				Callback = callback,
 				WebRequest = webReq,
 				WebResponse = null,
 				Message = msg,
