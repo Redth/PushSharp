@@ -50,6 +50,7 @@ namespace PushSharp.Tests
 			               .Returns(() => MockUpChannel(callback).Object);
 
 			var mockPushService = new Mock<PushServiceBase>(mockChanFactory.Object, mockChanSettings.Object, serviceSettings);
+			mockPushService.Setup(ps => ps.BlockOnMessageResult).Returns(true);
 
 			return mockPushService;
 		}
@@ -68,14 +69,14 @@ namespace PushSharp.Tests
 			var svc = MockUpService((n, callback) =>
 				{
 					//Send some failed, some successful
-					if ((count++) % 100 == 0) 
+					if ((count++) % 3 == 0) 
 						callback(this, new SendNotificationResult(n, false, new Exception("Intentional Exception: " + Guid.NewGuid().ToString())));
 					else
 						callback(this, new SendNotificationResult(n));
 				}).Object;
 			
 			
-			int toSend = 1000;
+			int toSend = 10;
 			int queued = 0;
 			int success = 0;
 			int failed = 0;
@@ -105,14 +106,14 @@ namespace PushSharp.Tests
 			var svc = MockUpService((n, callback) =>
 			{
 				//Sometimes, don't call back
-				if ((count++) % 300 != 0)					
+				if ((count++) % 3 != 0)					
 					callback(this, new SendNotificationResult(n));
 
 			}).Object;
 
 			svc.ServiceSettings.NotificationSendTimeout = 500;
 
-			int toSend = 1000;
+			int toSend = 10;
 			int queued = 0;
 			int success = 0;
 			int failed = 0;

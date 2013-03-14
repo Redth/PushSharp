@@ -57,7 +57,11 @@ namespace PushSharp.Apple
 		{
 			base.RaiseSubscriptionExpired(deviceToken, timestamp.ToUniversalTime(), null);
 		}
-		
+
+		public override bool BlockOnMessageResult
+		{
+			get { return false; }
+		}
 	}
 
 	public class ApplePushChannelFactory : IPushChannelFactory

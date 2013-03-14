@@ -16,6 +16,8 @@ namespace PushSharp.Tests
 	[TestFixture]
 	public class AppleTests
 	{
+		private int testPort = 2197;
+
 		private PushBroker broker;
 		private byte[] appleCert;
 
@@ -63,9 +65,25 @@ namespace PushSharp.Tests
 			TestNotifications(10, 8, 2, new int[] { 3, 6 });
 		}
 
+		[Test]
+		public void TestSingleFailedNotifications()
+		{
+			TestNotifications(1, 0, 1, new int[] { 0 });
+		}
+
+		[Test]
+		public void TestSingleSuccessfulNotifications()
+		{
+			TestNotifications(1, 1, 0);
+		}
 
 		public void TestNotifications(int toQueue, int expectSuccessful, int expectFailed, int[] indexesToFail = null)
 		{
+			testPort++;
+
+			int pushFailCount = 0;
+			int pushSuccessCount = 0;
+			
 			int serverReceivedCount = 0;
 			int serverReceivedFailCount = 0;
 			int serverReceivedSuccessCount = 0;
@@ -74,21 +92,15 @@ namespace PushSharp.Tests
 
 			var len = notification.ToBytes().Length;
 
-			var server = new TestServers.AppleTestServer(len, (success, identifier, token, payload) =>
-			{
-				serverReceivedCount++;
-
-				if (success)
-					serverReceivedSuccessCount++;
-				else
-					serverReceivedFailCount++;
-			});
-
+			var server = new TestServers.AppleTestServer();
+			
 			server.ResponseFilters.Add(new ApnsResponseFilter()
 			{
 				IsMatch = (identifier, token, payload) =>
 				{
-					if (token.StartsWith("x"))
+					Console.WriteLine("Server Received: id=" + identifier + ", token=" + token);
+
+					if (token.StartsWith("b", StringComparison.InvariantCultureIgnoreCase))
 						return true;
 
 					return false;
@@ -96,36 +108,72 @@ namespace PushSharp.Tests
 				Status = ApnsResponseStatus.InvalidToken
 			});
 
-			Task.Factory.StartNew(server.Start).ContinueWith(t =>
-			{
-				var ex = t.Exception;
+			var waitServerFinished = new ManualResetEvent(false);
 
-				Console.WriteLine(ex.ToString());
-			}, TaskContinuationOptions.OnlyOnFaulted);
+
+			Task.Factory.StartNew(() =>
+				{
+					try
+					{
+						server.Start(testPort, len, (success, identifier, token, payload) =>
+						{
+							serverReceivedCount++;
+
+							if (success)
+								serverReceivedSuccessCount++;
+							else
+								serverReceivedFailCount++;
+						});
+
+					}
+					catch (Exception ex)
+					{
+						Console.WriteLine(ex);										
+					}
+
+					waitServerFinished.Set();
+
+				}).ContinueWith(t =>
+					{
+						var ex = t.Exception;
+						Console.WriteLine(ex);
+					}, TaskContinuationOptions.OnlyOnFaulted);
 
 			var settings = new ApplePushChannelSettings(false, appleCert, "pushsharp", true);
-			settings.OverrideServer("localhost", 2195);
+			settings.OverrideServer("localhost", testPort);
 			settings.SkipSsl = true;
 
 
 			var push = new ApplePushService(settings, new PushServiceSettings() { AutoScaleChannels = false, Channels = 1 });
+			push.OnNotificationFailed += (sender, notification1, error) => pushFailCount++;
+			push.OnNotificationSent += (sender, notification1) => pushSuccessCount++;
 
 			for (int i = 0; i < toQueue; i++)
 			{
+				INotification n;
+
 				if (indexesToFail != null && indexesToFail.Contains(i))
-					push.QueueNotification(new AppleNotification("xff441e214b2b2283df799f0b8b16c17a59b7ac077e2867ea54ebf6086e55866").WithAlert("Test"));
+					n = new AppleNotification("bff441e214b2b2283df799f0b8b16c17a59b7ac077e2867ea54ebf6086e55866").WithAlert("Test");
 				else
-					push.QueueNotification(new AppleNotification("aff441e214b2b2283df799f0b8b16c17a59b7ac077e2867ea54ebf6086e55866").WithAlert("Test"));
+					n = new AppleNotification("aff441e214b2b2283df799f0b8b16c17a59b7ac077e2867ea54ebf6086e55866").WithAlert("Test");
+				
+				push.QueueNotification(n);
 			}
 
 			push.Stop();
 			push.Dispose();
 
-			server.Stop();
+			server.Dispose();
+			waitServerFinished.WaitOne();
 
-			Assert.AreEqual(toQueue, serverReceivedCount);
-			Assert.AreEqual(expectFailed, serverReceivedFailCount);
-			Assert.AreEqual(expectSuccessful, serverReceivedSuccessCount);
+			Console.WriteLine("TEST-> DISPOSE.");
+			
+			Assert.AreEqual(toQueue, serverReceivedCount, "Server - Received Count");
+			Assert.AreEqual(expectFailed, serverReceivedFailCount, "Server - Failed Count");
+			Assert.AreEqual(expectSuccessful, serverReceivedSuccessCount, "Server - Success Count");
+
+			Assert.AreEqual(expectFailed, pushFailCount, "Client - Failed Count");
+			Assert.AreEqual(expectSuccessful, pushSuccessCount, "Client - Success Count");
 		}
 	}
 }

@@ -39,6 +39,8 @@ namespace PushSharp.Apple
 		private CancellationToken cancelToken;
 		ApplePushChannelSettings appleSettings = null;
 		List<SentNotification> sentNotifications = new List<SentNotification>();
+
+		private Timer timerCleanup;
 		
 		public ApplePushChannel(ApplePushChannelSettings channelSettings)
 		{
@@ -64,6 +66,9 @@ namespace PushSharp.Apple
             if (this.appleSettings.AdditionalCertificates != null)
                 foreach (var addlCert in this.appleSettings.AdditionalCertificates)
                     certificates.Add(addlCert);
+
+			timerCleanup = new Timer(state => Cleanup(), null, TimeSpan.FromMilliseconds(1000), TimeSpan.FromMilliseconds(1000));
+
 		}
 
 		
@@ -126,22 +131,9 @@ namespace PushSharp.Apple
 							lock (sentLock)
 							{
 								networkStream.Write(notificationData, 0, notificationData.Length);
+								networkStream.Flush();
 
 								sentNotifications.Add(new SentNotification(appleNotification) {Callback = callback});
-							}
-
-							//Don't initiate cleanup if it's already happening (expensive to start a new task that just exits)
-							if (!isInCleanup)
-							{
-								//Initiate the cleanup process
-								Task.Factory.StartNew(Cleanup).ContinueWith(t =>
-									{
-										var ex = t.Exception;
-
-										if (ex != null)
-											Console.WriteLine("APNS Cleanup() Failed: " + ex.ToString());
-
-									}, TaskContinuationOptions.OnlyOnFaulted);
 							}
 						}
 					}
@@ -163,13 +155,26 @@ namespace PushSharp.Apple
 					}
 				}
 			}
+
 		}
 
 		public void Dispose()
 		{
 			if (cancelToken.IsCancellationRequested)
 				return;
-			
+
+			Log.Info("ApplePushChannel->Waiting...");
+
+			timerCleanup.Change(Timeout.Infinite, Timeout.Infinite);
+
+			try
+			{
+				Cleanup();
+			}
+			catch
+			{
+			}
+
 			//See if we want to wait for the queue to drain before stopping
 			var sentNotificationCount = 0;
 			lock (sentLock)
@@ -184,6 +189,8 @@ namespace PushSharp.Apple
 			}
 
 			cancelTokenSrc.Cancel();
+
+			Log.Info("ApplePushChannel->DISPOSE.");
 		}
 		
 		void Reader()
@@ -259,14 +266,14 @@ namespace PushSharp.Apple
 			sentNotifications.RemoveAt(failedIndex);
 
 			//Don't GetRange if there's 0 items to get, or the call will fail
-			if (sentNotifications.Count - (failedIndex + 1) > 0)
+			if (sentNotifications.Count - (failedIndex) > 0)
 			{
 				//All Notifications after the failed one have been shifted back one space now
 				//Grab all the notifications from the list that are after the failed index
-				var toRequeue = sentNotifications.GetRange(failedIndex, sentNotifications.Count - (failedIndex + 1)).ToList();
+				var toRequeue = sentNotifications.GetRange(failedIndex, sentNotifications.Count - (failedIndex)).ToList();
 				//Remove that same range (those ones failed since they were sent after the one apple told us failed, so
 				// apple will ignore them, and we need to requeue them to be tried again
-				sentNotifications.RemoveRange(failedIndex, sentNotifications.Count - (failedIndex + 1));
+				sentNotifications.RemoveRange(failedIndex, sentNotifications.Count - (failedIndex));
 
 				//Requeue all the messages that were sent afte the failed one, be sure it doesn't count as a 'requeue' to go towards the maximum # of retries
 				//Also ignore that the channel is stopping
@@ -275,7 +282,7 @@ namespace PushSharp.Apple
 					Interlocked.Decrement(ref trackedNotificationCount);
 
 					if (failedNotification.Callback != null)
-						failedNotification.Callback(this, new SendNotificationResult(n.Notification, true, new Exception("Sent after previously failed Notification.")));
+						failedNotification.Callback(this, new SendNotificationResult(n.Notification, true, new Exception("Sent after previously failed Notification.")) { CountsAsRequeue = false });
 				}
 			}
 		}

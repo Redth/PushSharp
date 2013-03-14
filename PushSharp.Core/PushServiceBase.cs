@@ -33,11 +33,16 @@ namespace PushSharp.Core
 				evt(this, expiredSubscriptionId, expirationDateUtc, notification);
 		}
 
-		protected void RaiseServiceException(Exception error)
+		public void RaiseServiceException(Exception error)
 		{
 			var evt = OnServiceException;
 			if (evt != null)
 				evt(this, error);
+		}
+
+		public virtual bool BlockOnMessageResult
+		{
+			get { return true; }
 		}
 
 		public IPushChannelFactory PushChannelFactory { get; private set; }
@@ -130,23 +135,26 @@ namespace PushSharp.Core
 			stopping = true;
 			var started = DateTime.UtcNow;
 
+			//Stop the timer for checking scale
+			if (this.timerCheckScale != null)
+				this.timerCheckScale.Change(Timeout.Infinite, Timeout.Infinite);
+			
 
 			if (waitForQueueToFinish)
 			{
 				while (this.queuedNotifications.Count > 0 || Interlocked.Read(ref trackedNotificationCount) > 0)
 					Thread.Sleep(100);
 			}
-
-			//Stop the timer for checking scale
-			if (this.timerCheckScale != null)
-				this.timerCheckScale.Change(Timeout.Infinite, Timeout.Infinite);
-
+			
 			//Stop all channels
-			Parallel.ForEach(channels, (channel) => channel.Dispose());
-
+			foreach (var c in channels)
+				c.Dispose();
+			
 			this.channels.Clear();
 
 			this.cancelTokenSource.Cancel();
+
+			Log.Info("PushServiceBase->DISPOSE.");
 		}
 
 		public void Dispose()
@@ -246,7 +254,7 @@ namespace PushSharp.Core
 						chanWorker.WorkerTask.ContinueWith(t =>
 						{
 							var ex = t.Exception;
-							Console.WriteLine("Failed Task: " + ex.ToString());
+							Log.Error("Channel Worker Failed Task: " + ex.ToString());
 						}, TaskContinuationOptions.OnlyOnFaulted);
 							
 						channels.Add(chanWorker);
@@ -301,31 +309,34 @@ namespace PushSharp.Core
 				
 				channel.SendNotification(notification, (sender, result) =>
 					{
-						
 						//Trigger 
-						waitForNotification.Set();
+						if (this.BlockOnMessageResult)	
+							waitForNotification.Set();
 
 						Interlocked.Decrement(ref trackedNotificationCount);
 
 						//Handle the notification send callback here
 						if (result.ShouldRequeue)
-							this.QueueNotification(result.Notification, true, true);
-
-						if (!result.IsSuccess)
-						{
-							var evt = this.OnNotificationFailed;
-							if (evt != null)
-								evt(this, result.Notification, result.Error);
-						}
+							this.QueueNotification(result.Notification, result.CountsAsRequeue, true);
 						else
 						{
-							var evt = this.OnNotificationSent;
-							if (evt != null)
-								evt(this, result.Notification);
+							if (!result.IsSuccess)
+							{
+								var evt = this.OnNotificationFailed;
+								if (evt != null)
+									evt(this, result.Notification, result.Error);
+							}
+							else
+							{
+								var evt = this.OnNotificationSent;
+								if (evt != null)
+									evt(this, result.Notification);
+							}
 						}
 					});
 
-				if (!waitForNotification.WaitOne(ServiceSettings.NotificationSendTimeout))
+				
+				if (this.BlockOnMessageResult && !waitForNotification.WaitOne(ServiceSettings.NotificationSendTimeout))
 				{
 					Interlocked.Decrement(ref trackedNotificationCount);
 
