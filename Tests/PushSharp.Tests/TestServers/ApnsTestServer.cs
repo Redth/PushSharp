@@ -61,13 +61,28 @@ namespace PushSharp.Tests.TestServers
 					// An incoming connection needs to be processed.
 					while (!cancellationTokenSource.IsCancellationRequested)
 					{
-						var bytes = new byte[messageSize];
-						var bytesRec = handler.Receive(bytes, 0, bytes.Length, SocketFlags.None);
+						var buffer = new List<byte>();
+						bool disconnected = false;
 
-						if (bytesRec <= 0)
+						while (buffer.Count < messageSize)
+						{
+							var bytes = new byte[messageSize];
+							var bytesRec = handler.Receive(bytes, 0, bytes.Length, SocketFlags.None);
+
+							for (int i = 0; i < bytesRec; i++)
+								buffer.Add(bytes[i]);
+
+							if (bytesRec <= 0)
+							{
+								disconnected = true;
+								break;
+							}
+						}
+
+						if (disconnected)
 							break;
 
-						var recdBuffer = bytes.ToList();
+						var recdBuffer = buffer;
 
 						Int16 msgLength = 0;
 

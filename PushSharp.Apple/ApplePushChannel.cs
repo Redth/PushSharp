@@ -118,6 +118,7 @@ namespace PushSharp.Apple
 					if (callback != null)
 						callback(this, new SendNotificationResult(notification, false, nfex));
 				}
+				
 
 				if (isOkToSend)
 				{
@@ -128,9 +129,23 @@ namespace PushSharp.Apple
 
 						lock (streamWriteLock)
 						{
+							bool stillConnected = client.Connected
+											&& client.Client.Poll(0, SelectMode.SelectWrite)
+											&& networkStream.CanWrite;
+
+							if (!stillConnected)
+								throw new ObjectDisposedException("Connection to APNS is not Writable");
+								
 							lock (sentLock)
 							{
-								networkStream.Write(notificationData, 0, notificationData.Length);
+								if (notificationData.Length > 45)
+								{
+									networkStream.Write(notificationData, 0, 45);
+									networkStream.Write(notificationData, 45, notificationData.Length - 45);
+								}
+								else
+									networkStream.Write(notificationData, 0, notificationData.Length);
+								
 								networkStream.Flush();
 
 								sentNotifications.Add(new SentNotification(appleNotification) {Callback = callback});
@@ -139,6 +154,8 @@ namespace PushSharp.Apple
 					}
 					catch (ConnectionFailureException cex)
 					{
+						connected = false;
+
 						//If this failed, we probably had a networking error, so let's requeue the notification
 						Interlocked.Decrement(ref trackedNotificationCount);
 
@@ -147,6 +164,8 @@ namespace PushSharp.Apple
 					}
 					catch (Exception ex)
 					{
+						connected = false;
+
 						//If this failed, we probably had a networking error, so let's requeue the notification
 						Interlocked.Decrement(ref trackedNotificationCount);
 
@@ -424,13 +443,12 @@ namespace PushSharp.Apple
 			var eoc = this.OnConnecting;
 			if (eoc != null)
 				eoc(this.appleSettings.Host, this.appleSettings.Port);
-
-
-
+			
 			try
 			{
 				var connectDone = new AutoResetEvent(false);
 			
+				//Connect async so we can utilize a connection timeout
 				client.BeginConnect(
 					appleSettings.Host, appleSettings.Port,
 					new AsyncCallback(
@@ -439,17 +457,25 @@ namespace PushSharp.Apple
 							try
 							{
 								client.EndConnect(ar);
+
+								//Set keep alive on the socket may help maintain our APNS connection
+								client.Client.SetSocketOption(SocketOptionLevel.Socket, SocketOptionName.KeepAlive, true);
+
+								//Trigger the reset event so we can continue execution below
 								connectDone.Set();
 							}
-							catch
+							catch (Exception ex)
 							{
+								Log.Error("APNS Connect Callback Failed: " + ex);
 							}
 						}
 					), client
 				);
 
 				if (!connectDone.WaitOne(appleSettings.ConnectionTimeout))
+				{
 					throw new TimeoutException("Connection to Host Timed Out!");
+				}
 			}
 			catch (Exception ex)
 			{
