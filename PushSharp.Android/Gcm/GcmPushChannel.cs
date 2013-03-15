@@ -8,6 +8,7 @@ using System.IO;
 using System.Security.Cryptography.X509Certificates;
 using System.Security;
 using System.Net.Security;
+using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;
 using PushSharp.Core;
 
@@ -28,8 +29,6 @@ namespace PushSharp.Android
 		{
 			ServicePointManager.ServerCertificateValidationCallback += (sender, cert, chain, policyErrs) => { return true; };
 		}
-
-		private const string GCM_SEND_URL = "https://android.googleapis.com/gcm/send";
 		
 		public void SendNotification(INotification notification, SendNotificationCallbackDelegate callback)
 		{
@@ -40,7 +39,7 @@ namespace PushSharp.Android
 						
 			var postData = msg.GetJson();
 
-			var webReq = (HttpWebRequest)WebRequest.Create(GCM_SEND_URL);
+			var webReq = (HttpWebRequest)WebRequest.Create(gcmSettings.GcmUrl);
 			//webReq.ContentLength = postData.Length;
 			webReq.Method = "POST";
 			webReq.ContentType = "application/json";
@@ -150,13 +149,14 @@ namespace PushSharp.Android
 			if (jsonResults == null)
 				jsonResults = new JArray();
 
-			foreach (var r in json["results"])
+			foreach (var r in jsonResults)
 			{
 				var msgResult = new GcmMessageResult();
 								
 				msgResult.MessageId = r.Value<string>("message_id");
 				msgResult.CanonicalRegistrationId = r.Value<string>("registration_id");
-
+				msgResult.ResponseStatus = GcmMessageTransportResponseStatus.Ok;
+				
 				if (!string.IsNullOrEmpty(msgResult.CanonicalRegistrationId))
 				{
 					msgResult.ResponseStatus = GcmMessageTransportResponseStatus.CanonicalRegistrationId;
@@ -167,6 +167,9 @@ namespace PushSharp.Android
 
 					switch (err.ToLower().Trim())
 					{
+						case "ok":
+							msgResult.ResponseStatus = GcmMessageTransportResponseStatus.Ok;
+							break;
 						case "missingregistration":
 							msgResult.ResponseStatus = GcmMessageTransportResponseStatus.MissingRegistrationId;
 							break;
@@ -342,10 +345,56 @@ namespace PushSharp.Android
 
 	public class GcmMessageResult
 	{
+		[JsonProperty("message_id", NullValueHandling = NullValueHandling.Ignore)]
 		public string MessageId { get; set; }
 
+		[JsonProperty("registration_id", NullValueHandling = NullValueHandling.Ignore)]
 		public string CanonicalRegistrationId {	get; set; }
 
+		[JsonIgnore]
 		public GcmMessageTransportResponseStatus ResponseStatus { get; set; }
+
+		[JsonProperty("error", NullValueHandling = NullValueHandling.Ignore)]
+		public string Error
+		{
+			get 
+			{
+				switch (ResponseStatus)
+				{
+					case GcmMessageTransportResponseStatus.Ok:
+						return null;
+					case GcmMessageTransportResponseStatus.Unavailable:
+						return "Unavailable";
+					case GcmMessageTransportResponseStatus.QuotaExceeded:
+						return "QuotaExceeded";
+					case GcmMessageTransportResponseStatus.NotRegistered:
+						return "NotRegistered";
+					case GcmMessageTransportResponseStatus.MissingRegistrationId:
+						return "MissingRegistration";
+					case GcmMessageTransportResponseStatus.MissingCollapseKey:
+						return "MissingCollapseKey";
+					case GcmMessageTransportResponseStatus.MismatchSenderId:
+						return "MismatchSenderId";
+					case GcmMessageTransportResponseStatus.MessageTooBig:
+						return "MessageTooBig";
+					case GcmMessageTransportResponseStatus.InvalidTtl:
+						return "InvalidTtl";
+					case GcmMessageTransportResponseStatus.InvalidRegistration:
+						return "InvalidRegistration";
+					case GcmMessageTransportResponseStatus.InvalidDataKey:
+						return "InvalidDataKey";
+					case GcmMessageTransportResponseStatus.InternalServerError:
+						return "InternalServerError";
+					case GcmMessageTransportResponseStatus.DeviceQuotaExceeded:
+						return null;
+					case GcmMessageTransportResponseStatus.CanonicalRegistrationId:
+						return null;
+					case GcmMessageTransportResponseStatus.Error:
+						return "Error";
+					default:
+						return null;
+				}
+			}
+		}
 	}
 }

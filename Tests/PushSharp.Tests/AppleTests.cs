@@ -31,13 +31,13 @@ namespace PushSharp.Tests
 		}
 		
 		[Test]
-		public void TestAllSuccessfulNotifications()
+		public void APNS_All_ShouldSucceed()
 		{
 			TestNotifications(10, 10, 0);
 		}
 
 		[Test]
-		public void TestAllFailedNotifications()
+		public void APNS_All_ShouldFaile()
 		{
 			var toFail = new int[10];
 
@@ -48,31 +48,31 @@ namespace PushSharp.Tests
 		}
 
 		[Test]
-		public void TestFailFirstNotifications()
+		public void APNS_First_ShouldFail()
 		{
 			TestNotifications(10, 9, 1, new int[] { 0 });
 		}
 
 		[Test]
-		public void TestFailLastNotifications()
+		public void APNS_Last_ShouldFail()
 		{
 			TestNotifications(10, 9, 1, new int[] { 9 });
 		}
 
 		[Test]
-		public void TestFailMiddleNotifications()
+		public void APNS_Middles_ShouldFail()
 		{
 			TestNotifications(10, 8, 2, new int[] { 3, 6 });
 		}
 
 		[Test]
-		public void TestSingleFailedNotifications()
+		public void APNS_Single_ShouldFail()
 		{
 			TestNotifications(1, 0, 1, new int[] { 0 });
 		}
 
 		[Test]
-		public void TestSingleSuccessfulNotifications()
+		public void APNS_Single_ShouldSucceed()
 		{
 			TestNotifications(1, 1, 0);
 		}
