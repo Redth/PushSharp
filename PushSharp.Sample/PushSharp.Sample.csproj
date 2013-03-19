@@ -72,6 +72,14 @@
       <Project>{71E27C37-FBBF-481B-934B-1F7DBDE3C5D6}</Project>
       <Name>PushSharp.Google</Name>
     </ProjectReference>
+    <ProjectReference Include="..\PushSharp.WindowsPhone\PushSharp.WindowsPhone.csproj">
+      <Project>{9947f510-ba9a-4045-a648-bab687d8f513}</Project>
+      <Name>PushSharp.WindowsPhone</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\PushSharp.Windows\PushSharp.Windows.csproj">
+      <Project>{0ec3a31e-b869-4465-abdc-90c2e3ccc17d}</Project>
+      <Name>PushSharp.Windows</Name>
+    </ProjectReference>
   </ItemGroup>
   <ItemGroup>
     <None Include="app.config" />

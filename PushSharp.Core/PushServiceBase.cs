@@ -15,6 +15,7 @@ namespace PushSharp.Core
 	public delegate void ChannelExceptionDelegate(object sender, IPushChannel pushChannel, Exception error);
 	public delegate void ServiceExceptionDelegate(object sender, Exception error);
 	public delegate void DeviceSubscriptionExpiredDelegate(object sender, string expiredSubscriptionId, DateTime expirationDateUtc, INotification notification);
+	public delegate void DeviceSubscriptionChangedDelegate(object sender, string oldSubscriptionId, string newSubscriptionId, INotification notification);
 
 	public abstract class PushServiceBase : IPushService
 	{
@@ -25,6 +26,7 @@ namespace PushSharp.Core
 		public event ChannelExceptionDelegate OnChannelException;
 		public event ServiceExceptionDelegate OnServiceException;
 		public event DeviceSubscriptionExpiredDelegate OnDeviceSubscriptionExpired;
+		public event DeviceSubscriptionChangedDelegate OnDeviceSubscriptionChanged;
 
 		protected void RaiseSubscriptionExpired(string expiredSubscriptionId, DateTime expirationDateUtc, INotification notification)
 		{
@@ -320,6 +322,14 @@ namespace PushSharp.Core
 							this.QueueNotification(result.Notification, result.CountsAsRequeue, true);
 						else
 						{
+							//This is a fairly special case that only GCM should really ever raise
+							if (!string.IsNullOrEmpty(result.NewSubscriptionId) && !string.IsNullOrEmpty(result.OldSubscriptionId))
+							{
+								var evt = this.OnDeviceSubscriptionChanged;
+								if (evt != null)
+									evt(this, result.OldSubscriptionId, result.NewSubscriptionId, result.Notification);
+							}
+
 							if (!result.IsSuccess)
 							{
 								var evt = this.OnNotificationFailed;

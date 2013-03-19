@@ -16,7 +16,8 @@ namespace PushSharp
 		public event ChannelExceptionDelegate OnChannelException;
 		public event ServiceExceptionDelegate OnServiceException;
 		public event DeviceSubscriptionExpiredDelegate OnDeviceSubscriptionExpired;
-		
+		public event DeviceSubscriptionChangedDelegate OnDeviceSubscriptionChanged;
+
 		private Dictionary<Type, List<IPushService>> registeredServices;
 		
 		public PushBroker()
@@ -40,6 +41,7 @@ namespace PushSharp
 			pushService.OnNotificationFailed += OnNotificationFailed;
 			pushService.OnNotificationSent += OnNotificationSent;
 			pushService.OnServiceException += OnServiceException;
+			pushService.OnDeviceSubscriptionChanged += OnDeviceSubscriptionChanged;
 		}
 
 		public void QueueNotification<TPushNotification>(TPushNotification notification) where TPushNotification : Notification
@@ -74,6 +76,7 @@ namespace PushSharp
 				svcOn.OnNotificationFailed -= OnNotificationFailed;
 				svcOn.OnNotificationSent -= OnNotificationSent;
 				svcOn.OnServiceException -= OnServiceException;
+				svcOn.OnDeviceSubscriptionChanged -= OnDeviceSubscriptionChanged;
 			}));
 		}
 

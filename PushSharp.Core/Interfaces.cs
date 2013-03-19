@@ -23,6 +23,7 @@ namespace PushSharp.Core
 		event ChannelExceptionDelegate OnChannelException;
 		event ServiceExceptionDelegate OnServiceException;
 		event DeviceSubscriptionExpiredDelegate OnDeviceSubscriptionExpired;
+		event DeviceSubscriptionChangedDelegate OnDeviceSubscriptionChanged;
 
 		IPushChannelFactory PushChannelFactory { get; }
 		IPushServiceSettings ServiceSettings { get; }

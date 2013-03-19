@@ -7,9 +7,9 @@ using PushSharp.Core;
 
 namespace PushSharp
 {
-	public static class ApplePushBrokerExtensions
+	public static class WindowsPhonePushBrokerExtensions
 	{
-		public static void RegisterWindowsPhoneService(this PushBroker broker, WindowsPhonePushChannelSettings channelSettings, IPushServiceSettings serviceSettings)
+		public static void RegisterWindowsPhoneService(this PushBroker broker, WindowsPhonePushChannelSettings channelSettings = null, PushServiceSettings serviceSettings = null)
 		{
 			var service = new WindowsPhonePushService(new WindowsPhonePushChannelFactory(), channelSettings, serviceSettings);
 

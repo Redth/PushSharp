@@ -229,8 +229,12 @@ namespace PushSharp.Android
 				{
 					//Swap Registrations Id's
 					var newRegistrationId = r.CanonicalRegistrationId;
+					var oldRegistrationId = string.Empty;
 
-					asyncParam.Callback(this, new SendNotificationResult(singleResultNotification, false, new DeviceSubscriptonExpiredException()) { NewSubscriptionId = newRegistrationId });
+					if (singleResultNotification.RegistrationIds != null && singleResultNotification.RegistrationIds.Count > 0)
+						oldRegistrationId = singleResultNotification.RegistrationIds[0];
+
+					asyncParam.Callback(this, new SendNotificationResult(singleResultNotification, false, new DeviceSubscriptonExpiredException()) { OldSubscriptionId = oldRegistrationId, NewSubscriptionId = newRegistrationId });
 				}
 				else if (r.ResponseStatus == GcmMessageTransportResponseStatus.Unavailable)
 				{

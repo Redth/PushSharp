@@ -20,6 +20,7 @@ namespace PushSharp.Core
 		public Exception Error { get; set; }
 		public bool ShouldRequeue { get; set; }
 		public bool CountsAsRequeue { get; set; }
+		public string OldSubscriptionId { get; set; }
 		public string NewSubscriptionId { get; set; }
 		public bool IsSubscriptionExpired { get; set; }
 		public bool IsSuccess { get { return Error == null; } }
