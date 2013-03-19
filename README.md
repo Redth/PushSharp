@@ -108,6 +108,9 @@ Since PushSharp.Core no longer references individual platform assemblies, it was
 In addition, each platform also includes extension methods to assist in registering the platform specific services.  If you are using the PushSharp namespace, for example, you could call pushBrokerInstance.RegisterAppleService(...) which works very similarly to how the old PushService methods worked!
 
 See the sample for more info!
+
+**Thanks!**
+Special thanks goes out to the MvvmCross room on Jabbr, and especially Greg Shackles for his helpful suggestions and feedback during the refactoring process!
  
 
 ********************
