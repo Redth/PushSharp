@@ -76,11 +76,10 @@ namespace PushSharp.Sample
 			// ANDROID GCM NOTIFICATIONS
 			//---------------------------
 			//Configure and start Android GCM
-			//IMPORTANT: The SENDER_ID is your Google API Console App Project ID.
-			//  Be sure to get the right Project ID from your Google APIs Console.  It's not the named project ID that appears in the Overview,
-			//  but instead the numeric project id in the url: eg: https://code.google.com/apis/console/?pli=1#project:785671162406:overview
-			//  where 785671162406 is the project id, which is the SENDER_ID to use!
-			push.RegisterGcmService(new GcmPushChannelSettings("YOUR GCM AUTHORIZATION KEY HERE"));
+			//IMPORTANT: The API KEY comes from your Google APIs Console App, under the API Access section, 
+			//  by choosing 'Create new Server key...'
+			//  You must ensure the 'Google Cloud Messaging for Android' service is enabled in your APIs Console
+			push.RegisterGcmService(new GcmPushChannelSettings("YOUR Google API's Console API Access  API KEY for Server Apps HERE"));
 			//Fluent construction of an Android GCM Notification
 			//IMPORTANT: For Android you MUST use your own RegistrationId here that gets generated within your Android app itself!
 			push.QueueNotification(new GcmNotification().ForDeviceRegistrationId("DEVICE REGISTRATION ID HERE")

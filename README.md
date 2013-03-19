@@ -7,7 +7,8 @@ A server-side library for sending Push Notifications to iOS (iPhone/iPad APNS), 
 *********
 
 ###Join me at Xamarin Evolve for a session on Push Notifications and PushSharp!###
-I will be presenting a session during the conference days at Xamarin Evolve in Austin, TX, April 14-17.  Visit [http://xamarin.com/evolve/](http://xamarin.com/evolve "Xamarin.com/Evolve") for more info!
+I will be presenting a session during the conference days at Xamarin Evolve in Austin, TX, April 14-17.  
+Visit [http://xamarin.com/evolve/](http://xamarin.com/evolve "Xamarin.com/Evolve") for more info!
 
 
 News
@@ -16,7 +17,7 @@ News
 **March 19, 2013** 2.0 is released! See the release notes below...
 
 *******
-**Join the PushSharp Jabbr Channel!**  http://jabbr.net/#/rooms/PushSharp
+**PushSharp Jabbr Channel!**  http://jabbr.net/#/rooms/PushSharp
 ******
 
 Features
@@ -76,6 +77,8 @@ push.QueueNotification(new GcmNotification().ForDeviceRegistrationId("DEVICE REG
                       .WithJson("{\"alert\":\"Hello World!\",\"badge\":7,\"sound\":\"sound.caf\"}"));
 
 ```	
+
+Please see the PushSharp.Sample project for a more thorough example!
 
 ********************
 
