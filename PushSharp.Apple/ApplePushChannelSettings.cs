@@ -3,10 +3,11 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Security.Cryptography.X509Certificates;
+using PushSharp.Core;
 
 namespace PushSharp.Apple
 {
-	public class ApplePushChannelSettings : Common.PushChannelSettings
+	public class ApplePushChannelSettings : IPushChannelSettings
 	{
 		#region Constants
 		private const string APNS_SANDBOX_HOST = "gateway.sandbox.push.apple.com";
@@ -61,6 +62,8 @@ namespace PushSharp.Apple
 			this.Certificate = certificate;
 
 			this.MillisecondsToWaitBeforeMessageDeclaredSuccess = 3000;
+			this.ConnectionTimeout = 10000;
+			this.MaxConnectionAttempts = 3;
 
 			this.FeedbackIntervalMinutes = 10;
 			this.FeedbackTimeIsUTC = false;
@@ -106,6 +109,18 @@ namespace PushSharp.Apple
 			}
 			else
 				throw new ArgumentNullException("You must provide a Certificate to connect to APNS with!");
+		}
+
+		public void OverrideServer(string host, int port)
+		{
+			this.Host = host;
+			this.Port = port;
+		}
+
+		public void OverrideFeedbackServer(string host, int port)
+		{
+			this.FeedbackHost = host;
+			this.FeedbackPort = port;
 		}
 
 		public string Host
@@ -173,5 +188,8 @@ namespace PushSharp.Apple
 			get;
 			set;
 		}
+
+		public int ConnectionTimeout { get; set; }
+		public int MaxConnectionAttempts { get; set; }
 	}
 }

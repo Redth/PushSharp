@@ -2,25 +2,45 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
-using PushSharp.Common;
+using PushSharp.Core;
 
 namespace PushSharp.WindowsPhone
 {
-	public class WindowsPhonePushService : PushServiceBase<WindowsPhonePushChannelSettings>
+	public class WindowsPhonePushService : PushServiceBase
 	{
-		public WindowsPhonePushService(WindowsPhonePushChannelSettings channelSettings, PushServiceSettings serviceSettings = null)
-			: base(channelSettings ?? new WindowsPhonePushChannelSettings(), serviceSettings)
+		public WindowsPhonePushService()
+			: this(default(IPushChannelFactory), null, default(IPushServiceSettings))
 		{
 		}
 
-		protected override PushChannelBase CreateChannel(PushChannelSettings channelSettings)
+		public WindowsPhonePushService(WindowsPhonePushChannelSettings channelSettings)
+			: this(default(IPushChannelFactory), channelSettings, default(IPushServiceSettings))
 		{
+		}
+
+		public WindowsPhonePushService(WindowsPhonePushChannelSettings channelSettings, IPushServiceSettings serviceSettings)
+			: this(default(IPushChannelFactory), channelSettings, serviceSettings)
+		{
+		}
+
+		public WindowsPhonePushService(IPushChannelFactory pushChannelFactory, WindowsPhonePushChannelSettings channelSettings)
+			: this(pushChannelFactory, channelSettings, default(IPushServiceSettings))
+		{
+		}
+
+		public WindowsPhonePushService(IPushChannelFactory pushChannelFactory, WindowsPhonePushChannelSettings channelSettings, IPushServiceSettings serviceSettings)
+			: base(pushChannelFactory ?? new WindowsPhonePushChannelFactory(), channelSettings ?? new WindowsPhonePushChannelSettings(), serviceSettings)
+		{
+		}
+	}
+	public class WindowsPhonePushChannelFactory : IPushChannelFactory
+	{
+		public IPushChannel CreateChannel(IPushChannelSettings channelSettings)
+		{
+			if (!(channelSettings is WindowsPhonePushChannelSettings))
+				throw new ArgumentException("channelSettings must be of type WindowsPhonePushChannelSettings");
+
 			return new WindowsPhonePushChannel(channelSettings as WindowsPhonePushChannelSettings);
-		}
-
-		public override PlatformType Platform
-		{
-			get { return PlatformType.WindowsPhone; }
 		}
 	}
 }

@@ -5,7 +5,7 @@ using System.Linq;
 using System.Text;
 using System.Web;
 using Newtonsoft.Json.Linq;
-using PushSharp.Common;
+using PushSharp.Core;
 
 namespace PushSharp.Android
 {
@@ -14,7 +14,6 @@ namespace PushSharp.Android
 		public static GcmNotification ForSingleResult(GcmMessageTransportResponse response, int resultIndex)
 		{
 			var result = new GcmNotification();
-			result.Platform = PlatformType.AndroidGcm;
 			result.Tag = response.Message.Tag;
 			result.RegistrationIds.Add(response.Message.RegistrationIds[resultIndex]);
 			result.CollapseKey = response.Message.CollapseKey;
@@ -26,7 +25,6 @@ namespace PushSharp.Android
 		public static GcmNotification ForSingleRegistrationId(GcmNotification msg, string registrationId)
 		{
 			var result = new GcmNotification();
-			result.Platform = PlatformType.AndroidGcm;
 			result.Tag = msg.Tag;
 			result.RegistrationIds.Add(registrationId);
 			result.CollapseKey = msg.CollapseKey;
@@ -37,8 +35,6 @@ namespace PushSharp.Android
 
 		public GcmNotification()
 		{
-			this.Platform = PlatformType.AndroidGcm;
-
 			this.RegistrationIds = new List<string>();
 			this.CollapseKey = string.Empty;
 			this.JsonData = string.Empty;

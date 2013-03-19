@@ -228,36 +228,36 @@ namespace PushSharp
 
 	public static class WindowsPhoneFlipTilePushFluent
 	{
-		public static WindowsPhoneFlipTile ForEndpointUri(this WindowsPhoneFlipTile n, Uri endpointUri)
+		public static WindowsPhoneFlipTileNotification ForEndpointUri(this WindowsPhoneFlipTileNotification n, Uri endpointUri)
 		{
 			n.EndPointUrl = endpointUri.ToString();
 			return n;
 		}
 
-		public static WindowsPhoneFlipTile WithCallbackUri(this WindowsPhoneFlipTile n, Uri callbackUri)
+		public static WindowsPhoneFlipTileNotification WithCallbackUri(this WindowsPhoneFlipTileNotification n, Uri callbackUri)
 		{
 			n.CallbackURI = callbackUri.ToString();
 			return n;
 		}
 
-		public static WindowsPhoneFlipTile WithMessageID(this WindowsPhoneFlipTile n, Guid messageID)
+		public static WindowsPhoneFlipTileNotification WithMessageID(this WindowsPhoneFlipTileNotification n, Guid messageID)
 		{
 			n.MessageID = messageID;
 			return n;
 		}
-		public static WindowsPhoneFlipTile WithBatchingInterval(this WindowsPhoneFlipTile n, BatchingInterval batchingInterval)
+		public static WindowsPhoneFlipTileNotification WithBatchingInterval(this WindowsPhoneFlipTileNotification n, BatchingInterval batchingInterval)
 		{
 			n.NotificationClass = batchingInterval;
 			return n;
 		}
 
-		public static WindowsPhoneFlipTile ForOSVersion(this WindowsPhoneFlipTile n, WindowsPhoneDeviceOSVersion osVersion)
+		public static WindowsPhoneFlipTileNotification ForOSVersion(this WindowsPhoneFlipTileNotification n, WindowsPhoneDeviceOSVersion osVersion)
 		{
 			n.OSVersion = osVersion;
 			return n;
 		}
 
-		public static WindowsPhoneFlipTile WithTitle(this WindowsPhoneFlipTile n, string title)
+		public static WindowsPhoneFlipTileNotification WithTitle(this WindowsPhoneFlipTileNotification n, string title)
 		{
 			n.Title = title;
 			return n;
@@ -269,122 +269,122 @@ namespace PushSharp
             return n;
         }
 
-		public static WindowsPhoneFlipTile WithCount(this WindowsPhoneFlipTile n, int count)
+		public static WindowsPhoneFlipTileNotification WithCount(this WindowsPhoneFlipTileNotification n, int count)
 		{
 			n.Count = count;
 			return n;
 		}
 
-		public static WindowsPhoneFlipTile WithBackTitle(this WindowsPhoneFlipTile n, string backTitle)
+		public static WindowsPhoneFlipTileNotification WithBackTitle(this WindowsPhoneFlipTileNotification n, string backTitle)
 		{
 			n.BackTitle = backTitle;
 			return n;
 		}
 
-		public static WindowsPhoneFlipTile WithBackContent(this WindowsPhoneFlipTile n, string backContent)
+		public static WindowsPhoneFlipTileNotification WithBackContent(this WindowsPhoneFlipTileNotification n, string backContent)
 		{
 			n.BackContent = backContent;
 			return n;
 		}
 
-		public static WindowsPhoneFlipTile WithWideBackContent(this WindowsPhoneFlipTile n, string wideBackContent)
+		public static WindowsPhoneFlipTileNotification WithWideBackContent(this WindowsPhoneFlipTileNotification n, string wideBackContent)
 		{
 			n.WideBackContent = wideBackContent;
 			return n;
 		}
 
-		public static WindowsPhoneFlipTile WithSmallBackgroundImage(this WindowsPhoneFlipTile n, string smallBackgroundImage)
+		public static WindowsPhoneFlipTileNotification WithSmallBackgroundImage(this WindowsPhoneFlipTileNotification n, string smallBackgroundImage)
 		{
 			n.SmallBackgroundImage = smallBackgroundImage;
 			return n;
 		}
 
-		public static WindowsPhoneFlipTile WithBackgroundImage(this WindowsPhoneFlipTile n, string backgroundImage)
+		public static WindowsPhoneFlipTileNotification WithBackgroundImage(this WindowsPhoneFlipTileNotification n, string backgroundImage)
 		{
 			n.BackgroundImage = backgroundImage;
 			return n;
 		}
 
-		public static WindowsPhoneFlipTile WithBackBackgroundImage(this WindowsPhoneFlipTile n, string backBackgroundImage)
+		public static WindowsPhoneFlipTileNotification WithBackBackgroundImage(this WindowsPhoneFlipTileNotification n, string backBackgroundImage)
 		{
 			n.BackBackgroundImage = backBackgroundImage;
 			return n;
 		}
 
-		public static WindowsPhoneFlipTile WithWideBackgroundImage(this WindowsPhoneFlipTile n, string wideBackgroundImage)
+		public static WindowsPhoneFlipTileNotification WithWideBackgroundImage(this WindowsPhoneFlipTileNotification n, string wideBackgroundImage)
 		{
 			n.WideBackgroundImage = wideBackgroundImage;
 			return n;
 		}
 
-		public static WindowsPhoneFlipTile WithWideBackBackgroundImage(this WindowsPhoneFlipTile n, string wideBackBackgroundImage)
+		public static WindowsPhoneFlipTileNotification WithWideBackBackgroundImage(this WindowsPhoneFlipTileNotification n, string wideBackBackgroundImage)
 		{
 			n.WideBackBackgroundImage = wideBackBackgroundImage;
 			return n;
 		}
 
 
-		public static WindowsPhoneFlipTile ClearTitle(this WindowsPhoneFlipTile n)
+		public static WindowsPhoneFlipTileNotification ClearTitle(this WindowsPhoneFlipTileNotification n)
 		{
 			n.ClearTitle = true;
 			return n;
 		}
 
-		public static WindowsPhoneFlipTile ClearBackTitle(this WindowsPhoneFlipTile n)
+		public static WindowsPhoneFlipTileNotification ClearBackTitle(this WindowsPhoneFlipTileNotification n)
 		{
 			n.ClearBackTitle = true;
 			return n;
 		}
 
-		public static WindowsPhoneFlipTile ClearBackContent(this WindowsPhoneFlipTile n)
+		public static WindowsPhoneFlipTileNotification ClearBackContent(this WindowsPhoneFlipTileNotification n)
 		{
 			n.ClearBackContent = true;
 			return n;
 		}
 
-		public static WindowsPhoneFlipTile ClearWideBackContent(this WindowsPhoneFlipTile n)
+		public static WindowsPhoneFlipTileNotification ClearWideBackContent(this WindowsPhoneFlipTileNotification n)
 		{
 			n.ClearWideBackContent = true;
 			return n;
 		}
 
-		public static WindowsPhoneFlipTile ClearCount(this WindowsPhoneFlipTile n)
+		public static WindowsPhoneFlipTileNotification ClearCount(this WindowsPhoneFlipTileNotification n)
 		{
 			n.ClearCount = true;
 			return n;
 		}
 
-		public static WindowsPhoneFlipTile ClearSmallBackgroundImage(this WindowsPhoneFlipTile n)
+		public static WindowsPhoneFlipTileNotification ClearSmallBackgroundImage(this WindowsPhoneFlipTileNotification n)
 		{
 			n.ClearSmallBackgroundImage = true;
 			return n;
 		}
 
-		public static WindowsPhoneFlipTile ClearBackgroundImage(this WindowsPhoneFlipTile n)
+		public static WindowsPhoneFlipTileNotification ClearBackgroundImage(this WindowsPhoneFlipTileNotification n)
 		{
 			n.ClearBackgroundImage = true;
 			return n;
 		}
 
-		public static WindowsPhoneFlipTile ClearBackBackgroundImage(this WindowsPhoneFlipTile n)
+		public static WindowsPhoneFlipTileNotification ClearBackBackgroundImage(this WindowsPhoneFlipTileNotification n)
 		{
 			n.ClearBackBackgroundImage = true;
 			return n;
 		}
 
-		public static WindowsPhoneFlipTile ClearWideBackgroundImage(this WindowsPhoneFlipTile n)
+		public static WindowsPhoneFlipTileNotification ClearWideBackgroundImage(this WindowsPhoneFlipTileNotification n)
 		{
 			n.ClearWideBackgroundImage = true;
 			return n;
 		}
 
-		public static WindowsPhoneFlipTile ClearWideBackBackgroundImage(this WindowsPhoneFlipTile n)
+		public static WindowsPhoneFlipTileNotification ClearWideBackBackgroundImage(this WindowsPhoneFlipTileNotification n)
 		{
 			n.ClearWideBackBackgroundImage = true;
 			return n;
 		}
 
-		public static WindowsPhoneFlipTile WithTag(this WindowsPhoneFlipTile n, object tag)
+		public static WindowsPhoneFlipTileNotification WithTag(this WindowsPhoneFlipTileNotification n, object tag)
 		{
 			n.Tag = tag;
 			return n;
@@ -393,7 +393,7 @@ namespace PushSharp
 	
 	public static class WindowsPhoneIconicTilePushFluent
 	{
-		public static WindowsPhoneIconicTile ForEndpointUri(this WindowsPhoneIconicTile n, Uri endpointUri)
+		public static WindowsPhoneIconicTileNotification ForEndpointUri(this WindowsPhoneIconicTileNotification n, Uri endpointUri)
 		{
 			n.EndPointUrl = endpointUri.ToString();
 			return n;
@@ -405,126 +405,126 @@ namespace PushSharp
             return n;
         }
 
-		public static WindowsPhoneIconicTile WithCallbackUri(this WindowsPhoneIconicTile n, Uri callbackUri)
+		public static WindowsPhoneIconicTileNotification WithCallbackUri(this WindowsPhoneIconicTileNotification n, Uri callbackUri)
 		{
 			n.CallbackURI = callbackUri.ToString();
 			return n;
 		}
 
-		public static WindowsPhoneIconicTile WithMessageID(this WindowsPhoneIconicTile n, Guid messageID)
+		public static WindowsPhoneIconicTileNotification WithMessageID(this WindowsPhoneIconicTileNotification n, Guid messageID)
 		{
 			n.MessageID = messageID;
 			return n;
 		}
-		public static WindowsPhoneIconicTile WithBatchingInterval(this WindowsPhoneIconicTile n, BatchingInterval batchingInterval)
+		public static WindowsPhoneIconicTileNotification WithBatchingInterval(this WindowsPhoneIconicTileNotification n, BatchingInterval batchingInterval)
 		{
 			n.NotificationClass = batchingInterval;
 			return n;
 		}
 
-		public static WindowsPhoneIconicTile ForOSVersion(this WindowsPhoneIconicTile n, WindowsPhoneDeviceOSVersion osVersion)
+		public static WindowsPhoneIconicTileNotification ForOSVersion(this WindowsPhoneIconicTileNotification n, WindowsPhoneDeviceOSVersion osVersion)
 		{
 			n.OSVersion = osVersion;
 			return n;
 		}
 
-		public static WindowsPhoneIconicTile WithTitle(this WindowsPhoneIconicTile n, string title)
+		public static WindowsPhoneIconicTileNotification WithTitle(this WindowsPhoneIconicTileNotification n, string title)
 		{
 			n.Title = title;
 			return n;
 		}
 
-		public static WindowsPhoneIconicTile WithCount(this WindowsPhoneIconicTile n, int count)
+		public static WindowsPhoneIconicTileNotification WithCount(this WindowsPhoneIconicTileNotification n, int count)
 		{
 			n.Count = count;
 			return n;
 		}
 
-		public static WindowsPhoneIconicTile WithWideContent1(this WindowsPhoneIconicTile n, string wideContent1)
+		public static WindowsPhoneIconicTileNotification WithWideContent1(this WindowsPhoneIconicTileNotification n, string wideContent1)
 		{
 			n.WideContent1 = wideContent1;
 			return n;
 		}
 
-		public static WindowsPhoneIconicTile WithWideContent2(this WindowsPhoneIconicTile n, string wideContent2)
+		public static WindowsPhoneIconicTileNotification WithWideContent2(this WindowsPhoneIconicTileNotification n, string wideContent2)
 		{
 			n.WideContent2 = wideContent2;
 			return n;
 		}
 
-		public static WindowsPhoneIconicTile WithWideContent3(this WindowsPhoneIconicTile n, string wideContent3)
+		public static WindowsPhoneIconicTileNotification WithWideContent3(this WindowsPhoneIconicTileNotification n, string wideContent3)
 		{
 			n.WideContent3 = wideContent3;
 			return n;
 		}
 
-		public static WindowsPhoneIconicTile WithSmallIconImage(this WindowsPhoneIconicTile n, string smallIconImage)
+		public static WindowsPhoneIconicTileNotification WithSmallIconImage(this WindowsPhoneIconicTileNotification n, string smallIconImage)
 		{
 			n.SmallIconImage = smallIconImage;
 			return n;
 		}
 
-		public static WindowsPhoneIconicTile WithIconImage(this WindowsPhoneIconicTile n, string iconImage)
+		public static WindowsPhoneIconicTileNotification WithIconImage(this WindowsPhoneIconicTileNotification n, string iconImage)
 		{
 			n.IconImage = iconImage;
 			return n;
 		}
 
-		public static WindowsPhoneIconicTile WithBackgroundColor(this WindowsPhoneIconicTile n, string backgroundColor)
+		public static WindowsPhoneIconicTileNotification WithBackgroundColor(this WindowsPhoneIconicTileNotification n, string backgroundColor)
 		{
 			n.BackgroundColor = backgroundColor;
 			return n;
 		}
 		
-		public static WindowsPhoneIconicTile ClearTitle(this WindowsPhoneIconicTile n)
+		public static WindowsPhoneIconicTileNotification ClearTitle(this WindowsPhoneIconicTileNotification n)
 		{
 			n.ClearTitle = true;
 			return n;
 		}
 
-		public static WindowsPhoneIconicTile ClearWideContent1(this WindowsPhoneIconicTile n)
+		public static WindowsPhoneIconicTileNotification ClearWideContent1(this WindowsPhoneIconicTileNotification n)
 		{
 			n.ClearWideContent1 = true;
 			return n;
 		}
 
-		public static WindowsPhoneIconicTile ClearWideContent2(this WindowsPhoneIconicTile n)
+		public static WindowsPhoneIconicTileNotification ClearWideContent2(this WindowsPhoneIconicTileNotification n)
 		{
 			n.ClearWideContent2 = true;
 			return n;
 		}
 
-		public static WindowsPhoneIconicTile ClearWideContent3(this WindowsPhoneIconicTile n)
+		public static WindowsPhoneIconicTileNotification ClearWideContent3(this WindowsPhoneIconicTileNotification n)
 		{
 			n.ClearWideContent3 = true;
 			return n;
 		}
 
-		public static WindowsPhoneIconicTile ClearCount(this WindowsPhoneIconicTile n)
+		public static WindowsPhoneIconicTileNotification ClearCount(this WindowsPhoneIconicTileNotification n)
 		{
 			n.ClearCount = true;
 			return n;
 		}
 
-		public static WindowsPhoneIconicTile ClearSmallIconImage(this WindowsPhoneIconicTile n)
+		public static WindowsPhoneIconicTileNotification ClearSmallIconImage(this WindowsPhoneIconicTileNotification n)
 		{
 			n.ClearSmallIconImage = true;
 			return n;
 		}
 
-		public static WindowsPhoneIconicTile ClearIconImage(this WindowsPhoneIconicTile n)
+		public static WindowsPhoneIconicTileNotification ClearIconImage(this WindowsPhoneIconicTileNotification n)
 		{
 			n.ClearIconImage = true;
 			return n;
 		}
 
-		public static WindowsPhoneIconicTile ClearBackgroundColor(this WindowsPhoneIconicTile n)
+		public static WindowsPhoneIconicTileNotification ClearBackgroundColor(this WindowsPhoneIconicTileNotification n)
 		{
 			n.ClearBackgroundColor = true;
 			return n;
 		}
 		
-		public static WindowsPhoneIconicTile WithTag(this WindowsPhoneIconicTile n, object tag)
+		public static WindowsPhoneIconicTileNotification WithTag(this WindowsPhoneIconicTileNotification n, object tag)
 		{
 			n.Tag = tag;
 			return n;
@@ -533,7 +533,7 @@ namespace PushSharp
 
 	public static class WindowsPhoneCycleTilePushFluent
 	{
-		public static WindowsPhoneCycleTile ForEndpointUri(this WindowsPhoneCycleTile n, Uri endpointUri)
+		public static WindowsPhoneCycleTileNotification ForEndpointUri(this WindowsPhoneCycleTileNotification n, Uri endpointUri)
 		{
 			n.EndPointUrl = endpointUri.ToString();
 			return n;
@@ -545,161 +545,161 @@ namespace PushSharp
             return n;
         }
 
-		public static WindowsPhoneCycleTile WithCallbackUri(this WindowsPhoneCycleTile n, Uri callbackUri)
+		public static WindowsPhoneCycleTileNotification WithCallbackUri(this WindowsPhoneCycleTileNotification n, Uri callbackUri)
 		{
 			n.CallbackURI = callbackUri.ToString();
 			return n;
 		}
 
-		public static WindowsPhoneCycleTile WithMessageID(this WindowsPhoneCycleTile n, Guid messageID)
+		public static WindowsPhoneCycleTileNotification WithMessageID(this WindowsPhoneCycleTileNotification n, Guid messageID)
 		{
 			n.MessageID = messageID;
 			return n;
 		}
-		public static WindowsPhoneCycleTile WithBatchingInterval(this WindowsPhoneCycleTile n, BatchingInterval batchingInterval)
+		public static WindowsPhoneCycleTileNotification WithBatchingInterval(this WindowsPhoneCycleTileNotification n, BatchingInterval batchingInterval)
 		{
 			n.NotificationClass = batchingInterval;
 			return n;
 		}
 
-		public static WindowsPhoneCycleTile ForOSVersion(this WindowsPhoneCycleTile n, WindowsPhoneDeviceOSVersion osVersion)
+		public static WindowsPhoneCycleTileNotification ForOSVersion(this WindowsPhoneCycleTileNotification n, WindowsPhoneDeviceOSVersion osVersion)
 		{
 			n.OSVersion = osVersion;
 			return n;
 		}
 
-		public static WindowsPhoneCycleTile WithTitle(this WindowsPhoneCycleTile n, string title)
+		public static WindowsPhoneCycleTileNotification WithTitle(this WindowsPhoneCycleTileNotification n, string title)
 		{
 			n.Title = title;
 			return n;
 		}
 
-		public static WindowsPhoneCycleTile WithCount(this WindowsPhoneCycleTile n, int count)
+		public static WindowsPhoneCycleTileNotification WithCount(this WindowsPhoneCycleTileNotification n, int count)
 		{
 			n.Count = count;
 			return n;
 		}
 
-		public static WindowsPhoneCycleTile WithCycleImage1(this WindowsPhoneCycleTile n, string cycleImage1)
+		public static WindowsPhoneCycleTileNotification WithCycleImage1(this WindowsPhoneCycleTileNotification n, string cycleImage1)
 		{
 			n.CycleImage1 = cycleImage1;
 			return n;
 		}
 
-		public static WindowsPhoneCycleTile WithCycleImage2(this WindowsPhoneCycleTile n, string cycleImage2)
+		public static WindowsPhoneCycleTileNotification WithCycleImage2(this WindowsPhoneCycleTileNotification n, string cycleImage2)
 		{
 			n.CycleImage2 = cycleImage2;
 			return n;
 		}
 
-		public static WindowsPhoneCycleTile WithCycleImage3(this WindowsPhoneCycleTile n, string cycleImage3)
+		public static WindowsPhoneCycleTileNotification WithCycleImage3(this WindowsPhoneCycleTileNotification n, string cycleImage3)
 		{
 			n.CycleImage3 = cycleImage3;
 			return n;
 		}
 
-		public static WindowsPhoneCycleTile WithCycleImage4(this WindowsPhoneCycleTile n, string cycleImage4)
+		public static WindowsPhoneCycleTileNotification WithCycleImage4(this WindowsPhoneCycleTileNotification n, string cycleImage4)
 		{
 			n.CycleImage4 = cycleImage4;
 			return n;
 		}
 
-		public static WindowsPhoneCycleTile WithCycleImage5(this WindowsPhoneCycleTile n, string cycleImage5)
+		public static WindowsPhoneCycleTileNotification WithCycleImage5(this WindowsPhoneCycleTileNotification n, string cycleImage5)
 		{
 			n.CycleImage5 = cycleImage5;
 			return n;
 		}
 
-		public static WindowsPhoneCycleTile WithCycleImage6(this WindowsPhoneCycleTile n, string cycleImage6)
+		public static WindowsPhoneCycleTileNotification WithCycleImage6(this WindowsPhoneCycleTileNotification n, string cycleImage6)
 		{
 			n.CycleImage6 = cycleImage6;
 			return n;
 		}
 
-		public static WindowsPhoneCycleTile WithCycleImage7(this WindowsPhoneCycleTile n, string cycleImage7)
+		public static WindowsPhoneCycleTileNotification WithCycleImage7(this WindowsPhoneCycleTileNotification n, string cycleImage7)
 		{
 			n.CycleImage6 = cycleImage7;
 			return n;
 		}
 
-		public static WindowsPhoneCycleTile WithCycleImage8(this WindowsPhoneCycleTile n, string cycleImage8)
+		public static WindowsPhoneCycleTileNotification WithCycleImage8(this WindowsPhoneCycleTileNotification n, string cycleImage8)
 		{
 			n.CycleImage6 = cycleImage8;
 			return n;
 		}
 
-		public static WindowsPhoneCycleTile WithCycleImage9(this WindowsPhoneCycleTile n, string cycleImage9)
+		public static WindowsPhoneCycleTileNotification WithCycleImage9(this WindowsPhoneCycleTileNotification n, string cycleImage9)
 		{
 			n.CycleImage6 = cycleImage9;
 			return n;
 		}
 
-		public static WindowsPhoneCycleTile ClearTitle(this WindowsPhoneCycleTile n)
+		public static WindowsPhoneCycleTileNotification ClearTitle(this WindowsPhoneCycleTileNotification n)
 		{
 			n.ClearTitle = true;
 			return n;
 		}
 
-		public static WindowsPhoneCycleTile ClearCount(this WindowsPhoneCycleTile n)
+		public static WindowsPhoneCycleTileNotification ClearCount(this WindowsPhoneCycleTileNotification n)
 		{
 			n.ClearCount = true;
 			return n;
 		}
 		
-		public static WindowsPhoneCycleTile ClearCycleImage1(this WindowsPhoneCycleTile n)
+		public static WindowsPhoneCycleTileNotification ClearCycleImage1(this WindowsPhoneCycleTileNotification n)
 		{
 			n.ClearCycleImage1 = true;
 			return n;
 		}
 
-		public static WindowsPhoneCycleTile ClearCycleImage2(this WindowsPhoneCycleTile n)
+		public static WindowsPhoneCycleTileNotification ClearCycleImage2(this WindowsPhoneCycleTileNotification n)
 		{
 			n.ClearCycleImage2 = true;
 			return n;
 		}
 
-		public static WindowsPhoneCycleTile ClearCycleImage3(this WindowsPhoneCycleTile n)
+		public static WindowsPhoneCycleTileNotification ClearCycleImage3(this WindowsPhoneCycleTileNotification n)
 		{
 			n.ClearCycleImage3 = true;
 			return n;
 		}
 
-		public static WindowsPhoneCycleTile ClearCycleImage4(this WindowsPhoneCycleTile n)
+		public static WindowsPhoneCycleTileNotification ClearCycleImage4(this WindowsPhoneCycleTileNotification n)
 		{
 			n.ClearCycleImage4 = true;
 			return n;
 		}
 
-		public static WindowsPhoneCycleTile ClearCycleImage5(this WindowsPhoneCycleTile n)
+		public static WindowsPhoneCycleTileNotification ClearCycleImage5(this WindowsPhoneCycleTileNotification n)
 		{
 			n.ClearCycleImage5 = true;
 			return n;
 		}
 
-		public static WindowsPhoneCycleTile ClearCycleImage6(this WindowsPhoneCycleTile n)
+		public static WindowsPhoneCycleTileNotification ClearCycleImage6(this WindowsPhoneCycleTileNotification n)
 		{
 			n.ClearCycleImage6 = true;
 			return n;
 		}
 
-		public static WindowsPhoneCycleTile ClearCycleImage7(this WindowsPhoneCycleTile n)
+		public static WindowsPhoneCycleTileNotification ClearCycleImage7(this WindowsPhoneCycleTileNotification n)
 		{
 			n.ClearCycleImage7 = true;
 			return n;
 		}
 
-		public static WindowsPhoneCycleTile ClearCycleImage8(this WindowsPhoneCycleTile n)
+		public static WindowsPhoneCycleTileNotification ClearCycleImage8(this WindowsPhoneCycleTileNotification n)
 		{
 			n.ClearCycleImage8 = true;
 			return n;
 		}
 
-		public static WindowsPhoneCycleTile ClearCycleImage9(this WindowsPhoneCycleTile n)
+		public static WindowsPhoneCycleTileNotification ClearCycleImage9(this WindowsPhoneCycleTileNotification n)
 		{
 			n.ClearCycleImage9 = true;
 			return n;
 		}
-		public static WindowsPhoneCycleTile WithTag(this WindowsPhoneCycleTile n, object tag)
+		public static WindowsPhoneCycleTileNotification WithTag(this WindowsPhoneCycleTileNotification n, object tag)
 		{
 			n.Tag = tag;
 			return n;

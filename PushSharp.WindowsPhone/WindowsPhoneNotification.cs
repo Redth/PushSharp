@@ -4,6 +4,7 @@ using System.Linq;
 using System.Text;
 using System.Xml.Linq;
 using System.Xml.Schema;
+using PushSharp.Core;
 
 namespace PushSharp.WindowsPhone
 {
@@ -28,7 +29,7 @@ namespace PushSharp.WindowsPhone
 		Raw
 	}
 
-	public class WindowsPhoneNotificationFactory : Common.Notification
+	public class WindowsPhoneNotificationFactory : Notification
 	{
 		public WindowsPhoneRawNotification Raw()
 		{
@@ -45,27 +46,26 @@ namespace PushSharp.WindowsPhone
 			return new WindowsPhoneToastNotification();
 		}
 
-		public WindowsPhoneCycleTile CycleTile()
+		public WindowsPhoneCycleTileNotification CycleTile()
 		{
-			return new WindowsPhoneCycleTile();
+			return new WindowsPhoneCycleTileNotification();
 		}
 
-		public WindowsPhoneFlipTile FlipTile()
+		public WindowsPhoneFlipTileNotification FlipTile()
 		{
-			return new WindowsPhoneFlipTile();
+			return new WindowsPhoneFlipTileNotification();
 		}
 
-		public WindowsPhoneIconicTile IconicTile()
+		public WindowsPhoneIconicTileNotification IconicTile()
 		{
-			return new WindowsPhoneIconicTile();
+			return new WindowsPhoneIconicTileNotification();
 		}
 	}
 
-	public abstract class WindowsPhoneNotification : Common.Notification
+	public abstract class WindowsPhoneNotification : Notification
 	{
 		protected WindowsPhoneNotification()
 		{
-			this.Platform = Common.PlatformType.WindowsPhone;
 			this.MessageID = Guid.NewGuid();
 		}
 
@@ -224,7 +224,7 @@ namespace PushSharp.WindowsPhone
 		}
 	}
 
-	public class WindowsPhoneFlipTile : WindowsPhoneNotification
+	public class WindowsPhoneFlipTileNotification : WindowsPhoneNotification
 	{
 		public string Title { get; set; }
 		public bool ClearTitle { get; set; }
@@ -324,7 +324,7 @@ namespace PushSharp.WindowsPhone
 		}
 	}
 	
-	public class WindowsPhoneIconicTile : WindowsPhoneNotification
+	public class WindowsPhoneIconicTileNotification : WindowsPhoneNotification
 	{
 		public string Title { get; set; }
 		public bool ClearTitle { get; set; }
@@ -409,7 +409,7 @@ namespace PushSharp.WindowsPhone
 		}
 	}
 
-	public class WindowsPhoneCycleTile : WindowsPhoneNotification
+	public class WindowsPhoneCycleTileNotification : WindowsPhoneNotification
 	{
 		public string Title { get; set; }
 		public bool ClearTitle { get; set; }

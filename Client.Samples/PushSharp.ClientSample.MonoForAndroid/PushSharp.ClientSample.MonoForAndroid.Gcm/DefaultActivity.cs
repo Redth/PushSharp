@@ -69,7 +69,7 @@ namespace PushSharp.ClientSample.MonoForAndroid
 				});
 			};			
 		}
-
+		
 		protected override void OnResume()
 		{
 			base.OnResume();

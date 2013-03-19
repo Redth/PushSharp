@@ -8,8 +8,8 @@
     <ProjectGuid>{836F225F-6CD9-48DE-910C-70F8A7CF54AA}</ProjectGuid>
     <OutputType>Library</OutputType>
     <AppDesignerFolder>Properties</AppDesignerFolder>
-    <RootNamespace>PushSharp.Common</RootNamespace>
-    <AssemblyName>PushSharp.Common</AssemblyName>
+    <RootNamespace>PushSharp.Core</RootNamespace>
+    <AssemblyName>PushSharp.Core</AssemblyName>
     <FileAlignment>512</FileAlignment>
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|AnyCPU' ">
@@ -46,17 +46,15 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="AssemblyVersionInfo.cs" />
-    <Compile Include="ChannelEvents.cs" />
     <Compile Include="Exceptions.cs" />
+    <Compile Include="Interfaces.cs" />
     <Compile Include="Log.cs" />
-    <Compile Include="PushChannelBase.cs" />
-    <Compile Include="PushChannelSettings.cs" />
     <Compile Include="Notification.cs" />
-    <Compile Include="PlatformType.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
+    <Compile Include="PushBroker.cs" />
     <Compile Include="PushServiceBase.cs" />
     <Compile Include="PushServiceSettings.cs" />
-    <Compile Include="PushSettings.cs" />
+    <Compile Include="SendNotificationResult.cs" />
   </ItemGroup>
   <ItemGroup>
     <None Include="PushSharp-Signing.snk" />

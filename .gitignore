@@ -12,6 +12,8 @@ obj
 *.suo
 *.resharper
 *.svn
+*.sln.DotSettings.user
+
 
 
 # mstest test results
