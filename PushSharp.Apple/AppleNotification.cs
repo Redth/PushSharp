@@ -9,7 +9,7 @@ using System.ServiceModel.Web;
 
 namespace PushSharp.Apple
 {
-	public class AppleNotification : Common.Notification
+	public class AppleNotification : Core.Notification
 	{
 		static object nextIdentifierLock = new object();
 		static int nextIdentifier = 1;
@@ -42,8 +42,6 @@ namespace PushSharp.Apple
 
 		public AppleNotification()
 		{
-			this.Platform = Common.PlatformType.Apple;
-
 			DeviceToken = string.Empty;
 			Payload = new AppleNotificationPayload();
 

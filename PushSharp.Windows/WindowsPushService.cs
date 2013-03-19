@@ -3,22 +3,40 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using PushSharp.Core;
 
 namespace PushSharp.Windows
 {
-	public class WindowsPushService : Common.PushServiceBase<WindowsPushChannelSettings>
+	public class WindowsPushService : PushServiceBase
 	{
-		public WindowsPushService(WindowsPushChannelSettings channelSettings, Common.PushServiceSettings serviceSettings) : base(channelSettings, serviceSettings)
-		{ }
-
-		protected override Common.PushChannelBase CreateChannel(Common.PushChannelSettings channelSettings)
+		public WindowsPushService(WindowsPushChannelSettings channelSettings)
+			: this(default(IPushChannelFactory), channelSettings, default(IPushServiceSettings))
 		{
-			return new WindowsPushChannel(channelSettings as WindowsPushChannelSettings);
 		}
 
-		public override Common.PlatformType Platform
+		public WindowsPushService(WindowsPushChannelSettings channelSettings, IPushServiceSettings serviceSettings)
+			: this(default(IPushChannelFactory), channelSettings, serviceSettings)
 		{
-			get { return Common.PlatformType.Windows; }
+		}
+
+		public WindowsPushService(IPushChannelFactory pushChannelFactory, WindowsPushChannelSettings channelSettings)
+			: this(pushChannelFactory, channelSettings, default(IPushServiceSettings))
+		{
+		}
+
+		public WindowsPushService(IPushChannelFactory pushChannelFactory, WindowsPushChannelSettings channelSettings, IPushServiceSettings serviceSettings)
+			: base(pushChannelFactory ?? new WindowsPushChannelFactory(), channelSettings, serviceSettings)
+		{ }
+	}
+
+	public class WindowsPushChannelFactory : IPushChannelFactory
+	{
+		public IPushChannel CreateChannel(IPushChannelSettings channelSettings)
+		{
+			if (!(channelSettings is WindowsPushChannelSettings))
+				throw new ArgumentException("channelSettings must be of type WindowsPushChannelSettings");
+
+			return new WindowsPushChannel(channelSettings as WindowsPushChannelSettings);
 		}
 	}
 }

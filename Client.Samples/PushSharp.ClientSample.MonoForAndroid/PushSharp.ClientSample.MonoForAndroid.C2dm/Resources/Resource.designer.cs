@@ -9,15 +9,20 @@
 // </auto-generated>
 //------------------------------------------------------------------------------
 
-[assembly: Android.Runtime.ResourceDesignerAttribute("PushSharp.ClientSample.MonoForAndroid.Resource", IsApplication=true)]
+[assembly: global::Android.Runtime.ResourceDesignerAttribute("PushSharp.ClientSample.MonoForAndroid.Resource", IsApplication=true)]
 
 namespace PushSharp.ClientSample.MonoForAndroid
 {
 	
 	
-	[System.CodeDom.Compiler.GeneratedCodeAttribute("Novell.MonoDroid.Build.Tasks", "1.0.0.0")]
+	[System.CodeDom.Compiler.GeneratedCodeAttribute("Xamarin.Android.Build.Tasks", "1.0.0.0")]
 	public partial class Resource
 	{
+		
+		static Resource()
+		{
+			global::Android.Runtime.ResourceIdManager.UpdateIdValues();
+		}
 		
 		public static void UpdateIdValues()
 		{
@@ -25,6 +30,11 @@ namespace PushSharp.ClientSample.MonoForAndroid
 		
 		public partial class Attribute
 		{
+			
+			static Attribute()
+			{
+				global::Android.Runtime.ResourceIdManager.UpdateIdValues();
+			}
 			
 			private Attribute()
 			{
@@ -36,6 +46,11 @@ namespace PushSharp.ClientSample.MonoForAndroid
 			
 			// aapt resource value: 0x7f020000
 			public const int Icon = 2130837504;
+			
+			static Drawable()
+			{
+				global::Android.Runtime.ResourceIdManager.UpdateIdValues();
+			}
 			
 			private Drawable()
 			{
@@ -60,6 +75,11 @@ namespace PushSharp.ClientSample.MonoForAndroid
 			// aapt resource value: 0x7f050000
 			public const int textRegistrationStatus = 2131034112;
 			
+			static Id()
+			{
+				global::Android.Runtime.ResourceIdManager.UpdateIdValues();
+			}
+			
 			private Id()
 			{
 			}
@@ -70,6 +90,11 @@ namespace PushSharp.ClientSample.MonoForAndroid
 			
 			// aapt resource value: 0x7f030000
 			public const int Main = 2130903040;
+			
+			static Layout()
+			{
+				global::Android.Runtime.ResourceIdManager.UpdateIdValues();
+			}
 			
 			private Layout()
 			{
@@ -84,6 +109,11 @@ namespace PushSharp.ClientSample.MonoForAndroid
 			
 			// aapt resource value: 0x7f040000
 			public const int hello = 2130968576;
+			
+			static String()
+			{
+				global::Android.Runtime.ResourceIdManager.UpdateIdValues();
+			}
 			
 			private String()
 			{

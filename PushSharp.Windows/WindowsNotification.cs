@@ -4,14 +4,14 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using System.Xml.Linq;
+using PushSharp.Core;
 
 namespace PushSharp.Windows
 {
-	public abstract class WindowsNotification : Common.Notification
+	public abstract class WindowsNotification : Notification
 	{
 		protected WindowsNotification()
 		{
-			this.Platform = Common.PlatformType.Windows;
 		}
 
 		public string ChannelUri { get; set; }

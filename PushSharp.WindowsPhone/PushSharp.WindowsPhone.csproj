@@ -45,11 +45,12 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="..\PushSharp.Common\AssemblyVersionInfo.cs">
+    <Compile Include="..\PushSharp.Core\AssemblyVersionInfo.cs">
       <Link>AssemblyVersionInfo.cs</Link>
     </Compile>
     <Compile Include="Exceptions.cs" />
     <Compile Include="WindowsPhoneMessageStatus.cs" />
+    <Compile Include="WindowsPhonePushBrokerExtensions.cs" />
     <Compile Include="WindowsPhonePushChannelSettings.cs" />
     <Compile Include="WindowsPhoneNotification.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
@@ -59,9 +60,9 @@
     <Compile Include="WindowsPhoneTransportResponse.cs" />
   </ItemGroup>
   <ItemGroup>
-    <ProjectReference Include="..\PushSharp.Common\PushSharp.Common.csproj">
+    <ProjectReference Include="..\PushSharp.Core\PushSharp.Core.csproj">
       <Project>{836F225F-6CD9-48DE-910C-70F8A7CF54AA}</Project>
-      <Name>PushSharp.Common</Name>
+      <Name>PushSharp.Core</Name>
     </ProjectReference>
   </ItemGroup>
   <ItemGroup>

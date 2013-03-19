@@ -69,6 +69,16 @@ namespace PushSharp.Apple
 				return msg;
 			}
 		}
+
+		public override string ToString()
+		{
+			var nstr = string.Empty;
+
+			if (Notification != null)
+				nstr = Notification.ToString();
+
+			return string.Format("APNS NotificationFailureException -> {0} : {1} -> {2}", ErrorStatusCode, ErrorStatusDescription, nstr);
+		}
 	}
 	
 }

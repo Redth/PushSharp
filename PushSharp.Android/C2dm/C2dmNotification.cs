@@ -4,7 +4,7 @@ using System.Collections.Specialized;
 using System.Linq;
 using System.Text;
 using System.Web;
-using PushSharp.Common;
+using PushSharp.Core;
 
 namespace PushSharp.Android
 {
@@ -13,8 +13,6 @@ namespace PushSharp.Android
 	{
 		public C2dmNotification()
 		{
-			this.Platform = PlatformType.AndroidC2dm;
-
 			this.RegistrationId = string.Empty;
 			this.CollapseKey = string.Empty;
 			this.Data = new NameValueCollection();

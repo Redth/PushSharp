@@ -2,15 +2,18 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
-using PushSharp.Common;
+using PushSharp.Core;
 
 namespace PushSharp.Android
 {
-	public class GcmPushChannelSettings : PushChannelSettings
+	public class GcmPushChannelSettings : IPushChannelSettings
 	{
+		private const string GCM_SEND_URL = "https://android.googleapis.com/gcm/send";
+
 		public GcmPushChannelSettings(string senderAuthToken)
 		{
 			this.SenderAuthToken = senderAuthToken;
+			this.GcmUrl = GCM_SEND_URL;
 		}
 
 		public GcmPushChannelSettings(string optionalSenderID, string senderAuthToken, string optionalApplicationIdPackageName)
@@ -18,11 +21,18 @@ namespace PushSharp.Android
 			this.SenderID = optionalSenderID;
 			this.SenderAuthToken = senderAuthToken;
 			this.ApplicationIdPackageName = optionalApplicationIdPackageName;
+			this.GcmUrl = GCM_SEND_URL;
 		}
-		
+
 		public string SenderID { get; private set; }
 		public string SenderAuthToken { get; private set; }
-
 		public string ApplicationIdPackageName { get; private set; }
+
+		public string GcmUrl { get; set; }
+
+		public void OverrideUrl(string url)
+		{
+			GcmUrl = url;
+		}
 	}
 }

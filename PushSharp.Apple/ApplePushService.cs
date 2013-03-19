@@ -5,23 +5,39 @@ using System.Linq;
 using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
-using PushSharp.Common;
+using PushSharp.Core;
 
 namespace PushSharp.Apple
 {
-	public class ApplePushService : Common.PushServiceBase<ApplePushChannelSettings>, IDisposable
+	public class ApplePushService : PushServiceBase
 	{
 		FeedbackService feedbackService;
 		CancellationTokenSource cancelTokenSource;
 		Timer timerFeedback;
-
-		public ApplePushService(ApplePushChannelSettings channelSettings, PushServiceSettings serviceSettings = null)
-			: base(channelSettings, serviceSettings)
+		
+		
+		public ApplePushService(ApplePushChannelSettings channelSettings)
+			: this(default(IPushChannelFactory), channelSettings, default(IPushServiceSettings))
 		{
-			var appleChannelSettings = channelSettings as ApplePushChannelSettings;
+		}
+
+		public ApplePushService(ApplePushChannelSettings channelSettings, IPushServiceSettings serviceSettings)
+			: this(default(IPushChannelFactory), channelSettings, serviceSettings)
+		{
+		}
+
+		public ApplePushService(IPushChannelFactory pushChannelFactory, ApplePushChannelSettings channelSettings)
+			: this(pushChannelFactory, channelSettings, default(IPushServiceSettings))
+		{
+		}
+
+		public ApplePushService(IPushChannelFactory pushChannelFactory, ApplePushChannelSettings channelSettings, IPushServiceSettings serviceSettings)
+			: base(pushChannelFactory ?? new ApplePushChannelFactory(), channelSettings, serviceSettings)
+		{
+			var appleChannelSettings = channelSettings;
 			cancelTokenSource = new CancellationTokenSource();
 			feedbackService = new FeedbackService();
-			feedbackService.OnFeedbackReceived += new FeedbackService.FeedbackReceivedDelegate(feedbackService_OnFeedbackReceived);
+			feedbackService.OnFeedbackReceived += feedbackService_OnFeedbackReceived;
 
 			//allow control over feedback call interval, if set to zero, don't make feedback calls automatically
 			if (appleChannelSettings.FeedbackIntervalMinutes > 0)
@@ -29,7 +45,7 @@ namespace PushSharp.Apple
 				timerFeedback = new Timer(new TimerCallback((state) =>
 				{
 					try { feedbackService.Run(channelSettings as ApplePushChannelSettings, this.cancelTokenSource.Token); }
-					catch (Exception ex) { this.Events.RaiseChannelException(ex, PlatformType.Apple); }
+					catch (Exception ex) { base.RaiseServiceException(ex); }
 
 					//Timer will run first after 10 seconds, then every 10 minutes to get feedback!
 				}), null, TimeSpan.FromSeconds(10), TimeSpan.FromMinutes(appleChannelSettings.FeedbackIntervalMinutes));
@@ -39,17 +55,23 @@ namespace PushSharp.Apple
 
 		void feedbackService_OnFeedbackReceived(string deviceToken, DateTime timestamp)
 		{
-			this.Events.RaiseDeviceSubscriptionExpired(PlatformType.Apple, deviceToken);
+			base.RaiseSubscriptionExpired(deviceToken, timestamp.ToUniversalTime(), null);
 		}
 
-		protected override Common.PushChannelBase CreateChannel(Common.PushChannelSettings channelSettings)
+		public override bool BlockOnMessageResult
 		{
+			get { return false; }
+		}
+	}
+
+	public class ApplePushChannelFactory : IPushChannelFactory
+	{
+		public IPushChannel CreateChannel(IPushChannelSettings channelSettings)
+		{
+			if (!(channelSettings is ApplePushChannelSettings))
+				throw new ArgumentException("Channel Settings must be of type ApplePushChannelSettings");
+
 			return new ApplePushChannel(channelSettings as ApplePushChannelSettings);
-		}
-
-		public override PlatformType Platform
-		{
-			get { return PlatformType.Apple; }
 		}
 	}
 }
