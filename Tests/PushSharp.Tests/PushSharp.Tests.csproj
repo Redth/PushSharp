@@ -13,6 +13,8 @@
     <FileAlignment>512</FileAlignment>
     <SolutionDir Condition="$(SolutionDir) == '' Or $(SolutionDir) == '*Undefined*'">..\..\</SolutionDir>
     <RestorePackages>true</RestorePackages>
+    <ProductVersion>12.0.0</ProductVersion>
+    <SchemaVersion>2.0</SchemaVersion>
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|AnyCPU' ">
     <DebugSymbols>true</DebugSymbols>
@@ -35,22 +37,20 @@
     <Reference Include="Moq">
       <HintPath>..\..\packages\Moq.4.0.10827\lib\NET40\Moq.dll</HintPath>
     </Reference>
-    <Reference Include="Newtonsoft.Json, Version=4.5.0.0, Culture=neutral, PublicKeyToken=30ad4fe6b2a6aeed, processorArchitecture=MSIL">
-      <SpecificVersion>False</SpecificVersion>
-      <HintPath>..\..\packages\Newtonsoft.Json.4.5.11\lib\net40\Newtonsoft.Json.dll</HintPath>
-    </Reference>
-    <Reference Include="nunit.framework, Version=2.6.2.12296, Culture=neutral, PublicKeyToken=96d09a1eb7f44a77, processorArchitecture=MSIL">
-      <HintPath>..\..\packages\NUnit.2.6.2\lib\nunit.framework.dll</HintPath>
-    </Reference>
     <Reference Include="System" />
     <Reference Include="System.Core" />
     <Reference Include="System.Net" />
-    <Reference Include="System.Net.Http" />
     <Reference Include="System.Xml.Linq" />
     <Reference Include="System.Data.DataSetExtensions" />
     <Reference Include="Microsoft.CSharp" />
     <Reference Include="System.Data" />
     <Reference Include="System.Xml" />
+    <Reference Include="Newtonsoft.Json">
+      <HintPath>..\..\packages\Newtonsoft.Json.4.5.11\lib\net40\Newtonsoft.Json.dll</HintPath>
+    </Reference>
+    <Reference Include="nunit.framework, Version=2.6.2.12296, Culture=neutral, PublicKeyToken=96d09a1eb7f44a77">
+      <HintPath>..\..\packages\NUnit.2.6.2\lib\nunit.framework.dll</HintPath>
+    </Reference>
   </ItemGroup>
   <ItemGroup>
     <Compile Include="AppleTests.cs" />
@@ -58,31 +58,31 @@
     <Compile Include="GcmTests.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="PushServiceTests.cs" />
-    <Compile Include="TestServers\ApnsTestServer.cs" />
     <Compile Include="TestServers\GcmTestServer.cs" />
+    <Compile Include="TestServers\ApnsTestServer.cs" />
   </ItemGroup>
   <ItemGroup>
     <None Include="packages.config" />
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\..\PushSharp.Android\PushSharp.Google.csproj">
-      <Project>{71e27c37-fbbf-481b-934b-1f7dbde3c5d6}</Project>
+      <Project>{71E27C37-FBBF-481B-934B-1F7DBDE3C5D6}</Project>
       <Name>PushSharp.Google</Name>
     </ProjectReference>
     <ProjectReference Include="..\..\PushSharp.Apple\PushSharp.Apple.csproj">
-      <Project>{83c67156-893d-4aff-9169-db34771989cb}</Project>
+      <Project>{83C67156-893D-4AFF-9169-DB34771989CB}</Project>
       <Name>PushSharp.Apple</Name>
     </ProjectReference>
     <ProjectReference Include="..\..\PushSharp.Core\PushSharp.Core.csproj">
-      <Project>{836f225f-6cd9-48de-910c-70f8a7cf54aa}</Project>
+      <Project>{836F225F-6CD9-48DE-910C-70F8A7CF54AA}</Project>
       <Name>PushSharp.Core</Name>
     </ProjectReference>
     <ProjectReference Include="..\..\PushSharp.WindowsPhone\PushSharp.WindowsPhone.csproj">
-      <Project>{9947f510-ba9a-4045-a648-bab687d8f513}</Project>
+      <Project>{9947F510-BA9A-4045-A648-BAB687D8F513}</Project>
       <Name>PushSharp.WindowsPhone</Name>
     </ProjectReference>
     <ProjectReference Include="..\..\PushSharp.Windows\PushSharp.Windows.csproj">
-      <Project>{0ec3a31e-b869-4465-abdc-90c2e3ccc17d}</Project>
+      <Project>{0EC3A31E-B869-4465-ABDC-90C2E3CCC17D}</Project>
       <Name>PushSharp.Windows</Name>
     </ProjectReference>
   </ItemGroup>

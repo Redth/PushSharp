@@ -17,8 +17,7 @@ namespace PushSharp.Tests
 	public class AppleTests
 	{
 		private int testPort = 2197;
-
-		private PushBroker broker;
+	
 		private byte[] appleCert;
 
 		[SetUp]
@@ -27,7 +26,6 @@ namespace PushSharp.Tests
 			Log.Level = LogLevel.Info;
 
 			appleCert = File.ReadAllBytes(Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "../../../../Resources/PushSharp.Apns.Sandbox.p12"));
-			broker = new PushBroker();
 		}
 		
 		[Test]
@@ -92,13 +90,15 @@ namespace PushSharp.Tests
 
 			var len = notification.ToBytes().Length;
 
-			var server = new TestServers.AppleTestServer();
+			var server = new TestServers.ApnsTestServer();
 			
 			server.ResponseFilters.Add(new ApnsResponseFilter()
 			{
 				IsMatch = (identifier, token, payload) =>
 				{
-					Console.WriteLine("Server Received: id=" + identifier + ", token=" + token);
+					var id = identifier;
+
+					Console.WriteLine("Server Received: id=" + id + ", payload= " + payload + ", token=" + token);
 
 					if (token.StartsWith("b", StringComparison.InvariantCultureIgnoreCase))
 						return true;

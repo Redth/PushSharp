@@ -18,6 +18,7 @@ obj
 
 # mstest test results
 TestResults
+test-results
 
 #NuGet
 packages/

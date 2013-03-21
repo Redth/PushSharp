@@ -124,7 +124,7 @@ namespace PushSharp.Tests
 			int serverReceivedFailCount = 0;
 			int serverReceivedSuccessCount = 0;
 
-			var notification = new GcmNotification();
+			//var notification = new GcmNotification();
 
 			var server = new TestServers.GcmTestServer();
 
@@ -139,7 +139,7 @@ namespace PushSharp.Tests
 				}
 			});
 
-			var waitServerFinished = new ManualResetEvent(false);
+			//var waitServerFinished = new ManualResetEvent(false);
 			
 			server.Start(testPort, response =>
 						{

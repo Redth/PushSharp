@@ -55,8 +55,6 @@ namespace PushSharp.Tests.TestServers
 
 		private void ProcessRequest(IAsyncResult result)
 		{
-			var lstnr = result.AsyncState as HttpListener;
-			
 			try
 			{
 

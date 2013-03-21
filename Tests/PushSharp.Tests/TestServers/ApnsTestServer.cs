@@ -11,183 +11,266 @@ using System.Threading.Tasks;
 
 namespace PushSharp.Tests.TestServers
 {
-	public delegate void NotificationReceivedDelegate(bool success, int identifier, string deviceToken, string payload);
+	public delegate void ApnsNotificationReceivedDelegate(bool success, int identifier, string deviceToken, string payload);
 
-	public class AppleTestServer : IDisposable
+	// State object for reading client data asynchronously
+	public class StateObject
 	{
-		public AppleTestServer()
+		public StateObject(int bufferSize)
+		{
+			this.buffer = new byte[bufferSize];
+		}
+
+
+		// Client  socket.
+		public Socket workSocket = null;
+		
+		// Receive buffer.
+		public byte[] buffer;
+		// Received data string.
+		public StringBuilder sb = new StringBuilder();
+	}
+
+	public class ApnsTestServer
+	{
+		public List<ApnsResponseFilter> ResponseFilters { get; set; }
+
+		public ApnsNotificationReceivedDelegate Received { get; set; }
+		public int Port { get; set; }
+		public int MessageSize { get; set; }
+
+		public ApnsTestServer()
 		{
 			ResponseFilters = new List<ApnsResponseFilter>();
 		}
 
-
-		private CancellationTokenSource cancellationTokenSource = new CancellationTokenSource();
-		
-		public List<ApnsResponseFilter> ResponseFilters { get; set; }
+		// Thread signal.
+		public ManualResetEvent allDone = new ManualResetEvent(false);
+		public ManualResetEvent waitServer = new ManualResetEvent(false);
 		private Socket listener;
+		CancellationTokenSource cancelServerTokenSource = new CancellationTokenSource();
 
-		private ManualResetEvent waitFinished = new ManualResetEvent(false);
-		Socket handler = null;
-
-		public void Start(int port, int messageSize, NotificationReceivedDelegate received)
+		public void Start(int port, int messageSize, ApnsNotificationReceivedDelegate received)
 		{
+			this.Port = port;
+			this.MessageSize = messageSize;
+			this.Received = received;
+
+			// Data buffer for incoming data.
+			//byte[] bytes = new Byte[1024];
+
 			// Establish the local endpoint for the socket.
-			// Dns.GetHostName returns the name of the 
-			// host running the application.
+			// The DNS name of the computer
+			// running the listener is "host.contoso.com".
+			
 			var localEndPoint = new IPEndPoint(IPAddress.Any, port);
 
 			// Create a TCP/IP socket.
 			listener = new Socket(AddressFamily.InterNetwork, SocketType.Stream, ProtocolType.Tcp);
 
-			// Bind the socket to the local endpoint and 
-			// listen for incoming connections.
-			listener.Bind(localEndPoint);
-			listener.Listen(10);
+			// Bind the socket to the local endpoint and listen for incoming connections.
+			try
+			{
+				listener.Bind(localEndPoint);
+				listener.Listen(100);
 
+				
+				while (!cancelServerTokenSource.IsCancellationRequested)
+				{
+					// Set the event to nonsignaled state.
+					allDone.Reset();
 
+					try
+					{
+						// Start an asynchronous socket to listen for connections.
+						//Console.WriteLine("Waiting for a connection...");
+						listener.BeginAccept(
+							new AsyncCallback(AcceptCallback),
+							listener);
+
+					}
+					catch (Exception ex)
+					{
+						Console.WriteLine("Listener Failed: " + ex);
+						
+					}
+
+					allDone.WaitOne();
+
+					// Wait until a connection is made before continuing.
+					//while (!allDone.WaitOne(1000))
+					//{
+					//if (cancelServerTokenSource.IsCancellationRequested)
+					//break;
+					//}
+				}
+
+				waitServer.Set();
+
+			}
+			catch (Exception e)
+			{
+				Console.WriteLine(e.ToString());
+			}
+
+			Console.WriteLine("Wrapping up listener...");
+		}
+
+		public void AcceptCallback(IAsyncResult ar)
+		{
+			// Signal the main thread to continue.
+			allDone.Set();
 
 			try
 			{
+				// Get the socket that handles the client request.
+				Socket listener = (Socket)ar.AsyncState;
+				Socket handler = listener.EndAccept(ar);
 
-			
-				// Start listening for connections.
-				while (!cancellationTokenSource.IsCancellationRequested)
-				{
-					// Program is suspended while waiting for an incoming connection.
-					handler = listener.Accept();
-					handler.ReceiveTimeout = 3000;
-					handler.ReceiveBufferSize = messageSize;
-
-					// An incoming connection needs to be processed.
-					while (!cancellationTokenSource.IsCancellationRequested)
-					{
-						var buffer = new List<byte>();
-						bool disconnected = false;
-
-						while (buffer.Count < messageSize)
-						{
-							var bytes = new byte[messageSize];
-							var bytesRec = handler.Receive(bytes, 0, bytes.Length, SocketFlags.None);
-
-							for (int i = 0; i < bytesRec; i++)
-								buffer.Add(bytes[i]);
-
-							if (bytesRec <= 0)
-							{
-								disconnected = true;
-								break;
-							}
-						}
-
-						if (disconnected)
-							break;
-
-						var recdBuffer = buffer;
-
-						Int16 msgLength = 0;
-
-						//See if we have the msg length
-						if (recdBuffer.Count >= 45)
-					
-						{
-							var lenBytes = recdBuffer.GetRange(43, 2).ToArray();
-
-							var payloadLen = IPAddress.NetworkToHostOrder(BitConverter.ToInt16(lenBytes.ToArray(), 0));
-
-							msgLength = (Int16)((Int16)payloadLen + (Int16)45);
-
-							//See if we have the full msg
-							if (recdBuffer.Count >= msgLength)
-							{
-
-								var payload = System.Text.Encoding.UTF8.GetString(recdBuffer.GetRange(45, payloadLen).ToArray());
-
-								var identifierBytes = recdBuffer.GetRange(1, 4);
-								var tokenBytes = recdBuffer.GetRange(11, 32);
-
-								var identifier = IPAddress.NetworkToHostOrder(BitConverter.ToInt32(identifierBytes.ToArray(), 0));
-								var token = BitConverter.ToString(tokenBytes.ToArray()).Replace("-", "");
-
-							
-								recdBuffer.RemoveRange(0, msgLength);
-
-								//	System.Threading.Thread.Sleep(rnd.Next(10, 100));
-
-								bool hadError = false;
-
-								foreach (var f in ResponseFilters)
-								{
-									if (f.IsMatch(identifier, token, payload))
-									{
-										var b2 = new byte[6];
-										b2[0] = 0x01;
-										b2[1] = BitConverter.GetBytes((short)f.Status)[0];
-									
-										Buffer.BlockCopy(BitConverter.GetBytes(IPAddress.HostToNetworkOrder(identifier)), 0, b2, 2, 4);
-
-										//stream.Write(b2, 0, b2.Length);
-										hadError = true;
-										handler.Send(b2);
-
-										received(false, identifier, token, payload);
-
-										break;
-									}
-								}
-
-								if (hadError)
-									break;
-
-								//Process the full msg
-								received(true, identifier, token, payload);
-							}
-
-						}
-						else
-						{
-							var b2 = new byte[6];
-							b2[0] = 0x01;
-							b2[1] = BitConverter.GetBytes((short)ApnsResponseStatus.InvalidPayloadSize)[0];
-							handler.Send(b2);
-							break;
-						}
-					}
-
-					try { handler.Shutdown(SocketShutdown.Both); }  
-					catch { }
-
-					try { handler.Close(); } 
-					catch { }
-				}
+				// Create the state object.
+				StateObject state = new StateObject(this.MessageSize);
+				state.workSocket = handler;
+				handler.BeginReceive(state.buffer, 0, this.MessageSize, 0, new AsyncCallback(ReadCallback), state);
 			}
 			catch (Exception ex)
 			{
-				Console.WriteLine(ex);
+				Console.WriteLine("Accept Failed: " + ex);
 			}
 
-			waitFinished.Set();
+		}
+
+		public void ReadCallback(IAsyncResult ar)
+		{
+			// Retrieve the state object and the handler socket
+			// from the asynchronous state object.
+			StateObject state = (StateObject) ar.AsyncState;
+			Socket handler = state.workSocket;
+
+			// Read data from the client socket. 
+			int bytesRead = handler.EndReceive(ar);
+
+			bool hadError = false;
+
+			var payload = string.Empty;
+			var identifier = 0;
+			var token = string.Empty;
+			var errorResponseData = new byte[6];
+
+
+			if (bytesRead > 45)
+			{
+				var recdBuffer = new List<byte>();
+				recdBuffer.AddRange(state.buffer);
+
+				var lenBytes = recdBuffer.GetRange(43, 2).ToArray();
+
+				var payloadLen = IPAddress.NetworkToHostOrder(BitConverter.ToInt16(lenBytes.ToArray(), 0));
+
+				var msgLength = (Int16) ((Int16) payloadLen + (Int16) 45);
+
+
+
+				payload = System.Text.Encoding.UTF8.GetString(recdBuffer.GetRange(45, payloadLen).ToArray());
+
+				var identifierBytes = recdBuffer.GetRange(1, 4);
+				var tokenBytes = recdBuffer.GetRange(11, 32);
+
+				identifier = IPAddress.NetworkToHostOrder(BitConverter.ToInt32(identifierBytes.ToArray(), 0));
+				token = BitConverter.ToString(tokenBytes.ToArray()).Replace("-", "");
+
+
+				recdBuffer.RemoveRange(0, msgLength);
+
+
+				foreach (var f in ResponseFilters)
+				{
+					if (f.IsMatch(identifier, token, payload))
+					{
+						errorResponseData[0] = 0x01;
+						errorResponseData[1] = BitConverter.GetBytes((short) f.Status)[0];
+
+						Buffer.BlockCopy(BitConverter.GetBytes(IPAddress.HostToNetworkOrder(identifier)), 0, errorResponseData, 2, 4);
+
+						//stream.Write(b2, 0, b2.Length);
+						hadError = true;
+						break;
+					}
+				}
+
+			}
+
+
+			if (hadError)
+			{
+				Console.WriteLine("Server Recd Notification with Error");
+				var rnd = new Random();
+				System.Threading.Thread.Sleep(rnd.Next(10, 150));
+
+				Received(false, identifier, token, payload);
+				Send(handler, errorResponseData);
+			}
+			else
+			{
+				Received(true, identifier, token, payload);
+				handler.BeginReceive(state.buffer, 0, this.MessageSize, 0, new AsyncCallback(ReadCallback), state);
+			}
+		}
+
+		private void Send(Socket handler, byte[] byteData)
+		{
+			// Convert the string data to byte data using ASCII encoding.
+
+
+			// Begin sending the data to the remote device.
+			handler.BeginSend(byteData, 0, byteData.Length, 0,
+			                  new AsyncCallback(SendCallback), handler);
+		}
+
+		private void SendCallback(IAsyncResult ar)
+		{
+			Socket handler = null;
+
+			try
+			{
+				// Retrieve the socket from the state object.
+				handler = (Socket) ar.AsyncState;
+
+				// Complete sending the data to the remote device.
+				int bytesSent = handler.EndSend(ar);
+				Console.WriteLine("Sent {0} bytes to client.", bytesSent);
+
+			}
+			catch (Exception e)
+			{
+				Console.WriteLine(e.ToString());
+			}
+			finally
+			{
+				if (handler != null)
+				{
+					try { handler.Shutdown(SocketShutdown.Both); } catch { }
+
+					try { handler.Close(); } catch { }
+				}
+			}
+
+
 
 		}
 
 		public void Dispose()
 		{
-			cancellationTokenSource.Cancel();
+			
+			cancelServerTokenSource.Cancel();
 
-			if (handler != null)
-			{
-				//try { handler.Shutdown(SocketShutdown.Both); }
-				//catch { }
+			try { listener.Shutdown(SocketShutdown.Both); }
+			catch { }
 
-				//try { handler.Close(); }
-				//catch { }
-			}
+			try { listener.Close(); }
+			catch { }
 
-			Console.WriteLine("ApnsTestServer->Waiting...");
-			waitFinished.WaitOne();
-			Console.WriteLine("ApnsTestServer-> DISPOSE.");
+			waitServer.WaitOne();
 		}
-
-		
 	}
 
 	public class ApnsResponseFilter
