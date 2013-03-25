@@ -58,7 +58,7 @@ namespace PushSharp.Core
 
 		private Timer timerCheckScale;
 		private Task distributerTask;
-		private bool stopping;
+		private volatile bool stopping;
 		private List<ChannelWorker> channels = new List<ChannelWorker>();
 		private ConcurrentQueue<INotification> queuedNotifications;
 		private CancellationTokenSource cancelTokenSource = new CancellationTokenSource();
@@ -149,8 +149,7 @@ namespace PushSharp.Core
 			}
 			
 			//Stop all channels
-			foreach (var c in channels)
-				c.Dispose();
+			Parallel.ForEach(channels, c => c.Dispose());
 			
 			this.channels.Clear();
 
@@ -167,6 +166,9 @@ namespace PushSharp.Core
 		
 		private void CheckScale(object state = null)
 		{
+			if (stopping)
+				return;
+
 			Log.Info("{0} -> Checking Scale ({1} Channels Currently)", this, channels.Count);
 
 			if (ServiceSettings.AutoScaleChannels && !this.cancelTokenSource.IsCancellationRequested)
@@ -240,8 +242,14 @@ namespace PushSharp.Core
 
 		private void ScaleChannels(ChannelScaleAction action, int count = 1)
 		{
+			if (stopping)
+				return;
+
 			for (int i = 0; i < count; i++)
 			{
+				if (stopping)
+					break;
+
 				var newCount = 0;
 				bool? destroyed = null;
 				IPushChannel newChannel = default(IPushChannel);
