@@ -106,7 +106,17 @@ namespace PushSharp.WindowsPhone
 			var wpNotification = (WindowsPhoneNotification)objs[1];
 			var callback = (SendNotificationCallbackDelegate) objs[2];
 
-			var resp = wr.EndGetResponse(asyncResult) as HttpWebResponse;
+			HttpWebResponse resp = null;
+
+			try
+			{
+				resp = wr.EndGetResponse(asyncResult) as HttpWebResponse;
+			}
+			catch (WebException webEx)
+			{
+				resp = webEx.Response as HttpWebResponse;
+			}
+			catch { }
 
 			var status = ParseStatus(resp, wpNotification);
 
@@ -118,12 +128,22 @@ namespace PushSharp.WindowsPhone
 			var result = new WindowsPhoneMessageStatus();
 
 			result.Notification = notification;
-			result.HttpStatus = resp.StatusCode;
+			result.HttpStatus = HttpStatusCode.ServiceUnavailable;
+		
+			var wpStatus = string.Empty;
+			var wpChannelStatus = string.Empty;
+			var wpDeviceConnectionStatus = string.Empty;
+			var messageID = string.Empty;
 
-            var wpStatus = resp.Headers["X-NotificationStatus"];
-            var wpChannelStatus = resp.Headers["X-SubscriptionStatus"];
-            var wpDeviceConnectionStatus = resp.Headers["X-DeviceConnectionStatus"];
-			var messageID = resp.Headers["X-MessageID"];
+			if (resp != null)
+			{
+				result.HttpStatus = resp.StatusCode;
+
+				wpStatus = resp.Headers["X-NotificationStatus"];
+				wpChannelStatus = resp.Headers["X-SubscriptionStatus"];
+				wpDeviceConnectionStatus = resp.Headers["X-DeviceConnectionStatus"];
+				messageID = resp.Headers["X-MessageID"];
+			}
 
 			Guid msgGuid = Guid.NewGuid();
 			if (Guid.TryParse(messageID, out msgGuid))
