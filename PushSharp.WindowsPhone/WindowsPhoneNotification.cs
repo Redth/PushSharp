@@ -141,6 +141,9 @@ namespace PushSharp.WindowsPhone
 
 					var paramValue = sb.ToString();
 
+					if (!string.IsNullOrEmpty(paramValue) && paramValue.EndsWith("&amp;"))
+						paramValue.Substring(0, paramValue.Length - "&amp;".Length);
+
 					if (!string.IsNullOrEmpty(paramValue))
 						toast.Add(new XElement(wp + "Param", paramValue));
 				}
