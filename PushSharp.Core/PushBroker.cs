@@ -13,6 +13,7 @@ namespace PushSharp
 		public event ChannelDestroyedDelegate OnChannelDestroyed;
 		public event NotificationSentDelegate OnNotificationSent;
 		public event NotificationFailedDelegate OnNotificationFailed;
+		public event NotificationRequeueDelegate OnNotificationRequeue;
 		public event ChannelExceptionDelegate OnChannelException;
 		public event ServiceExceptionDelegate OnServiceException;
 		public event DeviceSubscriptionExpiredDelegate OnDeviceSubscriptionExpired;
@@ -40,6 +41,7 @@ namespace PushSharp
 			pushService.OnDeviceSubscriptionExpired += OnDeviceSubscriptionExpired;
 			pushService.OnNotificationFailed += OnNotificationFailed;
 			pushService.OnNotificationSent += OnNotificationSent;
+			pushService.OnNotificationRequeue += OnNotificationRequeue;
 			pushService.OnServiceException += OnServiceException;
 			pushService.OnDeviceSubscriptionChanged += OnDeviceSubscriptionChanged;
 		}
