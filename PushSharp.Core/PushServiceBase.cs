@@ -315,8 +315,12 @@ namespace PushSharp.Core
 				}
 
 				var msWaited = (DateTime.UtcNow - notification.EnqueuedTimestamp).TotalMilliseconds;
-				measurements.Add(new WaitTimeMeasurement((long) msWaited));
-				
+
+				lock (measurements)
+				{
+					measurements.Add(new WaitTimeMeasurement((long) msWaited));
+				}
+
 				channel.SendNotification(notification, (sender, result) =>
 					{
 						//Trigger 
