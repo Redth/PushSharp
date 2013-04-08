@@ -34,7 +34,7 @@ namespace PushSharp
 
 		public static GcmNotification WithJson(this GcmNotification n, string json)
 		{
-			try { var nobj = Newtonsoft.Json.Linq.JObject.Parse(json); }
+			try { Newtonsoft.Json.Linq.JObject.Parse(json); }
 			catch { throw new InvalidCastException("Invalid JSON detected!"); }
 
 			n.JsonData = json;

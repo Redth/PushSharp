@@ -42,7 +42,7 @@ namespace PushSharp.Android
 			var result = new C2dmMessageTransportResponse();
 			result.Message = msg;
 
-			var postData = msg.GetPostData();
+			//var postData = msg.GetPostData();
 
 			var webReq = (HttpWebRequest)WebRequest.Create(C2DM_SEND_URL);
 			//webReq.ContentLength = postData.Length;
@@ -91,7 +91,7 @@ namespace PushSharp.Android
 					}
 				}
 			}
-			catch (Exception ex)
+			catch (Exception)
 			{
 				if (asyncParam.Callback != null)
 					asyncParam.Callback(this, new SendNotificationResult(asyncParam.Message, true, new Exception("Unknown Network Failure")));
@@ -117,7 +117,7 @@ namespace PushSharp.Android
 					processResponseError(asyncParam);
 				}
 			}
-			catch (Exception ex)
+			catch (Exception)
 			{
 				if (asyncParam.Callback != null)
 					asyncParam.Callback(this, new SendNotificationResult(asyncParam.Message, true, new Exception("Unknown Network Failure")));

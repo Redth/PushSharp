@@ -37,7 +37,7 @@ namespace PushSharp.Android
 			var result = new GcmMessageTransportResponse();
 			result.Message = msg;
 						
-			var postData = msg.GetJson();
+			//var postData = msg.GetJson();
 
 			var webReq = (HttpWebRequest)WebRequest.Create(gcmSettings.GcmUrl);
 			//webReq.ContentLength = postData.Length;

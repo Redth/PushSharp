@@ -45,7 +45,7 @@ namespace PushSharp.Windows
 
 		static void ValidateUri(string url)
 		{
-			var uri = new Uri(url);
+			new Uri(url);
 		}
 
 		public static WindowsTileNotification WithTag(this WindowsTileNotification notification, string tag)
