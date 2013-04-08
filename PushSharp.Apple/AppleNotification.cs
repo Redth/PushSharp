@@ -138,8 +138,8 @@ namespace PushSharp.Apple
 			}
 			byte[] payloadSize = BitConverter.GetBytes(IPAddress.HostToNetworkOrder(Convert.ToInt16(payload.Length)));
 
-			int bufferSize = sizeof(Byte) + deviceTokenSize.Length + deviceToken.Length + payloadSize.Length + payload.Length;
-			byte[] buffer = new byte[bufferSize];
+			//int bufferSize = sizeof(Byte) + deviceTokenSize.Length + deviceToken.Length + payloadSize.Length + payload.Length;
+			//byte[] buffer = new byte[bufferSize];
 
 			List<byte[]> notificationParts = new List<byte[]>();
 
