@@ -263,7 +263,7 @@ namespace PushSharp.Android
 			else if (response.ResponseStatus == MessageTransportResponseStatus.InvalidRegistration || response.ResponseStatus == MessageTransportResponseStatus.NotRegistered)
 			{
 				//Device subscription is no good!
-				asyncParam.Callback(this, new SendNotificationResult(response.Message, false, new DeviceSubscriptonExpiredException()) { IsSubscriptionExpired = true});
+				asyncParam.Callback(this, new SendNotificationResult(response.Message, false, new DeviceSubscriptonExpiredException()) { OldSubscriptionId = response.Message.RegistrationId, IsSubscriptionExpired = true});
 			}
 			else
 			{

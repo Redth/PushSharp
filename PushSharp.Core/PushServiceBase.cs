@@ -343,19 +343,33 @@ namespace PushSharp.Core
 						}
 						else
 						{
-							//This is a fairly special case that only GCM should really ever raise
-							if (!string.IsNullOrEmpty(result.NewSubscriptionId) && !string.IsNullOrEmpty(result.OldSubscriptionId))
-							{
-								var evt = this.OnDeviceSubscriptionChanged;
-								if (evt != null)
-									evt(this, result.OldSubscriptionId, result.NewSubscriptionId, result.Notification);
-							}
-
+							//Result was a success, but there are still more possible outcomes than an outright success
 							if (!result.IsSuccess)
 							{
-								var evt = this.OnNotificationFailed;
-								if (evt != null)
-									evt(this, result.Notification, result.Error);
+								//Check if the subscription was expired
+								if (result.IsSubscriptionExpired)
+								{
+									//If there is a new id, the subscription must have changed
+									//This is a fairly special case that only GCM should really ever raise
+									if (!string.IsNullOrEmpty(result.NewSubscriptionId))
+									{
+										var evt = this.OnDeviceSubscriptionChanged;
+										if (evt != null)
+											evt(this, result.OldSubscriptionId, result.NewSubscriptionId, result.Notification);
+									}
+									else
+									{
+										var evt = this.OnDeviceSubscriptionExpired;
+										if (evt != null)
+											evt(this, result.OldSubscriptionId, result.SubscriptionExpiryUtc, result.Notification);
+									}
+								}
+								else //Otherwise some general failure
+								{
+									var evt = this.OnNotificationFailed;
+									if (evt != null)
+										evt(this, result.Notification, result.Error);
+								}
 							}
 							else
 							{

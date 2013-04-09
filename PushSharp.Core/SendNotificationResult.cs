@@ -22,6 +22,7 @@ namespace PushSharp.Core
 		public bool CountsAsRequeue { get; set; }
 		public string OldSubscriptionId { get; set; }
 		public string NewSubscriptionId { get; set; }
+		public DateTime SubscriptionExpiryUtc { get;set; }
 		public bool IsSubscriptionExpired { get; set; }
 		public bool IsSuccess { get { return Error == null; } }
 	}

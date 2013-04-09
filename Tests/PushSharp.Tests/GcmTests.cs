@@ -110,6 +110,86 @@ namespace PushSharp.Tests
 			TestNotifications(false, 1, 1, 0);
 		}
 
+		[Test]
+		public void GCM_Subscription_ShouldBeExpired()
+		{
+			int msgIdOn = 1;
+
+			int pushFailCount = 0;
+			int pushSuccessCount = 0;
+			int subChangedCount = 0;
+			int subExpiredCount = 0;
+
+			var notifications = new List<GcmNotification>() {
+				new GcmNotification().ForDeviceRegistrationId("NOTREGISTERED").WithJson(@"{""key"":""value""}")
+			};
+
+			TestNotifications(notifications,
+				new List<GcmMessageResponseFilter>() {
+					new GcmMessageResponseFilter()
+					{
+						IsMatch = (request, s) => {
+							return s.Equals("NOTREGISTERED", StringComparison.InvariantCultureIgnoreCase);
+						},
+						Status = new GcmMessageResult() { 
+							ResponseStatus = GcmMessageTransportResponseStatus.NotRegistered,
+							MessageId = "1:" + msgIdOn++
+						}
+					}
+				},
+				(sender, notification) => pushSuccessCount++, //Success
+				(sender, notification, error) => pushFailCount++, //Failed
+				(sender, oldId, newId, notification) => subChangedCount++,
+				(sender, id, expiryDate, notification) => subExpiredCount++
+			);
+
+			Assert.AreEqual(0, pushFailCount, "Client - Failed Count");
+			Assert.AreEqual(0, pushSuccessCount, "Client - Success Count");
+			Assert.AreEqual(0, subChangedCount, "Client - SubscriptionId Changed Count");
+			Assert.AreEqual(notifications.Count, subExpiredCount, "Client - SubscriptionId Expired Count");
+		}
+
+
+		[Test]
+		public void GCM_Subscription_ShouldBeChanged()
+		{
+			int msgIdOn = 1;
+			
+			int pushFailCount = 0;
+			int pushSuccessCount = 0;
+			int subChangedCount = 0;
+			int subExpiredCount = 0;
+			
+			var notifications = new List<GcmNotification>() {
+				new GcmNotification().ForDeviceRegistrationId("NOTREGISTERED").WithJson(@"{""key"":""value""}")
+			};
+			
+			TestNotifications(notifications,
+			                  new List<GcmMessageResponseFilter>() {
+				new GcmMessageResponseFilter()
+				{
+					IsMatch = (request, s) => {
+						return s.Equals("NOTREGISTERED", StringComparison.InvariantCultureIgnoreCase);
+					},
+					Status = new GcmMessageResult() { 
+						ResponseStatus = GcmMessageTransportResponseStatus.NotRegistered,
+						CanonicalRegistrationId = "NEWID",
+						MessageId = "1:" + msgIdOn++
+					}
+				}
+			},
+			(sender, notification) => pushSuccessCount++, //Success
+			(sender, notification, error) => pushFailCount++, //Failed
+			(sender, oldId, newId, notification) => subChangedCount++,
+			(sender, id, expiryDate, notification) => subExpiredCount++
+			);
+			
+			Assert.AreEqual(0, pushFailCount, "Client - Failed Count");
+			Assert.AreEqual(0, pushSuccessCount, "Client - Success Count");
+			Assert.AreEqual(notifications.Count, subChangedCount, "Client - SubscriptionId Changed Count");
+			Assert.AreEqual(0, subExpiredCount, "Client - SubscriptionId Expired Count");
+		}
+
 
 		public void TestNotifications(bool shouldBatch, int toQueue, int expectSuccessful, int expectFailed, int[] indexesToFail = null)
 		{
@@ -139,6 +219,16 @@ namespace PushSharp.Tests
 				}
 			});
 
+			server.MessageResponseFilters.Add(new GcmMessageResponseFilter()
+			                                  {
+				IsMatch = (request, s) => {
+					return s.Equals("NOTREGISTERED", StringComparison.InvariantCultureIgnoreCase);
+				},
+				Status = new GcmMessageResult() { 
+					ResponseStatus = GcmMessageTransportResponseStatus.NotRegistered,
+					MessageId = "1:" + msgIdOn++
+				}
+			});
 			//var waitServerFinished = new ManualResetEvent(false);
 			
 			server.Start(testPort, response =>
@@ -196,6 +286,66 @@ namespace PushSharp.Tests
 
 			Assert.AreEqual(expectFailed, pushFailCount, "Client - Failed Count");
 			Assert.AreEqual(expectSuccessful, pushSuccessCount, "Client - Success Count");
+		}
+
+
+
+
+		public void TestNotifications(List<GcmNotification> notifications,
+		                              List<GcmMessageResponseFilter> responseFilters,
+		                              Action<object, INotification> sentCallback,
+		                              Action<object, INotification, Exception> failedCallback,
+		                              Action<object, string, string, INotification> subscriptionChangedCallback,
+		                              Action<object, string, DateTime, INotification> subscriptionExpiredCallback)
+		{
+			testPort++;
+
+			int pushFailCount = 0;
+			int pushSuccessCount = 0;
+			
+			int serverReceivedCount = 0;
+			int serverReceivedFailCount = 0;
+			int serverReceivedSuccessCount = 0;
+
+		
+			var server = new TestServers.GcmTestServer();
+
+			server.MessageResponseFilters.AddRange(responseFilters);
+
+			server.Start(testPort, response => {
+				serverReceivedCount += (int)response.NumberOfCanonicalIds;
+				serverReceivedSuccessCount += (int) response.NumberOfSuccesses;
+				serverReceivedFailCount += (int) response.NumberOfFailures;
+			});
+			
+			
+			
+			var settings = new GcmPushChannelSettings("SENDERAUTHTOKEN");
+			settings.OverrideUrl("http://localhost:" + (testPort) + "/");
+			
+			var push = new GcmPushService(settings);
+			push.OnNotificationSent += (sender, notification1) => {
+				pushSuccessCount++;
+				sentCallback(sender, notification1);
+			};
+			push.OnNotificationFailed += (sender, notification1, error) => {
+				pushFailCount++;
+				failedCallback(sender, notification1, error);
+			};
+			push.OnDeviceSubscriptionChanged += (sender, oldSubscriptionId, newSubscriptionId, notification) => subscriptionChangedCallback(sender, oldSubscriptionId, newSubscriptionId, notification);
+			push.OnDeviceSubscriptionExpired += (sender, expiredSubscriptionId, expirationDateUtc, notification) => subscriptionExpiredCallback(sender, expiredSubscriptionId, expirationDateUtc, notification);
+
+
+			foreach (var n in notifications)
+				push.QueueNotification(n);
+
+			push.Stop();
+			push.Dispose();
+			
+			server.Dispose();
+			//waitServerFinished.WaitOne();
+			
+			Console.WriteLine("TEST-> DISPOSE.");
 		}
 	}
 }
