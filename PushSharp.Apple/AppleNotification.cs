@@ -78,7 +78,14 @@ namespace PushSharp.Apple
 
 		public override string ToString()
 		{
-			return Payload.ToJson();
+			try
+			{ 
+				if (Payload != null)
+					return Payload.ToJson();
+			}
+			catch { }
+
+			return "{}";
 		}
 
 		public byte[] ToBytes()
