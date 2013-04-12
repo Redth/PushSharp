@@ -315,7 +315,16 @@ namespace PushSharp.Apple
 			while (true)
 			{
 				lock(connectLock)
-					Connect();
+				{
+					//Connect could technically fail
+					try { Connect(); }
+					catch (Exception ex) 
+					{
+						var evt = this.OnException;
+						if (evt != null)
+							evt(this, ex);
+					}
+				}
 
 				bool wasRemoved = false;
 
