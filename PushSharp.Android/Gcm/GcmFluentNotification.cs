@@ -14,6 +14,12 @@ namespace PushSharp
 			return n;
 		}
 
+        public static GcmNotification ForDeviceRegistrationId(this GcmNotification n, IEnumerable<string> deviceRegistrationIds)
+        {
+            n.RegistrationIds.AddRange(deviceRegistrationIds);
+            return n;
+        }
+
 		public static GcmNotification WithCollapseKey(this GcmNotification n, string collapseKey)
 		{
 			n.CollapseKey = collapseKey;
