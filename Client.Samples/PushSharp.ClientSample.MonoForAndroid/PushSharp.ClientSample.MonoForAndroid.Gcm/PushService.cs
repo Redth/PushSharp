@@ -13,6 +13,7 @@ using PushSharp.Client;
 [assembly: UsesPermission(Name = "@PACKAGE_NAME@.permission.C2D_MESSAGE")]
 [assembly: UsesPermission(Name = "com.google.android.c2dm.permission.RECEIVE")]
 
+//GET_ACCOUNTS is only needed for android versions 4.0.3 and below
 [assembly: UsesPermission(Name = "android.permission.GET_ACCOUNTS")]
 [assembly: UsesPermission(Name = "android.permission.INTERNET")]
 [assembly: UsesPermission(Name = "android.permission.WAKE_LOCK")]
