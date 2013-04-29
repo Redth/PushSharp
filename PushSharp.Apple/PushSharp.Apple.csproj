@@ -38,6 +38,9 @@
     <AssemblyOriginatorKeyFile>PushSharp-Signing.snk</AssemblyOriginatorKeyFile>
   </PropertyGroup>
   <ItemGroup>
+    <Reference Include="Starksoft.Net.Proxy">
+      <HintPath>..\lib\Starksoft.Proxy.1.0.130.0\Starksoft.Net.Proxy.dll</HintPath>
+    </Reference>
     <Reference Include="System" />
     <Reference Include="System.Core" />
     <Reference Include="System.Runtime.Serialization" />
@@ -68,7 +71,9 @@
     <Compile Include="ApplePushBrokerExtensions.cs" />
   </ItemGroup>
   <ItemGroup>
-    <None Include="packages.config" />
+    <None Include="packages.config">
+      <SubType>Designer</SubType>
+    </None>
     <None Include="PushSharp-Signing.snk" />
   </ItemGroup>
   <ItemGroup>

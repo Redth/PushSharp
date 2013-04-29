@@ -1,6 +1,7 @@
 ﻿﻿using System;
 using System.Collections.Generic;
-using System.Linq;
+﻿using System.Globalization;
+﻿using System.Linq;
 using System.Text;
 using System.Threading;
 using System.Net;
@@ -8,6 +9,7 @@ using System.Net.Sockets;
 using System.Net.Security;
 using System.Security.Cryptography;
 using System.Security.Cryptography.X509Certificates;
+﻿using Starksoft.Net.Proxy;
 
 namespace PushSharp.Apple
 {
@@ -38,7 +40,7 @@ namespace PushSharp.Apple
 			certificates.Add(certificate);
 
 
-			var client = new TcpClient(settings.FeedbackHost, settings.FeedbackPort);
+		    var client = CreateTcpClient(settings); // new TcpClient(settings.FeedbackHost, settings.FeedbackPort));
 
 			var stream = new SslStream(client.GetStream(), true,
 				(sender, cert, chain, sslErrs) => { return true; },
@@ -106,5 +108,44 @@ namespace PushSharp.Apple
 
 			
 		}
+
+        /// <summary>
+        /// Creates a connection via a proxy.
+        /// </summary>
+        /// <returns>A open Tcp Client instance ready to use.</returns>
+        /// <exception cref="Starksoft.Net.Proxy.ProxyException">Will be thrown if the connection cannot be made to the proxy server.</exception>
+        private TcpClient CreateTcpClient(ApplePushChannelSettings settings)
+        {
+            if (string.IsNullOrWhiteSpace(settings.ProxyServerName) || settings.ProxyPort <= 0)
+            {
+                return new TcpClient(settings.FeedbackHost, settings.FeedbackPort);
+            }
+
+            IProxyClient proxyClient = null;
+
+            switch (settings.ProxyVersion)
+            {
+                case ProxyVersion.SOCKS4:
+                    proxyClient = new Socks4ProxyClient(settings.ProxyServerName, settings.ProxyPort);
+                    break;
+
+                case ProxyVersion.SOCKS4a:
+                    proxyClient = new Socks4aProxyClient(settings.ProxyServerName, settings.ProxyPort);
+                    break;
+
+                case ProxyVersion.SOCKS5:
+                    proxyClient = new Socks5ProxyClient(settings.ProxyServerName, settings.ProxyPort);
+                    break;
+            }
+
+            if (proxyClient == null)
+            {
+                throw new ArgumentException(
+                    string.Format(CultureInfo.InvariantCulture,
+                        "Proxy version not supported. Version: {0}", settings.ProxyVersion));
+            }
+
+            return proxyClient.CreateConnection(settings.FeedbackHost, settings.FeedbackPort);
+        }
 	}
 }
