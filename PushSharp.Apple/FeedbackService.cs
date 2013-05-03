@@ -1,4 +1,4 @@
-﻿﻿using System;
+﻿using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
@@ -13,8 +13,13 @@ namespace PushSharp.Apple
 {
 	public class FeedbackService
 	{
-		public delegate void FeedbackReceivedDelegate(string deviceToken, DateTime timestamp);
+		public delegate void FeedbackReceivedDelegate (string deviceToken, DateTime timestamp);
+
 		public event FeedbackReceivedDelegate OnFeedbackReceived;
+
+		public delegate void FeedbackExceptionDelegate (Exception ex);
+
+		public event FeedbackExceptionDelegate OnFeedbackException;
 
 		public void RaiseFeedbackReceived(string deviceToken, DateTime timestamp)
 		{
@@ -23,9 +28,23 @@ namespace PushSharp.Apple
 				evt(deviceToken, timestamp);
 		}
 
+		public void RaiseFeedbackException(Exception ex)
+		{
+			var evt = this.OnFeedbackException;
+			if (evt != null)
+				evt(ex);
+		}
+
 		public void Run(ApplePushChannelSettings settings)
 		{
-			Run(settings, (new CancellationTokenSource()).Token);
+			try
+			{
+				Run(settings, (new CancellationTokenSource()).Token);
+			}
+			catch (Exception ex)
+			{
+				this.RaiseFeedbackException (ex);
+			}
 		}
 
 		public void Run(ApplePushChannelSettings settings, CancellationToken cancelToken)
