@@ -42,6 +42,7 @@ namespace PushSharp.Apple
 			{
 				feedbackService = new FeedbackService();
 				feedbackService.OnFeedbackReceived += feedbackService_OnFeedbackReceived;
+				feedbackService.OnFeedbackException += (Exception ex) => this.RaiseServiceException (ex);
 
 				if (timerFeedback == null)
 				{
