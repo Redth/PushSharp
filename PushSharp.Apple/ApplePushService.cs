@@ -55,6 +55,9 @@ namespace PushSharp.Apple
 					}), null, TimeSpan.FromSeconds(10), TimeSpan.FromMinutes(appleChannelSettings.FeedbackIntervalMinutes));
 				}
 			}
+
+			//Apple has documented that they only want us to use 20 connections to them
+			base.ServiceSettings.MaxAutoScaleChannels = 20;
 		}
 
 		void feedbackService_OnFeedbackReceived(string deviceToken, DateTime timestamp)
