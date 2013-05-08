@@ -135,8 +135,8 @@ namespace PushSharp.Apple
 							if (!stillConnected)
 								throw new ObjectDisposedException("Connection to APNS is not Writable");
 								
-							lock (sentLock)
-							{
+							//lock (sentLock)
+							//{
 								if (notificationData.Length > 45)
 								{
 									networkStream.Write(notificationData, 0, 45);
@@ -148,7 +148,7 @@ namespace PushSharp.Apple
 								networkStream.Flush();
 
 								sentNotifications.Add(new SentNotification(appleNotification) {Callback = callback});
-							}
+							//}
 						}
 					}
 					catch (ConnectionFailureException cex)
