@@ -67,6 +67,10 @@
       <Project>{71E27C37-FBBF-481B-934B-1F7DBDE3C5D6}</Project>
       <Name>PushSharp.Google</Name>
     </ProjectReference>
+    <ProjectReference Include="..\PushSharp.Facebook\PushSharp.Facebook.csproj">
+      <Project>{3aa99aa2-3677-4d5f-b5bd-3e1c818b2156}</Project>
+      <Name>PushSharp.Facebook</Name>
+    </ProjectReference>
     <ProjectReference Include="..\PushSharp.WindowsPhone\PushSharp.WindowsPhone.csproj">
       <Project>{9947F510-BA9A-4045-A648-BAB687D8F513}</Project>
       <Name>PushSharp.WindowsPhone</Name>
