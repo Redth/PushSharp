@@ -8,6 +8,7 @@ using PushSharp;
 using PushSharp.Android;
 using PushSharp.Apple;
 using PushSharp.Core;
+using PushSharp.Facebook;
 using PushSharp.Windows;
 using PushSharp.WindowsPhone;
 
@@ -20,7 +21,7 @@ namespace PushSharp.Sample
 	class Program
 	{
 		static void Main(string[] args)
-		{		
+		{
 			//Create our push services broker
 			var push = new PushBroker();
 
@@ -33,7 +34,7 @@ namespace PushSharp.Sample
 			push.OnDeviceSubscriptionChanged += DeviceSubscriptionChanged;
 			push.OnChannelCreated += ChannelCreated;
 			push.OnChannelDestroyed += ChannelDestroyed;
-			
+
 
 			//------------------------------------------------
 			//IMPORTANT NOTE about Push Service Registrations
@@ -43,7 +44,7 @@ namespace PushSharp.Sample
 
 			// If you don't want to use the extension method helpers you can register a service like this:
 			//push.RegisterService<WindowsPhoneToastNotification>(new WindowsPhonePushService());
-			
+
 			//If you register your services like this, you must register the service for each type of notification
 			//you want it to handle.  In the case of WindowsPhone, there are several notification types!
 
@@ -57,21 +58,21 @@ namespace PushSharp.Sample
 			//   and one for connecting to Production.  You must use the right one, to match the provisioning profile you build your
 			//   app with!
 			var appleCert = File.ReadAllBytes(Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "../../../Resources/PushSharp.Apns.Sandbox.p12"));
-            //IMPORTANT: If you are using a Development provisioning Profile, you must use the Sandbox push notification server 
-            //  (so you would leave the first arg in the ctor of ApplePushChannelSettings as 'false')
-            //  If you are using an AdHoc or AppStore provisioning profile, you must use the Production push notification server
-            //  (so you would change the first arg in the ctor of ApplePushChannelSettings to 'true')
-            push.RegisterAppleService(new ApplePushChannelSettings(appleCert, "CERTIFICATE PASSWORD HERE")); //Extension method
+			//IMPORTANT: If you are using a Development provisioning Profile, you must use the Sandbox push notification server 
+			//  (so you would leave the first arg in the ctor of ApplePushChannelSettings as 'false')
+			//  If you are using an AdHoc or AppStore provisioning profile, you must use the Production push notification server
+			//  (so you would change the first arg in the ctor of ApplePushChannelSettings to 'true')
+			push.RegisterAppleService(new ApplePushChannelSettings(appleCert, "CERTIFICATE PASSWORD HERE")); //Extension method
 			//Fluent construction of an iOS notification
 			//IMPORTANT: For iOS you MUST MUST MUST use your own DeviceToken here that gets generated within your iOS app itself when the Application Delegate
 			//  for registered for remote notifications is called, and the device token is passed back to you
 			push.QueueNotification(new AppleNotification()
-			                           .ForDeviceToken("DEVICE TOKEN HERE")
-			                           .WithAlert("Hello World!")
-			                           .WithBadge(7)
-			                           .WithSound("sound.caf"));
+																 .ForDeviceToken("DEVICE TOKEN HERE")
+																 .WithAlert("Hello World!")
+																 .WithBadge(7)
+																 .WithSound("sound.caf"));
 
-			
+
 			//---------------------------
 			// ANDROID GCM NOTIFICATIONS
 			//---------------------------
@@ -83,13 +84,13 @@ namespace PushSharp.Sample
 			//Fluent construction of an Android GCM Notification
 			//IMPORTANT: For Android you MUST use your own RegistrationId here that gets generated within your Android app itself!
 			push.QueueNotification(new GcmNotification().ForDeviceRegistrationId("DEVICE REGISTRATION ID HERE")
-			                      .WithJson("{\"alert\":\"Hello World!\",\"badge\":7,\"sound\":\"sound.caf\"}"));
-			
+														.WithJson("{\"alert\":\"Hello World!\",\"badge\":7,\"sound\":\"sound.caf\"}"));
+
 
 			//-----------------------------
 			// WINDOWS PHONE NOTIFICATIONS
 			//-----------------------------
-            //Configure and start Windows Phone Notifications
+			//Configure and start Windows Phone Notifications
 			push.RegisterWindowsPhoneService();
 			//Fluent construction of a Windows Phone Toast notification
 			//IMPORTANT: For Windows Phone you MUST use your own Endpoint Uri here that gets generated within your Windows Phone app itself!
@@ -100,7 +101,7 @@ namespace PushSharp.Sample
 				.WithNavigatePath("/MainPage.xaml")
 				.WithText1("PushSharp")
 				.WithText2("This is a Toast"));
-			
+
 
 			//-------------------------
 			// WINDOWS NOTIFICATIONS
@@ -109,11 +110,32 @@ namespace PushSharp.Sample
 			push.RegisterWindowsService(new WindowsPushChannelSettings("WINDOWS APP PACKAGE NAME HERE",
 				"WINDOWS APP PACKAGE SECURITY IDENTIFIER HERE", "CLIENT SECRET HERE"));
 			//Fluent construction of a Windows Toast Notification
-            push.QueueNotification(new WindowsToastNotification()
-				.AsToastText01("This is a test")
-				.ForChannelUri("DEVICE CHANNEL URI HERE"));
+			push.QueueNotification(new WindowsToastNotification()
+												.AsToastText01("This is a test")
+												.ForChannelUri("DEVICE CHANNEL URI HERE"));
 
-			
+			//-------------------------
+			// FACEBOOK NOTIFICATIONS
+			//-------------------------
+			//Configure and start Facebook Notifications
+			push.RegisterFacebookService(new FacebookPushChannelSettings("FACEBOOK API ID", "FACEBOOK APP SECRET"));
+			// Message on wall if user set right to the app
+			push.QueueNotification(new FacebookNotification()
+												.ForDeviceRegistrationId("FACEBOOK REGISTRATION ID HERE")
+												.ForWallMessage("Your message !")
+												);
+
+			// Message on notifcation
+			push.QueueNotification(new FacebookNotification()
+												.ForDeviceRegistrationId("FACEBOOK REGISTRATION ID HERE")
+												.ForNotification("Your message !", "Your callback url")
+												);
+
+			// App request
+			push.QueueNotification(new FacebookNotification()
+												.ForDeviceRegistrationId("FACEBOOK REGISTRATION ID HERE")
+												.ForApplicationRequest("Your message !", "Title message")
+												);
 
 			Console.WriteLine("Waiting for Queue to Finish...");
 
@@ -121,7 +143,7 @@ namespace PushSharp.Sample
 			push.StopAllServices();
 
 			Console.WriteLine("Queue Finished, press return to exit...");
-			Console.ReadLine();			
+			Console.ReadLine();
 		}
 
 		static void DeviceSubscriptionChanged(object sender, string oldSubscriptionId, string newSubscriptionId, INotification notification)
