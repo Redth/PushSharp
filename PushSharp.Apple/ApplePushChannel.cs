@@ -231,8 +231,10 @@ namespace PushSharp.Apple
 								try { stream.Close(); stream.Dispose(); }
 								catch { }
 
-								try { client.Close(); stream.Dispose(); }
+								try { client.Close(); }
 								catch { }
+
+								client = null;
 
 								//Get the enhanced format response
 								// byte 0 is always '1', byte 1 is the status, bytes 2,3,4,5 are the identifier of the notification
