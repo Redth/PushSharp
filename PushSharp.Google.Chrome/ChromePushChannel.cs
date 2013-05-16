@@ -10,12 +10,17 @@ using System.Net.Security;
 
 using PushSharp.Core;
 using System.Net.Http;
+using System.Threading.Tasks;
 
 namespace PushSharp.Google.Chrome
 {
 	public class ChromePushChannel : IPushChannel
 	{
 		ChromePushChannelSettings chromeSettings = null;
+
+		public string AccessToken { get; private set; }
+		public DateTime Expires { get; private set; }
+
 
 		public ChromePushChannel(ChromePushChannelSettings channelSettings)
 		{
@@ -25,6 +30,27 @@ namespace PushSharp.Google.Chrome
 		static ChromePushChannel()
 		{
 			ServicePointManager.ServerCertificateValidationCallback += (sender, cert, chain, policyErrs) => { return true; };
+		}
+
+		public void RefreshToken()
+		{
+			RefreshAccessToken ();
+		}
+
+		public void RefreshAccessToken()
+		{
+			var http = new HttpClient ();
+					
+			var p = new Dictionary<string, string> ();
+
+			p.Add ("client_id", chromeSettings.ClientId);
+			p.Add ("client_secret", chromeSettings.ClientSecret);
+			p.Add ("refresh_token", chromeSettings.RefreshToken);
+			p.Add ("grant_type", chromeSettings.GrantType);
+
+			var response = http.PostAsync (chromeSettings.AuthUrl, new FormUrlEncodedContent (p)).Result;
+
+			Console.WriteLine ("RESPONSE: " + response.Content.ReadAsStringAsync().Result);
 		}
 
 		public async void SendNotification(INotification notification, SendNotificationCallbackDelegate callback)

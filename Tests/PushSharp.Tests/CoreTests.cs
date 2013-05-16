@@ -27,7 +27,7 @@ namespace PushSharp.Tests
 		public void TestAppleRegistration()
 		{
 			broker.RegisterAppleService(new ApplePushChannelSettings(false, appleCert, "pushsharp"));
-			Assert.IsNotEmpty(broker.GetRegistrations<AppleNotification>());
+			Assert.IsNotEmpty(broker.GetRegistrations<AppleNotification>().ToString());
 		}
     }
 }
