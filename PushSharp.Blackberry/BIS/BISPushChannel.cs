@@ -65,15 +65,15 @@ namespace PushSharp.Blackberry
             //but I have to put each item in a new line i.e I used profileId
             dataToSend.AppendLine(bbNotification.PayLoadToString());
 
-            //dataToSend.AppendLine("");
-            if (bbNotification.BISNoType != BISNotificationType.JpegImage)
-            {
+           
+            //if (bbNotification.BISNoType != BISNotificationType.JpegImage)
+            //{
                 dataToSend.AppendLine(bbNotification.Message);
-            }
-            else
-            {
-                dataToSend.AppendLine(bbNotification.GetJpegImageBytes());
-            }
+            //}
+            //else
+            //{
+            //    dataToSend.AppendLine(bbNotification.GetJpegImageBytes());
+            //}
 
             dataToSend.AppendLine("--" + BisSettings.Boundary + "--");
             dataToSend.AppendLine("");

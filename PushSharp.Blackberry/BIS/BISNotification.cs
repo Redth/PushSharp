@@ -10,8 +10,8 @@ namespace PushSharp.Blackberry
     public enum BISNotificationType
     {
         Text,
-        Html,
-        JpegImage
+        Html//,
+        //JpegImage
     }
 
     public class BISNotification : Core.Notification
@@ -39,20 +39,20 @@ namespace PushSharp.Blackberry
                 {
                     case BISNotificationType.Html:
                         return "text/html";
-                    case BISNotificationType.JpegImage:
-                        return "image/jpeg";
+                    //case BISNotificationType.JpegImage:
+                        //return "image/jpeg";
                     default:
                         return "text/plain";
                 }
             }
         }
 
-        public byte[] JpegImage;
+        //public byte[] JpegImage;
 
-        public string GetJpegImageBytes()
-        {
-            return JpegImage == null ? string.Empty : Encoding.Default.GetString(JpegImage);
-        }
+        //public string GetJpegImageBytes()
+        //{
+        //    return JpegImage == null ? string.Empty : Encoding.Default.GetString(JpegImage);
+        //}
 
         public string PayLoadToString()
 	    {
