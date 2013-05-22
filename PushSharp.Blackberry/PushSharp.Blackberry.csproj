@@ -45,17 +45,17 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="..\PushSharp.Common\AssemblyVersionInfo.cs">
-      <Link>AssemblyVersionInfo.cs</Link>
-    </Compile>
-    <Compile Include="BlackberryNotification.cs" />
-    <Compile Include="BlackberryPushChannel.cs" />
-    <Compile Include="BlackberryPushChannelSettings.cs" />
-    <Compile Include="BlackberryPushService.cs" />
+    <Compile Include="BIS\BISExceptions.cs" />
+    <Compile Include="BIS\BISMessageStatus.cs" />
+    <Compile Include="BIS\BISNotification.cs" />
+    <Compile Include="BIS\BISPushBrokerExtensions.cs" />
+    <Compile Include="BIS\BISPushChannel.cs" />
+    <Compile Include="BIS\BISPushChannelSettings.cs" />
+    <Compile Include="BIS\BISPushService.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
   </ItemGroup>
   <ItemGroup>
-    <ProjectReference Include="..\PushSharp.Common\PushSharp.Core.csproj">
+    <ProjectReference Include="..\PushSharp.Core\PushSharp.Core.csproj">
       <Project>{836F225F-6CD9-48DE-910C-70F8A7CF54AA}</Project>
       <Name>PushSharp.Core</Name>
     </ProjectReference>
