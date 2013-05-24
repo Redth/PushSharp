@@ -46,13 +46,13 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="Properties\AssemblyInfo.cs" />
-    <Compile Include="Bis2\BisExceptions.cs" />
-    <Compile Include="Bis2\BisMessageStatus.cs" />
-    <Compile Include="Bis2\BisNotificationn.cs" />
-    <Compile Include="Bis2\BisPushBrokerExtensions.cs" />
-    <Compile Include="Bis2\BisPushChannel.cs" />
-    <Compile Include="Bis2\BisPushChannelSettings.cs" />
-    <Compile Include="Bis2\BisPushService.cs" />
+    <Compile Include="Bis\BisExceptions.cs" />
+    <Compile Include="Bis\BisMessageStatus.cs" />
+    <Compile Include="Bis\BisNotificationn.cs" />
+    <Compile Include="Bis\BisPushBrokerExtensions.cs" />
+    <Compile Include="Bis\BisPushChannel.cs" />
+    <Compile Include="Bis\BisPushChannelSettings.cs" />
+    <Compile Include="Bis\BisPushService.cs" />
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\PushSharp.Core\PushSharp.Core.csproj">
