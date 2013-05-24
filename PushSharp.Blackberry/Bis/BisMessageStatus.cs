@@ -1,6 +1,6 @@
 ﻿namespace PushSharp.Blackberry
 {
-    public class BisMessageStatus
+    public class BISMessageStatus
     {
         public BISNotificationStatus NotificationStatus { get; set; }
 
