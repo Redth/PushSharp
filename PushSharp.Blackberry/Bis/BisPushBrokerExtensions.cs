@@ -5,14 +5,14 @@ namespace PushSharp
 {
 	public static class BISPushBrokerExtensions
 	{
-		public static void RegisterBISService(this PushBroker broker, BISPushChannelSettings channelSettings, IPushServiceSettings serviceSettings = null)
+		public static void RegisterBISService(this PushBroker broker, BisPushChannelSettings channelSettings, IPushServiceSettings serviceSettings = null)
 		{
-			broker.RegisterService<BISNotification>(new BISPushService(channelSettings, serviceSettings));
+			broker.RegisterService<BisNotification>(new BisPushService(channelSettings, serviceSettings));
 		}
 
-        public static BISNotification BlackberryNotification(this PushBroker broker)
+        public static BisNotification BlackberryNotification(this PushBroker broker)
 		{
-            return new BISNotification();
+            return new BisNotification();
 		}
 	}
 }

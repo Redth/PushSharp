@@ -8,18 +8,18 @@ using PushSharp.Core;
 
 namespace PushSharp.Blackberry
 {
-    public class BISPushChannel : IPushChannel
+    public class BisPushChannel : IPushChannel
     {
-        BISPushChannelSettings BisSettings;
+        BisPushChannelSettings BisSettings;
 
-        public BISPushChannel(BISPushChannelSettings channelSettings)
+        public BisPushChannel(BisPushChannelSettings channelSettings)
         {
             BisSettings = channelSettings;
         }
 
         public void SendNotification(INotification notification, SendNotificationCallbackDelegate callback)
         {
-            var bbNotification = notification as BISNotification;
+            var bbNotification = notification as BisNotification;
             var bbr = WebRequest.Create(BisSettings.BbUrl) as HttpWebRequest;
 
             if (bbNotification == null || bbr == null)
@@ -57,13 +57,13 @@ namespace PushSharp.Blackberry
 
             
 
-            dataToSend.AppendLine("Content-Type: " + bbNotification.BISContentType);
+            dataToSend.AppendLine("Content-Type: " + bbNotification.ContentType);
 
             dataToSend.AppendLine("Push-Message-ID: " + pushId);
 
             //Custom payload goes here,I can add as many payload items as I want
             //but I have to put each item in a new line i.e I used profileId
-            dataToSend.AppendLine(bbNotification.PayLoadToString());
+            dataToSend.AppendLine(bbNotification.PayloadToString());
 
            
             //if (bbNotification.BISNoType != BISNotificationType.JpegImage)
@@ -112,7 +112,7 @@ namespace PushSharp.Blackberry
             var objs = (object[])asyncResult.AsyncState;
 
             var wr = (HttpWebRequest)objs[0];
-            var bbNotification = (BISNotification)objs[1];
+            var bbNotification = (BisNotification)objs[1];
             var callback = (SendNotificationCallbackDelegate)objs[2];
 
             HttpWebResponse resp = null;
@@ -134,7 +134,7 @@ namespace PushSharp.Blackberry
 
         }
 
-        void ParseStatus(HttpWebResponse resp, BISNotification notification, ref BISMessageStatus status, ref string desc)
+        void ParseStatus(HttpWebResponse resp, BisNotification notification, ref BISMessageStatus status, ref string desc)
         {
             status = new BISMessageStatus
                 {
@@ -175,7 +175,7 @@ namespace PushSharp.Blackberry
 
         }
 
-        void HandleStatus(SendNotificationCallbackDelegate callback, BISMessageStatus status, string desc, BISNotification notification = null)
+        void HandleStatus(SendNotificationCallbackDelegate callback, BISMessageStatus status, string desc, BisNotification notification = null)
         {
             if (status.NotificationStatus == BISNotificationStatus.NoAppReceivePush)
             {
