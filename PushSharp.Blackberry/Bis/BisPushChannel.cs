@@ -8,18 +8,18 @@ using PushSharp.Core;
 
 namespace PushSharp.Blackberry
 {
-    public class BisPushChannel : IPushChannel
+    public class BISPushChannel : IPushChannel
     {
-        BisPushChannelSettings BisSettings;
+        BISPushChannelSettings BisSettings;
 
-        public BisPushChannel(BisPushChannelSettings channelSettings)
+        public BISPushChannel(BISPushChannelSettings channelSettings)
         {
             BisSettings = channelSettings;
         }
 
         public void SendNotification(INotification notification, SendNotificationCallbackDelegate callback)
         {
-            var bbNotification = notification as BisNotification;
+            var bbNotification = notification as BISNotification;
             var bbr = WebRequest.Create(BisSettings.BbUrl) as HttpWebRequest;
 
             if (bbNotification == null || bbr == null)
@@ -57,13 +57,13 @@ namespace PushSharp.Blackberry
 
             
 
-            dataToSend.AppendLine("Content-Type: " + bbNotification.ContentType);
+            dataToSend.AppendLine("Content-Type: " + bbNotification.BISContentType);
 
             dataToSend.AppendLine("Push-Message-ID: " + pushId);
 
             //Custom payload goes here,I can add as many payload items as I want
             //but I have to put each item in a new line i.e I used profileId
-            dataToSend.AppendLine(bbNotification.PayloadToString());
+            dataToSend.AppendLine(bbNotification.PayLoadToString());
 
            
             //if (bbNotification.BISNoType != BISNotificationType.JpegImage)
@@ -94,7 +94,7 @@ namespace PushSharp.Blackberry
             {
                 //    Handle different statuses
                 string desc = string.Empty;
-                var status = new BisMessageStatus();
+                var status = new BISMessageStatus();
                 ParseStatus(wex.Response as HttpWebResponse, bbNotification, ref status, ref desc);
                 HandleStatus(callback, status, desc, bbNotification);
             }
@@ -112,7 +112,7 @@ namespace PushSharp.Blackberry
             var objs = (object[])asyncResult.AsyncState;
 
             var wr = (HttpWebRequest)objs[0];
-            var bbNotification = (BisNotification)objs[1];
+            var bbNotification = (BISNotification)objs[1];
             var callback = (SendNotificationCallbackDelegate)objs[2];
 
             HttpWebResponse resp = null;
@@ -128,15 +128,15 @@ namespace PushSharp.Blackberry
             catch { }
 
             var desc = string.Empty;
-            var status = new BisMessageStatus();
+            var status = new BISMessageStatus();
             ParseStatus(resp, bbNotification, ref status, ref desc);
             HandleStatus(callback, status, desc, bbNotification);
 
         }
 
-        void ParseStatus(HttpWebResponse resp, BisNotification notification, ref BisMessageStatus status, ref string desc)
+        void ParseStatus(HttpWebResponse resp, BISNotification notification, ref BISMessageStatus status, ref string desc)
         {
-            status = new BisMessageStatus
+            status = new BISMessageStatus
                 {
                     Notification = notification,
                     HttpStatus = HttpStatusCode.ServiceUnavailable
@@ -175,7 +175,7 @@ namespace PushSharp.Blackberry
 
         }
 
-        void HandleStatus(SendNotificationCallbackDelegate callback, BisMessageStatus status, string desc, BisNotification notification = null)
+        void HandleStatus(SendNotificationCallbackDelegate callback, BISMessageStatus status, string desc, BISNotification notification = null)
         {
             if (status.NotificationStatus == BISNotificationStatus.NoAppReceivePush)
             {
@@ -194,7 +194,7 @@ namespace PushSharp.Blackberry
             }
 
             if (callback != null)
-                callback(this, new SendNotificationResult(status.Notification, false, new BisNotificationSendFailureException(status, desc)));
+                callback(this, new SendNotificationResult(status.Notification, false, new BISNotificationSendFailureException(status, desc)));
         }
 
         public void Dispose()
