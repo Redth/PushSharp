@@ -210,13 +210,18 @@ namespace PushSharp.Apple
 
 			Log.Info("ApplePushChannel->DISPOSE.");
 		}
-		
+
+	    private IAsyncResult readAsyncResult = default(IAsyncResult);
+
 		void Reader()
 		{
 			try
 			{
-				networkStream.BeginRead(readBuffer, 0, 6, new AsyncCallback((asyncResult) =>
-				{
+			    readAsyncResult = networkStream.BeginRead(readBuffer, 0, 6, new AsyncCallback((asyncResult) =>
+			    {
+			        if (readAsyncResult != asyncResult)
+			            return;
+
 					lock (sentLock)
 					{
 						try
@@ -445,6 +450,8 @@ namespace PushSharp.Apple
 			}
 		}
 
+	    private IAsyncResult connectAsyncResult = default(IAsyncResult);
+
 		void connect()
 		{
 			client = new TcpClient();
@@ -458,12 +465,16 @@ namespace PushSharp.Apple
 			{
 				var connectDone = new AutoResetEvent(false);
 			
+                
 				//Connect async so we can utilize a connection timeout
-				client.BeginConnect(
+			    connectAsyncResult = client.BeginConnect(
 					appleSettings.Host, appleSettings.Port,
 					new AsyncCallback(
 						delegate(IAsyncResult ar)
 						{
+						    if (connectAsyncResult != ar)
+						        return;
+
 							try
 							{
 								client.EndConnect(ar);

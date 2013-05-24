@@ -34,7 +34,7 @@ namespace PushSharp.Android
 		public IPushChannel CreateChannel(IPushChannelSettings channelSettings)
 		{
 			if (!(channelSettings is GcmPushChannelSettings))
-				throw new ArgumentException("channelSettings must be of type GcmPushChannelSettings");
+				throw new ArgumentException("channelSettings must be of type " + typeof(GcmPushChannelSettings).Name);
 
 			return new GcmPushChannel(channelSettings as GcmPushChannelSettings);
 		}
