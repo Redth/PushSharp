@@ -3,11 +3,11 @@ using System.Collections.Generic;
 
 namespace PushSharp.Blackberry
 {
-	public class BISNotificationSendFailureException : Exception
+	public class BisNotificationSendFailureException : Exception
 	{
 	    private readonly string _message;
 	    private readonly Dictionary<string, object> _data = new Dictionary<string, object>();  
-		public BISNotificationSendFailureException(BISMessageStatus msgStatus, string desc)
+		public BisNotificationSendFailureException(BisMessageStatus msgStatus, string desc)
 		{
             _data.Add("HttpStatus", msgStatus.HttpStatus);
             _data.Add("Code", (Int32) msgStatus.NotificationStatus);
@@ -31,7 +31,7 @@ namespace PushSharp.Blackberry
                 return _data;
             }
         }
-		public BISMessageStatus MessageStatus
+		public BisMessageStatus MessageStatus
 		{
 			get;
 			set;

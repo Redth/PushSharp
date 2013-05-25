@@ -4,24 +4,29 @@ namespace PushSharp.Blackberry
 {
     public class BisPushChannelSettings : IPushChannelSettings
 	{
-		public string BbApplicationId { get; set; }
-		public string PushPassword { get; set; }
+		public string ApplicationId { get; set; }
+		public string Password { get; set; }
         public string Boundary { get { return "ASDFaslkdfjasfaSfdasfhpoiurwqrwm"; } }
 
-        private const string BbSendUrl = "https://pushapi.eval.blackberry.com/mss/PD_pushRequest";
+        private const string SEND_URL = "https://pushapi.eval.blackberry.com/mss/PD_pushRequest";
 
         public BisPushChannelSettings()
         {
-            BbUrl = BbSendUrl;
+            SendUrl = SEND_URL;
         }
 
-        public BisPushChannelSettings(string applicationId,string password)
+        public BisPushChannelSettings(string applicationId, string password)
 		{
-			BbApplicationId = applicationId;
-            PushPassword = password;
-			BbUrl = BbSendUrl;
+			ApplicationId = applicationId;
+            Password = password;
+			SendUrl = SEND_URL;
 		}
 
-		public string BbUrl { get; set; }
+		public string SendUrl { get; private set; }
+
+		public void OverrideSendUrl(string url)
+		{
+			SendUrl = url;
+		}
 	}
 }
