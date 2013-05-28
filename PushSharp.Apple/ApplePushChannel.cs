@@ -485,9 +485,20 @@ namespace PushSharp.Apple
 			}
 			else
 			{
+			    RemoteCertificateValidationCallback userCertificateValidation;
+
+                if (appleSettings != null && appleSettings.ValidateServerCertificate)
+                {
+                    userCertificateValidation = ValidateRemoteCertificate;
+                }
+                else
+                {
+                    userCertificateValidation = (sender, cert, chain, sslPolicyErrors) => true; //Don't validate remote cert
+                }
+
 				stream = new SslStream(client.GetStream(), false,
-					(sender, cert, chain, sslPolicyErrors) => true, //Don't validate remote cert
-					(sender, targetHost, localCerts, remoteCert, acceptableIssuers) => certificate); //
+                    userCertificateValidation, 
+					(sender, targetHost, localCerts, remoteCert, acceptableIssuers) => certificate);
 
 				try
 				{
@@ -607,6 +618,10 @@ namespace PushSharp.Apple
             return directClient;
         }
 
+        private static bool ValidateRemoteCertificate(object sender, X509Certificate certificate, X509Chain chain, SslPolicyErrors policyErrors)
+        {
+            return policyErrors == SslPolicyErrors.None;
+        }
 	}
 
 	public class SentNotification

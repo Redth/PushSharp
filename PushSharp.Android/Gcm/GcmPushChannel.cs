@@ -22,13 +22,20 @@ namespace PushSharp.Android
 
 		public GcmPushChannel(GcmPushChannelSettings channelSettings)
 		{
-			gcmSettings = channelSettings as GcmPushChannelSettings;	
-		}
+			gcmSettings = channelSettings as GcmPushChannelSettings;
 
+            if (gcmSettings != null && gcmSettings.ValidateServerCertificate)
+            {
+                ServicePointManager.ServerCertificateValidationCallback += ValidateRemoteCertificate;
+            }
+            else
+            {
+                ServicePointManager.ServerCertificateValidationCallback += (sender, cert, chain, policyErrs) => true; //Don't validate remote cert
+            }
+		}
 
 		static GcmPushChannel()
 		{
-			ServicePointManager.ServerCertificateValidationCallback += (sender, cert, chain, policyErrs) => { return true; };
 			assemblyVerison = System.Reflection.Assembly.GetExecutingAssembly ().GetName ().Version;
 		}
 		
@@ -338,6 +345,11 @@ namespace PushSharp.Android
 				Thread.Sleep(100);
 			}
 		}
+
+        private static bool ValidateRemoteCertificate(object sender, X509Certificate certificate, X509Chain chain, SslPolicyErrors policyErrors)
+        {
+            return policyErrors == SslPolicyErrors.None;
+        }
 
 		class GcmAsyncParameters
 		{
