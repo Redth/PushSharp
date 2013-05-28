@@ -30,10 +30,10 @@ namespace PushSharp.Blackberry
 				var authInfo = channelSettings.ApplicationId + ":" + channelSettings.Password;
 				authInfo = Convert.ToBase64String(Encoding.Default.GetBytes(authInfo));
 
-				var c = new MultipartContent ("application/xml", channelSettings.Boundary);
+				var c = new MultipartContent ("related", channelSettings.Boundary);
 				c.Headers.TryAddWithoutValidation ("Authorization", "Basic " + authInfo);
-
-				var xml = n.ToPap ();
+				c.Headers.TryAddWithoutValidation ("Content-Type", "type: application/xml");
+				var xml = n.ToPapXml ();
 
 				c.Add (new StringContent (xml.ToString(), Encoding.UTF8, "application/xml"));
 

@@ -40,7 +40,7 @@ namespace PushSharp.Blackberry
 		{
 			var doc = new XDocument ();
 
-			var docType = new XDocumentType ("pap", "//WAPFORUM//DTD PAP 2.0//EN", "http://www.openmobilealliance.org/tech/DTD/pap_2.0.dtd", "[<?wap-pap-ver supported-versions=\"2.0\"?>]");
+			var docType = new XDocumentType ("pap", "//WAPFORUM//DTD PAP 2.0//EN", "http://www.wapforum.org/DTD/pap_2.0.dtd", "[<?wap-pap-ver supported-versions=\"2.0\"?>]");
 
 			doc.AddFirst (docType);
 
