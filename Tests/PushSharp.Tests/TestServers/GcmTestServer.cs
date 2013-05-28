@@ -147,6 +147,9 @@ namespace PushSharp.Tests.TestServers
 				}
 
 				var responseString = JsonConvert.SerializeObject(transportResponse);
+
+				//Console.WriteLine(responseString);
+
 				var buffer = Encoding.UTF8.GetBytes(responseString);
 				// Get a response stream and write the response to it.
 				response.ContentLength64 = buffer.Length;

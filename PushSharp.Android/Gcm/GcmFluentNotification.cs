@@ -47,6 +47,28 @@ namespace PushSharp
 			return n;
 		}
 
+		public static GcmNotification WithData(this GcmNotification n, IDictionary<string, string> data)
+		{
+			if (data == null)
+				return n;
+
+			var json = new Newtonsoft.Json.Linq.JObject();
+
+			try
+			{
+				if (!String.IsNullOrEmpty (n.JsonData))
+					json = Newtonsoft.Json.Linq.JObject.Parse (n.JsonData);
+			}
+			catch { } 
+
+			foreach (var pair in data)
+				json.Add (pair.Key, new Newtonsoft.Json.Linq.JValue (pair.Value));
+
+			n.JsonData = json.ToString (Newtonsoft.Json.Formatting.None);
+
+			return n;
+		}
+
 		public static GcmNotification WithTag(this GcmNotification n, object tag)
         {
             n.Tag = tag;

@@ -42,6 +42,7 @@ namespace PushSharp.Apple
 			{
 				feedbackService = new FeedbackService();
 				feedbackService.OnFeedbackReceived += feedbackService_OnFeedbackReceived;
+				feedbackService.OnFeedbackException += (Exception ex) => this.RaiseServiceException (ex);
 
 				if (timerFeedback == null)
 				{
@@ -54,6 +55,9 @@ namespace PushSharp.Apple
 					}), null, TimeSpan.FromSeconds(10), TimeSpan.FromMinutes(appleChannelSettings.FeedbackIntervalMinutes));
 				}
 			}
+
+			//Apple has documented that they only want us to use 20 connections to them
+			base.ServiceSettings.MaxAutoScaleChannels = 20;
 		}
 
 		void feedbackService_OnFeedbackReceived(string deviceToken, DateTime timestamp)

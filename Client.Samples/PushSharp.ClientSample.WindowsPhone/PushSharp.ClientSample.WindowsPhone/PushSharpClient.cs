@@ -21,6 +21,8 @@ namespace PushSharp.ClientSample.WindowsPhone
 			HttpNotificationChannel pushChannel;
 
 			// The name of our push channel.
+			// Note : This should match the Device Registration Channel Uri specified on the server
+			//i.e. -> .ForEndpointUri(new Uri("DEVICE REGISTRATION CHANNEL URI HERE"))
 			string channelName = "PushSharp.NotificationChannel.Tile";
 						
 			// Try to find the push channel.

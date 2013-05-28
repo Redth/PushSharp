@@ -69,7 +69,7 @@ namespace PushSharp.Android
 		}
 
 		/// <summary>
-		/// If true, C2DM will only be delivered once the device's screen is on
+		/// If true, GCM will only be delivered once the device's screen is on
 		/// </summary>
 		public bool? DelayWhileIdle
 		{

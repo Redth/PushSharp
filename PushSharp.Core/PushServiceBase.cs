@@ -64,6 +64,7 @@ namespace PushSharp.Core
 		private ConcurrentQueue<INotification> queuedNotifications;
 		private CancellationTokenSource cancelTokenSource = new CancellationTokenSource();
 		private List<WaitTimeMeasurement> measurements = new List<WaitTimeMeasurement>();
+        private List<WaitTimeMeasurement> sendTimeMeasurements = new List<WaitTimeMeasurement>();
 
 		private long trackedNotificationCount = 0;
 
@@ -83,7 +84,7 @@ namespace PushSharp.Core
 
 			this.queuedNotifications = new ConcurrentQueue<INotification>();
 
-			timerCheckScale = new Timer(CheckScale, null, TimeSpan.FromSeconds(15), TimeSpan.FromSeconds(15));
+			timerCheckScale = new Timer(CheckScale, null, TimeSpan.FromSeconds(5), TimeSpan.FromSeconds(5));
 
 			CheckScale();
 			
@@ -137,17 +138,24 @@ namespace PushSharp.Core
 			stopping = true;
 			var started = DateTime.UtcNow;
 
+			if (waitForQueueToFinish)
+			{
+				Log.Info ("Waiting for Queue to Finish");
+
+				while (this.queuedNotifications.Count > 0 || Interlocked.Read(ref trackedNotificationCount) > 0)
+					Thread.Sleep(100);
+
+				Log.Info("Queue Emptied.");
+			}
+
+			Log.Info ("Stopping CheckScale Timer");
+
 			//Stop the timer for checking scale
 			if (this.timerCheckScale != null)
 				this.timerCheckScale.Change(Timeout.Infinite, Timeout.Infinite);
-			
 
-			if (waitForQueueToFinish)
-			{
-				while (this.queuedNotifications.Count > 0 || Interlocked.Read(ref trackedNotificationCount) > 0)
-					Thread.Sleep(100);
-			}
-			
+			Log.Info ("Stopping all Channels");
+
 			//Stop all channels
 			Parallel.ForEach(channels, c => c.Dispose());
 			
@@ -166,8 +174,13 @@ namespace PushSharp.Core
 		
 		private void CheckScale(object state = null)
 		{
-			if (stopping)
-				return;
+			var avgQueueTime = (int)this.AverageQueueWaitTime.TotalMilliseconds;
+			var avgSendTime = (int)this.AverageSendTime.TotalMilliseconds;
+
+			Log.Info("{0} -> Avg Queue Wait Time {1} ms, Avg Send Time {2} ms", this, avgQueueTime, avgSendTime);
+					
+			//if (stopping)
+			//	return;
 
 			Log.Info("{0} -> Checking Scale ({1} Channels Currently)", this, channels.Count);
 
@@ -175,47 +188,58 @@ namespace PushSharp.Core
 			{
 				if (channels.Count <= 0)
 				{
-					Log.Info("{0} -> Creating Channel", this);
+					Log.Info("{0} -> Creating Channel {1}", this, channels.Count);
 					ScaleChannels(ChannelScaleAction.Create);
 					return;
 				}
 
-				var avgTime = (int)GetAverageQueueWait();
-
-				Log.Info("{0} -> Avg Queue Wait Time {1} ms", this, avgTime);
-
-				if (avgTime < ServiceSettings.MinAvgTimeToScaleChannels && channels.Count > 1)
+				if (avgQueueTime < ServiceSettings.MinAvgTimeToScaleChannels && channels.Count > 1)
 				{
+				    var numChannelsToSpinDown = 1;
+
+				    if (avgQueueTime <= 0)
+				        numChannelsToSpinDown = 5;
+
+				    if (channels.Count - numChannelsToSpinDown <= 0)
+				        numChannelsToSpinDown = 1;
+
 					Log.Info("{0} -> Destroying Channel", this);
-					ScaleChannels(ChannelScaleAction.Destroy);
+					ScaleChannels(ChannelScaleAction.Destroy, numChannelsToSpinDown);
 				}
 				else if (channels.Count < this.ServiceSettings.MaxAutoScaleChannels)
 				{
 					var numChannelsToSpinUp = 0;
 
 					//Depending on the wait time, let's spin up more than 1 channel at a time
-					if (avgTime > 5000)
+					if (avgQueueTime > 5000)
 						numChannelsToSpinUp = 3;
-					else if (avgTime > 1000)
+					else if (avgQueueTime > 1000)
 						numChannelsToSpinUp = 2;
-					else if (avgTime > ServiceSettings.MinAvgTimeToScaleChannels)
+					else if (avgQueueTime > ServiceSettings.MinAvgTimeToScaleChannels)
 						numChannelsToSpinUp = 1;
 
 					if (numChannelsToSpinUp > 0)
 					{
-						Log.Info("{0} -> Creating {1} Channel(s)", this, numChannelsToSpinUp);
-						ScaleChannels(ChannelScaleAction.Create, numChannelsToSpinUp);
+                        //Don't spin up more than the max!
+					    if (channels.Count + numChannelsToSpinUp > ServiceSettings.MaxAutoScaleChannels)
+					        numChannelsToSpinUp = ServiceSettings.MaxAutoScaleChannels - channels.Count;
+
+					    if (numChannelsToSpinUp > 0)
+					    {
+					        Log.Info("{0} -> Creating {1} Channel(s)", this, numChannelsToSpinUp);
+					        ScaleChannels(ChannelScaleAction.Create, numChannelsToSpinUp);
+					    }
 					}
 				}
 			}
 			else
 			{
-				while (channels.Count > ServiceSettings.Channels && !this.cancelTokenSource.IsCancellationRequested && !stopping)
+				while (channels.Count > ServiceSettings.Channels && !this.cancelTokenSource.IsCancellationRequested)
 				{
 					Log.Info("{0} -> Destroying Channel", this);
 					ScaleChannels(ChannelScaleAction.Destroy);
 				}
-				while (channels.Count < ServiceSettings.Channels && !this.cancelTokenSource.IsCancellationRequested && !stopping)
+				while (channels.Count < ServiceSettings.Channels && !this.cancelTokenSource.IsCancellationRequested)
 				{
 					Log.Info("{0} -> Creating Channel", this);
 					ScaleChannels(ChannelScaleAction.Create);
@@ -223,31 +247,76 @@ namespace PushSharp.Core
 			}
 		}
 
-		private double GetAverageQueueWait()
-		{
-			if (measurements == null || measurements.Count <= 0)
-				return 0;
+        public TimeSpan AverageQueueWaitTime
+        {
+            get 
+			{ 
+				if (measurements == null || measurements.Count <= 0)
+					return TimeSpan.Zero;
 
-			lock (measurements)
-			{
-				//Remove old measurements
-				measurements.RemoveAll(m => m.Timestamp < DateTime.UtcNow.AddSeconds(-5));
+				lock (measurements)
+				{
+					//Remove old measurements
+                    while (measurements.Count > 1000)
+                        measurements.RemoveAt(0);
 
-				if (measurements.Count > 0)
-					return (from m in measurements select m.Milliseconds).Average();
+                    measurements.RemoveAll(m => m.Timestamp < DateTime.UtcNow.AddSeconds(-30));
+                    
+				    var avg = from m in measurements select m.Milliseconds;
+				    try { return TimeSpan.FromMilliseconds(avg.Average()); }
+				    catch { return TimeSpan.Zero; }
+				}
 			}
+        }
 
-			return 0;
-		}
+        public TimeSpan AverageSendTime
+        {
+            get
+            {
+				if (sendTimeMeasurements == null || sendTimeMeasurements.Count <= 0)
+					return TimeSpan.Zero;
+
+                lock (sendTimeMeasurements)
+                {
+                    while (sendTimeMeasurements.Count > 1000)
+                        sendTimeMeasurements.RemoveAt(0);
+
+                    sendTimeMeasurements.RemoveAll(m => m.Timestamp < DateTime.UtcNow.AddSeconds(-30));
+
+                    var avg = from s in sendTimeMeasurements select s.Milliseconds;
+					
+	                try { return TimeSpan.FromMilliseconds(avg.Average()); }
+                    catch { return TimeSpan.Zero; }
+                }
+            }
+        }
+
+	    public long QueueLength
+	    {
+	        get
+	        {
+	            lock (queuedNotifications)
+	                return queuedNotifications.Count;
+	        }
+	    }
+
+	    public long ChannelCount
+	    {
+	        get
+	        {
+	            lock (channels)
+	                return channels.Count;
+	        }
+	    }
 
 		private void ScaleChannels(ChannelScaleAction action, int count = 1)
 		{
-			if (stopping)
-				return;
+			//if (stopping)
+			//	return;
 
 			for (int i = 0; i < count; i++)
 			{
-				if (stopping)
+				if (cancelTokenSource.IsCancellationRequested)
 					break;
 
 				var newCount = 0;
@@ -300,8 +369,15 @@ namespace PushSharp.Core
 			}
 		}
 
+
+	    private long totalSendCount = 0;
+
 		private void DoChannelWork(IPushChannel channel, CancellationTokenSource cancelTokenSource)
 		{
+		    string id = Guid.NewGuid().ToString();
+
+		    long sendCount = 0;
+
 			while (!cancelTokenSource.IsCancellationRequested)
 			{
 				var waitForNotification = new ManualResetEvent(false);
@@ -321,13 +397,33 @@ namespace PushSharp.Core
 					measurements.Add(new WaitTimeMeasurement((long) msWaited));
 				}
 
+				//Log.Info("Waited: {0} ms", msWaited);
+				 
+                var sendStart = DateTime.UtcNow;
+
+			    sendCount++;
+
+			    Interlocked.Increment(ref totalSendCount);
+
+                if (sendCount % 1000 == 0)
+                    Log.Info("{0}> Send Count: {1} ({2})", id, sendCount, Interlocked.Read(ref totalSendCount));
+
 				channel.SendNotification(notification, (sender, result) =>
 					{
+						Interlocked.Decrement(ref trackedNotificationCount);
+                        
+						var sendTime = DateTime.UtcNow - sendStart;
+
+                        lock (sendTimeMeasurements)
+                        {
+                            sendTimeMeasurements.Add(new WaitTimeMeasurement((long)sendTime.TotalMilliseconds));
+                        }
+
+						//Log.Info("Send Time: " + sendTime.TotalMilliseconds + " ms");
+
 						//Trigger 
 						if (this.BlockOnMessageResult)	
-							waitForNotification.Set();
-
-						Interlocked.Decrement(ref trackedNotificationCount);
+							waitForNotification.Set();						
 
 						//Handle the notification send callback here
 						if (result.ShouldRequeue)
@@ -385,6 +481,8 @@ namespace PushSharp.Core
 				{
 					Interlocked.Decrement(ref trackedNotificationCount);
 
+					Log.Info("Notification send timeout");
+
 					var evt = this.OnNotificationFailed;
 					if (evt != null)
 						evt(this, notification, new TimeoutException("Notification send timed out"));
@@ -410,6 +508,7 @@ namespace PushSharp.Core
 		{
 			public ChannelWorker(IPushChannel channel, Action<IPushChannel, CancellationTokenSource> worker)
 			{
+			    this.Id = Guid.NewGuid().ToString();
 				this.CancelTokenSource = new CancellationTokenSource();
 				this.Channel = channel;
 				this.WorkerTask = Task.Factory.StartNew(() => worker(channel, this.CancelTokenSource),
@@ -420,6 +519,8 @@ namespace PushSharp.Core
 			{
 				CancelTokenSource.Cancel();
 			}
+
+            public string Id { get; private set; }
 
 			public Task WorkerTask { get; private set; }
 			

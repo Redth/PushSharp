@@ -137,8 +137,8 @@ namespace PushSharp.Apple
 							if (!stillConnected)
 								throw new ObjectDisposedException("Connection to APNS is not Writable");
 								
-							lock (sentLock)
-							{
+							//lock (sentLock)
+							//{
 								if (notificationData.Length > 45)
 								{
 									networkStream.Write(notificationData, 0, 45);
@@ -150,7 +150,7 @@ namespace PushSharp.Apple
 								networkStream.Flush();
 
 								sentNotifications.Add(new SentNotification(appleNotification) {Callback = callback});
-							}
+							//}
 						}
 					}
 					catch (ConnectionFailureException cex)
@@ -212,13 +212,18 @@ namespace PushSharp.Apple
 
 			Log.Info("ApplePushChannel->DISPOSE.");
 		}
-		
+
+	    private IAsyncResult readAsyncResult = default(IAsyncResult);
+
 		void Reader()
 		{
 			try
 			{
-				networkStream.BeginRead(readBuffer, 0, 6, new AsyncCallback((asyncResult) =>
-				{
+			    readAsyncResult = networkStream.BeginRead(readBuffer, 0, 6, new AsyncCallback((asyncResult) =>
+			    {
+			        if (readAsyncResult != asyncResult)
+			            return;
+
 					lock (sentLock)
 					{
 						try
@@ -233,8 +238,10 @@ namespace PushSharp.Apple
 								try { stream.Close(); stream.Dispose(); }
 								catch { }
 
-								try { client.Close(); stream.Dispose(); }
+								try { client.Close(); }
 								catch { }
+
+								client = null;
 
 								//Get the enhanced format response
 								// byte 0 is always '1', byte 1 is the status, bytes 2,3,4,5 are the identifier of the notification
@@ -444,6 +451,8 @@ namespace PushSharp.Apple
 				}
 			}
 		}
+
+	    private IAsyncResult connectAsyncResult = default(IAsyncResult);
 
 		void connect()
 		{
