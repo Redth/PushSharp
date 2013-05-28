@@ -65,16 +65,17 @@
       <HintPath>..\packages\Microsoft.Bcl.Async.1.0.16\lib\net40\Microsoft.Threading.Tasks.dll</HintPath>
     </Reference>
     <Reference Include="System.Net" />
+    <Reference Include="System.Web" />
   </ItemGroup>
   <ItemGroup>
     <Compile Include="Properties\AssemblyInfo.cs" />
-    <Compile Include="Bis\BisExceptions.cs" />
-    <Compile Include="Bis\BisMessageStatus.cs" />
-    <Compile Include="Bis\BisNotificationn.cs" />
-    <Compile Include="Bis\BisPushBrokerExtensions.cs" />
-    <Compile Include="Bis\BisPushChannel.cs" />
-    <Compile Include="Bis\BisPushChannelSettings.cs" />
-    <Compile Include="Bis\BisPushService.cs" />
+    <Compile Include="BlackberryExceptions.cs" />
+    <Compile Include="BlackberryMessageStatus.cs" />
+    <Compile Include="BlackberryPushBrokerExtensions.cs" />
+    <Compile Include="BlackberryPushChannel.cs" />
+    <Compile Include="BlackberryPushChannelSettings.cs" />
+    <Compile Include="BlackberryPushService.cs" />
+    <Compile Include="BlackberryNotification.cs" />
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\PushSharp.Core\PushSharp.Core.csproj">

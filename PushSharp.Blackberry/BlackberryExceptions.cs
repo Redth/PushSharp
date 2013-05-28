@@ -7,7 +7,7 @@ namespace PushSharp.Blackberry
 	{
 	    private readonly string _message;
 	    private readonly Dictionary<string, object> _data = new Dictionary<string, object>();  
-		public BisNotificationSendFailureException(BisMessageStatus msgStatus, string desc)
+		public BisNotificationSendFailureException(BlackberryMessageStatus msgStatus, string desc)
 		{
             _data.Add("HttpStatus", msgStatus.HttpStatus);
             _data.Add("Code", (Int32) msgStatus.NotificationStatus);
@@ -31,7 +31,7 @@ namespace PushSharp.Blackberry
                 return _data;
             }
         }
-		public BisMessageStatus MessageStatus
+		public BlackberryMessageStatus MessageStatus
 		{
 			get;
 			set;

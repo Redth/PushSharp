@@ -48,7 +48,7 @@ namespace PushSharp
 
 		public void QueueNotification<TPushNotification>(TPushNotification notification) where TPushNotification : Notification
 		{
-			var pushNotificationType = typeof (TPushNotification);
+			var pushNotificationType = notification.GetType ();
 
 			if (registeredServices.ContainsKey(pushNotificationType))
 				registeredServices[pushNotificationType].ForEach(pushService => pushService.QueueNotification(notification));

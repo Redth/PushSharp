@@ -10,79 +10,49 @@ using System.Threading.Tasks;
 
 namespace PushSharp.Blackberry
 {
-    public class BisPushChannel : IPushChannel
+    public class BlackberryPushChannel : IPushChannel
     {
-        BisPushChannelSettings bisChannelSettings;
+        BlackberryPushChannelSettings bisChannelSettings;
 
-        public BisPushChannel(BisPushChannelSettings channelSettings)
+        public BlackberryPushChannel(BlackberryPushChannelSettings channelSettings)
         {
             bisChannelSettings = channelSettings;
         }
 
-		public class BisHttpClient : HttpClient
+		public class BlackberryHttpClient : HttpClient
 		{
-			public BisHttpClient() : base()
+			public BlackberryHttpClient() : base()
 			{
-				this.DefaultRequestHeaders.Add("Accept", "text/html, image/gif, image/jpeg, *; q=.2, */*; q=.2");
-				this.DefaultRequestHeaders.Connection.Add("Keep-Alive");
-
-				//TODO: PreAuthenticate
 			}
 
-			public Task<HttpResponseMessage> PostNotification(BisPushChannelSettings channelSettings, BisNotification n)
+			public Task<HttpResponseMessage> PostNotification(BlackberryPushChannelSettings channelSettings, BlackberryNotification n)
 			{
 				var authInfo = channelSettings.ApplicationId + ":" + channelSettings.Password;
 				authInfo = Convert.ToBase64String(Encoding.Default.GetBytes(authInfo));
 
 				var c = new MultipartContent ("application/xml", channelSettings.Boundary);
-				c.Headers.Add ("Authorization", "Basic " + authInfo);
+				c.Headers.TryAddWithoutValidation ("Authorization", "Basic " + authInfo);
 
-				var pushId = DateTime.Now.ToFileTime().ToString(CultureInfo.InvariantCulture);
-				var deliverBefore = DateTime.UtcNow.AddMinutes(5).ToString("s", CultureInfo.InvariantCulture) + "Z";
-
-				var xml = new StringBuilder();
-
-				xml.AppendLine("<?xml version=\"1.0\"?>");
-				xml.AppendLine("<!DOCTYPE pap PUBLIC \"-//WAPFORUM//DTD PAP 2.1//EN\" \"http://www.openmobilealliance.org/tech/DTD/pap_2.1.dtd\">");
-				xml.AppendLine("<pap>");
-				xml.AppendLine("<push-message push-id=\"" + pushId + "\" deliver-before-timestamp=\"" + deliverBefore + "\" source-reference=\"" + channelSettings.ApplicationId + "\">");
-				xml.AppendLine("<address address-value=\"" + n.DeviceToken + "\"/>");
-				xml.AppendLine("<quality-of-service delivery-method=\"unconfirmed\"/>");
-				xml.AppendLine("</push-message>");
-				xml.AppendLine("</pap>");
-
+				var xml = n.ToPap ();
 
 				c.Add (new StringContent (xml.ToString(), Encoding.UTF8, "application/xml"));
 
-
-				var data = new StringBuilder ();
-				data.AppendLine(n.PayloadToString());
-
-				//if (n.BISNoType != n.JpegImage)
-				//{
-				data.AppendLine(n.Message);
-				//}
-				//else
-				//{
-				//    dataToSend.AppendLine(n.GetJpegImageBytes());
-				//}
-
-				c.Add (new StringContent (data.ToString(), Encoding.UTF8, n.ContentType));
+				c.Add (new ByteArrayContent(n.Message));
 			
 				return PostAsync (channelSettings.SendUrl, c);
 			}
 		}
 
-		BisHttpClient http = new BisHttpClient ();
+		BlackberryHttpClient http = new BlackberryHttpClient ();
 
 		public void SendNotification(INotification notification, SendNotificationCallbackDelegate callback)
 		{
-			var n = notification as BisNotification;
+			var n = notification as BlackberryNotification;
 
 			var response = http.PostNotification (bisChannelSettings, n).Result;
 			var description = string.Empty;
 
-			var status = new BisMessageStatus
+			var status = new BlackberryMessageStatus
 			{
 				Notification = n,
 				HttpStatus = HttpStatusCode.ServiceUnavailable
@@ -109,11 +79,11 @@ namespace PushSharp.Blackberry
 				}
 			}
 
-			BisNotificationStatus notStatus;
+			BlackberryNotificationStatus notStatus;
 			Enum.TryParse(bbNotStatus, true, out notStatus);
 			status.NotificationStatus = notStatus;
 
-			if (status.NotificationStatus == BisNotificationStatus.NoAppReceivePush)
+			if (status.NotificationStatus == BlackberryNotificationStatus.NoAppReceivePush)
 			{
 				if (callback != null)
 					callback(this, new SendNotificationResult(notification, false, new Exception("Device Subscription Expired")) { IsSubscriptionExpired = true });
@@ -122,7 +92,7 @@ namespace PushSharp.Blackberry
 			}
 
 			if (status.HttpStatus == HttpStatusCode.OK
-			    && status.NotificationStatus == BisNotificationStatus.RequestAcceptedForProcessing)
+			    && status.NotificationStatus == BlackberryNotificationStatus.RequestAcceptedForProcessing)
 			{
 				if (callback != null)
 					callback(this, new SendNotificationResult(notification));

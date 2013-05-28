@@ -2,7 +2,7 @@
 
 namespace PushSharp.Blackberry
 {
-    public class BisPushChannelSettings : IPushChannelSettings
+    public class BlackberryPushChannelSettings : IPushChannelSettings
 	{
 		public string ApplicationId { get; set; }
 		public string Password { get; set; }
@@ -10,12 +10,12 @@ namespace PushSharp.Blackberry
 
         private const string SEND_URL = "https://pushapi.eval.blackberry.com/mss/PD_pushRequest";
 
-        public BisPushChannelSettings()
+        public BlackberryPushChannelSettings()
         {
             SendUrl = SEND_URL;
         }
 
-        public BisPushChannelSettings(string applicationId, string password)
+        public BlackberryPushChannelSettings(string applicationId, string password)
 		{
 			ApplicationId = applicationId;
             Password = password;
