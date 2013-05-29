@@ -170,7 +170,7 @@ namespace PushSharp.Android
 				{
 					var err = r.Value<string>("error") ?? "";
 
-					switch (err.ToLower().Trim())
+					switch (err.ToLowerInvariant().Trim())
 					{
 						case "ok":
 							msgResult.ResponseStatus = GcmMessageTransportResponseStatus.Ok;
