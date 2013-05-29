@@ -27,7 +27,13 @@ namespace PushSharp.Tests
 
 			appleCert = File.ReadAllBytes(Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "../../../../Resources/PushSharp.Apns.Sandbox.p12"));
 		}
-		
+
+		[Test]
+		public void APNS_All_ShouldSucceed_VeryMany()
+		{
+			TestNotifications(100000, 100000, 0, null, true);
+		}
+
 		[Test]
 		public void APNS_All_ShouldSucceed()
 		{
@@ -75,7 +81,7 @@ namespace PushSharp.Tests
 			TestNotifications(1, 1, 0);
 		}
 
-		public void TestNotifications(int toQueue, int expectSuccessful, int expectFailed, int[] indexesToFail = null)
+		public void TestNotifications(int toQueue, int expectSuccessful, int expectFailed, int[] indexesToFail = null, bool waitForScaling = false)
 		{
 			testPort++;
 
@@ -98,7 +104,7 @@ namespace PushSharp.Tests
 				{
 					var id = identifier;
 
-					Console.WriteLine("Server Received: id=" + id + ", payload= " + payload + ", token=" + token);
+					
 
 					if (token.StartsWith("b", StringComparison.InvariantCultureIgnoreCase))
 						return true;
@@ -117,6 +123,8 @@ namespace PushSharp.Tests
 					{
 						server.Start(testPort, len, (success, identifier, token, payload) =>
 						{
+                            //Console.WriteLine("Server Received: id=" + identifier + ", payload= " + payload + ", token=" + token + ", success=" + success);
+
 							serverReceivedCount++;
 
 							if (success)
@@ -144,7 +152,7 @@ namespace PushSharp.Tests
 			settings.SkipSsl = true;
 
 
-			var push = new ApplePushService(settings, new PushServiceSettings() { AutoScaleChannels = false, Channels = 1 });
+			var push = new ApplePushService(settings, new PushServiceSettings() { AutoScaleChannels = true, Channels = 1 });
 			push.OnNotificationFailed += (sender, notification1, error) => pushFailCount++;
 			push.OnNotificationSent += (sender, notification1) => pushSuccessCount++;
 
@@ -159,6 +167,21 @@ namespace PushSharp.Tests
 				
 				push.QueueNotification(n);
 			}
+
+            Console.WriteLine("Avg Queue Wait Time: " + push.AverageQueueWaitTime + " ms");
+            Console.WriteLine("Avg Send Time: " + push.AverageSendTime + " ms");
+
+            if (waitForScaling)
+            {
+                while (push.QueueLength > 0)
+                    Thread.Sleep(500);
+
+                Console.WriteLine("Sleeping 3 minutes for autoscaling...");
+                Thread.Sleep(TimeSpan.FromMinutes(3));
+
+                Console.WriteLine("Channel Count: " + push.ChannelCount);
+                Assert.IsTrue(push.ChannelCount <= 1);
+            }
 
 			push.Stop();
 			push.Dispose();

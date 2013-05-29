@@ -10,7 +10,7 @@ namespace PushSharp.Core
 		public PushServiceSettings()
 		{
 			this.AutoScaleChannels = true;
-			this.MaxAutoScaleChannels = 100;
+			this.MaxAutoScaleChannels = 20;
 			this.MinAvgTimeToScaleChannels = 100;
 			this.Channels = 1;
 			this.MaxNotificationRequeues = 5;

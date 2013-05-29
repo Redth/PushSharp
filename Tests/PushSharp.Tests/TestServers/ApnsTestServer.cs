@@ -29,6 +29,8 @@ namespace PushSharp.Tests.TestServers
 		public byte[] buffer;
 		// Received data string.
 		public StringBuilder sb = new StringBuilder();
+
+        public List<byte> recdBuffer = new List<byte>();
 	}
 
 	public class ApnsTestServer
@@ -139,81 +141,102 @@ namespace PushSharp.Tests.TestServers
 
 		}
 
+        
+ 
 		public void ReadCallback(IAsyncResult ar)
 		{
-			// Retrieve the state object and the handler socket
-			// from the asynchronous state object.
-			StateObject state = (StateObject) ar.AsyncState;
-			Socket handler = state.workSocket;
-
-			// Read data from the client socket. 
-			int bytesRead = handler.EndReceive(ar);
-
-			bool hadError = false;
-
-			var payload = string.Empty;
-			var identifier = 0;
-			var token = string.Empty;
-			var errorResponseData = new byte[6];
+		    try
+		    {
 
 
-			if (bytesRead > 45)
-			{
-				var recdBuffer = new List<byte>();
-				recdBuffer.AddRange(state.buffer);
+		        // Retrieve the state object and the handler socket
+		        // from the asynchronous state object.
+		        StateObject state = (StateObject) ar.AsyncState;
+		        Socket handler = state.workSocket;
 
-				var lenBytes = recdBuffer.GetRange(43, 2).ToArray();
+		        // Read data from the client socket. 
+		        int bytesRead = handler.EndReceive(ar);
 
-				var payloadLen = IPAddress.NetworkToHostOrder(BitConverter.ToInt16(lenBytes.ToArray(), 0));
+		        bool hadError = false;
 
-				var msgLength = (Int16) ((Int16) payloadLen + (Int16) 45);
+		        var payload = string.Empty;
+		        var identifier = 0;
+		        var token = string.Empty;
+		        var errorResponseData = new byte[6];
 
+		        var localBuffer = new byte[bytesRead];
 
+		        Array.Copy(state.buffer, localBuffer, bytesRead);
 
-				payload = System.Text.Encoding.UTF8.GetString(recdBuffer.GetRange(45, payloadLen).ToArray());
+		        state.recdBuffer.AddRange(localBuffer);
 
-				var identifierBytes = recdBuffer.GetRange(1, 4);
-				var tokenBytes = recdBuffer.GetRange(11, 32);
-
-				identifier = IPAddress.NetworkToHostOrder(BitConverter.ToInt32(identifierBytes.ToArray(), 0));
-				token = BitConverter.ToString(tokenBytes.ToArray()).Replace("-", "");
-
-
-				recdBuffer.RemoveRange(0, msgLength);
-
-
-				foreach (var f in ResponseFilters)
-				{
-					if (f.IsMatch(identifier, token, payload))
-					{
-						errorResponseData[0] = 0x01;
-						errorResponseData[1] = BitConverter.GetBytes((short) f.Status)[0];
-
-						Buffer.BlockCopy(BitConverter.GetBytes(IPAddress.HostToNetworkOrder(identifier)), 0, errorResponseData, 2, 4);
-
-						//stream.Write(b2, 0, b2.Length);
-						hadError = true;
-						break;
-					}
-				}
-
-			}
+		        if (state.recdBuffer.Count < MessageSize)
+		        {
+		            //Console.WriteLine("Non-Full Buffer: " + state.recdBuffer.Count);
+		            handler.BeginReceive(state.buffer, 0, this.MessageSize, 0, new AsyncCallback(ReadCallback), state);
+		            return;
+		        }
 
 
-			if (hadError)
-			{
-				Console.WriteLine("Server Recd Notification with Error");
-				var rnd = new Random();
-				System.Threading.Thread.Sleep(rnd.Next(10, 150));
+		        var lenBytes = state.recdBuffer.GetRange(43, 2).ToArray();
 
-				Received(false, identifier, token, payload);
-				Send(handler, errorResponseData);
-			}
-			else
-			{
-				Received(true, identifier, token, payload);
-				handler.BeginReceive(state.buffer, 0, this.MessageSize, 0, new AsyncCallback(ReadCallback), state);
-			}
+		        var payloadLen = IPAddress.NetworkToHostOrder(BitConverter.ToInt16(lenBytes.ToArray(), 0));
+
+		        var msgLength = (Int16) ((Int16) payloadLen + (Int16) 45);
+
+
+
+		        payload = System.Text.Encoding.UTF8.GetString(state.recdBuffer.GetRange(45, payloadLen).ToArray());
+
+		        var identifierBytes = state.recdBuffer.GetRange(1, 4);
+		        var tokenBytes = state.recdBuffer.GetRange(11, 32);
+
+		        identifier = IPAddress.NetworkToHostOrder(BitConverter.ToInt32(identifierBytes.ToArray(), 0));
+		        token = BitConverter.ToString(tokenBytes.ToArray()).Replace("-", "");
+
+
+		        //Remove our message from the buffer
+		        state.recdBuffer.RemoveRange(0, MessageSize);
+
+		        //Console.WriteLine("Buffer Length: " + state.recdBuffer.Count);
+
+		        foreach (var f in ResponseFilters)
+		        {
+		            if (f.IsMatch(identifier, token, payload))
+		            {
+		                errorResponseData[0] = 0x01;
+		                errorResponseData[1] = BitConverter.GetBytes((short) f.Status)[0];
+
+		                Buffer.BlockCopy(BitConverter.GetBytes(IPAddress.HostToNetworkOrder(identifier)), 0, errorResponseData,
+		                                 2, 4);
+
+		                //stream.Write(b2, 0, b2.Length);
+		                hadError = true;
+		                break;
+		            }
+		        }
+
+		        if (hadError)
+		        {
+		            //Console.WriteLine("Server Recd Notification with Error");
+		            var rnd = new Random();
+		            System.Threading.Thread.Sleep(rnd.Next(10, 150));
+
+		            state.recdBuffer.Clear();
+
+		            Received(false, identifier, token, payload);
+		            Send(handler, errorResponseData);
+		        }
+		        else
+		        {
+		            Received(true, identifier, token, payload);
+		            handler.BeginReceive(state.buffer, 0, this.MessageSize, 0, new AsyncCallback(ReadCallback), state);
+		        }
+		    }
+		    catch (Exception ex)
+		    {
+		        Console.WriteLine("EndReceive Fail: " + ex);
+		    }
 		}
 
 		private void Send(Socket handler, byte[] byteData)
@@ -237,7 +260,7 @@ namespace PushSharp.Tests.TestServers
 
 				// Complete sending the data to the remote device.
 				int bytesSent = handler.EndSend(ar);
-				Console.WriteLine("Sent {0} bytes to client.", bytesSent);
+				//Console.WriteLine("Sent {0} bytes to client.", bytesSent);
 
 			}
 			catch (Exception e)
