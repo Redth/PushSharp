@@ -2,6 +2,7 @@
 using System.Globalization;
 using System.Linq;
 using System.Net;
+using System.Net.Http.Headers;
 using System.Text;
 using System.Xml.Linq;
 using PushSharp.Core;
@@ -17,90 +18,122 @@ namespace PushSharp.Blackberry
         public BlackberryPushChannel(BlackberryPushChannelSettings channelSettings)
         {
             bisChannelSettings = channelSettings;
+
+            http = new BlackberryHttpClient(bisChannelSettings);
         }
 
 		public class BlackberryHttpClient : HttpClient
 		{
-			public BlackberryHttpClient() : base()
+		    private BlackberryPushChannelSettings channelSettings;
+
+			public BlackberryHttpClient(BlackberryPushChannelSettings channelSettings) : base()
 			{
+			    this.channelSettings = channelSettings;
+
+                var authInfo = channelSettings.ApplicationId + ":" + channelSettings.Password;
+                authInfo = Convert.ToBase64String(Encoding.Default.GetBytes(authInfo));
+
+                this.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Basic", authInfo);
+			    this.DefaultRequestHeaders.ConnectionClose = true;
+
+			    this.DefaultRequestHeaders.Remove("connection");
 			}
 
 			public Task<HttpResponseMessage> PostNotification(BlackberryPushChannelSettings channelSettings, BlackberryNotification n)
 			{
-				var authInfo = channelSettings.ApplicationId + ":" + channelSettings.Password;
-				authInfo = Convert.ToBase64String(Encoding.Default.GetBytes(authInfo));
-
 				var c = new MultipartContent ("related", channelSettings.Boundary);
-				c.Headers.TryAddWithoutValidation ("Authorization", "Basic " + authInfo);
-				c.Headers.TryAddWithoutValidation ("Content-Type", "type: application/xml");
+                c.Headers.Remove("Content-Type");
+                c.Headers.TryAddWithoutValidation("Content-Type", "multipart/related; boundary=" + channelSettings.Boundary + "; type=application/xml");
+				
 				var xml = n.ToPapXml ();
 
-				c.Add (new StringContent (xml.ToString(), Encoding.UTF8, "application/xml"));
 
-				c.Add (new ByteArrayContent(n.Message));
+				c.Add (new StringContent (xml, Encoding.UTF8, "application/xml"));
+
+			    var bc = new ByteArrayContent(n.Content.Content);
+                bc.Headers.Add("Content-Type", n.Content.ContentType);
+                
+                foreach (var header in n.Content.Headers)
+                    bc.Headers.Add(header.Key, header.Value);
+
+                c.Add(bc);
 			
 				return PostAsync (channelSettings.SendUrl, c);
 			}
 		}
 
-		BlackberryHttpClient http = new BlackberryHttpClient ();
+        private BlackberryHttpClient http;
 
 		public void SendNotification(INotification notification, SendNotificationCallbackDelegate callback)
 		{
 			var n = notification as BlackberryNotification;
 
-			var response = http.PostNotification (bisChannelSettings, n).Result;
-			var description = string.Empty;
+		    try
+		    {
+		        var response = http.PostNotification(bisChannelSettings, n).Result;
+		        var description = string.Empty;
 
-			var status = new BlackberryMessageStatus
-			{
-				Notification = n,
-				HttpStatus = HttpStatusCode.ServiceUnavailable
-			};
+		        var status = new BlackberryMessageStatus
+		            {
+		                Notification = n,
+		                HttpStatus = HttpStatusCode.ServiceUnavailable
+		            };
 
-			var bbNotStatus = string.Empty;
-			status.HttpStatus = response.StatusCode;
+		        var bbNotStatus = string.Empty;
+		        status.HttpStatus = response.StatusCode;
 
-			var doc = XDocument.Load (response.Content.ReadAsStreamAsync ().Result);
+		        var doc = XDocument.Load(response.Content.ReadAsStreamAsync().Result);
 
-			var result = doc.Descendants("response-result").SingleOrDefault();
-			if (result != null)
-			{
-				bbNotStatus = result.Attribute("code").Value;
-				description = result.Attribute("desc").Value;
-			}
-			else
-			{
-				result = doc.Descendants("badmessage-response").SingleOrDefault();
-				if (result != null)
-				{
-					bbNotStatus = result.Attribute("code").Value;
-					description = result.Attribute("desc").Value;
-				}
-			}
+		        var result = doc.Descendants("response-result").SingleOrDefault();
+		        if (result != null)
+		        {
+		            bbNotStatus = result.Attribute("code").Value;
+		            description = result.Attribute("desc").Value;
+		        }
+		        else
+		        {
+		            result = doc.Descendants("badmessage-response").SingleOrDefault();
+		            if (result != null)
+		            {
+		                bbNotStatus = result.Attribute("code").Value;
+		                description = result.Attribute("desc").Value;
+		            }
+		        }
 
-			BlackberryNotificationStatus notStatus;
-			Enum.TryParse(bbNotStatus, true, out notStatus);
-			status.NotificationStatus = notStatus;
+		        BlackberryNotificationStatus notStatus;
+		        Enum.TryParse(bbNotStatus, true, out notStatus);
+		        status.NotificationStatus = notStatus;
 
-			if (status.NotificationStatus == BlackberryNotificationStatus.NoAppReceivePush)
-			{
-				if (callback != null)
-					callback(this, new SendNotificationResult(notification, false, new Exception("Device Subscription Expired")) { IsSubscriptionExpired = true });
+		        if (status.NotificationStatus == BlackberryNotificationStatus.NoAppReceivePush)
+		        {
+		            if (callback != null)
+		                callback(this,
+		                         new SendNotificationResult(notification, false, new Exception("Device Subscription Expired"))
+		                             {
+		                                 IsSubscriptionExpired = true
+		                             });
 
-				return;
-			}
+		            return;
+		        }
 
-			if (status.HttpStatus == HttpStatusCode.OK
-			    && status.NotificationStatus == BlackberryNotificationStatus.RequestAcceptedForProcessing)
-			{
-				if (callback != null)
-					callback(this, new SendNotificationResult(notification));
-				return;
-			}
+		        if (status.HttpStatus == HttpStatusCode.OK
+		            && status.NotificationStatus == BlackberryNotificationStatus.RequestAcceptedForProcessing)
+		        {
+		            if (callback != null)
+		                callback(this, new SendNotificationResult(notification));
+		            return;
+		        }
 
-			if (callback != null)
-				callback(this, new SendNotificationResult(status.Notification, false, new BisNotificationSendFailureException(status, description)));
+		        if (callback != null)
+		            callback(this,
+		                     new SendNotificationResult(status.Notification, false,
+		                                                new BisNotificationSendFailureException(status, description)));
+		    }
+		    catch (Exception ex)
+		    {
+		        if (callback != null)
+                    callback(this, new SendNotificationResult(notification, false, ex));
+		    }
 		}
 
         public void Dispose()
