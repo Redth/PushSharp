@@ -61,6 +61,7 @@
     <Compile Include="TestServers\GcmTestServer.cs" />
     <Compile Include="TestServers\ApnsTestServer.cs" />
     <Compile Include="AmazonAdmTests.cs" />
+    <Compile Include="BlackberryTests.cs" />
   </ItemGroup>
   <ItemGroup>
     <None Include="packages.config" />
@@ -89,6 +90,9 @@
     <ProjectReference Include="..\..\PushSharp.Amazon.Adm\PushSharp.Amazon.Adm.csproj">
       <Project>{52154303-5315-494C-A741-2F0998795DC3}</Project>
       <Name>PushSharp.Amazon.Adm</Name>
+    <ProjectReference Include="..\..\PushSharp.Blackberry\PushSharp.Blackberry.csproj">
+      <Project>{5250980B-BD11-4201-B083-AEDB8C62C471}</Project>
+      <Name>PushSharp.Blackberry</Name>
     </ProjectReference>
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />

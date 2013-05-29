@@ -1,96 +1,143 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.IO;
+using System.Globalization;
 using System.Linq;
 using System.Net;
+using System.Net.Http.Headers;
 using System.Text;
-using PushSharp.Common;
+using System.Xml.Linq;
+using PushSharp.Core;
+using System.Net.Http;
+using System.Threading.Tasks;
 
 namespace PushSharp.Blackberry
 {
-	public class BlackberryPushChannel : PushChannelBase
-	{
-		BlackberryPushChannelSettings blackberrySettings = null;
+    public class BlackberryPushChannel : IPushChannel
+    {
+        BlackberryPushChannelSettings bisChannelSettings;
 
-		public BlackberryPushChannel(BlackberryPushChannelSettings channelSettings, Common.PushServiceSettings serviceSettings = null) : base(channelSettings, serviceSettings)
-		{
-			blackberrySettings = channelSettings;
-		}
-        
-        public override PlatformType PlatformType
+        public BlackberryPushChannel(BlackberryPushChannelSettings channelSettings)
         {
-            get { return PlatformType.Blackberry; }
+            bisChannelSettings = channelSettings;
+
+            http = new BlackberryHttpClient(bisChannelSettings);
         }
-        
-		protected override void SendNotification(Notification notification)
+
+		public class BlackberryHttpClient : HttpClient
 		{
-			var bbn = notification as BlackberryNotification;
+		    private BlackberryPushChannelSettings channelSettings;
 
-			if (bbn != null)
-				push(bbn);
-		}
-
-
-		bool push(BlackberryNotification notification)
-		{
-			bool success = true;
-			byte[] bytes = Encoding.ASCII.GetBytes(notification.Message);
-
-			Stream requestStream = null;
-			HttpWebResponse HttpWRes = null;
-			HttpWebRequest HttpWReq = null;
-
-			try
+			public BlackberryHttpClient(BlackberryPushChannelSettings channelSettings) : base()
 			{
-				//http://<BESName>:<BESPort>/push?DESTINATTION=<PIN/EMAIL>&PORT=<PushPort>&REQUESTURI=/
-				// Build the URL to define our connection to the BES.
-				string httpURL = "http://" + this.blackberrySettings.BESAddress + ":" + blackberrySettings.BESWebServerListenPort.ToString()
-					+ "/push?DESTINATION=" + notification.PushPin + "&PORT=" + blackberrySettings.BESPushPort.ToString()
-					+ "&REQUESTURI=/";
+			    this.channelSettings = channelSettings;
 
-				//make the connection
-				HttpWReq = (HttpWebRequest)WebRequest.Create(httpURL);
-				HttpWReq.Method = ("POST");
-				//add the headers nessecary for the push
-				HttpWReq.ContentType = "text/plain";
-				HttpWReq.ContentLength = bytes.Length;
-				// ******* Test this *******
-				HttpWReq.Headers.Add("X-Rim-Push-Id", notification.PushPin + "~" + DateTime.Now); //"~" +pushedMessage +
-				HttpWReq.Headers.Add("X-Rim-Push-Reliability", "application-preferred");
-				HttpWReq.Headers.Add("X-Rim-Push-NotifyURL", (notification.WidgetNotificationUrl + notification.PushPin + "~" + notification.Message + "~" + DateTime.Now).Replace(" ", ""));
+                var authInfo = channelSettings.ApplicationId + ":" + channelSettings.Password;
+                authInfo = Convert.ToBase64String(Encoding.Default.GetBytes(authInfo));
 
-				// *************************
-				HttpWReq.Credentials = new NetworkCredential(blackberrySettings.PushUsername, blackberrySettings.PushPassword);
+                this.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Basic", authInfo);
+			    this.DefaultRequestHeaders.ConnectionClose = true;
+
+			    this.DefaultRequestHeaders.Remove("connection");
+			}
+
+			public Task<HttpResponseMessage> PostNotification(BlackberryPushChannelSettings channelSettings, BlackberryNotification n)
+			{
+				var c = new MultipartContent ("related", channelSettings.Boundary);
+                c.Headers.Remove("Content-Type");
+                c.Headers.TryAddWithoutValidation("Content-Type", "multipart/related; boundary=" + channelSettings.Boundary + "; type=application/xml");
 				
-				requestStream = HttpWReq.GetRequestStream();
-				//Write the data from the source
-				requestStream.Write(bytes, 0, bytes.Length);
+				var xml = n.ToPapXml ();
 
-				//get the response
-				HttpWRes = (HttpWebResponse)HttpWReq.GetResponse();
 
-				var pushStatus = HttpWRes.Headers["X-RIM-Push-Status"];
+				c.Add (new StringContent (xml, Encoding.UTF8, "application/xml"));
 
-				//if the MDS received the push parameters correctly it will either respond with okay or accepted
-				if (HttpWRes.StatusCode == HttpStatusCode.OK || HttpWRes.StatusCode == HttpStatusCode.Accepted)
-				{
-					success = true;
-				}
-				else
-				{
-					success = false;
-				}
-				//Close the streams
+			    var bc = new ByteArrayContent(n.Content.Content);
+                bc.Headers.Add("Content-Type", n.Content.ContentType);
+                
+                foreach (var header in n.Content.Headers)
+                    bc.Headers.Add(header.Key, header.Value);
 
-				HttpWRes.Close();
-				requestStream.Close();
+                c.Add(bc);
+			
+				return PostAsync (channelSettings.SendUrl, c);
 			}
-			catch (System.Exception)
-			{
-				success = false;
-			}
-
-			return success;
 		}
-	}
+
+        private BlackberryHttpClient http;
+
+		public void SendNotification(INotification notification, SendNotificationCallbackDelegate callback)
+		{
+			var n = notification as BlackberryNotification;
+
+		    try
+		    {
+		        var response = http.PostNotification(bisChannelSettings, n).Result;
+		        var description = string.Empty;
+
+		        var status = new BlackberryMessageStatus
+		            {
+		                Notification = n,
+		                HttpStatus = HttpStatusCode.ServiceUnavailable
+		            };
+
+		        var bbNotStatus = string.Empty;
+		        status.HttpStatus = response.StatusCode;
+
+		        var doc = XDocument.Load(response.Content.ReadAsStreamAsync().Result);
+
+		        var result = doc.Descendants("response-result").SingleOrDefault();
+		        if (result != null)
+		        {
+		            bbNotStatus = result.Attribute("code").Value;
+		            description = result.Attribute("desc").Value;
+		        }
+		        else
+		        {
+		            result = doc.Descendants("badmessage-response").SingleOrDefault();
+		            if (result != null)
+		            {
+		                bbNotStatus = result.Attribute("code").Value;
+		                description = result.Attribute("desc").Value;
+		            }
+		        }
+
+		        BlackberryNotificationStatus notStatus;
+		        Enum.TryParse(bbNotStatus, true, out notStatus);
+		        status.NotificationStatus = notStatus;
+
+		        if (status.NotificationStatus == BlackberryNotificationStatus.NoAppReceivePush)
+		        {
+		            if (callback != null)
+		                callback(this,
+		                         new SendNotificationResult(notification, false, new Exception("Device Subscription Expired"))
+		                             {
+		                                 IsSubscriptionExpired = true
+		                             });
+
+		            return;
+		        }
+
+		        if (status.HttpStatus == HttpStatusCode.OK
+		            && status.NotificationStatus == BlackberryNotificationStatus.RequestAcceptedForProcessing)
+		        {
+		            if (callback != null)
+		                callback(this, new SendNotificationResult(notification));
+		            return;
+		        }
+
+		        if (callback != null)
+		            callback(this,
+		                     new SendNotificationResult(status.Notification, false,
+		                                                new BisNotificationSendFailureException(status, description)));
+		    }
+		    catch (Exception ex)
+		    {
+		        if (callback != null)
+                    callback(this, new SendNotificationResult(notification, false, ex));
+		    }
+		}
+
+        public void Dispose()
+        {
+        }
+    }
 }
