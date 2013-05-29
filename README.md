@@ -1,7 +1,7 @@
 PushSharp 2.x
 =============
 
-A server-side library for sending Push Notifications to iOS (iPhone/iPad APNS), Android (C2DM and GCM - Google Cloud Message), Windows Phone, Windows 8, and Amazon Tablet (ADM) devices!
+A server-side library for sending Push Notifications to iOS (iPhone/iPad APNS), Android (C2DM and GCM - Google Cloud Message), Windows Phone, Windows 8, Blackberry (PAP) and Amazon (ADM) devices!
 
 ![PushSharp Diagram](https://github.com/Redth/PushSharp/raw/master/Resources/PushSharp-Diagram.png)
 *********
@@ -14,6 +14,8 @@ Visit [http://xamarin.com/evolve/](http://xamarin.com/evolve "Xamarin.com/Evolve
 News
 ----
 
+**May 29, 2013** 2.1-beta is released!  See the release notes below...
+
 **March 19, 2013** 2.0 is released! See the release notes below...
 
 *******
@@ -25,9 +27,10 @@ Features
  - Supports sending push notifications for many platforms:
    - Apple (APNS - iPhone, iPad, Mountain Lion)
    - Android (GCM/C2DM - Phones/Tablets)
-   - Amazon Tablet (ADM - Amazon Device Messaging)
+   - Amazon (ADM - Amazon Device Messaging)
    - Windows Phone 7 / 7.5 / 8 (including FlipTile, CycleTile, and IconicTile Templates!)
    - Windows 8
+   - Blackberry (BIS and BES via PAP)
    - Firefox OS (Coming soon)
  - Fluent API for constructing Notifications for each platform
  - Auto Scaling of notification channels (more workers/connections are added as demand increases, and scaled down as it decreases)
@@ -82,6 +85,20 @@ push.QueueNotification(new GcmNotification().ForDeviceRegistrationId("DEVICE REG
 Please see the PushSharp.Sample project for a more thorough example!
 
 ********************
+
+v2.1 BETA Release Notes
+------------------
+
+v2.1 is still BETA.  For iOS, Android, Windows, and Windows phone it should be quite stable still, however this is a first release of Blackberry and Amazon support!
+
+**Changes**
+
+ - Amazon Device Messaging support
+ - Blackberry BIS (and BES in theory) support
+ - Performance enhancements
+ - Other bugfixes
+ - 
+ 
 
 v2.0 Release Notes
 ------------------
