@@ -42,7 +42,7 @@ namespace PushSharp.Android
 		}
 
 		/// <summary>
-		/// Registration ID of the Device
+		/// Registration ID of the Device(s).  Maximum of 1000 registration Id's per notification.
 		/// </summary>
 		public List<string> RegistrationIds
 		{
