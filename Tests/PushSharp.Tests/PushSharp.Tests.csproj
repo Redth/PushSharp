@@ -60,6 +60,7 @@
     <Compile Include="PushServiceTests.cs" />
     <Compile Include="TestServers\GcmTestServer.cs" />
     <Compile Include="TestServers\ApnsTestServer.cs" />
+    <Compile Include="AmazonAdmTests.cs" />
   </ItemGroup>
   <ItemGroup>
     <None Include="packages.config" />
@@ -84,6 +85,10 @@
     <ProjectReference Include="..\..\PushSharp.Windows\PushSharp.Windows.csproj">
       <Project>{0EC3A31E-B869-4465-ABDC-90C2E3CCC17D}</Project>
       <Name>PushSharp.Windows</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\..\PushSharp.Amazon.Adm\PushSharp.Amazon.Adm.csproj">
+      <Project>{52154303-5315-494C-A741-2F0998795DC3}</Project>
+      <Name>PushSharp.Amazon.Adm</Name>
     </ProjectReference>
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />

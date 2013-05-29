@@ -40,7 +40,7 @@ namespace PushSharp.Amazon.Adm
 			if (ExpiresAfter.HasValue && ExpiresAfter.Value >= 0)
 				json ["expiresAfter"] = ExpiresAfter.Value;
 
-			return json.ToString(Newtonsoft.Json.Formatting.None);
+			return json.ToString();
 		}
 
 		public override string ToString ()

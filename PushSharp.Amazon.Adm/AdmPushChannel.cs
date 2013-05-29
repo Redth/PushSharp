@@ -1,4 +1,5 @@
 using System;
+using System.Net.Http.Headers;
 using PushSharp.Core;
 using System.Net.Http;
 using System.Threading.Tasks;
@@ -13,10 +14,24 @@ namespace PushSharp.Amazon.Adm
 	{
 		AdmPushChannelSettings admSettings;
 		long waitCounter = 0;
+		HttpClient http = new HttpClient();
 
 		public AdmPushChannel (AdmPushChannelSettings admSettings)
 		{
 			this.admSettings = admSettings;
+
+		    Expires = DateTime.UtcNow.AddYears(-1);
+
+			//http.DefaultRequestHeaders.Add ("Content-Type", "application/json");
+			http.DefaultRequestHeaders.Add ("X-Amzn-Type-Version", "com.amazon.device.messaging.ADMMessage@1.0");
+			http.DefaultRequestHeaders.Add ("X-Amzn-Accept-Type", "com.amazon.device.messaging.ADMSendResult@1.0");
+			http.DefaultRequestHeaders.Add ("Accept", "application/json");
+
+
+            //http.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Bearer", this.AccessToken);
+            http.DefaultRequestHeaders.ConnectionClose = true;
+
+            http.DefaultRequestHeaders.Remove("connection");
 		}
 
 		public void SendNotification (INotification notification, SendNotificationCallbackDelegate callback)
@@ -24,40 +39,47 @@ namespace PushSharp.Amazon.Adm
 			SendNotificationAsync (notification, callback);
 		}
 
-		async Task SendNotificationAsync(INotification notification, SendNotificationCallbackDelegate callback)
+		void SendNotificationAsync(INotification notification, SendNotificationCallbackDelegate callback)
 		{
-			if (string.IsNullOrEmpty (AccessToken))
-				UpdateAccessToken ().Wait ();
+            var n = notification as AdmNotification;
 
 			try
 			{
 				Interlocked.Increment(ref waitCounter);
 
-				var n = notification as AdmNotification;
+                if (string.IsNullOrEmpty(AccessToken) || Expires <= DateTime.UtcNow)
+                {
+                    UpdateAccessToken();
+                    http.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Bearer", this.AccessToken);
+                }
+                
+			    var sc = new StringContent(n.ToJson());
+                sc.Headers.ContentType = new MediaTypeHeaderValue("application/json");
 
-				var http = new HttpClient ();
-				http.DefaultRequestHeaders.Add ("Authorization", "Bearer " + this.AccessToken);
-				http.DefaultRequestHeaders.Add ("Content-Type", "application/json");
-				http.DefaultRequestHeaders.Add ("X-Amzn-Type-Version", "com.amazon.device.messaging.ADMMessage@1.0");
-				http.DefaultRequestHeaders.Add ("X-Amzn-Accept-Type", "com.amazon.device.messaging.ADMSendResult@1.0");
-				http.DefaultRequestHeaders.Add ("Accept", "application/json");
-
-				var response = await http.PostAsync (string.Format(admSettings.AdmSendUrl, n.RegistrationId), new StringContent (n.ToJson()));
+				var response = http.PostAsync (string.Format(admSettings.AdmSendUrl, n.RegistrationId), sc).Result;
 
 				if (response.IsSuccessStatusCode)
 				{
 					callback(this, new SendNotificationResult(n));
 					return;
 				}
-			
-				var json = JObject.Parse (await response.Content.ReadAsStringAsync());
+
+			    var data = response.Content.ReadAsStringAsync().Result;
+
+				var json = JObject.Parse (data);
 
 				var reason = json ["reason"].ToString ();
-				var regId = json ["registrationID"].ToString ();
+
+
+			    var regId = n.RegistrationId;
+                
+                if (json["registrationID"] != null)
+                    regId = json["registrationID"].ToString();
 
 				switch (response.StatusCode)
 				{
 					case HttpStatusCode.BadGateway: //400
+                    case HttpStatusCode.BadRequest: //
 						if ("InvalidRegistrationId".Equals (reason, StringComparison.InvariantCultureIgnoreCase))
 						{
 							callback (this, new SendNotificationResult (n)
@@ -95,7 +117,7 @@ namespace PushSharp.Amazon.Adm
 		}
 
 
-		async Task UpdateAccessToken()
+		void UpdateAccessToken()
 		{
 			var http = new HttpClient ();
 
@@ -106,18 +128,26 @@ namespace PushSharp.Amazon.Adm
 			param.Add ("client_secret", admSettings.ClientSecret);
 
 
-			var result = await http.PostAsync (admSettings.AdmAuthUrl, new FormUrlEncodedContent (param));
+			var result = http.PostAsync (admSettings.AdmAuthUrl, new FormUrlEncodedContent (param)).Result;
+		    var data = result.Content.ReadAsStringAsync().Result;
 
-			var json = JObject.Parse (await result.Content.ReadAsStringAsync());
+			var json = JObject.Parse (data);
 
 			this.AccessToken = json ["access_token"].ToString ();
 
+		    JToken expiresJson = new JValue(3540);
+		    if (json.TryGetValue("expires_in", out expiresJson))
+		        Expires = DateTime.UtcNow.AddSeconds(expiresJson.ToObject<int>() - 60);
+		    else
+		        Expires = DateTime.UtcNow.AddSeconds(3540);
+
 			if (result.Headers.Contains ("X-Amzn-RequestId"))
 				this.LastAmazonRequestId = string.Join("; ", result.Headers.GetValues("X-Amzn-RequestId"));
-
+            
 			LastRequest = DateTime.UtcNow;
 		}
 
+        public DateTime Expires { get; set; }
 		public DateTime LastRequest { get; private set; }
 		public string LastAmazonRequestId { get; private set; }
 		public string AccessToken { get; private set; }

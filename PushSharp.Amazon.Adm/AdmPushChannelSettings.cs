@@ -8,7 +8,7 @@ namespace PushSharp.Amazon.Adm
 	public class AdmPushChannelSettings : IPushChannelSettings
 	{
 		private const string ADM_SEND_URL = "https://api.amazon.com/messaging/registrations/{0}/messages";
-		private const string ADM_AUTH_URL = "https://api.amazon.com/messaging/";
+		private const string ADM_AUTH_URL = "https://api.amazon.com/auth/O2/token";
 
 		public AdmPushChannelSettings(string clientId, string clientSecret)
 		{
