@@ -73,7 +73,9 @@ namespace PushSharp.Apple
 
 			if (!disableCertificateCheck)	
 				CheckProductionCertificateMatching(production);
-		}
+
+            this.ValidateServerCertificate = false;
+        }
 
 		public bool DetectProduction(X509Certificate2 certificate)
 		{
@@ -188,6 +190,12 @@ namespace PushSharp.Apple
 			get;
 			set;
 		}
+
+        public bool ValidateServerCertificate
+        {
+            get;
+            set;
+        }
 
 		public int ConnectionTimeout { get; set; }
 		public int MaxConnectionAttempts { get; set; }
