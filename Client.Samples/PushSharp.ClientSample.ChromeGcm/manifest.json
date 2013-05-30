@@ -1,0 +1,15 @@
+{
+  "manifest_version": 2,
+  "name": "PushSharp Test",
+  "description": "Chrome GCM PushSharp Test Client",
+  "version": "0.1",
+  "permissions": [
+    "pushMessaging"
+  ], 
+  "app": {
+    "background": {
+      "scripts": ["background.js"]
+    }
+  },
+  "icons": { "16": "pushsharpicon-16.png", "128": "pushsharpicon-128.png" }
+}
