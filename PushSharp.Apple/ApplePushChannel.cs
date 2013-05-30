@@ -210,13 +210,18 @@ namespace PushSharp.Apple
 
 			Log.Info("ApplePushChannel->DISPOSE.");
 		}
-		
+
+	    private IAsyncResult readAsyncResult = default(IAsyncResult);
+
 		void Reader()
 		{
 			try
 			{
-				networkStream.BeginRead(readBuffer, 0, 6, new AsyncCallback((asyncResult) =>
-				{
+			    readAsyncResult = networkStream.BeginRead(readBuffer, 0, 6, new AsyncCallback((asyncResult) =>
+			    {
+			        if (readAsyncResult != asyncResult)
+			            return;
+
 					lock (sentLock)
 					{
 						try
@@ -231,8 +236,10 @@ namespace PushSharp.Apple
 								try { stream.Close(); stream.Dispose(); }
 								catch { }
 
-								try { client.Close(); stream.Dispose(); }
+								try { client.Close(); }
 								catch { }
+
+								client = null;
 
 								//Get the enhanced format response
 								// byte 0 is always '1', byte 1 is the status, bytes 2,3,4,5 are the identifier of the notification
@@ -443,6 +450,8 @@ namespace PushSharp.Apple
 			}
 		}
 
+	    private IAsyncResult connectAsyncResult = default(IAsyncResult);
+
 		void connect()
 		{
 			client = new TcpClient();
@@ -456,12 +465,16 @@ namespace PushSharp.Apple
 			{
 				var connectDone = new AutoResetEvent(false);
 			
+                
 				//Connect async so we can utilize a connection timeout
-				client.BeginConnect(
+			    connectAsyncResult = client.BeginConnect(
 					appleSettings.Host, appleSettings.Port,
 					new AsyncCallback(
 						delegate(IAsyncResult ar)
 						{
+						    if (connectAsyncResult != ar)
+						        return;
+
 							try
 							{
 								client.EndConnect(ar);

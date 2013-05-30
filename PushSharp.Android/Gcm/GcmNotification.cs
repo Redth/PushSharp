@@ -42,7 +42,7 @@ namespace PushSharp.Android
 		}
 
 		/// <summary>
-		/// Registration ID of the Device
+		/// Registration ID of the Device(s).  Maximum of 1000 registration Id's per notification.
 		/// </summary>
 		public List<string> RegistrationIds
 		{
@@ -69,7 +69,7 @@ namespace PushSharp.Android
 		}
 
 		/// <summary>
-		/// If true, C2DM will only be delivered once the device's screen is on
+		/// If true, GCM will only be delivered once the device's screen is on
 		/// </summary>
 		public bool? DelayWhileIdle
 		{

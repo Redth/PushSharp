@@ -18,6 +18,7 @@ namespace PushSharp.Android
 	{
 		GcmPushChannelSettings gcmSettings = null;
 		long waitCounter = 0;
+		static Version assemblyVerison;
 
 		public GcmPushChannel(GcmPushChannelSettings channelSettings)
 		{
@@ -28,6 +29,7 @@ namespace PushSharp.Android
 		static GcmPushChannel()
 		{
 			ServicePointManager.ServerCertificateValidationCallback += (sender, cert, chain, policyErrs) => { return true; };
+			assemblyVerison = System.Reflection.Assembly.GetExecutingAssembly ().GetName ().Version;
 		}
 		
 		public void SendNotification(INotification notification, SendNotificationCallbackDelegate callback)
@@ -44,7 +46,7 @@ namespace PushSharp.Android
 			webReq.Method = "POST";
 			webReq.ContentType = "application/json";
 			//webReq.ContentType = "application/x-www-form-urlencoded;charset=UTF-8   can be used for plaintext bodies
-			webReq.UserAgent = "PushSharp (version: 1.0)";
+			webReq.UserAgent = "PushSharp (version: " + assemblyVerison.ToString () + ")";
 			webReq.Headers.Add("Authorization: key=" + gcmSettings.SenderAuthToken);
 
 			webReq.BeginGetRequestStream(new AsyncCallback(requestStreamCallback), new GcmAsyncParameters()
@@ -135,15 +137,18 @@ namespace PushSharp.Android
 			//Get the response body
 			var json = new JObject();
 
-			try { json = JObject.Parse((new StreamReader(asyncParam.WebResponse.GetResponseStream())).ReadToEnd()); }
+		    var str = string.Empty;
+
+			try { str = (new StreamReader(asyncParam.WebResponse.GetResponseStream())).ReadToEnd(); }
 			catch { }
 
+		    try { json = JObject.Parse(str); }
+		    catch { }
 
 			result.NumberOfCanonicalIds = json.Value<long>("canonical_ids");
 			result.NumberOfFailures = json.Value<long>("failure");
 			result.NumberOfSuccesses = json.Value<long>("success");
-
-		
+					
 			var jsonResults = json["results"] as JArray;
 
 			if (jsonResults == null)
@@ -165,7 +170,7 @@ namespace PushSharp.Android
 				{
 					var err = r.Value<string>("error") ?? "";
 
-					switch (err.ToLower().Trim())
+					switch (err.ToLowerInvariant().Trim())
 					{
 						case "ok":
 							msgResult.ResponseStatus = GcmMessageTransportResponseStatus.Ok;

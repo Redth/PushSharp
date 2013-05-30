@@ -15,7 +15,19 @@ namespace PushSharp.Tests
 	{
 		private int testPort = 2000;
 
-		[Test]
+        [SetUp]
+        public void Setup()
+        {
+            PushSharp.Core.Log.Level = LogLevel.Info;
+        }
+
+	    [Test]
+	    public void GCM_All_ShouldSucceed_VeryMany()
+	    {
+            TestNotifications(false, 100000, 100000, 0, null, true);
+	    }
+
+        [Test]
 		public void GCM_All_ShouldSucceed()
 		{
 			TestNotifications(false, 10, 10, 0);
@@ -147,7 +159,10 @@ namespace PushSharp.Tests
 			Assert.AreEqual(0, pushSuccessCount, "Client - Success Count");
 			Assert.AreEqual(0, subChangedCount, "Client - SubscriptionId Changed Count");
 			Assert.AreEqual(notifications.Count, subExpiredCount, "Client - SubscriptionId Expired Count");
-		}
+
+            Console.WriteLine("{0} Successful, {1} Failed", pushSuccessCount, pushFailCount);
+
+        }
 
 
 		[Test]
@@ -191,7 +206,7 @@ namespace PushSharp.Tests
 		}
 
 
-		public void TestNotifications(bool shouldBatch, int toQueue, int expectSuccessful, int expectFailed, int[] indexesToFail = null)
+		public void TestNotifications(bool shouldBatch, int toQueue, int expectSuccessful, int expectFailed, int[] indexesToFail = null, bool waitForScaling = false)
 		{
 			testPort++;
 
@@ -244,10 +259,28 @@ namespace PushSharp.Tests
 			settings.OverrideUrl("http://localhost:" + (testPort) + "/");
 
 			var push = new GcmPushService(settings);
-			push.OnNotificationSent += (sender, notification1) => pushSuccessCount++;
+			push.OnNotificationSent += (sender, notification1) =>
+			    {
+			        pushSuccessCount++;
+                  //  if (DateTime.UtcNow.Second % 10 == 0)
+                    //    Console.WriteLine("Success: " + pushSuccessCount);
+			    };
 			push.OnNotificationFailed += (sender, notification1, error) => {
-				                                                               pushFailCount++;
+                    pushFailCount++;
+                    //if (DateTime.UtcNow.Second % 10 == 0)
+                      //  Console.WriteLine("Failed: " + pushFailCount);
 			};
+		    push.OnNotificationRequeue += (sender, args) =>
+		        {
+		            Console.WriteLine("REQUEUEING");
+		        };
+		    push.OnChannelException += (sender, channel, error) =>
+		        {
+                    Console.WriteLine("ERROR: " + error);
+		        };
+
+            //push.ServiceSettings.AutoScaleChannels = false;
+            //push.ServiceSettings.Channels = 10;
 
 			var json = @"{""key"":""value1""}";
 
@@ -272,7 +305,26 @@ namespace PushSharp.Tests
 						.WithJson(json));
 			}
 
-			push.Stop();
+			
+
+			
+
+            Console.WriteLine("Avg Queue Wait Time: " + push.AverageQueueWaitTime + " ms");
+            Console.WriteLine("Avg Send Time: " + push.AverageSendTime + " ms");
+
+            if (waitForScaling)
+            {
+               while (push.QueueLength > 0)
+                   Thread.Sleep(500);
+
+                Console.WriteLine("Sleeping 3 minutes for autoscaling...");
+                Thread.Sleep(TimeSpan.FromMinutes(3));
+
+                Console.WriteLine("Channel Count: " + push.ChannelCount);
+                Assert.IsTrue(push.ChannelCount <= 1);
+            }
+
+            push.Stop();
 			push.Dispose();
 
 			server.Dispose();
@@ -317,13 +369,14 @@ namespace PushSharp.Tests
 				serverReceivedSuccessCount += (int) response.NumberOfSuccesses;
 				serverReceivedFailCount += (int) response.NumberOfFailures;
 			});
-			
-			
+
+
+		    var svcSettings = new PushServiceSettings() {AutoScaleChannels = false, Channels = 1};
 			
 			var settings = new GcmPushChannelSettings("SENDERAUTHTOKEN");
 			settings.OverrideUrl("http://localhost:" + (testPort) + "/");
-			
-			var push = new GcmPushService(settings);
+           
+			var push = new GcmPushService(settings, svcSettings);
 			push.OnNotificationSent += (sender, notification1) => {
 				pushSuccessCount++;
 				sentCallback(sender, notification1);
@@ -340,6 +393,10 @@ namespace PushSharp.Tests
 				push.QueueNotification(n);
 
 			push.Stop();
+
+            Console.WriteLine("Avg Queue Wait Time: " + push.AverageQueueWaitTime + " ms");
+            Console.WriteLine("Avg Send Time: " + push.AverageSendTime + " ms");
+
 			push.Dispose();
 			
 			server.Dispose();
