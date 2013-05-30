@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Collections.Concurrent;
+using System.Globalization;
 using System.Security.Cryptography.X509Certificates;
 using System.Linq;
 using System.Net.Sockets;
@@ -10,6 +11,7 @@ using System.Threading;
 using System.Threading.Tasks;
 using System.Net;
 using PushSharp.Core;
+using Starksoft.Net.Proxy;
 
 namespace PushSharp.Apple
 {
@@ -454,54 +456,28 @@ namespace PushSharp.Apple
 
 		void connect()
 		{
-			client = new TcpClient();
+			// client = new TcpClient();
 
 			//Notify we are connecting
 			var eoc = this.OnConnecting;
 			if (eoc != null)
 				eoc(this.appleSettings.Host, this.appleSettings.Port);
-			
-			try
-			{
-				var connectDone = new AutoResetEvent(false);
-			
-                
-				//Connect async so we can utilize a connection timeout
-			    connectAsyncResult = client.BeginConnect(
-					appleSettings.Host, appleSettings.Port,
-					new AsyncCallback(
-						delegate(IAsyncResult ar)
-						{
-						    if (connectAsyncResult != ar)
-						        return;
 
-							try
-							{
-								client.EndConnect(ar);
-
-								//Set keep alive on the socket may help maintain our APNS connection
-								client.Client.SetSocketOption(SocketOptionLevel.Socket, SocketOptionName.KeepAlive, true);
-
-								//Trigger the reset event so we can continue execution below
-								connectDone.Set();
-							}
-							catch (Exception ex)
-							{
-								Log.Error("APNS Connect Callback Failed: " + ex);
-							}
-						}
-					), client
-				);
-
-				if (!connectDone.WaitOne(appleSettings.ConnectionTimeout))
-				{
-					throw new TimeoutException("Connection to Host Timed Out!");
-				}
-			}
-			catch (Exception ex)
-			{
+            try
+            {
+                if (string.IsNullOrWhiteSpace(appleSettings.ProxyServerName) || appleSettings.ProxyPort <= 0)
+                {
+                    client = ConnectNoProxy();
+                }
+                else
+                {
+                    client = ConnectViaProxy();
+                }
+            }
+            catch (Exception ex)
+            {
 				throw new ConnectionFailureException("Connection to Host Failed", ex);
-			}
+            }
 			
 			if (appleSettings.SkipSsl)
 			{
@@ -509,9 +485,20 @@ namespace PushSharp.Apple
 			}
 			else
 			{
+			    RemoteCertificateValidationCallback userCertificateValidation;
+
+                if (appleSettings != null && appleSettings.ValidateServerCertificate)
+                {
+                    userCertificateValidation = ValidateRemoteCertificate;
+                }
+                else
+                {
+                    userCertificateValidation = (sender, cert, chain, sslPolicyErrors) => true; //Don't validate remote cert
+                }
+
 				stream = new SslStream(client.GetStream(), false,
-					(sender, cert, chain, sslPolicyErrors) => true, //Don't validate remote cert
-					(sender, targetHost, localCerts, remoteCert, acceptableIssuers) => certificate); //
+                    userCertificateValidation, 
+					(sender, targetHost, localCerts, remoteCert, acceptableIssuers) => certificate);
 
 				try
 				{
@@ -535,7 +522,106 @@ namespace PushSharp.Apple
 			//Start reading from the stream asynchronously
 			Reader();
 		}
-		
+
+        private TcpClient ConnectViaProxy()
+        {
+            IProxyClient proxy = null;
+
+            switch (appleSettings.ProxyVersion)
+            {
+                case ProxyVersion.SOCKS4:
+                    proxy = new Socks4ProxyClient(appleSettings.ProxyServerName, appleSettings.ProxyPort);
+                    break;
+
+                case ProxyVersion.SOCKS4a:
+                    proxy = new Socks4aProxyClient(appleSettings.ProxyServerName, appleSettings.ProxyPort);
+                    break;
+
+                case ProxyVersion.SOCKS5:
+                    proxy = new Socks5ProxyClient(appleSettings.ProxyServerName, appleSettings.ProxyPort);
+                    break;
+            }
+
+            if (proxy == null)
+            {
+                throw new ArgumentException(
+                    string.Format(CultureInfo.InvariantCulture,
+                        "Proxy version not supported. Version: {0}", appleSettings.ProxyVersion));
+            }
+
+            TcpClient proxiedClient = null;
+            var connectDone = new AutoResetEvent(false);
+
+            proxy.CreateConnectionAsyncCompleted += (s, e) =>
+            {
+                try
+                {
+                    proxiedClient = e.ProxyConnection;
+
+                    //Set keep alive on the socket may help maintain our APNS connection
+                    proxiedClient.Client.SetSocketOption(SocketOptionLevel.Socket, SocketOptionName.KeepAlive, true);
+
+                    //Trigger the reset event so we can continue execution below
+                    connectDone.Set();
+                }
+                catch (Exception ex)
+                {
+                    Log.Error("APNS Connect Callback Failed: " + ex);
+                }
+            };
+
+            // Connect async so we can utilize a connection timeout
+            proxy.CreateConnectionAsync(appleSettings.Host, appleSettings.Port);
+
+            if (!connectDone.WaitOne(appleSettings.ConnectionTimeout))
+            {
+                throw new TimeoutException("Connection to Host Timed Out!");
+            }
+
+            return proxiedClient;
+        }
+
+        private TcpClient ConnectNoProxy()
+        {
+            var directClient = new TcpClient();
+            var connectDone = new AutoResetEvent(false);
+
+            //Connect async so we can utilize a connection timeout
+            directClient.BeginConnect(
+                appleSettings.Host, appleSettings.Port,
+                new AsyncCallback(
+                    delegate(IAsyncResult ar)
+                    {
+                        try
+                        {
+                            directClient.EndConnect(ar);
+
+                            //Set keep alive on the socket may help maintain our APNS connection
+                            directClient.Client.SetSocketOption(SocketOptionLevel.Socket, SocketOptionName.KeepAlive, true);
+
+                            //Trigger the reset event so we can continue execution below
+                            connectDone.Set();
+                        }
+                        catch (Exception ex)
+                        {
+                            Log.Error("APNS Connect Callback Failed: " + ex);
+                        }
+                    }
+                ), directClient
+            );
+
+            if (!connectDone.WaitOne(appleSettings.ConnectionTimeout))
+            {
+                throw new TimeoutException("Connection to Host Timed Out!");
+            }
+
+            return directClient;
+        }
+
+        private static bool ValidateRemoteCertificate(object sender, X509Certificate certificate, X509Chain chain, SslPolicyErrors policyErrors)
+        {
+            return policyErrors == SslPolicyErrors.None;
+        }
 	}
 
 	public class SentNotification

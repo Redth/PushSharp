@@ -73,6 +73,12 @@ namespace PushSharp.Apple
 
 			if (!disableCertificateCheck)	
 				CheckProductionCertificateMatching(production);
+
+		    this.ProxyServerName = string.Empty;
+		    this.ProxyPort = 0;
+            this.ProxyVersion = ProxyVersion.None;
+
+		    this.ValidateServerCertificate = false;
 		}
 
 		public bool DetectProduction(X509Certificate2 certificate)
@@ -189,7 +195,39 @@ namespace PushSharp.Apple
 			set;
 		}
 
+        public bool ValidateServerCertificate
+        {
+            get; 
+            set; 
+        }
+
 		public int ConnectionTimeout { get; set; }
 		public int MaxConnectionAttempts { get; set; }
+
+        /// <summary>
+        /// The name of an optional proxy server to via. Leave this blank (default) to directly connect to the host.
+        /// </summary>
+        public string ProxyServerName { get; set; }
+
+        /// <summary>
+        /// The optional port number to use when a <see cref="ProxyServerName"/> is used. This is only required when a proxy server name is specified.
+        /// </summary>
+        public int ProxyPort { get; set; }
+
+        /// <summary>
+        /// The optional
+        /// </summary>
+        public ProxyVersion ProxyVersion { get; set; }
 	}
+
+    public enum ProxyVersion
+    {
+        None,
+
+        SOCKS4,
+
+        SOCKS4a,
+
+        SOCKS5
+    }
 }
