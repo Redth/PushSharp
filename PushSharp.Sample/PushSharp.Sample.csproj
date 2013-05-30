@@ -56,16 +56,12 @@
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\PushSharp.Amazon.Adm\PushSharp.Amazon.Adm.csproj">
-      <Project>{52154303-5315-494c-a741-2f0998795dc3}</Project>
+      <Project>{52154303-5315-494C-A741-2F0998795DC3}</Project>
       <Name>PushSharp.Amazon.Adm</Name>
     </ProjectReference>
     <ProjectReference Include="..\PushSharp.Apple\PushSharp.Apple.csproj">
       <Project>{83C67156-893D-4AFF-9169-DB34771989CB}</Project>
       <Name>PushSharp.Apple</Name>
-    </ProjectReference>
-    <ProjectReference Include="..\PushSharp.Blackberry\PushSharp.Blackberry.csproj">
-      <Project>{5250980b-bd11-4201-b083-aedb8c62c471}</Project>
-      <Name>PushSharp.Blackberry</Name>
     </ProjectReference>
     <ProjectReference Include="..\PushSharp.Core\PushSharp.Core.csproj">
       <Project>{836F225F-6CD9-48DE-910C-70F8A7CF54AA}</Project>
@@ -82,6 +78,10 @@
     <ProjectReference Include="..\PushSharp.Windows\PushSharp.Windows.csproj">
       <Project>{0EC3A31E-B869-4465-ABDC-90C2E3CCC17D}</Project>
       <Name>PushSharp.Windows</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\PushSharp.Blackberry\PushSharp.Blackberry.csproj">
+      <Project>{5250980B-BD11-4201-B083-AEDB8C62C471}</Project>
+      <Name>PushSharp.Blackberry</Name>
     </ProjectReference>
   </ItemGroup>
   <ItemGroup>

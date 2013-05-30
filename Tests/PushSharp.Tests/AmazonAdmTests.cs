@@ -18,7 +18,8 @@ namespace PushSharp.Tests
 
 			var n = new AdmNotification ();
 			n.Data.Add ("Test", "value");
-			n.RegistrationId = "12345";
+			n.RegistrationId = "12345"; 	
+
             
 			adm.SendNotification (n, (sender, response) => wait.Set());
 

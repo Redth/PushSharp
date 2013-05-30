@@ -11,6 +11,7 @@ using System.Net.Security;
 using PushSharp.Core;
 using System.Net.Http;
 using System.Threading.Tasks;
+using System.Net.Http.Headers;
 
 namespace PushSharp.Google.Chrome
 {
@@ -21,6 +22,7 @@ namespace PushSharp.Google.Chrome
 		public string AccessToken { get; private set; }
 		public DateTime Expires { get; private set; }
 
+		HttpClient http = new HttpClient();
 
 		public ChromePushChannel(ChromePushChannelSettings channelSettings)
 		{
@@ -32,15 +34,8 @@ namespace PushSharp.Google.Chrome
 			ServicePointManager.ServerCertificateValidationCallback += (sender, cert, chain, policyErrs) => { return true; };
 		}
 
-		public void RefreshToken()
-		{
-			RefreshAccessToken ();
-		}
-
 		public void RefreshAccessToken()
 		{
-			var http = new HttpClient ();
-					
 			var p = new Dictionary<string, string> ();
 
 			p.Add ("client_id", chromeSettings.ClientId);
@@ -50,10 +45,12 @@ namespace PushSharp.Google.Chrome
 
 			var response = http.PostAsync (chromeSettings.AuthUrl, new FormUrlEncodedContent (p)).Result;
 
-			Console.WriteLine ("RESPONSE: " + response.Content.ReadAsStringAsync().Result);
+			var result = response.Content.ReadAsStringAsync ().Result;
+
+			Console.WriteLine ("RESPONSE: " + result);
 		}
 
-		public async void SendNotification(INotification notification, SendNotificationCallbackDelegate callback)
+		public void SendNotification(INotification notification, SendNotificationCallbackDelegate callback)
 		{
 			bool success = false;
 			string body = "Unknown Failure";
@@ -64,24 +61,28 @@ namespace PushSharp.Google.Chrome
 			{
 				var client = new HttpClient ();
 
-				client.DefaultRequestHeaders.Add ("Content-Type", "application/json");
-				client.DefaultRequestHeaders.Add ("Authorization", "Bearer " + chromeSettings.GrantType);
-				client.DefaultRequestHeaders.Add ("channelId", n.ChannelId);
-				client.DefaultRequestHeaders.Add ("subchannelId", ((int)n.SubChannelId).ToString());
-				client.DefaultRequestHeaders.Add ("payload", n.Payload);
-
 				var url = chromeSettings.Url;
 
-				var result = await client.PostAsync (chromeSettings.Url, new StringContent(string.Empty));
+				var sc = new StringContent(string.Empty);
+				sc.Headers.ContentType = new MediaTypeHeaderValue("application/json");
+				sc.Headers.TryAddWithoutValidation("Authorization", "Bearer " + chromeSettings.GrantType);
+				sc.Headers.TryAddWithoutValidation ("channelId", n.ChannelId);
+				sc.Headers.TryAddWithoutValidation ("subchannelId", ((int)n.SubChannelId).ToString());
+				sc.Headers.TryAddWithoutValidation ("payload", n.Payload);
+
+
+				var result = client.PostAsync (chromeSettings.Url, sc).Result;
 
 				success = result.IsSuccessStatusCode;
 
-				body = await result.Content.ReadAsStringAsync ();
+				body = result.Content.ReadAsStringAsync ().Result;
 			}
 			catch (Exception ex)
 			{
 				body = ex.ToString ();
 			}
+
+			Console.WriteLine (body);
 
 			callback (this, new SendNotificationResult (n, false, success ? null : new NotificationFailureException(body, n)));
 		}
