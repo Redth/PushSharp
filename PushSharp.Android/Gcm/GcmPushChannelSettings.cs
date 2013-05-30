@@ -14,7 +14,9 @@ namespace PushSharp.Android
 		{
 			this.SenderAuthToken = senderAuthToken;
 			this.GcmUrl = GCM_SEND_URL;
-		}
+
+            this.ValidateServerCertificate = false;
+        }
 
 		public GcmPushChannelSettings(string optionalSenderID, string senderAuthToken, string optionalApplicationIdPackageName)
 		{
@@ -22,11 +24,15 @@ namespace PushSharp.Android
 			this.SenderAuthToken = senderAuthToken;
 			this.ApplicationIdPackageName = optionalApplicationIdPackageName;
 			this.GcmUrl = GCM_SEND_URL;
-		}
+
+            this.ValidateServerCertificate = false;
+        }
 
 		public string SenderID { get; private set; }
 		public string SenderAuthToken { get; private set; }
 		public string ApplicationIdPackageName { get; private set; }
+
+        public bool ValidateServerCertificate { get; set; }
 
 		public string GcmUrl { get; set; }
 
