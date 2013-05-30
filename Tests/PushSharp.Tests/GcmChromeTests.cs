@@ -1,6 +1,8 @@
 using System;
 using System.Threading.Tasks;
 using NUnit.Framework;
+using PushSharp.Google.Chrome;
+using System.Threading;
 
 namespace PushSharp.Tests
 {
@@ -17,11 +19,26 @@ namespace PushSharp.Tests
 		[Test]
 		public void TestOAuth()
 		{
+			//var wait = new ManualResetEvent(false);
+
 			Google.Chrome.ChromePushChannel chan = new PushSharp.Google.Chrome.ChromePushChannel (new PushSharp.Google.Chrome.ChromePushChannelSettings(oauthClientId, oauthSecret)
             {
-				GrantType = "4/m11YZRjo5yoYyuy3Wx8bIY1NtN3I.kvLUtsadF1YSuJJVnL49Cc_yg3RGfQI", RefreshToken = "1/737Kzd3sjIr8ME97HYam3fPW8euce6lHeP800RUXl8Y"
+                AuthorizationCode = "4/Ndq0smr04tldagzUcJa9MFdamaAt.srbbbJRseYMTmmS0T3UFEsOetIXtfQI",
+                RefreshToken = "1/3n7TKFv2xoHNBuKqHEXDLpiBZJVGkExnR1K_uHhU0H4"
 			});
-			chan.RefreshAccessToken ();
+
+			var n = new ChromeNotification ();
+			n.ChannelId = "14952429134341445468/eedjdmpjjhnloopiphclnnecohdbkkpa";
+
+			n.Payload = "{\"test\":\"value\"}";
+
+			var cb = new PushSharp.Core.SendNotificationCallbackDelegate ((sender, response) => {
+				//wait.Set();
+			});
+
+			chan.SendNotification (n, cb);
+
+			//wait.WaitOne ();
 		}
 	}
 }

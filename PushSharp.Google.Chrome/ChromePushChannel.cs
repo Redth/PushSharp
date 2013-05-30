@@ -7,11 +7,12 @@ using System.IO;
 using System.Security.Cryptography.X509Certificates;
 using System.Security;
 using System.Net.Security;
-
+using System.Web;
 using PushSharp.Core;
 using System.Net.Http;
 using System.Threading.Tasks;
 using System.Net.Http.Headers;
+using Newtonsoft.Json.Linq;
 
 namespace PushSharp.Google.Chrome
 {
@@ -26,6 +27,8 @@ namespace PushSharp.Google.Chrome
 
 		public ChromePushChannel(ChromePushChannelSettings channelSettings)
 		{
+		    Expires = DateTime.UtcNow.AddYears(-1);
+		    AccessToken = string.Empty;
 			chromeSettings = channelSettings as ChromePushChannelSettings;	
 		}
 
@@ -38,16 +41,25 @@ namespace PushSharp.Google.Chrome
 		{
 			var p = new Dictionary<string, string> ();
 
-			p.Add ("client_id", chromeSettings.ClientId);
+            p.Add ("client_id", chromeSettings.ClientId);
 			p.Add ("client_secret", chromeSettings.ClientSecret);
 			p.Add ("refresh_token", chromeSettings.RefreshToken);
-			p.Add ("grant_type", chromeSettings.GrantType);
+		    p.Add("grant_type", "refresh_token");
 
 			var response = http.PostAsync (chromeSettings.AuthUrl, new FormUrlEncodedContent (p)).Result;
 
 			var result = response.Content.ReadAsStringAsync ().Result;
 
-			Console.WriteLine ("RESPONSE: " + result);
+		    var json = JObject.Parse(result);
+
+		    this.AccessToken = json["access_token"].ToString();
+
+            JToken expiresJson = new JValue(3400);
+		    json.TryGetValue("expires_in", out expiresJson);
+
+		    this.Expires = DateTime.UtcNow.AddSeconds(expiresJson.Value<int>());
+
+            http.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Bearer", this.AccessToken);
 		}
 
 		public void SendNotification(INotification notification, SendNotificationCallbackDelegate callback)
@@ -59,19 +71,20 @@ namespace PushSharp.Google.Chrome
 
 			try
 			{
-				var client = new HttpClient ();
-
-				var url = chromeSettings.Url;
-
-				var sc = new StringContent(string.Empty);
+                if (string.IsNullOrEmpty(this.AccessToken) || DateTime.UtcNow >= this.Expires)
+                    RefreshAccessToken();
+                
+			    var json = new JObject();
+			    json["channelId"] = n.ChannelId;
+			    json["subchannelId"] = ((int)n.SubChannelId).ToString();
+			    json["payload"] = n.Payload;
+                
+				var sc = new StringContent(json.ToString());
 				sc.Headers.ContentType = new MediaTypeHeaderValue("application/json");
-				sc.Headers.TryAddWithoutValidation("Authorization", "Bearer " + chromeSettings.GrantType);
-				sc.Headers.TryAddWithoutValidation ("channelId", n.ChannelId);
-				sc.Headers.TryAddWithoutValidation ("subchannelId", ((int)n.SubChannelId).ToString());
-				sc.Headers.TryAddWithoutValidation ("payload", n.Payload);
-
-
-				var result = client.PostAsync (chromeSettings.Url, sc).Result;
+                
+				sc.Headers.TryAddWithoutValidation("Authorization", "Bearer " + this.AccessToken);
+				
+				var result = http.PostAsync (chromeSettings.Url, sc).Result;
 
 				success = result.IsSuccessStatusCode;
 
