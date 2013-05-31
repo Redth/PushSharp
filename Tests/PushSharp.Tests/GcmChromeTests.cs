@@ -10,12 +10,7 @@ namespace PushSharp.Tests
 	{
 		const string oauthClientId = "785671162406-hdjh5dfe38bp2b6c2quvh2oelq0ie48i.apps.googleusercontent.com";
 		const string oauthSecret = "GgYTVbDxX4JogGSeh9IxS83f";
-		const string redirectUrl = "https://developers.google.com/oauthplayground";
-
-		public GcmChromeTests ()
-		{
-		}
-
+		
 		[Test]
 		public void TestOAuth()
 		{
