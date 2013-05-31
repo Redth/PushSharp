@@ -28,6 +28,7 @@ Features
  - Supports sending push notifications for many platforms:
    - Apple (APNS - iPhone, iPad, Mountain Lion)
    - Android (GCM/C2DM - Phones/Tablets)
+   - Chrome (GCM)
    - Amazon (ADM - Amazon Device Messaging)
    - Windows Phone 7 / 7.5 / 8 (including FlipTile, CycleTile, and IconicTile Templates!)
    - Windows 8
