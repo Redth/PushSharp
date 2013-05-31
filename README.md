@@ -1,14 +1,15 @@
-PushSharp 2.x
-=============
+PushSharp
+=========
 
 A server-side library for sending Push Notifications to iOS (iPhone/iPad APNS), Android (C2DM and GCM - Google Cloud Message), Windows Phone, Windows 8, Blackberry (PAP) and Amazon (ADM) devices!
 
 ![PushSharp Diagram](https://github.com/Redth/PushSharp/raw/master/Resources/PushSharp-Diagram.png)
 *********
 
-###Join me at Xamarin Evolve for a session on Push Notifications and PushSharp!###
-I will be presenting a session during the conference days at Xamarin Evolve in Austin, TX, April 14-17.  
-Visit [http://xamarin.com/evolve/](http://xamarin.com/evolve "Xamarin.com/Evolve") for more info!
+###PushSharp was at Evolve 2013!###
+I was fortunate enough to attend and present at Evolve 2013 in Austin.
+Keep watching their site for my video to be posted, as well as other great talks already online!
+Visit [http://xamarin.com/evolve/2013](http://xamarin.com/evolve/2013 "Xamarin.com/Evolve/2013") for more info!
 
 
 News
@@ -27,6 +28,7 @@ Features
  - Supports sending push notifications for many platforms:
    - Apple (APNS - iPhone, iPad, Mountain Lion)
    - Android (GCM/C2DM - Phones/Tablets)
+   - Chrome (GCM)
    - Amazon (ADM - Amazon Device Messaging)
    - Windows Phone 7 / 7.5 / 8 (including FlipTile, CycleTile, and IconicTile Templates!)
    - Windows 8
