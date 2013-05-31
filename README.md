@@ -15,7 +15,7 @@ Visit [http://xamarin.com/evolve/2013](http://xamarin.com/evolve/2013 "Xamarin.c
 News
 ----
 
-**May 29, 2013** 2.1-beta is released!  See the release notes below...
+**May 31, 2013** 2.1.1-beta is released!  See the release notes below...
 
 **March 19, 2013** 2.0 is released! See the release notes below...
 
@@ -96,10 +96,10 @@ v2.1 is still BETA.  For iOS, Android, Windows, and Windows phone it should be q
 **Changes**
 
  - Amazon Device Messaging support
+ - Chrome GCM support
  - Blackberry BIS (and BES in theory) support
  - Performance enhancements
  - Other bugfixes
- - 
  
 
 v2.0 Release Notes
