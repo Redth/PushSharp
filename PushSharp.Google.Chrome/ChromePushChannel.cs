@@ -64,8 +64,7 @@ namespace PushSharp.Google.Chrome
 
 		public void SendNotification(INotification notification, SendNotificationCallbackDelegate callback)
 		{
-			bool success = false;
-			string body = "Unknown Failure";
+		    string body;
 
 			var n = notification as ChromeNotification;
 
@@ -85,10 +84,26 @@ namespace PushSharp.Google.Chrome
 				sc.Headers.TryAddWithoutValidation("Authorization", "Bearer " + this.AccessToken);
 				
 				var result = http.PostAsync (chromeSettings.Url, sc).Result;
-
-				success = result.IsSuccessStatusCode;
-
+                
 				body = result.Content.ReadAsStringAsync ().Result;
+
+                if (result.StatusCode == HttpStatusCode.OK || result.StatusCode == HttpStatusCode.NoContent)
+                {
+                    callback(this, new SendNotificationResult(n));
+                    return;
+                }
+
+                try
+                {
+                    var jsonresp = JObject.Parse(body);
+
+                    var code = jsonresp["error"]["code"].Value<int>();
+                    var message = jsonresp["error"]["message"].Value<string>() ?? "Unknown Error";
+
+                    callback(this, new SendNotificationResult(n, false, new ChromeNotificationSendFailureException(code, message)));
+                    return;
+                }
+                catch { }                
 			}
 			catch (Exception ex)
 			{
@@ -97,7 +112,7 @@ namespace PushSharp.Google.Chrome
 
 			Console.WriteLine (body);
 
-			callback (this, new SendNotificationResult (n, false, success ? null : new NotificationFailureException(body, n)));
+			callback (this, new SendNotificationResult (n, false, new NotificationFailureException(body, n)));
 		}
 
 		void IDisposable.Dispose()

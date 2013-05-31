@@ -43,6 +43,7 @@
     <Reference Include="System.Web" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="ChromeExceptions.cs" />
     <Compile Include="ChromePushBrokerExtensions.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="ChromePushService.cs" />

@@ -13,7 +13,8 @@ obj
 *.resharper
 *.svn
 *.sln.DotSettings.user
-
+*.crx
+*.pem
 
 
 # mstest test results

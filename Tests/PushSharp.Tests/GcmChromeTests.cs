@@ -19,26 +19,24 @@ namespace PushSharp.Tests
 		[Test]
 		public void TestOAuth()
 		{
-			//var wait = new ManualResetEvent(false);
+			var wait = new ManualResetEvent(false);
 
-			Google.Chrome.ChromePushChannel chan = new PushSharp.Google.Chrome.ChromePushChannel (new PushSharp.Google.Chrome.ChromePushChannelSettings(oauthClientId, oauthSecret)
+			var chan = new ChromePushChannel (new ChromePushChannelSettings(oauthClientId, oauthSecret)
             {
                 AuthorizationCode = "4/Ndq0smr04tldagzUcJa9MFdamaAt.srbbbJRseYMTmmS0T3UFEsOetIXtfQI",
                 RefreshToken = "1/3n7TKFv2xoHNBuKqHEXDLpiBZJVGkExnR1K_uHhU0H4"
 			});
 
 			var n = new ChromeNotification ();
-			n.ChannelId = "14952429134341445468/eedjdmpjjhnloopiphclnnecohdbkkpa";
+            n.ChannelId = "14952429134341445468/nndgomkogokhhfiogeamahchcbkldiok";
+            n.SubChannelId = ChromeNotificationSubChannel.SubChannel0;
+			n.Payload = "Test";
 
-			n.Payload = "{\"test\":\"value\"}";
-
-			var cb = new PushSharp.Core.SendNotificationCallbackDelegate ((sender, response) => {
-				//wait.Set();
-			});
+			var cb = new PushSharp.Core.SendNotificationCallbackDelegate ((sender, response) => wait.Set());
 
 			chan.SendNotification (n, cb);
 
-			//wait.WaitOne ();
+			wait.WaitOne ();
 		}
 	}
 }
