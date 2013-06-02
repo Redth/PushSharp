@@ -23,13 +23,25 @@ namespace PushSharp.Blackberry
 		{
 			PushId = Guid.NewGuid ().ToString ();
 			Recipients = new List<BlackberryRecipient> ();
-		    DeliverBeforeTimestamp = DateTime.UtcNow.AddSeconds(30);
+		    DeliverBeforeTimestamp = DateTime.UtcNow.AddMinutes(5);
 		}
 
 		public string PushId { get; private set; }
 		public QualityOfServiceLevel? QualityOfService { get;set; }
+		/// <summary>
+        	/// Address (e.g. URL) that Blackberry push service could use for notification 
+        	/// of results related to the message
+        	/// </summary>
 		public string PpgNotifyRequestedTo { get; set; }
+		/// <summary>
+        	/// Date and time by which the content must be delivered,expressed as UTC
+        	/// Message that has aged beyond this date will not be transmitted
+        	/// </summary>
 		public DateTime? DeliverBeforeTimestamp { get; set; }
+		/// <summary>
+        	/// Date and time after which the content should be delivered,expressed as UTC
+        	/// Message will not be transmitted before this date
+        	/// </summary>
 		public DateTime? DeliverAfterTimestamp { get; set; }
 		public List<BlackberryRecipient> Recipients { get;set; }
         public string SourceReference { get; set; }
