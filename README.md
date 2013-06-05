@@ -7,13 +7,13 @@ A server-side library for sending Push Notifications to iOS (iPhone/iPad APNS), 
 *********
 
 ###PushSharp was at Evolve 2013!###
-I was fortunate enough to attend and present at Evolve 2013 in Austin.
-Keep watching their site for my video to be posted, as well as other great talks already online!
-Visit [http://xamarin.com/evolve/2013](http://xamarin.com/evolve/2013 "Xamarin.com/Evolve/2013") for more info!
+I was fortunate enough to attend and present at Evolve 2013 in Austin, and the video is now online! [http://xamarin.com/evolve/2013#session-b8fz8gfsnf](http://xamarin.com/evolve/2013#session-b8fz8gfsnf)
 
 
 News
 ----
+
+**June 3, 2013** Xamarin Evolve video on PushSharp is now online! [http://xamarin.com/evolve/2013#session-b8fz8gfsnf](http://xamarin.com/evolve/2013#session-b8fz8gfsnf)
 
 **May 31, 2013** 2.1.1-beta is released!  See the release notes below...
 
