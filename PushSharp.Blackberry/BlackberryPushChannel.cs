@@ -84,21 +84,15 @@ namespace PushSharp.Blackberry
 
 		        var doc = XDocument.Load(response.Content.ReadAsStreamAsync().Result);
 
-		        var result = doc.Descendants("response-result").SingleOrDefault();
+		        XElement result = doc.Descendants().FirstOrDefault(desc =>
+                                                                   desc.Name == "response-result" ||
+                                                                   desc.Name == "badmessage-response");
 		        if (result != null)
 		        {
 		            bbNotStatus = result.Attribute("code").Value;
 		            description = result.Attribute("desc").Value;
 		        }
-		        else
-		        {
-		            result = doc.Descendants("badmessage-response").SingleOrDefault();
-		            if (result != null)
-		            {
-		                bbNotStatus = result.Attribute("code").Value;
-		                description = result.Attribute("desc").Value;
-		            }
-		        }
+		        
 
 		        BlackberryNotificationStatus notStatus;
 		        Enum.TryParse(bbNotStatus, true, out notStatus);
