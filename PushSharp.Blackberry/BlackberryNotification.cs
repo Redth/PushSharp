@@ -64,7 +64,7 @@ namespace PushSharp.Blackberry
 			pushMsg.Add (new XAttribute ("push-id", this.PushId));
             pushMsg.Add(new XAttribute("source-reference", this.SourceReference));
 
-			if (this.QualityOfService.HasValue && !string.IsNullOrEmpty (this.PpgNotifyRequestedTo))
+			if (!string.IsNullOrEmpty (this.PpgNotifyRequestedTo))
 				pushMsg.Add(new XAttribute("ppg-notify-requested-to", this.PpgNotifyRequestedTo));
 
 			if (this.DeliverAfterTimestamp.HasValue)
@@ -89,8 +89,7 @@ namespace PushSharp.Blackberry
 			    pushMsg.Add (address);
 			}
 
-			if (this.QualityOfService.HasValue)
-				pushMsg.Add (new XElement ("quality-of-service", new XAttribute ("delivery-method", this.QualityOfService.Value.ToString ().ToLowerInvariant ())));
+			pushMsg.Add (new XElement ("quality-of-service", new XAttribute ("delivery-method", this.QualityOfService.ToString ().ToLowerInvariant ())));
 
             pap.Add(pushMsg);
 			doc.Add (pap);
