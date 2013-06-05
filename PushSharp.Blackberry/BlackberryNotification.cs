@@ -24,10 +24,11 @@ namespace PushSharp.Blackberry
 			PushId = Guid.NewGuid ().ToString ();
 			Recipients = new List<BlackberryRecipient> ();
 		    DeliverBeforeTimestamp = DateTime.UtcNow.AddMinutes(5);
+			QualityOfService = QualityOfServiceLevel.Unconfirmed;
 		}
 
 		public string PushId { get; private set; }
-		public QualityOfServiceLevel? QualityOfService { get;set; }
+		public QualityOfServiceLevel QualityOfService { get;set; }
 		/// <summary>
         	/// Address (e.g. URL) that Blackberry push service could use for notification 
         	/// of results related to the message
