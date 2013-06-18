@@ -346,8 +346,8 @@ namespace PushSharp.Core
 						var channelOn = channels[0];
 						channels.RemoveAt(0);
 
-						//Now stop the channel but let it finish
-						channelOn.Channel.Dispose();
+						//Stop the channel worker, which will dispose the channel too
+						channelOn.Dispose ();
 
 						newCount = channels.Count;
 						destroyed = true;
