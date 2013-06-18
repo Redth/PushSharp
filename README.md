@@ -1,7 +1,7 @@
 PushSharp
 =========
 
-A server-side library for sending Push Notifications to iOS (iPhone/iPad APNS), Android (C2DM and GCM - Google Cloud Message), Windows Phone, Windows 8, Blackberry (PAP) and Amazon (ADM) devices!
+A server-side library for sending Push Notifications to iOS (iPhone/iPad APNS), OSX (APNS 10.8+) Android (C2DM and GCM - Google Cloud Message), Chrome (GCM) Windows Phone, Windows 8, Blackberry (PAP), and Amazon (ADM) devices!
 
 ![PushSharp Diagram](https://github.com/Redth/PushSharp/raw/master/Resources/PushSharp-Diagram.png)
 *********
