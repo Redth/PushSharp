@@ -107,11 +107,6 @@ namespace PushSharp.Apple
 
 			byte[] expiry = BitConverter.GetBytes(IPAddress.HostToNetworkOrder(expiryTimeStamp));
 
-			if (string.IsNullOrEmpty (this.DeviceToken))
-				throw new NotificationFailureException (2, this);
-
-			if (!IsValidDeviceRegistrationId ())
-				throw new NotificationFailureException (8, this);
 
 			byte[] deviceToken = new byte[DeviceToken.Length / 2];
 			for (int i = 0; i < deviceToken.Length; i++)
