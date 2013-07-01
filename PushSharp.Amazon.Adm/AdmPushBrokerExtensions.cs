@@ -7,14 +7,14 @@ using PushSharp.Core;
 
 namespace PushSharp
 {
-    public static class GcmPushBrokerExtensions
+    public static class AdmPushBrokerExtensions
     {
         public static void RegisterGcmService(this PushBroker broker, AdmPushChannelSettings channelSettings, PushServiceSettings serviceSettings = null)
         {
             broker.RegisterService<AdmNotification>(new AdmPushService(new AdmPushChannelFactory(), channelSettings, serviceSettings));
         }
 
-        public static AdmNotification GcmNotification(this PushBroker broker)
+        public static AdmNotification AdmNotification(this PushBroker broker)
         {
             return new AdmNotification();
         }
