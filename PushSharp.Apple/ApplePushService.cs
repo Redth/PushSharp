@@ -48,6 +48,7 @@ namespace PushSharp.Apple
 				{
 					timerFeedback = new Timer(new TimerCallback((state) =>
 					{
+						Log.Info("Starting apple feedback service contact");
 						try { feedbackService.Run(channelSettings as ApplePushChannelSettings, this.cancelTokenSource.Token); }
 						catch (Exception ex) { base.RaiseServiceException(ex); }
 
