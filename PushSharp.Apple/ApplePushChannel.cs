@@ -181,7 +181,7 @@ namespace PushSharp.Apple
 			if (cancelToken.IsCancellationRequested)
 				return;
 
-			Log.Info("ApplePushChannel->Waiting...");
+			Log.Info("ApplePushChannel->Waiting to dispose...");
 
 			timerCleanup.Change(Timeout.Infinite, Timeout.Infinite);
 

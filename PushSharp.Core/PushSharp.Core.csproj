@@ -62,9 +62,6 @@
     <Compile Include="SendNotificationResult.cs" />
   </ItemGroup>
   <ItemGroup>
-    <None Include="..\..\PushNotificationService\PushNotificationService\NLog.config">
-      <Link>NLog.config</Link>
-    </None>
     <None Include="packages.config" />
     <None Include="PushSharp-Signing.snk" />
   </ItemGroup>

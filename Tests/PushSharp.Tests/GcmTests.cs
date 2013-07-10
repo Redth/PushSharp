@@ -18,7 +18,6 @@ namespace PushSharp.Tests
         [SetUp]
         public void Setup()
         {
-            PushSharp.Core.Log.Level = LogLevel.Info;
         }
 
 	    [Test]

@@ -23,8 +23,6 @@ namespace PushSharp.Tests
 		[SetUp]
 		public void Setup()
 		{
-			Log.Level = LogLevel.Info;
-
 			appleCert = File.ReadAllBytes(Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "../../../../Resources/PushSharp.Apns.Sandbox.p12"));
 		}
 
