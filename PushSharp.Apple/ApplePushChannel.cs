@@ -181,7 +181,7 @@ namespace PushSharp.Apple
 			if (cancelToken.IsCancellationRequested)
 				return;
 
-			Log.Info("ApplePushChannel->Waiting...");
+			Log.Info("ApplePushChannel->Waiting to dispose...");
 
 			timerCleanup.Change(Timeout.Infinite, Timeout.Infinite);
 
@@ -487,7 +487,7 @@ namespace PushSharp.Apple
 							}
 							catch (Exception ex)
 							{
-								Log.Error("APNS Connect Callback Failed: " + ex);
+								Log.Error("APNS Connect Callback Failed: ", ex);
 							}
 						}
 					), client

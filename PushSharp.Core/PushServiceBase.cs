@@ -129,7 +129,7 @@ namespace PushSharp.Core
 				if (evt != null)
 					evt(this, notification, new MaxSendAttemptsReachedException());
 
-				Log.Info("Notification ReQueued Too Many Times: {0}", notification.QueuedCount);
+				Log.Warning("Notification ReQueued Too Many Times: {0}", notification.QueuedCount);
 			}
 		}
 
@@ -177,12 +177,12 @@ namespace PushSharp.Core
 			var avgQueueTime = (int)this.AverageQueueWaitTime.TotalMilliseconds;
 			var avgSendTime = (int)this.AverageSendTime.TotalMilliseconds;
 
-			Log.Info("{0} -> Avg Queue Wait Time {1} ms, Avg Send Time {2} ms", this, avgQueueTime, avgSendTime);
+			Log.Debug("{0} -> Avg Queue Wait Time {1} ms, Avg Send Time {2} ms", this, avgQueueTime, avgSendTime);
 					
 			//if (stopping)
 			//	return;
 
-			Log.Info("{0} -> Checking Scale ({1} Channels Currently)", this, channels.Count);
+			Log.Debug("{0} -> Checking Scale ({1} Channels Currently)", this, channels.Count);
 
 			if (ServiceSettings.AutoScaleChannels && !this.cancelTokenSource.IsCancellationRequested)
 			{
@@ -333,7 +333,7 @@ namespace PushSharp.Core
 						chanWorker.WorkerTask.ContinueWith(t =>
 						{
 							var ex = t.Exception;
-							Log.Error("Channel Worker Failed Task: " + ex.ToString());
+							Log.Error("Channel Worker Failed Task: ", ex);
 						}, TaskContinuationOptions.OnlyOnFaulted);
 							
 						channels.Add(chanWorker);
@@ -397,7 +397,7 @@ namespace PushSharp.Core
 					measurements.Add(new WaitTimeMeasurement((long) msWaited));
 				}
 
-				//Log.Info("Waited: {0} ms", msWaited);
+				Log.Info("Waited: {0} ms", msWaited);
 				 
                 var sendStart = DateTime.UtcNow;
 
@@ -419,7 +419,7 @@ namespace PushSharp.Core
                             sendTimeMeasurements.Add(new WaitTimeMeasurement((long)sendTime.TotalMilliseconds));
                         }
 
-						//Log.Info("Send Time: " + sendTime.TotalMilliseconds + " ms");
+						Log.Info("Send Time: " + sendTime.TotalMilliseconds + " ms");
 
 						//Trigger 
 						if (this.BlockOnMessageResult)	
