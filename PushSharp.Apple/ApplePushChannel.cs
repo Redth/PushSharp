@@ -487,7 +487,7 @@ namespace PushSharp.Apple
 							}
 							catch (Exception ex)
 							{
-								Log.Error("APNS Connect Callback Failed: " + ex);
+								Log.Error("APNS Connect Callback Failed: ", ex);
 							}
 						}
 					), client
