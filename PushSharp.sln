@@ -36,6 +36,9 @@ EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "PushSharp.Core", "PushSharp.Core\PushSharp.Core.csproj", "{836F225F-6CD9-48DE-910C-70F8A7CF54AA}"
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Tests", "Tests", "{295A5325-0BC1-4FA1-B13C-7577D2B582B7}"
+	ProjectSection(SolutionItems) = preProject
+		Tests\PushSharp.Tests\NLog.config = Tests\PushSharp.Tests\NLog.config
+	EndProjectSection
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "PushSharp.Tests", "Tests\PushSharp.Tests\PushSharp.Tests.csproj", "{39313686-9B5F-4680-9D5C-373C3E2C87CF}"
 EndProject
