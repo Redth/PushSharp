@@ -121,9 +121,23 @@ namespace PushSharp.Apple
 				//Read the next feedback
 				recd = stream.Read(buffer, 0, buffer.Length);
 			}
-			
 
-			
+			try
+			{
+				stream.Close ();
+				stream.Dispose();
+			}
+			catch { }
+
+			try 
+			{
+				client.Client.Shutdown (SocketShutdown.Both);
+				client.Client.Dispose ();
+			}
+			catch { }
+
+			try { client.Close (); } catch { }
+
 		}
 	}
 }
