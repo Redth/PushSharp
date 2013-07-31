@@ -66,7 +66,7 @@ namespace PushSharp.Core
 		private CancellationTokenSource cancelTokenSource = new CancellationTokenSource();
 		private List<WaitTimeMeasurement> measurements = new List<WaitTimeMeasurement>();
         private List<WaitTimeMeasurement> sendTimeMeasurements = new List<WaitTimeMeasurement>();
-
+		private DateTime lastNotificationQueueTime = DateTime.MinValue;
 		private long trackedNotificationCount = 0;
 
 		ManualResetEvent waitQueuedNotifications = new ManualResetEvent(false);
@@ -103,6 +103,8 @@ namespace PushSharp.Core
 		private void QueueNotification(INotification notification, bool countsAsRequeue = true,
 		                               bool ignoreStoppingChannel = false)
 		{
+			lastNotificationQueueTime = DateTime.UtcNow;
+
 			Interlocked.Increment(ref trackedNotificationCount);
 
 			//Measure when the message entered the queue
@@ -196,10 +198,25 @@ namespace PushSharp.Core
 
 					if (ServiceSettings.AutoScaleChannels && !this.cancelTokenSource.IsCancellationRequested)
 					{
-						if (channels.Count <= 0)
+						if (channels.Count <= 0 && QueueLength > 0)
 						{
 							Log.Info("{0} -> Creating Channel {1}", this, channels.Count);
 							ScaleChannels(ChannelScaleAction.Create);
+							return;
+						}
+
+						//Check to see if the Idle timeout is being used.  If so, we want to destroy all the channels if we're in idle mode
+						// Only do this if we haven't sent in a long time (greater than the IdleTimeout) and we have nothing in the queue
+						// and we have no tracked notification count
+						if (ServiceSettings.IdleTimeout > TimeSpan.Zero && 
+						    channels.Count > 0 && QueueLength <= 0 
+						    && (DateTime.UtcNow - lastNotificationQueueTime) > ServiceSettings.IdleTimeout
+						    && Interlocked.Read(ref trackedNotificationCount) <= 0)
+						{
+							Log.Info("{0} -> Service Idle, Destroying all Channels", this, channels.Count);
+							while (channels.Count > 0 && !this.cancelTokenSource.IsCancellationRequested)
+								ScaleChannels(ChannelScaleAction.Destroy);
+
 							return;
 						}
 
@@ -244,6 +261,21 @@ namespace PushSharp.Core
 					}
 					else
 					{
+						//Check to see if the Idle timeout is being used.  If so, we want to destroy all the channels if we're in idle mode
+						// Only do this if we haven't sent in a long time (greater than the IdleTimeout) and we have nothing in the queue
+						// and we have no tracked notification count
+						if (ServiceSettings.IdleTimeout > TimeSpan.Zero && 
+						    channels.Count > 0 && QueueLength <= 0 
+						    && (DateTime.UtcNow - lastNotificationQueueTime) > ServiceSettings.IdleTimeout
+						    && Interlocked.Read(ref trackedNotificationCount) <= 0)
+						{
+							Log.Info("{0} -> Service Idle, Destroying all Channels", this, channels.Count);
+							while (channels.Count > 0 && !this.cancelTokenSource.IsCancellationRequested)
+								ScaleChannels(ChannelScaleAction.Destroy);
+
+							return;
+						}
+
 						while (channels.Count > ServiceSettings.Channels && !this.cancelTokenSource.IsCancellationRequested)
 						{
 							Log.Info("{0} -> Destroying Channel", this);

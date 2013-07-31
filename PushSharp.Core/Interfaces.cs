@@ -52,6 +52,7 @@ namespace PushSharp.Core
 		int Channels { get; set; }
 		int MaxNotificationRequeues { get; set; }
 		int NotificationSendTimeout { get; set; }
+		TimeSpan IdleTimeout { get;set; }
 	}
 
 	public interface INotification
