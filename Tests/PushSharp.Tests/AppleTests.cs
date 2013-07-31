@@ -31,7 +31,7 @@ namespace PushSharp.Tests
 		[Test]
 		public void APNS_All_ShouldSucceed_VeryMany()
 		{
-			TestNotifications(10000, 10000, 0, null, false);
+			TestNotifications(100000, 100000, 0, null, false);
 		}
 
 		[Test]
@@ -180,7 +180,7 @@ namespace PushSharp.Tests
 			//settings.OverrideServer("localhost", testPort);
 			settings.OverrideServer("localhost", 2195);
 			settings.SkipSsl = true;
-			//settings.MillisecondsToWaitBeforeMessageDeclaredSuccess = 20000;
+			//settings.MillisecondsToWaitBeforeMessageDeclaredSuccess = 60000 * 5;
 
 
 			var push = new ApplePushService(settings, new PushServiceSettings() { AutoScaleChannels = false, Channels = 1 });

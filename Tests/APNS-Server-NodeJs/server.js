@@ -28,24 +28,24 @@ var pushServer = net.createServer(function(sock) {
     sock.serverParser = new serverparser(sock);
 	sock.serverParser.on('push', function(push) {
 
-        //if (pid == 5000 || pid == 15000 || pid == 25000 || pid == 35000 || pid == 45000 || pid == 55000 || pid == 65000 || pid == 75000 || pid == 85000 || pid == 95000)
-        if (pid == 500) // || pid == 15000 || pid == 25000 || pid == 35000 || pid == 45000 || pid == 55000 || pid == 65000 || pid == 75000 || pid == 85000 || pid == 95000)
+        var pid = 0;
+        pid = push.identifier;
+
+        if (pid == 5000 || pid == 15000 || pid == 25000 || pid == 35000 || pid == 45000 || pid == 55000 || pid == 65000 || pid == 75000 || pid == 85000 || pid == 95000)
         {
             isClosing = true;
             success = false;
-            winston.info('FAILING PUSH: ' + push.identifier);
-            sock.serverParser.raiseError(4, push.identifier);
+            winston.info('FAILING PUSH: ' + pid);
+            sock.serverParser.raiseError(4, pid);
         }
 
         if (isClosing)
-		    winston.info('! id: ' + push.identifier + ', deviceToken: ' + push.deviceToken);
-        else
-            winston.info('+ id: ' + push.identifier + ', deviceToken: ' + push.deviceToken);
+		    winston.info('! id: ' + pid + ', deviceToken: ' + push.deviceToken);
+        //else
+        //    winston.info('+ id: ' + pid + ', deviceToken: ' + push.deviceToken);
 
 		var success = true;
 
-        var pid = 0;
-        pid = push.identifier;
 
         if (!isClosing)
         {
