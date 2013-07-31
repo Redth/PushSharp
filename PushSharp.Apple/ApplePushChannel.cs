@@ -72,7 +72,9 @@ namespace PushSharp.Apple
 
 		}
 
-		
+		int cleanedUp = 0;
+		int reconnects = 0;
+
 		int connectionAttemptCounter = 0;
 		object sentLock = new object();
 		object connectLock = new object();
@@ -116,66 +118,54 @@ namespace PushSharp.Apple
 					
 					if (callback != null)
 						callback(this, new SendNotificationResult(notification, false, nfex));
-				}
-				
 
-				if (isOkToSend)
+					return;
+				}
+
+				try
 				{
-					try
+					lock (connectLock)
+						Connect();
+
+					lock (streamWriteLock)
 					{
-						lock (connectLock)
-							Connect();
+						bool stillConnected = client.Connected
+										&& client.Client.Poll(0, SelectMode.SelectWrite)
+										&& networkStream.CanWrite;
 
-						lock (streamWriteLock)
-						{
-							bool stillConnected = client.Connected
-											&& client.Client.Poll(0, SelectMode.SelectWrite)
-											&& networkStream.CanWrite;
+						if (!stillConnected)
+							throw new ObjectDisposedException("Connection to APNS is not Writable");
+							
+						//if (notificationData.Length > 45)
+						//{
+						//	networkStream.Write(notificationData, 0, 45);
+						//	networkStream.Write(notificationData, 45, notificationData.Length - 45);
+						//}
+						//else
+						networkStream.Write(notificationData, 0, notificationData.Length);
 
-							if (!stillConnected)
-								throw new ObjectDisposedException("Connection to APNS is not Writable");
-								
-							//lock (sentLock)
-							//{
-								if (notificationData.Length > 45)
-								{
-									networkStream.Write(notificationData, 0, 45);
-									networkStream.Write(notificationData, 45, notificationData.Length - 45);
-								}
-								else
-									networkStream.Write(notificationData, 0, notificationData.Length);
-								
-								networkStream.Flush();
+						networkStream.Flush();
 
-								sentNotifications.Add(new SentNotification(appleNotification) {Callback = callback});
-							//}
-						}
-					}
-					catch (ConnectionFailureException cex)
-					{
-						connected = false;
+						sentNotifications.Add(new SentNotification(appleNotification) {Callback = callback});
 
-						//If this failed, we probably had a networking error, so let's requeue the notification
-						Interlocked.Decrement(ref trackedNotificationCount);
-
-						Log.Error ("Exception during APNS Send: {0}", cex);
-
-						if (callback != null)
-							callback(this, new SendNotificationResult(notification, false, cex));
-					}
-					catch (Exception ex)
-					{
-						connected = false;
-
-						//If this failed, we probably had a networking error, so let's requeue the notification
-						Interlocked.Decrement(ref trackedNotificationCount);
-
-						Log.Error ("Exception during APNS Send: {0}", ex);
-
-						if (callback != null)
-							callback(this, new SendNotificationResult(notification, true, ex));
+						//Cleanup();
 					}
 				}
+				catch (Exception ex)
+				{
+					connected = false;
+
+					//If this failed, we probably had a networking error, so let's requeue the notification
+					Interlocked.Decrement(ref trackedNotificationCount);
+
+					Log.Error ("Exception during APNS Send: {0} -> {1}", appleNotification.Identifier, ex);
+
+					var shouldRequeue = true;
+
+					if (callback != null)
+						callback(this, new SendNotificationResult(notification, shouldRequeue, ex));
+				}
+
 			}
 
 		}
@@ -194,16 +184,21 @@ namespace PushSharp.Apple
 
 			while (sentNotificationCount > 0 || Interlocked.Read(ref trackedNotificationCount) > 0)
 			{
+				Cleanup ();
+
 				Thread.Sleep(100);
 	
 				lock (sentLock)
 					sentNotificationCount = sentNotifications.Count;
 			}
 
+			Cleanup ();
+
 			timerCleanup.Change (Timeout.Infinite, Timeout.Infinite);
 
 			cancelTokenSrc.Cancel();
 
+			Log.Info ("ApplePushChannel: Cleaned up {0}, Reconnects: {1}", cleanedUp, reconnects);
 			Log.Info("ApplePushChannel->DISPOSE.");
 		}
 
@@ -229,13 +224,16 @@ namespace PushSharp.Apple
 								//We now expect apple to close the connection on us anyway, so let's try and close things
 								// up here as well to get a head start
 								//Hopefully this way we have less messages written to the stream that we have to requeue
-								try { stream.Close(); stream.Dispose(); }
-								catch { }
+								try { stream.Close(); } catch { }
+								try { stream.Dispose(); } catch { }
 
-								try { client.Close(); }
-								catch { }
+								try { client.Client.Shutdown (SocketShutdown.Both); } catch { }
+								try { client.Client.Dispose (); } catch { }
+
+								try { client.Close (); } catch { }
 
 								client = null;
+								stream = null;
 
 								//Get the enhanced format response
 								// byte 0 is always '1', byte 1 is the status, bytes 2,3,4,5 are the identifier of the notification
@@ -271,41 +269,47 @@ namespace PushSharp.Apple
 		{
 			//Get the index of our failed notification (by identifier)
 			var failedIndex = sentNotifications.FindIndex(n => n.Identifier == identifier);
-			
+
 			if (failedIndex < 0)
 				return;
 
+			Log.Info ("Failed Notification: {0}", identifier);
+
+			//Get all the notifications before the failed one and mark them as sent!
+			if (failedIndex > 0)
+			{
+				var successful = sentNotifications.GetRange (0, failedIndex - 1);
+
+				successful.ForEach (n => {
+					Interlocked.Decrement(ref trackedNotificationCount);
+
+					if (n.Callback != null)
+						n.Callback(this, new SendNotificationResult(n.Notification));
+				});
+
+				sentNotifications.RemoveRange (0, failedIndex - 1);
+			}
+
 			//Get the failed notification itself
-			var failedNotification = sentNotifications[failedIndex];
-			
+			var failedNotification = sentNotifications[0];
+						
 			//Fail and remove the failed index from the list
 			Interlocked.Decrement(ref trackedNotificationCount);
 
 			if (failedNotification.Callback != null)
 				failedNotification.Callback(this, new SendNotificationResult(failedNotification.Notification, false, new NotificationFailureException(status, failedNotification.Notification) ));
 
-			sentNotifications.RemoveAt(failedIndex);
+			sentNotifications.RemoveAt(0);
 
-			//Don't GetRange if there's 0 items to get, or the call will fail
-			if (sentNotifications.Count - (failedIndex) > 0)
-			{
-				//All Notifications after the failed one have been shifted back one space now
-				//Grab all the notifications from the list that are after the failed index
-				var toRequeue = sentNotifications.GetRange(failedIndex, sentNotifications.Count - (failedIndex)).ToList();
-				//Remove that same range (those ones failed since they were sent after the one apple told us failed, so
-				// apple will ignore them, and we need to requeue them to be tried again
-				sentNotifications.RemoveRange(failedIndex, sentNotifications.Count - (failedIndex));
+			sentNotifications.ForEach (n => {
+				Interlocked.Decrement(ref trackedNotificationCount);
 
-				//Requeue all the messages that were sent afte the failed one, be sure it doesn't count as a 'requeue' to go towards the maximum # of retries
-				//Also ignore that the channel is stopping
-				foreach (var n in toRequeue)
-				{
-					Interlocked.Decrement(ref trackedNotificationCount);
+				if (failedNotification.Callback != null)
+					failedNotification.Callback(this, new SendNotificationResult(n.Notification, true, new Exception("Sent after previously failed Notification.")) { CountsAsRequeue = false });
 
-					if (failedNotification.Callback != null)
-						failedNotification.Callback(this, new SendNotificationResult(n.Notification, true, new Exception("Sent after previously failed Notification.")) { CountsAsRequeue = false });
-				}
-			}
+			});
+
+			sentNotifications.Clear ();
 		}
 		
 		void Cleanup()
@@ -358,6 +362,8 @@ namespace PushSharp.Apple
 											n.Callback(this, new SendNotificationResult(n.Notification));
 
 										sentNotifications.RemoveAt(0);
+
+										Interlocked.Increment(ref cleanedUp);
 									}
 									else
 										wasRemoved = false;
@@ -486,6 +492,8 @@ namespace PushSharp.Apple
 								//Really not sure if this will work on MONO....
 								try { client.SetSocketKeepAliveValues(20 * 60 * 1000, 30 * 1000); }
 								catch { }
+
+								Interlocked.Increment(ref reconnects);
 
 								//Trigger the reset event so we can continue execution below
 								connectDone.Set();
