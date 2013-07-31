@@ -182,7 +182,7 @@ namespace PushSharp.Tests.TestServers
 
 		        var payloadLen = IPAddress.NetworkToHostOrder(BitConverter.ToInt16(lenBytes.ToArray(), 0));
 
-		        var msgLength = (Int16) ((Int16) payloadLen + (Int16) 45);
+		        //var msgLength = (Int16) ((Int16) payloadLen + (Int16) 45);
 
 
 
@@ -241,12 +241,23 @@ namespace PushSharp.Tests.TestServers
 
 		private void Send(Socket handler, byte[] byteData)
 		{
-			// Convert the string data to byte data using ASCII encoding.
+			Thread.Sleep (100);
 
+			// Convert the string data to byte data using ASCII encoding.
+			var sent = handler.Send (byteData);
 
 			// Begin sending the data to the remote device.
-			handler.BeginSend(byteData, 0, byteData.Length, 0,
-			                  new AsyncCallback(SendCallback), handler);
+			//handler.BeginSend(byteData, 0, byteData.Length, 0,
+			 //                 new AsyncCallback(SendCallback), handler);
+
+			Console.WriteLine("APNS-TEST-SERVER SENT ERROR RESPONSE: " + sent);
+
+			try { handler.Shutdown(SocketShutdown.Both); } catch { }
+			try { handler.Close(); } catch { }
+
+			try { handler.Dispose(); } catch { }
+
+			handler = null;
 		}
 
 		private void SendCallback(IAsyncResult ar)

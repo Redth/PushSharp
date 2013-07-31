@@ -25,6 +25,15 @@ namespace PushSharp.Apple
 			}
 		}
 
+		/// <summary>
+		/// DO NOT Call this unless you know what you are doing!
+		/// </summary>
+		public static void ResetIdentifier()
+		{
+			lock(nextIdentifierLock)
+				nextIdentifier = 0;
+		}
+
 		public int Identifier { get; private set; }
 		public string DeviceToken { get; set; }
 		public AppleNotificationPayload Payload { get; set; }
