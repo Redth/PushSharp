@@ -148,6 +148,8 @@ namespace PushSharp.Apple
 
 						sentNotifications.Add(new SentNotification(appleNotification) {Callback = callback});
 
+
+						Thread.Sleep(1);
 						//Cleanup();
 					}
 				}
