@@ -280,7 +280,7 @@ namespace PushSharp.Apple
 			//Get all the notifications before the failed one and mark them as sent!
 			if (failedIndex > 0)
 			{
-				var successful = sentNotifications.GetRange (0, failedIndex - 1);
+				var successful = sentNotifications.GetRange (0, failedIndex);
 
 				successful.ForEach (n => {
 					Interlocked.Decrement(ref trackedNotificationCount);
@@ -289,7 +289,7 @@ namespace PushSharp.Apple
 						n.Callback(this, new SendNotificationResult(n.Notification));
 				});
 
-				sentNotifications.RemoveRange (0, failedIndex - 1);
+				sentNotifications.RemoveRange (0, failedIndex);
 			}
 
 			//Get the failed notification itself
@@ -303,6 +303,7 @@ namespace PushSharp.Apple
 
 			sentNotifications.RemoveAt(0);
 
+			sentNotifications.Reverse ();
 			sentNotifications.ForEach (n => {
 				Interlocked.Decrement(ref trackedNotificationCount);
 
