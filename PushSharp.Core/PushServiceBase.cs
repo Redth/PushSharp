@@ -62,7 +62,7 @@ namespace PushSharp.Core
 		private int scaleSync;
 		private volatile bool stopping;
 		private List<ChannelWorker> channels = new List<ChannelWorker>();
-		private ConcurrentQueue<INotification> queuedNotifications;
+		private NotificationQueue queuedNotifications;
 		private CancellationTokenSource cancelTokenSource = new CancellationTokenSource();
 		private List<WaitTimeMeasurement> measurements = new List<WaitTimeMeasurement>();
         private List<WaitTimeMeasurement> sendTimeMeasurements = new List<WaitTimeMeasurement>();
@@ -83,7 +83,7 @@ namespace PushSharp.Core
 			this.ServiceSettings = serviceSettings ?? new PushServiceSettings();
 			this.ChannelSettings = channelSettings;
 
-			this.queuedNotifications = new ConcurrentQueue<INotification>();
+			this.queuedNotifications = new NotificationQueue();
 
 			scaleSync = 0;
 
@@ -101,7 +101,7 @@ namespace PushSharp.Core
 
 
 		private void QueueNotification(INotification notification, bool countsAsRequeue = true,
-		                               bool ignoreStoppingChannel = false)
+		                               bool ignoreStoppingChannel = false, bool queueToFront = false)
 		{
 			lastNotificationQueueTime = DateTime.UtcNow;
 
@@ -123,7 +123,10 @@ namespace PushSharp.Core
 				if (countsAsRequeue)
 					notification.QueuedCount++;
 
-				queuedNotifications.Enqueue(notification);
+				if (queueToFront)
+					queuedNotifications.EnqueueAtStart(notification);
+				else
+					queuedNotifications.Enqueue(notification);
 
 				//Allow anything waiting on a queued notification to continue faster
 				waitQueuedNotifications.Set();
@@ -435,9 +438,9 @@ namespace PushSharp.Core
 			{
 				var waitForNotification = new ManualResetEvent(false);
 
-				INotification notification;
+				var notification = queuedNotifications.Dequeue ();
 
-				if (!queuedNotifications.TryDequeue(out notification))
+				if (notification == null)
 				{
 					Thread.Sleep(100);
 					continue;
@@ -488,7 +491,7 @@ namespace PushSharp.Core
 
 							//See if the requeue was cancelled in the event args
 							if (!eventArgs.Cancel)
-								this.QueueNotification(result.Notification, result.CountsAsRequeue, true);
+								this.QueueNotification(result.Notification, result.CountsAsRequeue, true, true);
 						}
 						else
 						{
