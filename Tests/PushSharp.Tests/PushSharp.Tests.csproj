@@ -61,6 +61,7 @@
     <Compile Include="GcmChromeTests.cs" />
     <Compile Include="AmazonAdmTests.cs" />
     <Compile Include="BlackberryTests.cs" />
+    <Compile Include="TestServers\ApnsNodeTestServer.cs" />
   </ItemGroup>
   <ItemGroup>
     <None Include="packages.config" />
