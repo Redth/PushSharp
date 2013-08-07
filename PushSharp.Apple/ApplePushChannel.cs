@@ -226,16 +226,7 @@ namespace PushSharp.Apple
 								//We now expect apple to close the connection on us anyway, so let's try and close things
 								// up here as well to get a head start
 								//Hopefully this way we have less messages written to the stream that we have to requeue
-								try { stream.Close(); } catch { }
-								try { stream.Dispose(); } catch { }
-
-								try { client.Client.Shutdown (SocketShutdown.Both); } catch { }
-								try { client.Client.Dispose (); } catch { }
-
-								try { client.Close (); } catch { }
-
-								client = null;
-								stream = null;
+								disconnect();
 
 								//Get the enhanced format response
 								// byte 0 is always '1', byte 1 is the status, bytes 2,3,4,5 are the identifier of the notification
@@ -464,6 +455,9 @@ namespace PushSharp.Apple
 
 		void connect()
 		{
+			if (client != null)
+				disconnect ();
+
 			client = new TcpClient();
 
 			//Notify we are connecting
@@ -561,6 +555,23 @@ namespace PushSharp.Apple
 			
 			//Start reading from the stream asynchronously
 			Reader();
+		}
+
+		void disconnect()
+		{
+			//We now expect apple to close the connection on us anyway, so let's try and close things
+			// up here as well to get a head start
+			//Hopefully this way we have less messages written to the stream that we have to requeue
+			try { stream.Close(); } catch { }
+			try { stream.Dispose(); } catch { }
+
+			try { client.Client.Shutdown (SocketShutdown.Both); } catch { }
+			try { client.Client.Dispose (); } catch { }
+
+			try { client.Close (); } catch { }
+
+			client = null;
+			stream = null;
 		}
 
         private static bool ValidateRemoteCertificate(object sender, X509Certificate certificate, X509Chain chain, SslPolicyErrors policyErrors)
