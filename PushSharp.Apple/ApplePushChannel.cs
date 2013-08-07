@@ -464,6 +464,11 @@ namespace PushSharp.Apple
 
 		void connect()
 		{
+			// clean up existing TcpClient
+			if (client != null)
+			{
+				try { client.Close(); } catch { }
+			}
 			client = new TcpClient();
 
 			//Notify we are connecting
