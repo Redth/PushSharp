@@ -397,7 +397,7 @@ namespace PushSharp.Core
 						newCount = channels.Count;
 						destroyed = false;
 					}
-					else if (action == ChannelScaleAction.Destroy && channels.Count > 1)
+					else if (action == ChannelScaleAction.Destroy && channels.Count > 0)
 					{
 						var channelOn = channels[0];
 						channels.RemoveAt(0);
