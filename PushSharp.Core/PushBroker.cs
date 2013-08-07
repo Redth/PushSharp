@@ -30,20 +30,24 @@ namespace PushSharp
 		{
 			var pushNotificationType = typeof (TPushNotification);
 
+            if (!registeredServices.Values.SelectMany(x => x).Contains(pushService))
+            {
+                //Only subscribe to service events once
+                pushService.OnChannelCreated += OnChannelCreated;
+                pushService.OnChannelDestroyed += OnChannelDestroyed;
+                pushService.OnChannelException += OnChannelException;
+                pushService.OnDeviceSubscriptionExpired += OnDeviceSubscriptionExpired;
+                pushService.OnNotificationFailed += OnNotificationFailed;
+                pushService.OnNotificationSent += OnNotificationSent;
+                pushService.OnNotificationRequeue += OnNotificationRequeue;
+                pushService.OnServiceException += OnServiceException;
+                pushService.OnDeviceSubscriptionChanged += OnDeviceSubscriptionChanged;
+            }
+
 			if (registeredServices.ContainsKey(pushNotificationType))
 				registeredServices[pushNotificationType].Add(pushService);
 			else
 				registeredServices.Add(pushNotificationType, new List<IPushService>() { pushService });
-
-			pushService.OnChannelCreated += OnChannelCreated;
-			pushService.OnChannelDestroyed += OnChannelDestroyed;
-			pushService.OnChannelException += OnChannelException;
-			pushService.OnDeviceSubscriptionExpired += OnDeviceSubscriptionExpired;
-			pushService.OnNotificationFailed += OnNotificationFailed;
-			pushService.OnNotificationSent += OnNotificationSent;
-			pushService.OnNotificationRequeue += OnNotificationRequeue;
-			pushService.OnServiceException += OnServiceException;
-			pushService.OnDeviceSubscriptionChanged += OnDeviceSubscriptionChanged;
 		}
 
 		public void QueueNotification<TPushNotification>(TPushNotification notification) where TPushNotification : Notification

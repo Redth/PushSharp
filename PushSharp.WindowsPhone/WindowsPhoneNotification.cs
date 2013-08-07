@@ -216,14 +216,14 @@ namespace PushSharp.WindowsPhone
 			if (ClearTitle)
 				tile.Add(new XElement(wp + "Title", new XAttribute("Action", "Clear")));
 			else if (!string.IsNullOrEmpty(Title))
-				tile.Add(new XElement(wp + "Title", XmlEncode(Title)));
+				tile.Add(new XElement(wp + "Title", Title));
 			
 			if (OSVersion > WindowsPhoneDeviceOSVersion.Seven)
 			{
 				if (ClearBackTitle)
 					tile.Add(new XElement(wp + "BackTitle", new XAttribute("Action", "Clear")));
                 else if (!string.IsNullOrEmpty(BackTitle))
-					tile.Add(new XElement(wp + "BackTitle", XmlEncode(BackTitle)));
+					tile.Add(new XElement(wp + "BackTitle", BackTitle));
 
 				if (ClearBackBackgroundImage)
 					tile.Add(new XElement(wp + "BackBackgroundImage", new XAttribute("Action", "Clear")));
@@ -233,7 +233,7 @@ namespace PushSharp.WindowsPhone
 				if (ClearBackContent)
 					tile.Add(new XElement(wp + "BackContent", new XAttribute("Action", "Clear")));
                 else if (!string.IsNullOrEmpty(BackContent))
-					tile.Add(new XElement(wp + "BackContent", XmlEncode(BackContent)));
+					tile.Add(new XElement(wp + "BackContent", BackContent));
 			
 			}
 
@@ -294,22 +294,22 @@ namespace PushSharp.WindowsPhone
 			if (ClearTitle)
 				tile.Add(new XElement(wp + "Title", new XAttribute("Action", "Clear")));
 			else if (!string.IsNullOrEmpty(Title))
-				tile.Add(new XElement(wp + "Title", XmlEncode(Title)));
+				tile.Add(new XElement(wp + "Title", Title));
 
 			if (ClearBackTitle)
 				tile.Add(new XElement(wp + "BackTitle", new XAttribute("Action", "Clear")));
             else if (!string.IsNullOrEmpty(BackTitle))
-				tile.Add(new XElement(wp + "BackTitle", XmlEncode(BackTitle)));
+				tile.Add(new XElement(wp + "BackTitle", BackTitle));
 			
 			if (ClearBackContent)
 				tile.Add(new XElement(wp + "BackContent", new XAttribute("Action", "Clear")));
             else if (!string.IsNullOrEmpty(BackContent))
-				tile.Add(new XElement(wp + "BackContent", XmlEncode(BackContent)));
+				tile.Add(new XElement(wp + "BackContent", BackContent));
 			
 			if (ClearWideBackContent)
 				tile.Add(new XElement(wp + "WideBackContent", new XAttribute("Action", "Clear")));
             else if (!string.IsNullOrEmpty(WideBackContent))
-				tile.Add(new XElement(wp + "WideBackContent", XmlEncode(WideBackContent)));
+				tile.Add(new XElement(wp + "WideBackContent", WideBackContent));
 			
 			if (ClearCount)
 				tile.Add(new XElement(wp + "Count", new XAttribute("Action", "Clear")));
@@ -394,22 +394,22 @@ namespace PushSharp.WindowsPhone
 			if (ClearTitle)
 				tile.Add(new XElement(wp + "Title", new XAttribute("Action", "Clear")));
 			else if (!string.IsNullOrEmpty(Title))
-				tile.Add(new XElement(wp + "Title", XmlEncode(Title)));
+				tile.Add(new XElement(wp + "Title", Title));
 
 			if (ClearWideContent1)
 				tile.Add(new XElement(wp + "WideContent1", new XAttribute("Action", "Clear")));
 			else if (!string.IsNullOrEmpty(WideContent1))
-				tile.Add(new XElement(wp + "WideContent1", XmlEncode(WideContent1)));
+				tile.Add(new XElement(wp + "WideContent1", WideContent1));
 
 			if (ClearWideContent2)
 				tile.Add(new XElement(wp + "WideContent2", new XAttribute("Action", "Clear")));
 			else if (!string.IsNullOrEmpty(WideContent2))
-				tile.Add(new XElement(wp + "WideContent2", XmlEncode(WideContent2)));
+				tile.Add(new XElement(wp + "WideContent2", WideContent2));
 
 			if (ClearWideContent3)
 				tile.Add(new XElement(wp + "WideContent3", new XAttribute("Action", "Clear")));
 			else if (!string.IsNullOrEmpty(WideContent3))
-				tile.Add(new XElement(wp + "WideContent3", XmlEncode(WideContent3)));
+				tile.Add(new XElement(wp + "WideContent3", WideContent3));
 
 			if (ClearCount)
 				tile.Add(new XElement(wp + "Count", new XAttribute("Action", "Clear")));
@@ -492,7 +492,7 @@ namespace PushSharp.WindowsPhone
 			if (ClearTitle)
 				tile.Add(new XElement(wp + "Title", new XAttribute("Action", "Clear")));
 			else if (!string.IsNullOrEmpty(Title))
-				tile.Add(new XElement(wp + "Title", XmlEncode(Title)));
+				tile.Add(new XElement(wp + "Title", Title));
 
 			if (ClearCount)
 				tile.Add(new XElement(wp + "Count", new XAttribute("Action", "Clear")));
