@@ -21,7 +21,7 @@ namespace PushSharp.WindowsPhone
 			var wpNotification = notification as WindowsPhoneNotification;
 			
 			var wr = HttpWebRequest.Create(wpNotification.EndPointUrl) as HttpWebRequest;
-			wr.ContentType = "text/xml";
+			wr.ContentType = "text/xml;charset=\"utf-8\"";
 			wr.Method = "POST";
 			
 			var immediateValue = 3;
