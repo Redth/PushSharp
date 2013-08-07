@@ -110,7 +110,7 @@ namespace PushSharp.Google.Chrome
 				body = ex.ToString ();
 			}
 
-			Console.WriteLine (body);
+			Log.Debug (body);
 
 			callback (this, new SendNotificationResult (n, false, new NotificationFailureException(body, n)));
 		}
