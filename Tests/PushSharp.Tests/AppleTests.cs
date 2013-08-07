@@ -46,14 +46,14 @@ namespace PushSharp.Tests
 		[Test]
 		public void APNS_All_ShouldSucceed_VeryMany_AutoScale()
 		{
-			TestNotifications(100000, 100000, 0, null, false, true);
+			TestNotifications(10000, 10000, 0, null, false, true);
 		}
 
 		[Test]
 		public void APNS_Some_ShouldFail_VeryMany_AutoScale()
 		{
-			var amt = 100000;
-			var fail = new int[] { 5000, 15000, 25000, 35000, 45000, 55000, 65000, 75000, 85000, 95000 };
+			var amt = 10000;
+			var fail = new int[] { 500, 1500, 2500, 3500, 4500, 5500, 6500, 7500, 8500, 9500 };
 
 			TestNotifications (amt, amt - fail.Length, fail.Length, fail, false, true);
 		}
