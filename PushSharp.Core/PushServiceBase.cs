@@ -58,16 +58,21 @@ namespace PushSharp.Core
 			get { return stopping; }
 		}
 
-		private Timer timerCheckScale;
-		private int scaleSync;
-		private volatile bool stopping;
-		private List<ChannelWorker> channels = new List<ChannelWorker>();
-		private NotificationQueue queuedNotifications;
-		private CancellationTokenSource cancelTokenSource = new CancellationTokenSource();
-		private List<WaitTimeMeasurement> measurements = new List<WaitTimeMeasurement>();
-        private List<WaitTimeMeasurement> sendTimeMeasurements = new List<WaitTimeMeasurement>();
-		private DateTime lastNotificationQueueTime = DateTime.MinValue;
-		private long trackedNotificationCount = 0;
+		Timer timerCheckScale;
+		int scaleSync;
+		volatile bool stopping;
+		List<ChannelWorker> channels = new List<ChannelWorker>();
+		NotificationQueue queuedNotifications;
+		CancellationTokenSource cancelTokenSource = new CancellationTokenSource();
+		List<WaitTimeMeasurement> measurements = new List<WaitTimeMeasurement>();
+        List<WaitTimeMeasurement> sendTimeMeasurements = new List<WaitTimeMeasurement>();
+		DateTime lastNotificationQueueTime = DateTime.MinValue;
+		long trackedNotificationCount = 0;
+
+		readonly object measurementsLock = new object();
+		readonly object sendTimeMeasurementsLock = new object();
+		readonly object channelsLock = new object();
+		readonly object queuedNotificationsLock = new object();
 
 		ManualResetEvent waitQueuedNotifications = new ManualResetEvent(false);
 
@@ -306,7 +311,7 @@ namespace PushSharp.Core
 				if (measurements == null || measurements.Count <= 0)
 					return TimeSpan.Zero;
 
-				lock (measurements)
+				lock (measurementsLock)
 				{
 					//Remove old measurements
                     while (measurements.Count > 1000)
@@ -332,7 +337,7 @@ namespace PushSharp.Core
 				if (sendTimeMeasurements == null || sendTimeMeasurements.Count <= 0)
 					return TimeSpan.Zero;
 
-                lock (sendTimeMeasurements)
+                lock (sendTimeMeasurementsLock)
                 {
                     while (sendTimeMeasurements.Count > 1000)
                         sendTimeMeasurements.RemoveAt(0);
@@ -351,7 +356,7 @@ namespace PushSharp.Core
 	    {
 	        get
 	        {
-	            lock (queuedNotifications)
+	            lock (queuedNotificationsLock)
 	                return queuedNotifications.Count;
 	        }
 	    }
@@ -360,7 +365,7 @@ namespace PushSharp.Core
 	    {
 	        get
 	        {
-	            lock (channels)
+	            lock (channelsLock)
 	                return channels.Count;
 	        }
 	    }
@@ -379,7 +384,7 @@ namespace PushSharp.Core
 				bool? destroyed = null;
 				IPushChannel newChannel = default(IPushChannel);
 
-				lock (channels)
+				lock (channelsLock)
 				{
 					if (action == ChannelScaleAction.Create)
 					{
@@ -448,7 +453,7 @@ namespace PushSharp.Core
 
 				var msWaited = (DateTime.UtcNow - notification.EnqueuedTimestamp).TotalMilliseconds;
 
-				lock (measurements)
+				lock (measurementsLock)
 				{
 					measurements.Add(new WaitTimeMeasurement((long) msWaited));
 				}
@@ -470,7 +475,7 @@ namespace PushSharp.Core
                         
 						var sendTime = DateTime.UtcNow - sendStart;
 
-                        lock (sendTimeMeasurements)
+                        lock (sendTimeMeasurementsLock)
                         {
                             sendTimeMeasurements.Add(new WaitTimeMeasurement((long)sendTime.TotalMilliseconds));
                         }

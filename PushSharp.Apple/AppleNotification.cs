@@ -11,7 +11,7 @@ namespace PushSharp.Apple
 {
 	public class AppleNotification : Core.Notification
 	{
-		static object nextIdentifierLock = new object();
+		static readonly object nextIdentifierLock = new object();
 		static int nextIdentifier = 0;
 
 		static int GetNextIdentifier()

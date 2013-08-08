@@ -76,9 +76,9 @@ namespace PushSharp.Apple
 		int reconnects = 0;
 
 		int connectionAttemptCounter = 0;
-		object sentLock = new object();
-		object connectLock = new object();
-		object streamWriteLock = new object();
+		readonly object sentLock = new object();
+		readonly object connectLock = new object();
+		readonly object streamWriteLock = new object();
 		int reconnectDelay = 3000;
 		float reconnectBackoffMultiplier = 1.5f;
 		
