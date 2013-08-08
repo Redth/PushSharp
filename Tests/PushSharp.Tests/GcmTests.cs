@@ -24,7 +24,7 @@ namespace PushSharp.Tests
 	    [Test]
 	    public void GCM_All_ShouldSucceed_VeryMany()
 	    {
-            TestNotifications(false, 100000, 100000, 0, null, true);
+            TestNotifications(false, 10000, 10000, 0, null);
 	    }
 
         [Test]

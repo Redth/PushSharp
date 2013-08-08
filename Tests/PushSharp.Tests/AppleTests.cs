@@ -14,6 +14,7 @@ using PushSharp.Tests.TestServers;
 namespace PushSharp.Tests
 {
 	[TestFixture]
+    [Category("Manual")]
 	public class AppleTests
 	{
 		private int testPort = 2197;
