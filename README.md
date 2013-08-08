@@ -12,6 +12,7 @@ I was fortunate enough to attend and present at Evolve 2013 in Austin, and the v
 
 News
 ----
+**August 8, 2013** 2.1.2-beta released, release notes below...
 
 **June 3, 2013** Xamarin Evolve video on PushSharp is now online! [http://xamarin.com/evolve/2013#session-b8fz8gfsnf](http://xamarin.com/evolve/2013#session-b8fz8gfsnf)
 
@@ -88,10 +89,10 @@ Please see the PushSharp.Sample project for a more thorough example!
 
 ********************
 
-v2.1 BETA Release Notes
-------------------
+v2.1.2 BETA Release Notes
+--------------------------
 
-v2.1 is still BETA.  For iOS, Android, Windows, and Windows phone it should be quite stable still, however this is a first release of Blackberry and Amazon support!
+v2.1.x is still BETA.  For iOS, Android, Windows, and Windows phone it should be quite stable still, however this is a first release of Blackberry and Amazon support!
 
 **Changes**
 
@@ -99,6 +100,7 @@ v2.1 is still BETA.  For iOS, Android, Windows, and Windows phone it should be q
  - Chrome GCM support
  - Blackberry BIS (and BES in theory) support
  - Performance enhancements
+ - APNS Stability Improvements
  - Other bugfixes
  
 
@@ -139,10 +141,27 @@ FAQ's
 ------------------------
 
 ##### How do I use PushSharp in my ASP.NET Web Application?  #####
-The ideal way is to create a ***singleton PushBroker instance*** in your Global.asax file.  You should keep this singleton instance around for the lifespan of your web application.  You should not be creating and destroying instances of PushBroker each time you send a notification, as this uses unnecessary resources and if you're using Apple APNS, they require you to keep the connection to their servers open as long as possible when sending notifications.
+An ASP.NET application is NOT the ideal place to use PushSharp.  You'd be better off using a Windows Service, or some other infrastructure if at all possible.  The reason is that in an ASP.NET application, the Application Pool (AppPool) can be restarted on you and is usually not under your direct control, which means all the Queued notifications that PushSharp may be in the process of sending could be lost if PushSharp is not cleaned up gracefully.
 
-##### How do I support multiple iOS/GCM/WP/W8 Apps with PushSharp? #####
-For every unique application you are sending notifications to, you should create an instance of PushBroker.  Each PushBroker instance can only support a single application for each platform.  
+If you MUST run PushSharp in an ASP.NET application, the best way is to create a ***singleton PushBroker instance*** in your Global.asax file.  You should keep this singleton instance around for the lifespan of your web application, including a call to pushBroker.StopAllServices() when your Application is ending (Application_End in global.asax).
+
+You can help mitigate losing messages due to unforeseen App Pool terminations or restarts by persisting notifications you want to send in some other way, and only removing them from that persistent storage once the OnNotificationSent event has fired.  This is still not perfect (you may risk multiple notification deliveries), but it's probably adequate for most.
+
+You should not be creating and destroying instances of PushBroker each time you send a notification, as this uses unnecessary resources and if you're using Apple APNS, they require you to keep the connection to their servers open as long as possible when sending notifications.  You should also call pushBroker.StopAllServices() in your Application_Ended event in your Global.asax.  Keep in mind that PushSharp works.
+
+
+##### How do I support multiple applications with PushSharp? #####
+**NOTE:** as of version 2.1.2 PushSharp now supports the concept of an arbitrary ApplicationId when you Start or Register push services, for example:
+
+```csharp
+//Specify your application id when registering the service
+pushBroker.RegisterAppleService(channelSettings, "MY-APP-ID-HERE");
+
+//Specify the application id for which the notification is intended when queueing
+pushBroker.QueueNotification(notification, "MY-APP-ID"))
+```
+
+The alternative (old) way is to create an instance of PushBroker for each application you need.  
 
 
 
