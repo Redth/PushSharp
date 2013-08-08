@@ -11,7 +11,12 @@ namespace PushSharp
 	{
 		public static void RegisterAppleService(this PushBroker broker, ApplePushChannelSettings channelSettings, IPushServiceSettings serviceSettings = null)
 		{
-			broker.RegisterService<AppleNotification>(new ApplePushService(channelSettings, serviceSettings));
+			RegisterAppleService (broker, channelSettings, null, serviceSettings);
+		}
+
+		public static void RegisterAppleService(this PushBroker broker, ApplePushChannelSettings channelSettings, string applicationId, IPushServiceSettings serviceSettings = null)
+		{
+			broker.RegisterService<AppleNotification>(new ApplePushService(channelSettings, serviceSettings), applicationId);
 		}
 
 		public static AppleNotification AppleNotification(this PushBroker broker)

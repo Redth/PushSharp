@@ -9,15 +9,20 @@ namespace PushSharp
 {
 	public static class WindowsPushBrokerExtensions
 	{
-		public static void RegisterWindowsService(this PushBroker broker, WindowsPushChannelSettings channelSettings, PushServiceSettings serviceSettings = null)
+		public static void RegisterWindowsService(this PushBroker broker, WindowsPushChannelSettings channelSettings, IPushServiceSettings serviceSettings = null)
+		{
+			RegisterWindowsService (broker, channelSettings, null, serviceSettings);
+		}
+
+		public static void RegisterWindowsService(this PushBroker broker, WindowsPushChannelSettings channelSettings, string applicationId, IPushServiceSettings serviceSettings = null)
 		{
 			var service = new WindowsPushService(new WindowsPushChannelFactory(), channelSettings, serviceSettings);
 
-			broker.RegisterService<WindowsRawNotification>(service);
-			broker.RegisterService<WindowsTileNotification>(service);
-			broker.RegisterService<WindowsToastNotification>(service);
-			broker.RegisterService<WindowsBadgeNumericNotification>(service);
-			broker.RegisterService<WindowsBadgeGlyphNotification>(service);
+			broker.RegisterService<WindowsRawNotification>(service, applicationId);
+			broker.RegisterService<WindowsTileNotification>(service, applicationId);
+			broker.RegisterService<WindowsToastNotification>(service, applicationId);
+			broker.RegisterService<WindowsBadgeNumericNotification>(service, applicationId);
+			broker.RegisterService<WindowsBadgeGlyphNotification>(service, applicationId);
 		}
 
 		public static WindowsRawNotification WindowsRawNotification(this PushBroker broker)

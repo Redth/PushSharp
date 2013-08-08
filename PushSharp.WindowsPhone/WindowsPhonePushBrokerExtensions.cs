@@ -9,16 +9,31 @@ namespace PushSharp
 {
 	public static class WindowsPhonePushBrokerExtensions
 	{
-		public static void RegisterWindowsPhoneService(this PushBroker broker, WindowsPhonePushChannelSettings channelSettings = null, PushServiceSettings serviceSettings = null)
+		public static void RegisterWindowsPhoneService(this PushBroker broker, string applicationId, IPushServiceSettings serviceSettings = null)
+		{
+			RegisterWindowsPhoneService (broker, null, applicationId, serviceSettings);
+		}
+
+		public static void RegisterWindowsPhoneService(this PushBroker broker, IPushServiceSettings serviceSettings = null)
+		{
+			RegisterWindowsPhoneService (broker, null, null, serviceSettings);
+		}
+
+		public static void RegisterWindowsPhoneService(this PushBroker broker, WindowsPhonePushChannelSettings channelSettings, IPushServiceSettings serviceSettings = null)
+		{
+			RegisterWindowsPhoneService (broker, channelSettings, null, serviceSettings);
+		}
+
+		public static void RegisterWindowsPhoneService(this PushBroker broker, WindowsPhonePushChannelSettings channelSettings, string applicationId, IPushServiceSettings serviceSettings = null)
 		{
 			var service = new WindowsPhonePushService(new WindowsPhonePushChannelFactory(), channelSettings, serviceSettings);
 
-			broker.RegisterService<WindowsPhoneCycleTileNotification>(service);
-			broker.RegisterService<WindowsPhoneFlipTileNotification>(service);
-			broker.RegisterService<WindowsPhoneIconicTileNotification>(service);
-			broker.RegisterService<WindowsPhoneTileNotification>(service);
-			broker.RegisterService<WindowsPhoneToastNotification>(service);
-			broker.RegisterService<WindowsPhoneRawNotification>(service);
+			broker.RegisterService<WindowsPhoneCycleTileNotification>(service, applicationId);
+			broker.RegisterService<WindowsPhoneFlipTileNotification>(service, applicationId);
+			broker.RegisterService<WindowsPhoneIconicTileNotification>(service, applicationId);
+			broker.RegisterService<WindowsPhoneTileNotification>(service, applicationId);
+			broker.RegisterService<WindowsPhoneToastNotification>(service, applicationId);
+			broker.RegisterService<WindowsPhoneRawNotification>(service, applicationId);
 		}
 
 		public static WindowsPhoneCycleTileNotification WindowsPhoneCycleTileNotification(this PushBroker broker)

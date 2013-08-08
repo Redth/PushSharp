@@ -9,7 +9,12 @@ namespace PushSharp
 {
     public static class AdmPushBrokerExtensions
     {
-        public static void RegisterAdmService(this PushBroker broker, AdmPushChannelSettings channelSettings, PushServiceSettings serviceSettings = null)
+		public static void RegisterAdmService(this PushBroker broker, AdmPushChannelSettings channelSettings, IPushServiceSettings serviceSettings = null)
+		{
+			RegisterAdmService (broker, channelSettings, null, serviceSettings);
+		}
+
+        public static void RegisterAdmService(this PushBroker broker, AdmPushChannelSettings channelSettings, string applicationId, IPushServiceSettings serviceSettings = null)
         {
             broker.RegisterService<AdmNotification>(new AdmPushService(new AdmPushChannelFactory(), channelSettings, serviceSettings));
         }

@@ -7,7 +7,12 @@ namespace PushSharp
 	{
 		public static void RegisterBlackberryService(this PushBroker broker, BlackberryPushChannelSettings channelSettings, IPushServiceSettings serviceSettings = null)
 		{
-			broker.RegisterService<BlackberryNotification>(new BlackberryPushService(channelSettings, serviceSettings));
+			RegisterBlackberryService (broker, channelSettings, null, serviceSettings);
+		}
+
+		public static void RegisterBlackberryService(this PushBroker broker, BlackberryPushChannelSettings channelSettings, string applicationId = null, IPushServiceSettings serviceSettings = null)
+		{
+			broker.RegisterService<BlackberryNotification>(new BlackberryPushService(channelSettings, serviceSettings), applicationId);
 		}
 
         public static BlackberryNotification BlackberryNotification(this PushBroker broker)
