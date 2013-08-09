@@ -1,4 +1,4 @@
-PushSharp [![Build Status](http://teamcity.codebetter.com/app/rest/builds/buildType:\(id:bt990\)/statusIcon)](http://teamcity.codebetter.com/project.html?projectId=project338&tab=projectOverview)
+PushSharp [![Build Status](http://teamcity.codebetter.com/app/rest/builds/buildType:\(id:bt990\)/statusIcon)](http://teamcity.codebetter.com/project.html?projectId=project338&tab=projectOverview&guest=1)
 ===========================
 
 A server-side library for sending Push Notifications to iOS (iPhone/iPad APNS), OSX (APNS 10.8+) Android (C2DM and GCM - Google Cloud Message), Chrome (GCM) Windows Phone, Windows 8, Blackberry (PAP), and Amazon (ADM) devices!
