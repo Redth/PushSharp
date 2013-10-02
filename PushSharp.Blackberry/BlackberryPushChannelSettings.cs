@@ -1,3 +1,4 @@
+﻿using System;
 ﻿using PushSharp.Core;
 
 namespace PushSharp.Blackberry
