@@ -284,7 +284,9 @@ namespace PushSharp.Core
 							Log.Info("{0} -> Destroying Channel", this);
 							ScaleChannels(ChannelScaleAction.Destroy);
 						}
-						while (channels.Count < ServiceSettings.Channels && !this.cancelTokenSource.IsCancellationRequested)
+                        while (channels.Count < ServiceSettings.Channels && !this.cancelTokenSource.IsCancellationRequested
+                            && (DateTime.UtcNow - lastNotificationQueueTime) <= ServiceSettings.IdleTimeout
+                            && Interlocked.Read(ref trackedNotificationCount) > 0)
 						{
 							Log.Info("{0} -> Creating Channel", this);
 							ScaleChannels(ChannelScaleAction.Create);
