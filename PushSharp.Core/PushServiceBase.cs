@@ -443,8 +443,6 @@ namespace PushSharp.Core
 
 			while (!cancelTokenSource.IsCancellationRequested)
 			{
-				var waitForNotification = new ManualResetEvent(false);
-
 				var notification = queuedNotifications.Dequeue ();
 
 				if (notification == null)
@@ -452,6 +450,13 @@ namespace PushSharp.Core
 					Thread.Sleep(100);
 					continue;
 				}
+
+                ManualResetEvent waitForNotification = null;
+
+                if (this.BlockOnMessageResult)
+                {
+                    waitForNotification = new ManualResetEvent(false);
+                }
 
 				var msWaited = (DateTime.UtcNow - notification.EnqueuedTimestamp).TotalMilliseconds;
 
@@ -485,8 +490,8 @@ namespace PushSharp.Core
 						//Log.Info("Send Time: " + sendTime.TotalMilliseconds + " ms");
 
 						//Trigger 
-						if (this.BlockOnMessageResult)	
-							waitForNotification.Set();						
+                        if (waitForNotification != null)
+                            waitForNotification.Set();					
 
 						//Handle the notification send callback here
 						if (result.ShouldRequeue)
@@ -539,9 +544,9 @@ namespace PushSharp.Core
 						}
 					});
 
-				
-				if (this.BlockOnMessageResult && !waitForNotification.WaitOne(ServiceSettings.NotificationSendTimeout))
-				{
+
+                if (waitForNotification != null && !waitForNotification.WaitOne(ServiceSettings.NotificationSendTimeout))
+                {
 					Interlocked.Decrement(ref trackedNotificationCount);
 
 					Log.Info("Notification send timeout");
@@ -550,6 +555,12 @@ namespace PushSharp.Core
 					if (evt != null)
 						evt(this, notification, new TimeoutException("Notification send timed out"));
 				}
+
+                if (waitForNotification != null)
+                {
+                    waitForNotification.Close();
+                    waitForNotification = null;
+                }
 			}
 
 			channel.Dispose();
