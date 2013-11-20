@@ -45,15 +45,32 @@ namespace PushSharp
 			lock (serviceRegistrationsLock)
 				serviceRegistrations.Add (registration);
 
-			pushService.OnChannelCreated += OnChannelCreated;
-			pushService.OnChannelDestroyed += OnChannelDestroyed;
-			pushService.OnChannelException += OnChannelException;
-			pushService.OnDeviceSubscriptionExpired += OnDeviceSubscriptionExpired;
-			pushService.OnNotificationFailed += OnNotificationFailed;
-			pushService.OnNotificationSent += OnNotificationSent;
-			pushService.OnNotificationRequeue += OnNotificationRequeue;
-			pushService.OnServiceException += OnServiceException;
-			pushService.OnDeviceSubscriptionChanged += OnDeviceSubscriptionChanged;
+			pushService.OnChannelCreated -= OnChannelCreated;
+            pushService.OnChannelCreated += OnChannelCreated;
+
+			pushService.OnChannelDestroyed -= OnChannelDestroyed;
+            pushService.OnChannelDestroyed += OnChannelDestroyed;
+
+			pushService.OnChannelException -= OnChannelException;
+            pushService.OnChannelException += OnChannelException;
+
+			pushService.OnDeviceSubscriptionExpired -= OnDeviceSubscriptionExpired;
+            pushService.OnDeviceSubscriptionExpired += OnDeviceSubscriptionExpired;
+
+			pushService.OnNotificationFailed -= OnNotificationFailed;
+            pushService.OnNotificationFailed += OnNotificationFailed;
+
+			pushService.OnNotificationSent -= OnNotificationSent;
+            pushService.OnNotificationSent += OnNotificationSent;
+
+			pushService.OnNotificationRequeue -= OnNotificationRequeue;
+            pushService.OnNotificationRequeue += OnNotificationRequeue;
+
+			pushService.OnServiceException -= OnServiceException;
+            pushService.OnServiceException += OnServiceException;
+
+			pushService.OnDeviceSubscriptionChanged -= OnDeviceSubscriptionChanged;
+            pushService.OnDeviceSubscriptionChanged += OnDeviceSubscriptionChanged;
 		}
 
 		/// <summary>
