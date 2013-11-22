@@ -1,14 +1,12 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 using PushSharp.Core;
 
 namespace PushSharp
 {
-	public class PushBroker : IDisposable
-	{
+    public class PushBroker : IPushBroker
+    {
 		public event ChannelCreatedDelegate OnChannelCreated;
 		public event ChannelDestroyedDelegate OnChannelDestroyed;
 		public event NotificationSentDelegate OnNotificationSent;
