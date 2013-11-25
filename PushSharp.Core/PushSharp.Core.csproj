@@ -48,6 +48,7 @@
     <Compile Include="AssemblyVersionInfo.cs" />
     <Compile Include="Exceptions.cs" />
     <Compile Include="Interfaces.cs" />
+    <Compile Include="IPushBroker.cs" />
     <Compile Include="Log.cs" />
     <Compile Include="Notification.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
