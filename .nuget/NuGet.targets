@@ -10,7 +10,7 @@
         <BuildPackage Condition=" '$(BuildPackage)' == '' ">false</BuildPackage>
 
         <!-- Determines if package restore consent is required to restore packages -->
-        <RequireRestoreConsent Condition=" '$(RequireRestoreConsent)' != 'false' ">true</RequireRestoreConsent>
+        <RequireRestoreConsent Condition=" '$(RequireRestoreConsent)' != 'false' ">false</RequireRestoreConsent>
         
         <!-- Download NuGet.exe if it does not already exist -->
         <DownloadNuGetExe Condition=" '$(DownloadNuGetExe)' == '' ">false</DownloadNuGetExe>
