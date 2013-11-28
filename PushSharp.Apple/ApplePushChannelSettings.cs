@@ -106,7 +106,7 @@ namespace PushSharp.Apple
 					throw new ArgumentException("You have selected the Production server, yet your Certificate does not appear to be the Production certificate!  Please check to ensure you have the correct certificate!");
 
 
-				if (!production && !subjectName.Contains("Apple Development IOS Push Services"))
+				if (!production && !subjectName.Contains("Apple Development IOS Push Services") && !subjectName.Contains("Pass Type ID"))
 						throw new ArgumentException("You have selected the Development/Sandbox (Not production) server, yet your Certificate does not appear to be the Development/Sandbox certificate!  Please check to ensure you have the correct certificate!");				
 			}
 			else
