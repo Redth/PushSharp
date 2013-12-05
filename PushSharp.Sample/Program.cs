@@ -33,7 +33,7 @@ namespace PushSharp.Sample
 			push.OnDeviceSubscriptionChanged += DeviceSubscriptionChanged;
 			push.OnChannelCreated += ChannelCreated;
 			push.OnChannelDestroyed += ChannelDestroyed;
-			
+
 
 			//------------------------------------------------
 			//IMPORTANT NOTE about Push Service Registrations
@@ -70,6 +70,15 @@ namespace PushSharp.Sample
 			                           .WithAlert("Hello World!")
 			                           .WithBadge(7)
 			                           .WithSound("sound.caf"));
+
+            //-------------------------
+            // SAFARI NOTIFICATIONS
+            //-------------------------
+            /* For Safari push notification, use AppleSafariNotificatioPayload instead.
+            push.QueueNotification(new AppleNotification()
+                                       .ForDeviceToken("DEVICE TOKEN HERE")
+                                       .WithPayload(new AppleSafariNotificationPayload("This is Title", "This is Body", "View", "arg0", "arg1")));
+            //*/
 
 			
 			//---------------------------
