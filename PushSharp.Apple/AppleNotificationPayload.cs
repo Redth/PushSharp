@@ -112,7 +112,7 @@ namespace PushSharp.Apple
 			if (!string.IsNullOrEmpty(this.Sound))
 				aps["sound"] = new JValue(this.Sound);
 
-            if (this.ContentAvailable.HasValue
+            if (this.ContentAvailable.HasValue)
             {
                 aps["content-available"] = new JValue(this.ContentAvailable.Value);
                 if (string.IsNullOrEmpty(this.Sound))
