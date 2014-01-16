@@ -112,10 +112,17 @@ namespace PushSharp.Apple
 			if (!string.IsNullOrEmpty(this.Sound))
 				aps["sound"] = new JValue(this.Sound);
 
-			if (this.ContentAvailable.HasValue)
-				aps["content-available"] = new JValue(this.ContentAvailable.Value);
+            if (this.ContentAvailable.HasValue
+            {
+                aps["content-available"] = new JValue(this.ContentAvailable.Value);
+                if (string.IsNullOrEmpty(this.Sound))
+                {
+                    //You need to add an empty string for sound or the payload is not sent
+                    aps["sound"] = new JValue("");
+                }
+            }
 
-			if (aps.Count > 0)
+		    if (aps.Count > 0)
 				json["aps"] = aps;
 
 			foreach (string key in this.CustomItems.Keys)
