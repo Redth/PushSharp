@@ -7,11 +7,15 @@ namespace PushSharp.Web.Controllers
     {
         private readonly IAppleNotificationService _AppleService;
         private readonly ISecurityService _SecurityService;
+        private readonly IGoogleGcmNotificationService _GoogleGcmService;
+        private readonly IWindowsPhoneNotificationService _WindowsPhoneService;
 
-        public NotificationsController(IAppleNotificationService appleService, ISecurityService securityService)
+        public NotificationsController(IAppleNotificationService appleService, ISecurityService securityService, IGoogleGcmNotificationService googleGcmService, IWindowsPhoneNotificationService windowsPhoneService)
         {
             _AppleService = appleService;
             _SecurityService = securityService;
+            _GoogleGcmService = googleGcmService;
+            _WindowsPhoneService = windowsPhoneService;
         }
 
         [System.Web.Http.HttpGet]
@@ -28,15 +32,15 @@ namespace PushSharp.Web.Controllers
         }
 
         [System.Web.Http.HttpGet]
-        public ApiCallResult GoogleGcm()
+        public ApiCallResult GoogleGcm(GoogleGcmApiNotificationPayLoad payLoad)
         {
-            return new ApiCallResult(false, "Method is not implemented yet");
+            return ProcessGoogleGcmNotification(payLoad);
         }
 
         [System.Web.Http.HttpGet]
-        public ApiCallResult WindowsPhone()
+        public ApiCallResult WindowsPhone(WindowsPhoneApiNotificationPayLoad payLoad)
         {
-            return new ApiCallResult(false, "Method is not implemented yet");
+            return ProcessWindowsPhoneNotification(payLoad);
         }
 
         #region Implementation
@@ -53,6 +57,40 @@ namespace PushSharp.Web.Controllers
             {
                 result.IsSuccessful = _AppleService.Result.IsSuccessful;
                 result.Message = _AppleService.Result.Message;
+            }
+
+            return result;
+        }
+
+        private ApiCallResult ProcessGoogleGcmNotification(GoogleGcmApiNotificationPayLoad payLoad)
+        {
+            var result = new PushNotificationApiCallResult(false, "Notificaiton failed.", payLoad.DeviceUuid, payLoad.Message);
+            var isRequestValid = _SecurityService.ValidateRequestKey(payLoad.AuthenticationKey);
+            if (!isRequestValid)
+            {
+                result.Message = "Invalid Authentication Key";
+            }
+            else if (_GoogleGcmService.Send(payLoad))
+            {
+                result.IsSuccessful = _GoogleGcmService.Result.IsSuccessful;
+                result.Message = _GoogleGcmService.Result.Message;
+            }
+
+            return result;
+        }
+
+        private ApiCallResult ProcessWindowsPhoneNotification(WindowsPhoneApiNotificationPayLoad payLoad)
+        {
+            var result = new PushNotificationApiCallResult(false, "Notificaiton failed.", payLoad.DeviceUuid, payLoad.Message);
+            var isRequestValid = _SecurityService.ValidateRequestKey(payLoad.AuthenticationKey);
+            if (!isRequestValid)
+            {
+                result.Message = "Invalid Authentication Key";
+            }
+            else if (_WindowsPhoneService.Send(payLoad))
+            {
+                result.IsSuccessful = _WindowsPhoneService.Result.IsSuccessful;
+                result.Message = _WindowsPhoneService.Result.Message;
             }
 
             return result;
