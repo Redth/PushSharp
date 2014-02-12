@@ -63,7 +63,7 @@ namespace PushSharp.Core
 		volatile bool stopping;
 		List<ChannelWorker> channels = new List<ChannelWorker>();
 		NotificationQueue queuedNotifications;
-		CancellationTokenSource cancelTokenSource = new CancellationTokenSource();
+	    protected CancellationTokenSource cancelTokenSource = new CancellationTokenSource();
 		List<WaitTimeMeasurement> measurements = new List<WaitTimeMeasurement>();
         List<WaitTimeMeasurement> sendTimeMeasurements = new List<WaitTimeMeasurement>();
 		DateTime lastNotificationQueueTime = DateTime.MinValue;
@@ -110,8 +110,6 @@ namespace PushSharp.Core
 		{
 			lastNotificationQueueTime = DateTime.UtcNow;
 
-			Interlocked.Increment(ref trackedNotificationCount);
-
 			//Measure when the message entered the queue
 			notification.EnqueuedTimestamp = DateTime.UtcNow;
 
@@ -121,6 +119,9 @@ namespace PushSharp.Core
 			if (this.ServiceSettings.MaxNotificationRequeues < 0 ||
 			    notification.QueuedCount <= this.ServiceSettings.MaxNotificationRequeues)
 			{
+                // only increment the tracking counter if the notification still has retries left
+                Interlocked.Increment(ref trackedNotificationCount);
+
 				//Reset the Enqueued time in case this is a requeue
 				notification.EnqueuedTimestamp = DateTime.UtcNow;
 
@@ -146,7 +147,7 @@ namespace PushSharp.Core
 			}
 		}
 
-		public void Stop(bool waitForQueueToFinish = true)
+		public virtual void Stop(bool waitForQueueToFinish = true)
 		{
 			stopping = true;
 			var started = DateTime.UtcNow;
