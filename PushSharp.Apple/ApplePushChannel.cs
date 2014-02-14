@@ -487,7 +487,7 @@ namespace PushSharp.Apple
 								//client.Client.SetSocketOption(SocketOptionLevel.Socket, SocketOptionName.KeepAlive, true);
 
 								//Really not sure if this will work on MONO....
-								try { client.SetSocketKeepAliveValues(20 * 60 * 1000, 30 * 1000); }
+								try { client.SetSocketKeepAliveValues(appleSettings.KeepAlivePeriod.Milliseconds, appleSettings.KeepAliveRetryPeriod.Milliseconds); }
 								catch { }
 
 								Interlocked.Increment(ref reconnects);
