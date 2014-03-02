@@ -17,7 +17,7 @@ namespace PushSharp.Core
 
 		public static void Debug(string format, params object[] objs)
 		{
-			if (((int)Level) >= ((int)LogLevel.Info))
+			if (((int)Level) >= ((int)LogLevel.Debug))
 			{
 				if (Logger == null)
 					Console.WriteLine ("DEBUG [" + DateTime.Now.ToString ("yyyy-MM-dd HH:mm:ss") + "] " + format, objs);
