@@ -27,6 +27,11 @@ namespace PushSharp.Apple
 			private set;
 		}
 
+        /// <summary>
+        /// use this will replace this.CustomItems
+        /// </summary>
+        public string CustomJson { get; set; }
+
 		public AppleNotificationPayload()
 		{
 			HideActionButton = false;
@@ -118,13 +123,24 @@ namespace PushSharp.Apple
 			if (aps.Count > 0)
 				json["aps"] = aps;
 
-			foreach (string key in this.CustomItems.Keys)
-			{
-				if (this.CustomItems[key].Length == 1)
-					json[key] = new JValue(this.CustomItems[key][0]);
-				else if (this.CustomItems[key].Length > 1)
-					json[key] = new JArray(this.CustomItems[key]);
-			}
+            if (string.IsNullOrEmpty(this.CustomJson))
+            {
+                foreach (string key in this.CustomItems.Keys)
+                {
+                    if (this.CustomItems[key].Length == 1)
+                        json[key] = new JValue(this.CustomItems[key][0]);
+                    else if (this.CustomItems[key].Length > 1)
+                        json[key] = new JArray(this.CustomItems[key]);
+                }
+            }
+            else
+            {
+                var obj = (JObject)Newtonsoft.Json.JsonConvert.DeserializeObject(this.CustomJson);
+                foreach (KeyValuePair<string,JToken> kv in obj)
+                {
+                    json[kv.Key] = kv.Value;
+                }
+            }
 
 			string rawString = json.ToString(Newtonsoft.Json.Formatting.None, null);
 
