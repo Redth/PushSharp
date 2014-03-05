@@ -7,7 +7,7 @@ using PushSharp.Core;
 
 namespace PushSharp
 {
-	public class PushBroker : IDisposable
+	public class PushBroker : IPushBroker
 	{
 		public event ChannelCreatedDelegate OnChannelCreated;
 		public event ChannelDestroyedDelegate OnChannelDestroyed;
