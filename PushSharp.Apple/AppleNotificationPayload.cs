@@ -120,10 +120,23 @@ namespace PushSharp.Apple
 
 			foreach (string key in this.CustomItems.Keys)
 			{
+				
+				// This section was modified to allow passing any object to the APNS.
+				// Previously, only primitive types were allowed.
+				
 				if (this.CustomItems[key].Length == 1)
-					json[key] = new JValue(this.CustomItems[key][0]);
+				{
+					//json[key] = new JValue(this.CustomItems[key][0]);
+					json[key] = GetJsonToken(this.CustomItems[key][0]);
+				}
 				else if (this.CustomItems[key].Length > 1)
-					json[key] = new JArray(this.CustomItems[key]);
+				{
+					//json[key] = new JArray(this.CustomItems[key]);
+					var list = new List<JToken>();
+					foreach (var customItem in this.CustomItems[key])
+						list.Add(GetJsonToken(customItem));
+					json[key] = new JArray(list);
+				}
 			}
 
 			string rawString = json.ToString(Newtonsoft.Json.Formatting.None, null);
@@ -251,6 +264,15 @@ namespace PushSharp.Apple
 		public override string ToString()
 		{
 			return ToJson();
+		}
+		
+		
+		private JToken GetJsonToken(object data)
+		{
+			if (data.GetType().IsPrimitive)
+				return new JValue(data);
+
+			return JObject.Parse(Newtonsoft.Json.JsonConvert.SerializeObject(data));
 		}
 	}
 }
