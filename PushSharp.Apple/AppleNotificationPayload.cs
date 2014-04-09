@@ -269,7 +269,8 @@ namespace PushSharp.Apple
 		
 		private JToken GetJsonToken(object data)
 		{
-			if (data.GetType().IsPrimitive)
+			var dataType = data.GetType();
+			if ((dataType.IsValueType) || (dataType.IsAssignableFrom(typeof(string))))
 				return new JValue(data);
 
 			return JObject.Parse(Newtonsoft.Json.JsonConvert.SerializeObject(data));
