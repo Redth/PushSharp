@@ -94,6 +94,17 @@ namespace PushSharp.Android
 			get; 
 			set; 
 		}
+		
+		/// <summary>
+		/// A string that maps a single user to multiple registration IDs associated with that user. This allows a 3rd-party server to send a single message to multiple app instances (typically on multiple devices) owned by a single user.
+		/// </summary>
+		public string NotificationKey { get; set; }
+
+		/// <summary>
+		/// A string containing the package name of your application. When set, messages will only be sent to registration IDs that match the package name
+		/// </summary>
+		public string TargetPackageName { get; set; }
+
 
 		internal string GetJson()
 		{
@@ -120,6 +131,13 @@ namespace PushSharp.Android
 				if (jsonData != null)
 					json["data"] = jsonData;
 			}
+			
+			if (!string.IsNullOrWhiteSpace(this.NotificationKey))
+				json["notification_key"] = NotificationKey;
+
+			if (!string.IsNullOrWhiteSpace(this.TargetPackageName))
+				json["restricted_package_name"] = TargetPackageName;
+
 
 			return json.ToString();
 		}
