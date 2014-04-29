@@ -165,11 +165,18 @@ namespace PushSharp.WindowsPhone
 		}
 		
 		void HandleStatus(SendNotificationCallbackDelegate callback, WindowsPhoneMessageStatus status, WindowsPhoneNotification notification = null)
-		{	
+		{
+			if (callback == null)
+				return;
+
 			if (status.SubscriptionStatus == WPSubscriptionStatus.Expired)
 			{
-				if (callback != null)
-					callback(this, new SendNotificationResult(notification, false, new Exception("Device Subscription Expired")) { IsSubscriptionExpired = true });
+				callback(this, new SendNotificationResult(notification, false, new Exception("Device Subscription Expired"))
+				{
+					IsSubscriptionExpired = true,
+					OldSubscriptionId = notification != null ? notification.EndPointUrl : null,
+					SubscriptionExpiryUtc = DateTime.UtcNow
+				});
 
 				return;
 			}
@@ -177,13 +184,12 @@ namespace PushSharp.WindowsPhone
 			if (status.HttpStatus == HttpStatusCode.OK
 				&& status.NotificationStatus == WPNotificationStatus.Received)
 			{
-				if (callback != null)
-					callback(this, new SendNotificationResult(notification));
+				callback(this, new SendNotificationResult(notification));
+
 				return;
 			}
 
-			if (callback != null)
-				callback(this, new SendNotificationResult(status.Notification, false, new WindowsPhoneNotificationSendFailureException(status)));
+			callback(this, new SendNotificationResult(status.Notification, false, new WindowsPhoneNotificationSendFailureException(status)));
 		}
 
 		public void Dispose()
