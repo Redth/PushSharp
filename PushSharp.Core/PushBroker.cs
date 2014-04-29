@@ -101,7 +101,7 @@ namespace PushSharp
 		/// <typeparam name="TPushNotification">Type of Notification</typeparam>
 		public void QueueNotification<TPushNotification>(TPushNotification notification, string applicationId) where TPushNotification : Notification
 		{
-			var services = GetRegistrations<TPushNotification> (applicationId);
+			var services = GetRegistrations<TPushNotification> (applicationId).ToList();
 
 			if (services == null || !services.Any())
 				throw new IndexOutOfRangeException("There are no Registered Services that handle this type of Notification");
@@ -114,7 +114,6 @@ namespace PushSharp
 		/// Gets all the registered services
 		/// </summary>
 		/// <returns>The registered services</returns>
-		/// <typeparam name="TNotification">Type of notification</typeparam>
 		public IEnumerable<IPushService> GetAllRegistrations()
 		{
 			lock (serviceRegistrationsLock)
@@ -134,7 +133,7 @@ namespace PushSharp
 		public IEnumerable<IPushService> GetRegistrations(string applicationId)
 		{
 			lock (serviceRegistrationsLock)
-				return from s in serviceRegistrations where s.ApplicationId.Equals(applicationId) select s.Service;
+				return from s in serviceRegistrations where s.ApplicationId == applicationId select s.Service;
 		}
 
 		/// <summary>
@@ -161,7 +160,7 @@ namespace PushSharp
 				lock (serviceRegistrationsLock)
 				{
 					return from sr in serviceRegistrations 
-					   where sr.ApplicationId.Equals (applicationId) 
+					   where sr.ApplicationId == applicationId
 						&& sr.NotificationType == type
 					   select sr.Service;
 				}
@@ -214,24 +213,22 @@ namespace PushSharp
 				{
 					var services = from s in serviceRegistrations where s.NotificationType == type select s;
 
-					if (services != null && services.Any ())
-						stopping.AddRange (services);
+					stopping.AddRange (services);
 
 					serviceRegistrations.RemoveAll (s => s.NotificationType == type);
 				}
 				else
 				{
 					var services = from s in serviceRegistrations where s.NotificationType == type 
-						&& s.ApplicationId.Equals (applicationId) select s;
+						&& s.ApplicationId == applicationId select s;
 
-					if (services != null && services.Any ())
-						stopping.AddRange (services);
+					stopping.AddRange (services);
 
-					serviceRegistrations.RemoveAll (s => s.NotificationType == type && s.ApplicationId.Equals(applicationId));
+					serviceRegistrations.RemoveAll (s => s.NotificationType == type && s.ApplicationId == applicationId);
 				}
 			}
 
-			if (stopping != null && stopping.Any())
+			if (stopping.Any())
 				stopping.AsParallel().ForAll(sr => StopService(sr, waitForQueuesToFinish));
 		}
 
@@ -246,15 +243,14 @@ namespace PushSharp
 
 			lock (serviceRegistrationsLock)
 			{
-				var services = from s in serviceRegistrations where s.ApplicationId.Equals(applicationId) select s;
+				var services = from s in serviceRegistrations where s.ApplicationId == applicationId select s;
 
-				if (services != null && services.Any ())
-					stopping.AddRange (services);
+				stopping.AddRange (services);
 
-				serviceRegistrations.RemoveAll (s => s.ApplicationId.Equals(applicationId));
+				serviceRegistrations.RemoveAll (s => s.ApplicationId == applicationId);
 			}
 
-			if (stopping != null && stopping.Any())
+			if (stopping.Any())
 				stopping.AsParallel().ForAll(sr => StopService(sr, waitForQueuesToFinish));
 		}
 
