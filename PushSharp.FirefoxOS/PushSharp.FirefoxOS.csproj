@@ -46,6 +46,12 @@
     <Compile Include="FirefoxOSPushService.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
   </ItemGroup>
+  <ItemGroup>
+    <ProjectReference Include="..\PushSharp.Core\PushSharp.Core.csproj">
+      <Project>{836f225f-6cd9-48de-910c-70f8a7cf54aa}</Project>
+      <Name>PushSharp.Core</Name>
+    </ProjectReference>
+  </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 
        Other similar extension points exist, see Microsoft.Common.targets.
