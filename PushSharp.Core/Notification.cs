@@ -17,6 +17,7 @@ namespace PushSharp.Core
         public object Tag { get; set; }
 
 		public DateTime EnqueuedTimestamp { get; set; }
+        public bool IsTimedOut { get; set; }
 
 		/// <summary>
 		/// How many times a message was queued for sending.  This counter will increase every time a message is queued or requeued.
