@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using PushSharp.Core;
+using System.Net;
 
 namespace PushSharp.Android
 {
@@ -31,6 +32,7 @@ namespace PushSharp.Android
 		public string SenderID { get; private set; }
 		public string SenderAuthToken { get; private set; }
 		public string ApplicationIdPackageName { get; private set; }
+		public WebProxy Proxy { get; set; }
 
         public bool ValidateServerCertificate { get; set; }
 

@@ -51,6 +51,7 @@ namespace PushSharp.Android
 			//var postData = msg.GetJson();
 
 			var webReq = (HttpWebRequest)WebRequest.Create(gcmSettings.GcmUrl);
+			ConfigureProxy (webReq);
 			//webReq.ContentLength = postData.Length;
 			webReq.Method = "POST";
 			webReq.ContentType = "application/json";
@@ -68,6 +69,14 @@ namespace PushSharp.Android
 				SenderId = gcmSettings.SenderID,
 				ApplicationId = gcmSettings.ApplicationIdPackageName
 			});
+		}
+
+		void ConfigureProxy(HttpWebRequest request)
+		{
+			if (gcmSettings.Proxy != null)
+			{
+				request.Proxy = gcmSettings.Proxy;
+			}
 		}
 
 		void requestStreamCallback(IAsyncResult result)
