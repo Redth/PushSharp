@@ -147,7 +147,7 @@ namespace PushSharp.Sample
 
 		static void ServiceException(object sender, Exception exception)
 		{
-			Console.WriteLine("Channel Exception: " + sender + " -> " + exception);
+            Console.WriteLine("Service Exception: " + sender + " -> " + exception);
 		}
 
 		static void DeviceSubscriptionExpired(object sender, string expiredDeviceSubscriptionId, DateTime timestamp, INotification notification)
