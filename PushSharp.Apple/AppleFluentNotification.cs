@@ -31,15 +31,15 @@ namespace PushSharp
 			return n;
 		}
 
-        public static AppleNotification WithAlert(this AppleNotification n, string body, string launchImage)
-        {
-            if (n.Payload == null)
-                n.Payload = new AppleNotificationPayload();
+		public static AppleNotification WithAlert(this AppleNotification n, string body, string launchImage)
+		{
+			if (n.Payload == null)
+				n.Payload = new AppleNotificationPayload();
 
-            n.Payload.Alert = new AppleNotificationAlert() { Body = body, LaunchImage = launchImage };
+			n.Payload.Alert = new AppleNotificationAlert() { Body = body, LaunchImage = launchImage };
 
-            return n;
-        }
+			return n;
+		}
 
 		public static AppleNotification WithAlert(this AppleNotification n, AppleNotificationAlert alert)
 		{
@@ -61,15 +61,15 @@ namespace PushSharp
 			return n;
 		}
 
-        public static AppleNotification WithAlert(this AppleNotification n, string body, string localizedKey, string actionLocalizedKey, IEnumerable<object> localizedArgs, string launchImage)
-        {
-            if (n.Payload == null)
-                n.Payload = new AppleNotificationPayload();
+		public static AppleNotification WithAlert(this AppleNotification n, string body, string localizedKey, string actionLocalizedKey, IEnumerable<object> localizedArgs, string launchImage)
+		{
+			if (n.Payload == null)
+				n.Payload = new AppleNotificationPayload();
 
-            n.Payload.Alert = new AppleNotificationAlert() { Body = body, LocalizedKey = localizedKey, ActionLocalizedKey = actionLocalizedKey, LocalizedArgs = localizedArgs.ToList(), LaunchImage = launchImage };
+			n.Payload.Alert = new AppleNotificationAlert() { Body = body, LocalizedKey = localizedKey, ActionLocalizedKey = actionLocalizedKey, LocalizedArgs = localizedArgs.ToList(), LaunchImage = launchImage };
 
-            return n;
-        }
+			return n;
+		}
 
 		public static AppleNotification WithBadge(this AppleNotification n, int badge)
 		{
@@ -118,22 +118,22 @@ namespace PushSharp
 			return n;
 		}
 
-        public static AppleNotification WithPasskitUpdate(this AppleNotification n)
-        {
-            var payLoad = new AppleNotificationPayload();
-            payLoad.AddCustom("aps", string.Empty);
+		public static AppleNotification WithPasskitUpdate(this AppleNotification n)
+		{
+			var payLoad = new AppleNotificationPayload();
+			payLoad.AddCustom("aps", string.Empty);
 
-            n.Payload = payLoad;
+			n.Payload = payLoad;
 
-            return n;
-        }
+			return n;
+		}
 
-        public static AppleNotification WithTag(this AppleNotification n, object tag)
-        {
-            n.Tag = tag;
+		public static AppleNotification WithTag(this AppleNotification n, object tag)
+		{
+			n.Tag = tag;
 
-            return n;
-        }
+			return n;
+		}
 
 		public static AppleNotification HideActionButton(this AppleNotification n)
 		{
@@ -146,15 +146,15 @@ namespace PushSharp
 		}
 
 
-        public static AppleNotification WithCustomJSON(this AppleNotification n, string customJSON)
-        {
-            if (n.Payload == null)
-                n.Payload = new AppleNotificationPayload();
+		public static AppleNotification WithCustomJSON(this AppleNotification n, string customJSON)
+		{
+			if (n.Payload == null)
+				n.Payload = new AppleNotificationPayload();
 
-            n.Payload.CustomJSON = customJSON;
+			n.Payload.CustomJSON = customJSON;
 
-            return n;
-        }
+			return n;
+		}
 
 	}
 }

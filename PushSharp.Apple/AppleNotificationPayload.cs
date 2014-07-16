@@ -11,7 +11,7 @@ namespace PushSharp.Apple
 {
 	public class AppleNotificationPayload
 	{
-        public string CustomJSON { get; set; }
+		public string CustomJSON { get; set; }
 
 		public AppleNotificationAlert Alert { get; set; }
 
@@ -68,13 +68,13 @@ namespace PushSharp.Apple
 
 		public string ToJson()
 		{
-            if (string.IsNullOrEmpty(this.CustomJSON) == false)
-            {
-                try { JContainer.Parse(this.CustomJSON); }
-                catch (Exception) { throw; }
+			if (string.IsNullOrEmpty(this.CustomJSON) == false)
+			{
+				try { JContainer.Parse(this.CustomJSON); }
+				catch (Exception) { throw; }
 
-                return CustomJSON;
-            }
+				return CustomJSON;
+			}
 
 			JObject json = new JObject();
 
@@ -82,12 +82,12 @@ namespace PushSharp.Apple
 
 			if (!this.Alert.IsEmpty)
 			{
-                if (!string.IsNullOrEmpty(this.Alert.Body)
+				if (!string.IsNullOrEmpty(this.Alert.Body)
 					&& string.IsNullOrEmpty(this.Alert.LocalizedKey)
 					&& string.IsNullOrEmpty(this.Alert.ActionLocalizedKey)
 					&& (this.Alert.LocalizedArgs == null || this.Alert.LocalizedArgs.Count <= 0)
 					&& string.IsNullOrEmpty(this.Alert.LaunchImage)
-                    && !this.HideActionButton)
+					&& !this.HideActionButton)
 				{
 					aps["alert"] = new JValue(this.Alert.Body);
 				}
@@ -109,8 +109,8 @@ namespace PushSharp.Apple
 					else if (!string.IsNullOrEmpty(this.Alert.ActionLocalizedKey))
 						jsonAlert["action-loc-key"] = new JValue(this.Alert.ActionLocalizedKey);
 
-                    if (!string.IsNullOrEmpty(this.Alert.LaunchImage))
-                        jsonAlert["launch-image"] = new JValue(this.Alert.LaunchImage);
+					if (!string.IsNullOrEmpty(this.Alert.LaunchImage))
+						jsonAlert["launch-image"] = new JValue(this.Alert.LaunchImage);
 
 					aps["alert"] = jsonAlert;
 				}
@@ -122,17 +122,17 @@ namespace PushSharp.Apple
 			if (!string.IsNullOrEmpty(this.Sound))
 				aps["sound"] = new JValue(this.Sound);
 
-            if (this.ContentAvailable.HasValue)
-            {
-                aps["content-available"] = new JValue(this.ContentAvailable.Value);
-                if (string.IsNullOrEmpty(this.Sound))
-                {
-                    //You need to add an empty string for sound or the payload is not sent
-                    aps["sound"] = new JValue("");
-                }
-            }
+			if (this.ContentAvailable.HasValue)
+			{
+				aps["content-available"] = new JValue(this.ContentAvailable.Value);
+				if (string.IsNullOrEmpty(this.Sound))
+				{
+					//You need to add an empty string for sound or the payload is not sent
+					aps["sound"] = new JValue("");
+				}
+			}
 
-		    if (aps.Count > 0)
+			if (aps.Count > 0)
 				json["aps"] = aps;
 
 			foreach (string key in this.CustomItems.Keys)
