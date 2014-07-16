@@ -145,5 +145,16 @@ namespace PushSharp
 			return n;
 		}
 
+
+        public static AppleNotification WithCustomJSON(this AppleNotification n, string customJSON)
+        {
+            if (n.Payload == null)
+                n.Payload = new AppleNotificationPayload();
+
+            n.Payload.CustomJSON = customJSON;
+
+            return n;
+        }
+
 	}
 }

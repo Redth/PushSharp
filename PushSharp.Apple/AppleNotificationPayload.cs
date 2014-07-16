@@ -11,6 +11,8 @@ namespace PushSharp.Apple
 {
 	public class AppleNotificationPayload
 	{
+        public string CustomJSON { get; set; }
+
 		public AppleNotificationAlert Alert { get; set; }
 
 		public int? ContentAvailable { get; set; }
@@ -66,6 +68,14 @@ namespace PushSharp.Apple
 
 		public string ToJson()
 		{
+            if (string.IsNullOrEmpty(this.CustomJSON) == false)
+            {
+                try { JContainer.Parse(this.CustomJSON); }
+                catch (Exception) { throw; }
+
+                return CustomJSON;
+            }
+
 			JObject json = new JObject();
 
 			JObject aps = new JObject();
