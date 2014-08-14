@@ -21,6 +21,8 @@ namespace PushSharp.Apple
 
 		public bool HideActionButton { get; set; }
 
+		public string Category { get; set; }
+
 		public Dictionary<string, object[]> CustomItems
 		{
 			get;
@@ -121,6 +123,12 @@ namespace PushSharp.Apple
                     aps["sound"] = new JValue("");
                 }
             }
+
+			if (!string.IsNullOrEmpty(this.Category))
+			{
+				// iOS8 Interactive Notifications
+				aps["category"] = new JValue(this.Category);
+			}
 
 		    if (aps.Count > 0)
 				json["aps"] = aps;
