@@ -60,6 +60,12 @@ namespace PushSharp.Apple
 			CustomItems = new Dictionary<string, object[]>();
 		}
 
+		public AppleNotificationPayload(string alert, int badge, string sound, string category) 
+			: this(alert, badge, sound)
+		{
+			Category = category;
+		}
+
 		public void AddCustom(string key, params object[] values)
 		{
 			if (values != null)
