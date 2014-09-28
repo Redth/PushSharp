@@ -45,8 +45,14 @@ namespace PushSharp.Apple
 		public DateTime? Expiration { get; set; }
 		public const int DEVICE_TOKEN_BINARY_SIZE = 32;
 		public const int DEVICE_TOKEN_STRING_SIZE = 64;
-		public const int MAX_PAYLOAD_SIZE = 256;
-		public static readonly DateTime DoNotStore = DateTime.MinValue;
+
+        // public const int MAX_PAYLOAD_SIZE = 256;
+
+        // Max Payload Size increased to 2048 bytes (2K) after iOS8 Launch.
+        // Since it's a server upgrade, this will also affects all previous iOS versions.
+        public const int MAX_PAYLOAD_SIZE = 2048; 
+        
+        public static readonly DateTime DoNotStore = DateTime.MinValue;
 		private static readonly DateTime UNIX_EPOCH = new DateTime(1970, 1, 1, 0, 0, 0, DateTimeKind.Utc);
 
 		public AppleNotification()
