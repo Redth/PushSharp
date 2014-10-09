@@ -76,7 +76,7 @@ namespace PushSharp.Apple
 
             this.ValidateServerCertificate = false;
 
-            this.KeepAlivePeriod = new TimeSpan(0, 0, 20);
+            this.KeepAlivePeriod = new TimeSpan(0, 20, 0);
             this.KeepAliveRetryPeriod = new TimeSpan(0, 0, 0, 30);
         }
 
