@@ -135,6 +135,16 @@ namespace PushSharp
             return n;
         }
 
+		public static AppleNotification WithCategory(this AppleNotification n, string category)
+		{
+			if (n.Payload == null)
+				n.Payload = new AppleNotificationPayload();
+
+			n.Payload.Category = category;
+
+			return n;
+		}
+
 		public static AppleNotification HideActionButton(this AppleNotification n)
 		{
 			if (n.Payload == null)
