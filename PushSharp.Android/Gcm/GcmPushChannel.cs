@@ -320,8 +320,16 @@ namespace PushSharp.Android
 						}
 					}
 
-					//503 exponential backoff, get retry-after header
-					result.ResponseCode = GcmMessageTransportResponseCode.ServiceUnavailable;
+                    //Compatability for apps written with previous versions of PushSharp. 
+                    if (asyncParam.WebResponse.StatusCode == HttpStatusCode.InternalServerError)
+                    {
+                        result.ResponseCode = GcmMessageTransportResponseCode.InternalServiceError;
+                    }
+                    else
+                    {
+                        //503 exponential backoff, get retry-after header
+                        result.ResponseCode = GcmMessageTransportResponseCode.ServiceUnavailable;
+                    }
 
 					throw new GcmServiceUnavailableTransportException(retryAfter, result);
 				}
