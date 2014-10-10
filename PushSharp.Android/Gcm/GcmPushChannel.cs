@@ -286,6 +286,8 @@ namespace PushSharp.Android
 				if (asyncParam == null || asyncParam.WebResponse == null)
 					throw new GcmMessageTransportException("Unknown Transport Error", result);
 
+                int statusCode = (int)asyncParam.WebResponse.StatusCode;
+
 				if (asyncParam.WebResponse.StatusCode == HttpStatusCode.Unauthorized)
 				{
 					//401 bad auth token
@@ -297,12 +299,7 @@ namespace PushSharp.Android
 					result.ResponseCode = GcmMessageTransportResponseCode.BadRequest;
 					throw new GcmBadRequestTransportException(result);
 				}
-				else if (asyncParam.WebResponse.StatusCode == HttpStatusCode.InternalServerError)
-				{
-					result.ResponseCode = GcmMessageTransportResponseCode.InternalServiceError;
-					throw new GcmMessageTransportException("Internal Service Error", result);
-				}
-				else if (asyncParam.WebResponse.StatusCode == HttpStatusCode.ServiceUnavailable)
+				else if (statusCode >= 500 && statusCode<600)
 				{
 					//First try grabbing the retry-after header and parsing it.
 					TimeSpan retryAfter = new TimeSpan(0, 0, 120);
