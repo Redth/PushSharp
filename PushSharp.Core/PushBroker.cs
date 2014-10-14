@@ -22,10 +22,12 @@ namespace PushSharp
 		readonly object serviceRegistrationsLock = new object();
 
 		List<ServiceRegistration> serviceRegistrations;
+		Dictionary<IPushService, int> pushServiceRegistrationCounts;
 		
 		public PushBroker()
 		{
 			serviceRegistrations = new List<ServiceRegistration> ();
+			pushServiceRegistrationCounts = new Dictionary<IPushService, int>();
 		}
 
 		/// <summary>
@@ -43,17 +45,28 @@ namespace PushSharp
 			var registration = ServiceRegistration.Create<TPushNotification> (pushService, applicationId);
 
 			lock (serviceRegistrationsLock)
-				serviceRegistrations.Add (registration);
+			{
+				serviceRegistrations.Add(registration);
 
-			pushService.OnChannelCreated += OnChannelCreated;
-			pushService.OnChannelDestroyed += OnChannelDestroyed;
-			pushService.OnChannelException += OnChannelException;
-			pushService.OnDeviceSubscriptionExpired += OnDeviceSubscriptionExpired;
-			pushService.OnNotificationFailed += OnNotificationFailed;
-			pushService.OnNotificationSent += OnNotificationSent;
-			pushService.OnNotificationRequeue += OnNotificationRequeue;
-			pushService.OnServiceException += OnServiceException;
-			pushService.OnDeviceSubscriptionChanged += OnDeviceSubscriptionChanged;
+				// only register events the first time any given push service is registered with the broker
+				int existingPushServiceRegistrationCount;
+				pushServiceRegistrationCounts.TryGetValue(pushService, out existingPushServiceRegistrationCount);
+
+				pushServiceRegistrationCounts[pushService] = existingPushServiceRegistrationCount + 1;
+
+				if (existingPushServiceRegistrationCount == 0)
+				{
+					pushService.OnChannelCreated += OnChannelCreated;
+					pushService.OnChannelDestroyed += OnChannelDestroyed;
+					pushService.OnChannelException += OnChannelException;
+					pushService.OnDeviceSubscriptionExpired += OnDeviceSubscriptionExpired;
+					pushService.OnNotificationFailed += OnNotificationFailed;
+					pushService.OnNotificationSent += OnNotificationSent;
+					pushService.OnNotificationRequeue += OnNotificationRequeue;
+					pushService.OnServiceException += OnServiceException;
+					pushService.OnDeviceSubscriptionChanged += OnDeviceSubscriptionChanged;
+				}
+			}
 		}
 
 		/// <summary>
@@ -88,7 +101,7 @@ namespace PushSharp
 		/// <typeparam name="TPushNotification">Type of Notification</typeparam>
 		public void QueueNotification<TPushNotification>(TPushNotification notification, string applicationId) where TPushNotification : Notification
 		{
-			var services = GetRegistrations<TPushNotification> (applicationId);
+			var services = GetRegistrations<TPushNotification> (applicationId).ToList();
 
 			if (services == null || !services.Any())
 				throw new IndexOutOfRangeException("There are no Registered Services that handle this type of Notification");
@@ -101,7 +114,6 @@ namespace PushSharp
 		/// Gets all the registered services
 		/// </summary>
 		/// <returns>The registered services</returns>
-		/// <typeparam name="TNotification">Type of notification</typeparam>
 		public IEnumerable<IPushService> GetAllRegistrations()
 		{
 			lock (serviceRegistrationsLock)
@@ -121,7 +133,7 @@ namespace PushSharp
 		public IEnumerable<IPushService> GetRegistrations(string applicationId)
 		{
 			lock (serviceRegistrationsLock)
-				return from s in serviceRegistrations where s.ApplicationId.Equals(applicationId) select s.Service;
+				return from s in serviceRegistrations where s.ApplicationId == applicationId select s.Service;
 		}
 
 		/// <summary>
@@ -148,7 +160,7 @@ namespace PushSharp
 				lock (serviceRegistrationsLock)
 				{
 					return from sr in serviceRegistrations 
-					   where sr.ApplicationId.Equals (applicationId) 
+					   where sr.ApplicationId == applicationId
 						&& sr.NotificationType == type
 					   select sr.Service;
 				}
@@ -201,24 +213,22 @@ namespace PushSharp
 				{
 					var services = from s in serviceRegistrations where s.NotificationType == type select s;
 
-					if (services != null && services.Any ())
-						stopping.AddRange (services);
+					stopping.AddRange (services);
 
 					serviceRegistrations.RemoveAll (s => s.NotificationType == type);
 				}
 				else
 				{
 					var services = from s in serviceRegistrations where s.NotificationType == type 
-						&& s.ApplicationId.Equals (applicationId) select s;
+						&& s.ApplicationId == applicationId select s;
 
-					if (services != null && services.Any ())
-						stopping.AddRange (services);
+					stopping.AddRange (services);
 
-					serviceRegistrations.RemoveAll (s => s.NotificationType == type && s.ApplicationId.Equals(applicationId));
+					serviceRegistrations.RemoveAll (s => s.NotificationType == type && s.ApplicationId == applicationId);
 				}
 			}
 
-			if (stopping != null && stopping.Any())
+			if (stopping.Any())
 				stopping.AsParallel().ForAll(sr => StopService(sr, waitForQueuesToFinish));
 		}
 
@@ -233,15 +243,14 @@ namespace PushSharp
 
 			lock (serviceRegistrationsLock)
 			{
-				var services = from s in serviceRegistrations where s.ApplicationId.Equals(applicationId) select s;
+				var services = from s in serviceRegistrations where s.ApplicationId == applicationId select s;
 
-				if (services != null && services.Any ())
-					stopping.AddRange (services);
+				stopping.AddRange (services);
 
-				serviceRegistrations.RemoveAll (s => s.ApplicationId.Equals(applicationId));
+				serviceRegistrations.RemoveAll (s => s.ApplicationId == applicationId);
 			}
 
-			if (stopping != null && stopping.Any())
+			if (stopping.Any())
 				stopping.AsParallel().ForAll(sr => StopService(sr, waitForQueuesToFinish));
 		}
 
@@ -249,14 +258,29 @@ namespace PushSharp
 		{
 			sr.Service.Stop (waitForQueuesToFinish);
 
-			sr.Service.OnChannelCreated -= OnChannelCreated;
-			sr.Service.OnChannelDestroyed -= OnChannelDestroyed;
-			sr.Service.OnChannelException -= OnChannelException;
-			sr.Service.OnDeviceSubscriptionExpired -= OnDeviceSubscriptionExpired;
-			sr.Service.OnNotificationFailed -= OnNotificationFailed;
-			sr.Service.OnNotificationSent -= OnNotificationSent;
-			sr.Service.OnServiceException -= OnServiceException;
-			sr.Service.OnDeviceSubscriptionChanged -= OnDeviceSubscriptionChanged;
+			lock (serviceRegistrationsLock)
+			{
+				// only unregister events when there aren't any given more of the push service registered with the broker
+				int existingPushServiceRegistrationCount;
+				pushServiceRegistrationCounts.TryGetValue(sr.Service, out existingPushServiceRegistrationCount);
+
+				// should never happen, but make sure we can't go into negative registration count
+				existingPushServiceRegistrationCount = Math.Max(existingPushServiceRegistrationCount, 1);
+
+				pushServiceRegistrationCounts[sr.Service] = existingPushServiceRegistrationCount - 1;
+
+				if (existingPushServiceRegistrationCount == 1)
+				{
+					sr.Service.OnChannelCreated -= OnChannelCreated;
+					sr.Service.OnChannelDestroyed -= OnChannelDestroyed;
+					sr.Service.OnChannelException -= OnChannelException;
+					sr.Service.OnDeviceSubscriptionExpired -= OnDeviceSubscriptionExpired;
+					sr.Service.OnNotificationFailed -= OnNotificationFailed;
+					sr.Service.OnNotificationSent -= OnNotificationSent;
+					sr.Service.OnServiceException -= OnServiceException;
+					sr.Service.OnDeviceSubscriptionChanged -= OnDeviceSubscriptionChanged;
+				}
+			}
 		}
 
 		void IDisposable.Dispose()
