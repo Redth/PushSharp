@@ -169,10 +169,12 @@ namespace PushSharp.Core
 
 			Log.Info ("Stopping all Channels");
 
-			//Stop all channels
-			Parallel.ForEach(channels, c => c.Dispose());
+            lock (channelsLock) {
+                //Stop all channels
+                Parallel.ForEach (channels, c => c.Dispose ());
 			
-			this.channels.Clear();
+                this.channels.Clear ();
+            }
 
 			this.cancelTokenSource.Cancel();
 
@@ -202,13 +204,13 @@ namespace PushSharp.Core
 					//if (stopping)
 					//	return;
 
-					Log.Debug("{0} -> Checking Scale ({1} Channels Currently)", this, channels.Count);
+					Log.Debug("{0} -> Checking Scale ({1} Channels Currently)", this, ChannelCount);
 
 					if (ServiceSettings.AutoScaleChannels && !this.cancelTokenSource.IsCancellationRequested)
 					{
-						if (channels.Count <= 0 && QueueLength > 0)
+						if (ChannelCount <= 0 && QueueLength > 0)
 						{
-							Log.Info("{0} -> Creating Channel {1}", this, channels.Count);
+							Log.Info("{0} -> Creating Channel {1}", this, ChannelCount);
 							ScaleChannels(ChannelScaleAction.Create);
 							return;
 						}
@@ -217,31 +219,31 @@ namespace PushSharp.Core
 						// Only do this if we haven't sent in a long time (greater than the IdleTimeout) and we have nothing in the queue
 						// and we have no tracked notification count
 						if (ServiceSettings.IdleTimeout > TimeSpan.Zero && 
-						    channels.Count > 0 && QueueLength <= 0 
+						    ChannelCount > 0 && QueueLength <= 0 
 						    && (DateTime.UtcNow - lastNotificationQueueTime) > ServiceSettings.IdleTimeout
 						    && Interlocked.Read(ref trackedNotificationCount) <= 0)
 						{
-							Log.Info("{0} -> Service Idle, Destroying all Channels", this, channels.Count);
-							while (channels.Count > 0 && !this.cancelTokenSource.IsCancellationRequested)
+							Log.Info("{0} -> Service Idle, Destroying all Channels", this, ChannelCount);
+							while (ChannelCount > 0 && !this.cancelTokenSource.IsCancellationRequested)
 								ScaleChannels(ChannelScaleAction.Destroy);
 
 							return;
 						}
 
-						if (avgQueueTime < ServiceSettings.MinAvgTimeToScaleChannels && channels.Count > 1)
+						if (avgQueueTime < ServiceSettings.MinAvgTimeToScaleChannels && ChannelCount > 1)
 						{
 							var numChannelsToSpinDown = 1;
 
 							if (avgQueueTime <= 0)
 								numChannelsToSpinDown = 5;
 
-							if (channels.Count - numChannelsToSpinDown <= 0)
+							if (ChannelCount - numChannelsToSpinDown <= 0)
 								numChannelsToSpinDown = 1;
 
 							Log.Info("{0} -> Destroying Channel", this);
 							ScaleChannels(ChannelScaleAction.Destroy, numChannelsToSpinDown);
 						}
-						else if (channels.Count < this.ServiceSettings.MaxAutoScaleChannels)
+						else if (ChannelCount < this.ServiceSettings.MaxAutoScaleChannels)
 						{
 							var numChannelsToSpinUp = 0;
 
@@ -256,8 +258,8 @@ namespace PushSharp.Core
 							if (numChannelsToSpinUp > 0)
 							{
 								//Don't spin up more than the max!
-								if (channels.Count + numChannelsToSpinUp > ServiceSettings.MaxAutoScaleChannels)
-									numChannelsToSpinUp = ServiceSettings.MaxAutoScaleChannels - channels.Count;
+								if (ChannelCount + numChannelsToSpinUp > ServiceSettings.MaxAutoScaleChannels)
+                                    numChannelsToSpinUp = (int)(ServiceSettings.MaxAutoScaleChannels - ChannelCount);
 
 								if (numChannelsToSpinUp > 0)
 								{
@@ -273,23 +275,23 @@ namespace PushSharp.Core
 						// Only do this if we haven't sent in a long time (greater than the IdleTimeout) and we have nothing in the queue
 						// and we have no tracked notification count
 						if (ServiceSettings.IdleTimeout > TimeSpan.Zero && 
-						    channels.Count > 0 && QueueLength <= 0 
+						    ChannelCount > 0 && QueueLength <= 0 
 						    && (DateTime.UtcNow - lastNotificationQueueTime) > ServiceSettings.IdleTimeout
 						    && Interlocked.Read(ref trackedNotificationCount) <= 0)
 						{
-							Log.Info("{0} -> Service Idle, Destroying all Channels", this, channels.Count);
-							while (channels.Count > 0 && !this.cancelTokenSource.IsCancellationRequested)
+							Log.Info("{0} -> Service Idle, Destroying all Channels", this, ChannelCount);
+							while (ChannelCount > 0 && !this.cancelTokenSource.IsCancellationRequested)
 								ScaleChannels(ChannelScaleAction.Destroy);
 
 							return;
 						}
 
-						while (channels.Count > ServiceSettings.Channels && !this.cancelTokenSource.IsCancellationRequested)
+						while (ChannelCount > ServiceSettings.Channels && !this.cancelTokenSource.IsCancellationRequested)
 						{
 							Log.Info("{0} -> Destroying Channel", this);
 							ScaleChannels(ChannelScaleAction.Destroy);
 						}
-                        while (channels.Count < ServiceSettings.Channels && !this.cancelTokenSource.IsCancellationRequested
+                        while (ChannelCount < ServiceSettings.Channels && !this.cancelTokenSource.IsCancellationRequested
                             && (DateTime.UtcNow - lastNotificationQueueTime) <= ServiceSettings.IdleTimeout
                             && Interlocked.Read(ref trackedNotificationCount) > 0)
 						{
