@@ -108,20 +108,18 @@ namespace PushSharp.Core
 		private void QueueNotification(INotification notification, bool countsAsRequeue = true,
 		                               bool ignoreStoppingChannel = false, bool queueToFront = false)
 		{
-			lastNotificationQueueTime = DateTime.UtcNow;
-
-			Interlocked.Increment(ref trackedNotificationCount);
-
-			//Measure when the message entered the queue
-			notification.EnqueuedTimestamp = DateTime.UtcNow;
-
 			if (this.cancelTokenSource.IsCancellationRequested)
 				throw new ObjectDisposedException("Service", "Service has already been signaled to stop");
 
 			if (this.ServiceSettings.MaxNotificationRequeues < 0 ||
 			    notification.QueuedCount <= this.ServiceSettings.MaxNotificationRequeues)
 			{
-				//Reset the Enqueued time in case this is a requeue
+                Interlocked.Increment(ref trackedNotificationCount);
+
+                lastNotificationQueueTime = DateTime.UtcNow;
+
+                //Measure when the message entered the queue
+                //and reset the Enqueued time in case this is a requeue
 				notification.EnqueuedTimestamp = DateTime.UtcNow;
 
 				//Increase the queue counter
@@ -155,7 +153,7 @@ namespace PushSharp.Core
 			{
 				Log.Info ("Waiting for Queue to Finish");
 
-				while (this.queuedNotifications.Count > 0 || Interlocked.Read(ref trackedNotificationCount) > 0)
+				while (this.QueueLength > 0 || Interlocked.Read(ref trackedNotificationCount) > 0)
 					Thread.Sleep(100);
 
 				Log.Info("Queue Emptied.");
@@ -452,6 +450,7 @@ namespace PushSharp.Core
 					Thread.Sleep(100);
 					continue;
 				}
+                notification.IsTimedOut = false;
 
                 ManualResetEvent waitForNotification = null;
 
@@ -480,82 +479,94 @@ namespace PushSharp.Core
 
 				channel.SendNotification(notification, (sender, result) =>
 					{
-						Interlocked.Decrement(ref trackedNotificationCount);
-                        
-						var sendTime = DateTime.UtcNow - sendStart;
-
-                        lock (sendTimeMeasurementsLock)
+                        try
                         {
-                            sendTimeMeasurements.Add(new WaitTimeMeasurement((long)sendTime.TotalMilliseconds));
+						    var sendTime = DateTime.UtcNow - sendStart;
+
+                            lock (sendTimeMeasurementsLock)
+                            {
+                                sendTimeMeasurements.Add(new WaitTimeMeasurement((long)sendTime.TotalMilliseconds));
+                            }
+
+						    //Log.Info("Send Time: " + sendTime.TotalMilliseconds + " ms");
+
+						    //Trigger 
+                            if (waitForNotification != null)
+                                waitForNotification.Set();					
+
+						    //Handle the notification send callback here
+						    if (result.ShouldRequeue)
+						    {
+							    var eventArgs = new NotificationRequeueEventArgs(result.Notification, result.Error);
+							    var evt = this.OnNotificationRequeue;
+							    if (evt != null)
+								    evt(this, eventArgs);
+
+							    //See if the requeue was cancelled in the event args
+							    if (!eventArgs.Cancel)
+								    this.QueueNotification(result.Notification, result.CountsAsRequeue, true, true);
+						    }
+						    else
+						    {
+							    //Result was a success, but there are still more possible outcomes than an outright success
+							    if (!result.IsSuccess)
+							    {
+								    //Check if the subscription was expired
+								    if (result.IsSubscriptionExpired)
+								    {
+									    //If there is a new id, the subscription must have changed
+									    //This is a fairly special case that only GCM should really ever raise
+									    if (!string.IsNullOrEmpty(result.NewSubscriptionId))
+									    {
+										    var evt = this.OnDeviceSubscriptionChanged;
+										    if (evt != null)
+											    evt(this, result.OldSubscriptionId, result.NewSubscriptionId, result.Notification);
+									    }
+									    else
+									    {
+										    var evt = this.OnDeviceSubscriptionExpired;
+										    if (evt != null)
+											    evt(this, result.OldSubscriptionId, result.SubscriptionExpiryUtc, result.Notification);
+									    }
+								    }
+								    else //Otherwise some general failure
+								    {
+									    var evt = this.OnNotificationFailed;
+									    if (evt != null)
+										    evt(this, result.Notification, result.Error);
+								    }
+							    }
+							    else
+							    {
+								    var evt = this.OnNotificationSent;
+								    if (evt != null)
+									    evt(this, result.Notification);
+							    }
+						    }
                         }
-
-						//Log.Info("Send Time: " + sendTime.TotalMilliseconds + " ms");
-
-						//Trigger 
-                        if (waitForNotification != null)
-                            waitForNotification.Set();					
-
-						//Handle the notification send callback here
-						if (result.ShouldRequeue)
-						{
-							var eventArgs = new NotificationRequeueEventArgs(result.Notification, result.Error);
-							var evt = this.OnNotificationRequeue;
-							if (evt != null)
-								evt(this, eventArgs);
-
-							//See if the requeue was cancelled in the event args
-							if (!eventArgs.Cancel)
-								this.QueueNotification(result.Notification, result.CountsAsRequeue, true, true);
-						}
-						else
-						{
-							//Result was a success, but there are still more possible outcomes than an outright success
-							if (!result.IsSuccess)
-							{
-								//Check if the subscription was expired
-								if (result.IsSubscriptionExpired)
-								{
-									//If there is a new id, the subscription must have changed
-									//This is a fairly special case that only GCM should really ever raise
-									if (!string.IsNullOrEmpty(result.NewSubscriptionId))
-									{
-										var evt = this.OnDeviceSubscriptionChanged;
-										if (evt != null)
-											evt(this, result.OldSubscriptionId, result.NewSubscriptionId, result.Notification);
-									}
-									else
-									{
-										var evt = this.OnDeviceSubscriptionExpired;
-										if (evt != null)
-											evt(this, result.OldSubscriptionId, result.SubscriptionExpiryUtc, result.Notification);
-									}
-								}
-								else //Otherwise some general failure
-								{
-									var evt = this.OnNotificationFailed;
-									if (evt != null)
-										evt(this, result.Notification, result.Error);
-								}
-							}
-							else
-							{
-								var evt = this.OnNotificationSent;
-								if (evt != null)
-									evt(this, result.Notification);
-							}
-						}
-					});
+                        finally
+                        {
+                            if (!result.Notification.IsTimedOut)
+                                Interlocked.Decrement(ref trackedNotificationCount);
+                        }
+                    });
 
 
                 if (waitForNotification != null && !waitForNotification.WaitOne(ServiceSettings.NotificationSendTimeout))
                 {
-					Interlocked.Decrement(ref trackedNotificationCount);
+                    try
+                    {
+                        Log.Info("Notification send timeout");
 
-					Log.Info("Notification send timeout");
-
-					var evt = this.OnNotificationFailed;
-					if (evt != null)
-						evt(this, notification, new TimeoutException("Notification send timed out"));
+                        var evt = this.OnNotificationFailed;
+                        if (evt != null)
+                            evt(this, notification, new TimeoutException("Notification send timed out"));
+                    }
+                    finally
+                    {
+                        notification.IsTimedOut = true;
+                        Interlocked.Decrement(ref trackedNotificationCount);
+                    }
 				}
 
                 if (waitForNotification != null)

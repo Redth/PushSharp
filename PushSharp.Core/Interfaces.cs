@@ -61,6 +61,7 @@ namespace PushSharp.Core
 		int QueuedCount { get; set; }
 		bool IsValidDeviceRegistrationId();
 		DateTime EnqueuedTimestamp { get; set; }
+        bool IsTimedOut { get; set; }
 	}
 
 	public interface ILogger
