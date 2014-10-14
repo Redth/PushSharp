@@ -142,7 +142,10 @@ namespace PushSharp.Apple
 			foreach (string key in this.CustomItems.Keys)
 			{
 				if (this.CustomItems[key].Length == 1)
-					json[key] = new JValue(this.CustomItems[key][0]);
+				{
+					object custom = this.CustomItems[key][0];
+					json[key] = custom is JToken ? (JToken) custom : new JValue(custom);
+				}
 				else if (this.CustomItems[key].Length > 1)
 					json[key] = new JArray(this.CustomItems[key]);
 			}
