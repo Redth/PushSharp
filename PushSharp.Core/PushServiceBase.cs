@@ -110,18 +110,16 @@ namespace PushSharp.Core
 		{
 			lastNotificationQueueTime = DateTime.UtcNow;
 
-			Interlocked.Increment(ref trackedNotificationCount);
-
-			//Measure when the message entered the queue
-			notification.EnqueuedTimestamp = DateTime.UtcNow;
-
 			if (this.cancelTokenSource.IsCancellationRequested)
 				throw new ObjectDisposedException("Service", "Service has already been signaled to stop");
 
 			if (this.ServiceSettings.MaxNotificationRequeues < 0 ||
 			    notification.QueuedCount <= this.ServiceSettings.MaxNotificationRequeues)
-			{
-				//Reset the Enqueued time in case this is a requeue
+			{ 
+                // Increment our counter
+                Interlocked.Increment(ref trackedNotificationCount);
+
+                //Reset Enqueued time in case this is a requeue
 				notification.EnqueuedTimestamp = DateTime.UtcNow;
 
 				//Increase the queue counter
