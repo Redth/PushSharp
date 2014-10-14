@@ -11,6 +11,8 @@ namespace PushSharp.Apple
 {
 	public class AppleNotification : Core.Notification
 	{
+        const byte MAX_UTF8_SYMBOL_SIZE = 4;
+
 		static readonly object nextIdentifierLock = new object();
 		static int nextIdentifier = 0;
 
@@ -138,21 +140,16 @@ namespace PushSharp.Apple
 			byte[] payload = Encoding.UTF8.GetBytes(Payload.ToJson());
 			if (payload.Length > MAX_PAYLOAD_SIZE)
 			{
-				int newSize = Payload.Alert.Body.Length - (payload.Length - MAX_PAYLOAD_SIZE);
-				if (newSize > 0)
-				{
-					Payload.Alert.Body = Payload.Alert.Body.Substring(0, newSize);
-					payload = Encoding.UTF8.GetBytes(Payload.ToString());
-				}
-				else
-				{
-					do
-					{
-						Payload.Alert.Body = Payload.Alert.Body.Remove(Payload.Alert.Body.Length - 1);
-						payload = Encoding.UTF8.GetBytes(Payload.ToString());
-					}
-					while (payload.Length > MAX_PAYLOAD_SIZE && !string.IsNullOrEmpty(Payload.Alert.Body));
-				}
+                do {
+                    var bytesToCut = payload.Length - MAX_PAYLOAD_SIZE;
+
+                    int minSymbolsToCut = bytesToCut / MAX_UTF8_SYMBOL_SIZE + (bytesToCut % MAX_UTF8_SYMBOL_SIZE == 0 ? 0 : 1);
+
+                    Payload.Alert.Body = Payload.Alert.Body.Substring(0, Payload.Alert.Body.Length - minSymbolsToCut);
+
+                    payload = Encoding.UTF8.GetBytes(Payload.ToJson());
+
+                } while (payload.Length > MAX_PAYLOAD_SIZE && !string.IsNullOrEmpty(Payload.Alert.Body));
 
 				if (payload.Length > MAX_PAYLOAD_SIZE)
 					throw new NotificationFailureException(7, this);
