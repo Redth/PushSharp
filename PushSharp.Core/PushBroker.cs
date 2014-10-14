@@ -147,10 +147,10 @@ namespace PushSharp
 			{
 				lock (serviceRegistrationsLock)
 				{
-					return from sr in serviceRegistrations 
-					   where sr.ApplicationId.Equals (applicationId) 
-						&& sr.NotificationType == type
-					   select sr.Service;
+                    return from sr in serviceRegistrations
+                           where (!string.IsNullOrEmpty (sr.ApplicationId) && sr.ApplicationId.Equals (applicationId))
+                               && sr.NotificationType == type
+                           select sr.Service;
 				}
 			}
 		}
