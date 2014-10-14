@@ -243,11 +243,19 @@ namespace PushSharp.Windows
 				callback(this, new SendNotificationResult(status.Notification));
 				return;
 			}
-			else if (status.HttpStatus == HttpStatusCode.NotFound || status.HttpStatus == HttpStatusCode.Gone) //404 or 410
+			
+			if (status.HttpStatus == HttpStatusCode.NotFound || status.HttpStatus == HttpStatusCode.Gone) //404 or 410
 			{
-				callback(this, new SendNotificationResult(status.Notification, false, new Exception("Device Subscription Expired")) { IsSubscriptionExpired = true });
+				callback(this, new SendNotificationResult(status.Notification, false, new Exception("Device Subscription Expired"))
+				{
+					IsSubscriptionExpired = true,
+					OldSubscriptionId = status.Notification.ChannelUri,
+					SubscriptionExpiryUtc = DateTime.UtcNow
+				});
+
+				return;
 			}
-				
+
 			callback(this, new SendNotificationResult(status.Notification, false, new WindowsNotificationSendFailureException(status)));
 		}
 
