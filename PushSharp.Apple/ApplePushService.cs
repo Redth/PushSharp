@@ -12,7 +12,6 @@ namespace PushSharp.Apple
 	public class ApplePushService : PushServiceBase
 	{
 		FeedbackService feedbackService;
-		CancellationTokenSource cancelTokenSource;
 		Timer timerFeedback = null;
 		
 		
@@ -35,7 +34,6 @@ namespace PushSharp.Apple
 			: base(pushChannelFactory ?? new ApplePushChannelFactory(), channelSettings, serviceSettings)
 		{
 			var appleChannelSettings = channelSettings;
-			cancelTokenSource = new CancellationTokenSource();
 
 			//allow control over feedback call interval, if set to zero, don't make feedback calls automatically
 			if (appleChannelSettings.FeedbackIntervalMinutes > 0)
@@ -69,6 +67,15 @@ namespace PushSharp.Apple
 		{
 			get { return false; }
 		}
+
+        public override void Stop(bool waitForQueueToFinish = true)
+        {
+            base.Stop(waitForQueueToFinish);
+
+            //Stop the timer for feedback
+            if (this.timerFeedback != null)
+                this.timerFeedback.Change(Timeout.Infinite, Timeout.Infinite);
+        }
 	}
 
 	public class ApplePushChannelFactory : IPushChannelFactory
