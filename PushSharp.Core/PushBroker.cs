@@ -10,14 +10,76 @@ namespace PushSharp
 	public class PushBroker : IPushBroker
 	{
 		public event ChannelCreatedDelegate OnChannelCreated;
+
+		protected virtual void RaiseOnChannelCreated(object sender, IPushChannel pushchannel)
+		{
+			var handler = OnChannelCreated;
+			if (handler != null) handler(sender, pushchannel);
+		}
+
 		public event ChannelDestroyedDelegate OnChannelDestroyed;
+
+		protected virtual void RaiseOnChannelDestroyed(object sender)
+		{
+			var handler = OnChannelDestroyed;
+			if (handler != null) handler(this);
+		}
+
 		public event NotificationSentDelegate OnNotificationSent;
+
+		protected virtual void RaiseOnNotificationSent(object sender, INotification notification)
+		{
+			var handler = OnNotificationSent;
+			if (handler != null) handler(this, notification);
+		}
+
 		public event NotificationFailedDelegate OnNotificationFailed;
+
+		protected virtual void RaiseOnNotificationFailed(object sender, INotification notification, Exception error)
+		{
+			var handler = OnNotificationFailed;
+			if (handler != null) handler(this, notification, error);
+		}
+
 		public event NotificationRequeueDelegate OnNotificationRequeue;
+
+		protected virtual void RaiseOnNotificationRequeue(object sender, NotificationRequeueEventArgs e)
+		{
+			var handler = OnNotificationRequeue;
+			if (handler != null) handler(this, e);
+		}
+
 		public event ChannelExceptionDelegate OnChannelException;
+
+		protected virtual void RaiseOnChannelException(object sender, IPushChannel pushchannel, Exception error)
+		{
+			var handler = OnChannelException;
+			if (handler != null) handler(this, pushchannel, error);
+		}
+
 		public event ServiceExceptionDelegate OnServiceException;
+
+		protected virtual void RaiseOnServiceException(object sender, Exception error)
+		{
+			var handler = OnServiceException;
+			if (handler != null) handler(this, error);
+		}
+
 		public event DeviceSubscriptionExpiredDelegate OnDeviceSubscriptionExpired;
+
+		protected virtual void RaiseOnDeviceSubscriptionExpired(object sender, string expiredsubscriptionid, DateTime expirationdateutc, INotification notification)
+		{
+			var handler = OnDeviceSubscriptionExpired;
+			if (handler != null) handler(this, expiredsubscriptionid, expirationdateutc, notification);
+		}
+
 		public event DeviceSubscriptionChangedDelegate OnDeviceSubscriptionChanged;
+
+		protected virtual void RaiseOnDeviceSubscriptionChanged(object sender, string oldsubscriptionid, string newsubscriptionid, INotification notification)
+		{
+			var handler = OnDeviceSubscriptionChanged;
+			if (handler != null) handler(this, oldsubscriptionid, newsubscriptionid, notification);
+		}
 
 		readonly object serviceRegistrationsLock = new object();
 
@@ -44,16 +106,16 @@ namespace PushSharp
 
 			lock (serviceRegistrationsLock)
 				serviceRegistrations.Add (registration);
-
-			pushService.OnChannelCreated += OnChannelCreated;
-			pushService.OnChannelDestroyed += OnChannelDestroyed;
-			pushService.OnChannelException += OnChannelException;
-			pushService.OnDeviceSubscriptionExpired += OnDeviceSubscriptionExpired;
-			pushService.OnNotificationFailed += OnNotificationFailed;
-			pushService.OnNotificationSent += OnNotificationSent;
-			pushService.OnNotificationRequeue += OnNotificationRequeue;
-			pushService.OnServiceException += OnServiceException;
-			pushService.OnDeviceSubscriptionChanged += OnDeviceSubscriptionChanged;
+			
+			pushService.OnChannelCreated += RaiseOnChannelCreated;
+			pushService.OnChannelDestroyed += RaiseOnChannelDestroyed;
+			pushService.OnChannelException += RaiseOnChannelException;
+			pushService.OnDeviceSubscriptionExpired += RaiseOnDeviceSubscriptionExpired;
+			pushService.OnNotificationFailed += RaiseOnNotificationFailed;
+			pushService.OnNotificationSent += RaiseOnNotificationSent;
+			pushService.OnNotificationRequeue += RaiseOnNotificationRequeue;
+			pushService.OnServiceException += RaiseOnServiceException;
+			pushService.OnDeviceSubscriptionChanged += RaiseOnDeviceSubscriptionChanged;
 		}
 
 		/// <summary>
@@ -248,15 +310,16 @@ namespace PushSharp
 		void StopService(ServiceRegistration sr, bool waitForQueuesToFinish)
 		{
 			sr.Service.Stop (waitForQueuesToFinish);
+			
+			sr.Service.OnChannelCreated -= RaiseOnChannelCreated;
+			sr.Service.OnChannelDestroyed -= RaiseOnChannelDestroyed;
+			sr.Service.OnChannelException -= RaiseOnChannelException;
+			sr.Service.OnDeviceSubscriptionExpired -= RaiseOnDeviceSubscriptionExpired;
+			sr.Service.OnNotificationFailed -= RaiseOnNotificationFailed;
+			sr.Service.OnNotificationSent -= RaiseOnNotificationSent;
+			sr.Service.OnServiceException -= RaiseOnServiceException;
+			sr.Service.OnDeviceSubscriptionChanged -= RaiseOnDeviceSubscriptionChanged;
 
-			sr.Service.OnChannelCreated -= OnChannelCreated;
-			sr.Service.OnChannelDestroyed -= OnChannelDestroyed;
-			sr.Service.OnChannelException -= OnChannelException;
-			sr.Service.OnDeviceSubscriptionExpired -= OnDeviceSubscriptionExpired;
-			sr.Service.OnNotificationFailed -= OnNotificationFailed;
-			sr.Service.OnNotificationSent -= OnNotificationSent;
-			sr.Service.OnServiceException -= OnServiceException;
-			sr.Service.OnDeviceSubscriptionChanged -= OnDeviceSubscriptionChanged;
 		}
 
 		void IDisposable.Dispose()
