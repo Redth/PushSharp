@@ -2,7 +2,7 @@
 <package xmlns="http://schemas.microsoft.com/packaging/2011/10/nuspec.xsd">
     <metadata>
         <id>PushSharp</id>
-        <version>2.2.0.0</version>
+        <version>2.2.1.0</version>
         <title>PushSharp</title>
         <authors>Redth</authors>
         <owners>Redth</owners>
