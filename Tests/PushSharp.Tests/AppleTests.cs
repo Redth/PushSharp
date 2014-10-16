@@ -59,6 +59,14 @@ namespace PushSharp.Tests
 			TestNotifications (amt, amt - fail.Length, fail.Length, fail, false, true);
 		}
 
+        /// <summary>
+        /// Apns the s_ is payload length valid.
+        /// </summary>
+	    public void APNS_IsPayloadLengthValid()
+	    {
+            var n = new AppleNotification("aff441e214b2b2283df799f0b8b16c17a59b7ac077e2867ea54ebf6086e55866").WithAlert("Test");
+	    }
+
 
 		[Test]
 		public void APNS_All_ShouldSucceed()
