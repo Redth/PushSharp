@@ -71,6 +71,11 @@ namespace PushSharp.Sample
 			                           .WithBadge(7)
 			                           .WithSound("sound.caf"));
 
+            //Sending iOS notification with Custom JSON
+            push.QueueNotification(new AppleNotification()
+			                           .ForDeviceToken("DEVICE TOKEN HERE")
+                                       .WithCustomJSON(@"{""aps"":{""alert"":""Hello World!"",""badge"":7,""sound"":""sound.caf""},""customKey1"":""custom value 1""}"));
+
 			
 			//---------------------------
 			// ANDROID GCM NOTIFICATIONS
