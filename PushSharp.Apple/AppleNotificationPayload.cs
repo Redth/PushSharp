@@ -23,6 +23,8 @@ namespace PushSharp.Apple
 
 		public bool HideActionButton { get; set; }
 
+		public string Category { get; set; }
+
 		public Dictionary<string, object[]> CustomItems
 		{
 			get;
@@ -58,6 +60,12 @@ namespace PushSharp.Apple
 			Badge = badge;
 			Sound = sound;
 			CustomItems = new Dictionary<string, object[]>();
+		}
+
+		public AppleNotificationPayload(string alert, int badge, string sound, string category) 
+			: this(alert, badge, sound)
+		{
+			Category = category;
 		}
 
 		public void AddCustom(string key, params object[] values)
@@ -122,23 +130,32 @@ namespace PushSharp.Apple
 			if (!string.IsNullOrEmpty(this.Sound))
 				aps["sound"] = new JValue(this.Sound);
 
-			if (this.ContentAvailable.HasValue)
+            if (this.ContentAvailable.HasValue)
+            {
+                aps["content-available"] = new JValue(this.ContentAvailable.Value);
+                if (string.IsNullOrEmpty(this.Sound))
+                {
+                    //You need to add an empty string for sound or the payload is not sent
+                    aps["sound"] = new JValue("");
+                }
+            }
+
+			if (!string.IsNullOrEmpty(this.Category))
 			{
-				aps["content-available"] = new JValue(this.ContentAvailable.Value);
-				if (string.IsNullOrEmpty(this.Sound))
-				{
-					//You need to add an empty string for sound or the payload is not sent
-					aps["sound"] = new JValue("");
-				}
+				// iOS8 Interactive Notifications
+				aps["category"] = new JValue(this.Category);
 			}
 
-			if (aps.Count > 0)
+		    if (aps.Count > 0)
 				json["aps"] = aps;
 
 			foreach (string key in this.CustomItems.Keys)
 			{
 				if (this.CustomItems[key].Length == 1)
-					json[key] = new JValue(this.CustomItems[key][0]);
+				{
+					object custom = this.CustomItems[key][0];
+					json[key] = custom is JToken ? (JToken) custom : new JValue(custom);
+				}
 				else if (this.CustomItems[key].Length > 1)
 					json[key] = new JArray(this.CustomItems[key]);
 			}
