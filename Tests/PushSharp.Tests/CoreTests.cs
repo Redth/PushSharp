@@ -71,13 +71,6 @@ namespace PushSharp.Tests
 
 			Assert.AreEqual (b.GetRegistrations<PushSharp.Android.GcmNotification> ().Count (), 2, "Expected 2 GcmNotification Registrations");
 
-			Assert.AreEqual(4, b.GetRegistrations<Core.Notification>().Count());
-			Assert.AreEqual(2, b.GetRegistrations<Core.Notification>("APP1").Count());
-			Assert.AreEqual(2, b.GetRegistrations<Core.Notification>("APP2").Count());
-			Assert.AreEqual(4, b.GetRegistrations<Core.INotification>().Count());
-			Assert.AreEqual(2, b.GetRegistrations<Core.INotification>("APP1").Count());
-			Assert.AreEqual(2, b.GetRegistrations<Core.INotification>("APP2").Count());
-
 			b.RegisterService<PushSharp.Android.C2dmNotification> (gcm, "APP1");
 			Assert.AreEqual (b.GetRegistrations<PushSharp.Android.C2dmNotification> ("APP1").Count (), 1, "Expected 1 C2dmNotification APP1 Registration");
 
@@ -86,6 +79,12 @@ namespace PushSharp.Tests
 
 			Assert.AreEqual (b.GetRegistrations<PushSharp.Android.C2dmNotification> ().Count (), 2, "Expected 2 C2dmNotification Registrations");
 
+			Assert.AreEqual(4, b.GetRegistrations<Core.Notification>().Count());
+			Assert.AreEqual(2, b.GetRegistrations<Core.Notification>("APP1").Count());
+			Assert.AreEqual(2, b.GetRegistrations<Core.Notification>("APP2").Count());
+			Assert.AreEqual(4, b.GetRegistrations<Core.INotification>().Count());
+			Assert.AreEqual(2, b.GetRegistrations<Core.INotification>("APP1").Count());
+			Assert.AreEqual(2, b.GetRegistrations<Core.INotification>("APP2").Count());
 
 			Assert.AreEqual (b.GetRegistrations ("APP1").Count (), 2, "Expected 2 APP1 Registrations");
 			Assert.AreEqual (b.GetRegistrations ("APP2").Count (), 2, "Expected 2 APP2 Registrations");
