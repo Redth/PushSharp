@@ -74,7 +74,7 @@ namespace PushSharp
 		/// <typeparam name="TPushNotification">The 1st type parameter.</typeparam>
 		public void QueueNotification<TPushNotification>(TPushNotification notification) where TPushNotification : Notification
 		{
-			var services = GetRegistrations<TPushNotification> ();
+			var services = GetRegistrations(notification == null ? typeof(TPushNotification) : notification.GetType());
 
 			foreach (var s in services)
 				s.QueueNotification (notification);
@@ -118,6 +118,16 @@ namespace PushSharp
 			return GetRegistrations<TNotification> (null);
 		}
 
+		/// <summary>
+		/// Gets all the registered services for the given notification type
+		/// </summary>
+		/// <returns>The registered services</returns>
+		/// <param name="type">Type of notification</param>
+		public IEnumerable<IPushService> GetRegistrations(Type type)
+		{
+			return GetRegistrations(null, type);
+		}
+
 		public IEnumerable<IPushService> GetRegistrations(string applicationId)
 		{
 			lock (serviceRegistrationsLock)
@@ -132,26 +142,27 @@ namespace PushSharp
 		/// <typeparam name="TNotification">Type of notification</typeparam>
 		public IEnumerable<IPushService> GetRegistrations<TNotification>(string applicationId)
 		{
-			var type = typeof(TNotification);
+			return this.GetRegistrations(applicationId, typeof(TNotification));
+		}
 
-			if (string.IsNullOrEmpty (applicationId))
+		/// <summary>
+		/// Gets all the registered services for the given notification type and application identifier
+		/// </summary>
+		/// <param name="applicationId">Application identifier </param>
+		/// <param name="type">Type of notification</param>
+		/// <returns>The registered services</returns>
+		public IEnumerable<IPushService> GetRegistrations(string applicationId, Type type)
+		{
+			lock (serviceRegistrationsLock)
 			{
-				lock (serviceRegistrationsLock)
+				var registrations = serviceRegistrations.Where(sr => type.IsAssignableFrom(sr.NotificationType));
+
+				if (!string.IsNullOrEmpty(applicationId))
 				{
-					return from sr in serviceRegistrations
-					   where sr.NotificationType == type
-					   select sr.Service;
+					registrations = registrations.Where(sr => sr.ApplicationId == applicationId);
 				}
-			}
-			else
-			{
-				lock (serviceRegistrationsLock)
-				{
-                    return from sr in serviceRegistrations
-                           where (!string.IsNullOrEmpty (sr.ApplicationId) && sr.ApplicationId.Equals (applicationId))
-                               && sr.NotificationType == type
-                           select sr.Service;
-				}
+
+				return registrations.Select(sr => sr.Service);
 			}
 		}
 
