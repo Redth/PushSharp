@@ -7,6 +7,7 @@ using System.Threading.Tasks;
 using NUnit.Framework;
 using PushSharp;
 using PushSharp.Apple;
+using Moq;
 
 namespace PushSharp.Tests
 {
@@ -70,6 +71,12 @@ namespace PushSharp.Tests
 
 			Assert.AreEqual (b.GetRegistrations<PushSharp.Android.GcmNotification> ().Count (), 2, "Expected 2 GcmNotification Registrations");
 
+			Assert.AreEqual(4, b.GetRegistrations<Core.Notification>().Count());
+			Assert.AreEqual(2, b.GetRegistrations<Core.Notification>("APP1").Count());
+			Assert.AreEqual(2, b.GetRegistrations<Core.Notification>("APP2").Count());
+			Assert.AreEqual(4, b.GetRegistrations<Core.INotification>().Count());
+			Assert.AreEqual(2, b.GetRegistrations<Core.INotification>("APP1").Count());
+			Assert.AreEqual(2, b.GetRegistrations<Core.INotification>("APP2").Count());
 
 			b.RegisterService<PushSharp.Android.C2dmNotification> (gcm, "APP1");
 			Assert.AreEqual (b.GetRegistrations<PushSharp.Android.C2dmNotification> ("APP1").Count (), 1, "Expected 1 C2dmNotification APP1 Registration");
@@ -102,6 +109,41 @@ namespace PushSharp.Tests
 			Assert.AreEqual (b.GetAllRegistrations ().Count (), 0, "Expected 0 Registrations");
 		}
 
+		[Test]
+		public void TestSwitchCase()
+		{
+			var b = new PushBroker();
+			var gcm1 = new Mock<Core.IPushService>();
+			var gcm2 = new Mock<Core.IPushService>();
+			var apns1 = new Mock<Core.IPushService>();
+			var apns2 = new Mock<Core.IPushService>();
+
+			b.RegisterService<Android.GcmNotification>(gcm1.Object, "APP1");
+			b.RegisterService<Android.GcmNotification>(gcm2.Object, "APP2");
+			b.RegisterService<Apple.AppleNotification>(apns1.Object, "APP1");
+			b.RegisterService<Apple.AppleNotification>(apns2.Object, "APP2");
+
+			string notificationType = "GCM";
+
+			Core.Notification notification;
+			switch (notificationType)
+			{
+				case "APNS":
+					notification = new Apple.AppleNotification();
+					break;
+				case "GCM":
+					notification = new Android.GcmNotification();
+					break;
+				default:
+					throw new System.InvalidOperationException();
+			}
+			b.QueueNotification(notification);
+
+			gcm2.Verify(x => x.QueueNotification(notification), Times.AtLeastOnce);
+			gcm1.Verify(x => x.QueueNotification(notification), Times.AtLeastOnce);
+			apns1.Verify(x => x.QueueNotification(notification), Times.Never);
+			apns2.Verify(x => x.QueueNotification(notification), Times.Never);
+		}
 
 		[Test]
 		public void Test_StopAll()
