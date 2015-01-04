@@ -82,7 +82,7 @@ namespace PushSharp.ClientSample.MonoForAndroid
 			edit.PutString("last_msg", msg.ToString());
 			edit.Commit();
 
-			createNotification("PushSharp-GCM Msg Rec'd", "Message Received for C2DM-Sharp... Tap to View!");
+			createNotification("PushSharp-GCM Msg Rec'd", "Message Received from GCM Push service... Tap to View!");
 		}
 
 		protected override bool OnRecoverableError (Context context, string errorId)
