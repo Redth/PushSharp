@@ -393,7 +393,7 @@ namespace PushSharp.Apple
 
 				try
 				{
-					connect();
+					InternalConnect();
 					connected = true;
 
 					//Reset connection attempt counter
@@ -453,7 +453,7 @@ namespace PushSharp.Apple
 
 	    private IAsyncResult connectAsyncResult = default(IAsyncResult);
 
-		void connect()
+		private void InternalConnect()
 		{
 			if (client != null)
 				disconnect ();
@@ -468,40 +468,39 @@ namespace PushSharp.Apple
 			try
 			{
 				var connectDone = new AutoResetEvent(false);
-			
                 
 				//Connect async so we can utilize a connection timeout
-			    connectAsyncResult = client.BeginConnect(
-					appleSettings.Host, appleSettings.Port,
-					new AsyncCallback(
-						delegate(IAsyncResult ar)
-						{
-						    if (connectAsyncResult != ar)
-						        return;
+			    connectAsyncResult = client.BeginConnect(appleSettings.Host, appleSettings.Port, new AsyncCallback(delegate(IAsyncResult ar)
+				{
+					if (connectAsyncResult != ar)
+						return;
 
-							try
-							{
-								client.EndConnect(ar);
+					try
+					{
+						client.EndConnect(ar);
 
-								//Set keep alive on the socket may help maintain our APNS connection
-								//client.Client.SetSocketOption(SocketOptionLevel.Socket, SocketOptionName.KeepAlive, true);
+						//Set keep alive on the socket may help maintain our APNS connection
+						//client.Client.SetSocketOption(SocketOptionLevel.Socket, SocketOptionName.KeepAlive, true);
 
-								//Really not sure if this will work on MONO....
-								try { client.SetSocketKeepAliveValues(appleSettings.KeepAlivePeriod.Milliseconds, appleSettings.KeepAliveRetryPeriod.Milliseconds); }
-								catch { }
+						//Really not sure if this will work on MONO....
+					    try
+					    {
+					        client.SetSocketKeepAliveValues(
+                                (Int32)appleSettings.KeepAlivePeriod.TotalMilliseconds, 
+                                (Int32)appleSettings.KeepAliveRetryPeriod.TotalMilliseconds);
+					    }
+						catch { }
 
-								Interlocked.Increment(ref reconnects);
+						Interlocked.Increment(ref reconnects);
 
-								//Trigger the reset event so we can continue execution below
-								connectDone.Set();
-							}
-							catch (Exception ex)
-							{
-								Log.Error("APNS Connect Callback Failed: " + ex);
-							}
-						}
-					), client
-				);
+						//Trigger the reset event so we can continue execution below
+						connectDone.Set();
+					}
+					catch (Exception ex)
+					{
+						Log.Error("APNS Connect Callback Failed: " + ex);
+					}
+				}), client);
 
 				if (!connectDone.WaitOne(appleSettings.ConnectionTimeout))
 				{
