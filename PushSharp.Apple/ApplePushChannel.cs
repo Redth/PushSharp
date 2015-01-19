@@ -152,13 +152,16 @@ namespace PushSharp.Apple
 
 		private void PollConnection()
 		{
-			var stillConnected = _client.Connected
-							&& _client.Client.Poll(0, SelectMode.SelectWrite)
-							&& _networkStream.CanWrite;
+			var stillConnected = _isConnected
+			                     && _client != null
+			                     && _client.Connected
+			                     && _client.Client.Poll(0, SelectMode.SelectWrite)
+			                     && _networkStream != null
+			                     && _networkStream.CanWrite;
 
 			if (!stillConnected)
 			{
-				throw new ObjectDisposedException("Connection to APNS is not Writable");
+				throw new InvalidOperationException("Connection to APNS has disconnected or is in an invalid state.");
 			}
 		}
 
@@ -581,6 +584,15 @@ namespace PushSharp.Apple
 			}
 		}
 
+		/// <summary>
+		/// Main processing for Cleanup
+		/// </summary>
+		/// <remarks>
+		/// The cleanup process serves 2 purposes:
+		///  1 - Attempting to re-open the connection if is dropped for any reason
+		///  2 - Successful notifications do not get acknowedged by Apple.  Once we can safely assume success,
+		///      this process will remove notificaitons from tracking lists and call back to indicate a successful send
+		/// </remarks>
 		private void CleanupInternal()
 		{
 			_cleaningUp = true;
