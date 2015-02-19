@@ -80,7 +80,7 @@ namespace PushSharp.Windows
 			var binding = new XElement("binding", new XAttribute("template", this.TileTemplate.ToString()));	
 
             if(!string.IsNullOrEmpty(Fallback))
-                binding.Add(new XAttribute("fallback",Fallback));
+                binding.Add(new XAttribute("fallback", XmlEncode(Fallback)));
 
 			if (!string.IsNullOrEmpty(Language))
 				binding.Add(new XAttribute("lang", XmlEncode(Language)));
