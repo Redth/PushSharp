@@ -66,7 +66,7 @@ namespace PushSharp.Windows
 		}
 
 		public TileNotificationTemplate TileTemplate { get; set; }
-		public string Fallback { get; set; }
+        public string Fallback { get; set; }
 		public string Language { get; set; }
 		public string BaseUri { get; set; }
 		public BrandingType? Branding { get; set; }
@@ -78,6 +78,9 @@ namespace PushSharp.Windows
 		public XElement GenerateXmlElement()
 		{
 			var binding = new XElement("binding", new XAttribute("template", this.TileTemplate.ToString()));	
+
+            if(!string.IsNullOrEmpty(Fallback))
+                binding.Add(new XAttribute("fallback",Fallback));
 
 			if (!string.IsNullOrEmpty(Language))
 				binding.Add(new XAttribute("lang", XmlEncode(Language)));
