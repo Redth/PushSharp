@@ -341,6 +341,7 @@ namespace PushSharp.Windows
         /// <summary>
         /// One short string of large block text over a single, short line of bold, regular text. For more information and example screenshots of the various Tile Layouts see http://msdn.microsoft.com/en-us/library/windows/apps/hh761491.aspx
         /// </summary>
+        [Obsolete("TileSquareBlock may be altered or unavailable for releases after Windows 8.1. Instead, use TileSquare150x150Block.")]
         public static WindowsTileNotification WithTileSquareBlock(this WindowsTileNotification notification, string largeText, string smallBoldItalicText, string language = null, string fallback = null, string baseUri = null, BrandingType? branding = null, bool? addImageQuery = null)
         {
             var binding = new TileBinding()
@@ -362,6 +363,7 @@ namespace PushSharp.Windows
         /// <summary>
         /// One header string in larger text on the first line; three strings of regular text on each of the next three lines. Text does not wrap. For more information and example screenshots of the various Tile Layouts see http://msdn.microsoft.com/en-us/library/windows/apps/hh761491.aspx
         /// </summary>
+        [Obsolete("TileSquareText01 may be altered or unavailable for releases after Windows 8.1. Instead, use TileSquare150x150Text01.")]
         public static WindowsTileNotification WithTileSquareText01(this WindowsTileNotification notification, string largeText, string smallTextLine1, string smallTextLine2, string smallTextLine3, string language = null, string fallback = null, string baseUri = null, BrandingType? branding = null, bool? addImageQuery = null)
         {
             var binding = new TileBinding()
@@ -385,6 +387,7 @@ namespace PushSharp.Windows
         /// <summary>
         /// One header string in larger text on the first line, over one string of regular text wrapped over a maximum of three lines. For more information and example screenshots of the various Tile Layouts see http://msdn.microsoft.com/en-us/library/windows/apps/hh761491.aspx
         /// </summary>
+        [Obsolete("TileSquareText02 may be altered or unavailable for releases after Windows 8.1. Instead, use TileSquare150x150Text02.")]
         public static WindowsTileNotification WithTileSquareText02(this WindowsTileNotification notification, string largeText, string smallTextWrapped, string language = null, string fallback = null, string baseUri = null, BrandingType? branding = null, bool? addImageQuery = null)
         {
             var binding = new TileBinding()
@@ -406,6 +409,7 @@ namespace PushSharp.Windows
         /// <summary>
         /// Four strings of regular text on four lines. Text does not wrap. For more information and example screenshots of the various Tile Layouts see http://msdn.microsoft.com/en-us/library/windows/apps/hh761491.aspx
         /// </summary>
+        [Obsolete("TileSquareText03 may be altered or unavailable for releases after Windows 8.1. Instead, use TileSquare150x150Text03.")]
         public static WindowsTileNotification WithTileSquareText03(this WindowsTileNotification notification, string textLine1, string textLine2, string textLine3, string textLine4, string language = null, string fallback = null, string baseUri = null, BrandingType? branding = null, bool? addImageQuery = null)
         {
             var binding = new TileBinding()
@@ -429,6 +433,7 @@ namespace PushSharp.Windows
         /// <summary>
         /// One string of regular text wrapped over a maximum of four lines. For more information and example screenshots of the various Tile Layouts see http://msdn.microsoft.com/en-us/library/windows/apps/hh761491.aspx
         /// </summary>
+        [Obsolete("TileSquareText04 may be altered or unavailable for releases after Windows 8.1. Instead, use TileSquare150x150Text04.")]
         public static WindowsTileNotification WithTileSquareText04(this WindowsTileNotification notification, string wrappedText, string language = null, string fallback = null, BrandingType? branding = null)
         {
             var binding = new TileBinding()
@@ -447,6 +452,7 @@ namespace PushSharp.Windows
         /// <summary>
         /// One square image that fills the entire tile, no text. For more information and example screenshots of the various Tile Layouts see http://msdn.microsoft.com/en-us/library/windows/apps/hh761491.aspx
         /// </summary>
+        [Obsolete("TileSquareImage may be altered or unavailable for releases after Windows 8.1. Instead, use TileSquare150x150Image.")]
         public static WindowsTileNotification WithTileSquareImage(this WindowsTileNotification notification, string imageSource, string imageAlt = null, string language = null, string fallback = null, string baseUri = null, BrandingType? branding = null, bool? addImageQuery = null)
         {
             var binding = new TileBinding()
@@ -467,6 +473,7 @@ namespace PushSharp.Windows
         /// <summary>
         /// Top: One square image, no text. Bottom: One header string in larger text on the first line, three strings of regular text on each of the next three lines. Text does not wrap. For more information and example screenshots of the various Tile Layouts see http://msdn.microsoft.com/en-us/library/windows/apps/hh761491.aspx
         /// </summary>
+        [Obsolete("TileSquarePeekImageAndText01 may be altered or unavailable for releases after Windows 8.1. Instead, use TileSquare150x150PeekImageAndText01.")]
         public static WindowsTileNotification WithTileSquarePeakImageAndText01(this WindowsTileNotification notification, string imageSource, string imageAlt, string largeTextLine1, string smallTextLine2, string smallTextLine3, string smallTextLine4, string language = null, string fallback = null, string baseUri = null, BrandingType? branding = null, bool? addImageQuery = null)
         {
             var binding = new TileBinding()
@@ -491,6 +498,7 @@ namespace PushSharp.Windows
         /// <summary>
         /// Top: Square image, no text. Bottom: One header string in larger text on the first line, over one string of regular text wrapped over a maximum of three lines. For more information and example screenshots of the various Tile Layouts see http://msdn.microsoft.com/en-us/library/windows/apps/hh761491.aspx
         /// </summary>
+        [Obsolete("TileSquarePeekImageAndText02 may be altered or unavailable for releases after Windows 8.1. Instead, use TileSquare150x150PeekImageAndText02.")]
         public static WindowsTileNotification WithTileSquarePeakImageAndText02(this WindowsTileNotification notification, string imageSource, string imageAlt, string largeTextLine1, string smallTextLine2, string language = null, string fallback = null, string baseUri = null, BrandingType? branding = null, bool? addImageQuery = null)
         {
             var binding = new TileBinding()
@@ -513,6 +521,7 @@ namespace PushSharp.Windows
         /// <summary>
         /// Top: Square image, no text. Bottom: Four strings of regular text on four lines. Text does not wrap. For more information and example screenshots of the various Tile Layouts see http://msdn.microsoft.com/en-us/library/windows/apps/hh761491.aspx
         /// </summary>
+        [Obsolete("TileSquarePeekImageAndText03 may be altered or unavailable for releases after Windows 8.1. Instead, use TileSquare150x150PeekImageAndText03.")]
         public static WindowsTileNotification WithTileSquarePeakImageAndText03(this WindowsTileNotification notification, string imageSource, string imageAlt, string textLine1, string textLine2, string textLine3, string textLine4, string language = null, string fallback = null, string baseUri = null, BrandingType? branding = null, bool? addImageQuery = null)
         {
             var binding = new TileBinding()
@@ -537,6 +546,7 @@ namespace PushSharp.Windows
         /// <summary>
         /// Top: Square image, no text. Bottom: One string of regular text wrapped over a maximum of four lines. For more information and example screenshots of the various Tile Layouts see http://msdn.microsoft.com/en-us/library/windows/apps/hh761491.aspx
         /// </summary>
+        [Obsolete("TileSquarePeekImageAndText04 may be altered or unavailable for releases after Windows 8.1. Instead, use TileSquare150x150PeekImageAndText04.")]
         public static WindowsTileNotification WithTileSquarePeakImageAndText04(this WindowsTileNotification notification, string imageSource, string imageAlt, string wrappedText, string language = null, string fallback = null, string baseUri = null, BrandingType? branding = null, bool? addImageQuery = null)
         {
             var binding = new TileBinding()
@@ -558,6 +568,7 @@ namespace PushSharp.Windows
         /// <summary>
         /// One header string in larger text on the first line, four strings of regular text on the next four lines. Text does not wrap. For more information and example screenshots of the various Tile Layouts see http://msdn.microsoft.com/en-us/library/windows/apps/hh761491.aspx
         /// </summary>
+        [Obsolete("TileWideText01 may be altered or unavailable for releases after Windows 8.1. Instead, use TileWide310x150Text01.")]
         public static WindowsTileNotification WithTileWideText01(this WindowsTileNotification notification, string largeTextLine1, string textLine2, string textLine3, string textLine4, string textLine5, string language = null, string fallback = null, BrandingType? branding = null)
         {
             var binding = new TileBinding()
@@ -580,6 +591,7 @@ namespace PushSharp.Windows
         /// <summary>
         /// One header string in larger text over eight short strings arranged in two columns of four lines each. Columns are of equal width. For more information and example screenshots of the various Tile Layouts see http://msdn.microsoft.com/en-us/library/windows/apps/hh761491.aspx
         /// </summary>
+        [Obsolete("TileWideText02 may be altered or unavailable for releases after Windows 8.1. Instead, use TileWide310x150Text02.")]
         public static WindowsTileNotification WithTileWideText02(this WindowsTileNotification notification, string largeTextLine1, string textLine2Col1, string textLine2Col2, string textLine3Col1, string textLine3Col2, string textLine4Col1, string textLine4Col2, string language = null, string fallback = null, BrandingType? branding = null)
         {
             var binding = new TileBinding()
@@ -604,6 +616,7 @@ namespace PushSharp.Windows
         /// <summary>
         /// One string of large text wrapped over a maximum of three lines. For more information and example screenshots of the various Tile Layouts see http://msdn.microsoft.com/en-us/library/windows/apps/hh761491.aspx
         /// </summary>
+        [Obsolete("TileWideText03 may be altered or unavailable for releases after Windows 8.1. Instead, use TileWide310x150Text03.")]
         public static WindowsTileNotification WithTileWideText03(this WindowsTileNotification notification, string wrappedLargeTextLine1, string language = null, string fallback = null, BrandingType? branding = null)
         {
             var binding = new TileBinding()
@@ -622,6 +635,7 @@ namespace PushSharp.Windows
         /// <summary>
         /// One string of regular text wrapped over a maximum of five lines. For more information and example screenshots of the various Tile Layouts see http://msdn.microsoft.com/en-us/library/windows/apps/hh761491.aspx
         /// </summary>
+        [Obsolete("TileWideText04 may be altered or unavailable for releases after Windows 8.1. Instead, use TileWide310x150Text04.")]
         public static WindowsTileNotification WithTileWideText04(this WindowsTileNotification notification, string wrappedTextLine1, string language = null, string fallback = null, BrandingType? branding = null)
         {
             var binding = new TileBinding()
@@ -640,6 +654,7 @@ namespace PushSharp.Windows
         /// <summary>
         /// Five strings of regular text on five lines. Text does not wrap. For more information and example screenshots of the various Tile Layouts see http://msdn.microsoft.com/en-us/library/windows/apps/hh761491.aspx
         /// </summary>
+        [Obsolete("TileWideText05 may be altered or unavailable for releases after Windows 8.1. Instead, use TileWide310x150Text05.")]
         public static WindowsTileNotification WithTileWideText05(this WindowsTileNotification notification, string textLine1, string textLine2, string textLine3, string textLine4, string textLine5, string language = null, string fallback = null, BrandingType? branding = null)
         {
             var binding = new TileBinding()
@@ -662,6 +677,7 @@ namespace PushSharp.Windows
         /// <summary>
         /// Ten short strings of regular text, arranged in two columns of five lines each. Columns are of equal width. For more information and example screenshots of the various Tile Layouts see http://msdn.microsoft.com/en-us/library/windows/apps/hh761491.aspx
         /// </summary>
+        [Obsolete("TileWideText06 may be altered or unavailable for releases after Windows 8.1. Instead, use TileWide310x150Text06.")]
         public static WindowsTileNotification WithTileWideText06(this WindowsTileNotification notification, string textLine1Col1, string textLine1Col2, string textLine2Col1, string textLine2Col2, string textLine3Col1, string textLine3Col2, string textLine4Col1, string textLine4Col2, string textLine5Col1, string textLine5Col2, string language = null, string fallback = null, BrandingType? branding = null)
         {
             var binding = new TileBinding()
@@ -690,6 +706,7 @@ namespace PushSharp.Windows
         /// One header string in larger text over eight short strings of regular text arranged in two columns of four lines each. The column widths are such that the first column acts as a label and the second column as the content. This template is similar to TileWideText10, but the first column is wider.
         ///  For more information and example screenshots of the various Tile Layouts see http://msdn.microsoft.com/en-us/library/windows/apps/hh761491.aspx
         /// </summary>
+        [Obsolete("TileWideText07 may be altered or unavailable for releases after Windows 8.1. Instead, use TileWide310x150Text07.")]
         public static WindowsTileNotification WithTileWideText07(this WindowsTileNotification notification, string largeTextLine1, string textLine2Col1, string textLine2Col2, string textLine3Col1, string textLine3Col2, string textLine4Col1, string textLine4Col2, string language = null, string fallback = null, BrandingType? branding = null)
         {
             var binding = new TileBinding()
@@ -715,6 +732,7 @@ namespace PushSharp.Windows
         /// Ten short strings of regular text arranged in two columns of five lines each. The column widths are such that the first column acts as a label and the second column as the content. This template is similar to TileWideText11, but the first column is wider.
         ///  For more information and example screenshots of the various Tile Layouts see http://msdn.microsoft.com/en-us/library/windows/apps/hh761491.aspx
         /// </summary>
+        [Obsolete("TileWideText08 may be altered or unavailable for releases after Windows 8.1. Instead, use TileWide310x150Text08.")]
         public static WindowsTileNotification WithTileWideText08(this WindowsTileNotification notification, string textLine1Col1, string textLine1Col2, string textLine2Col1, string textLine2Col2, string textLine3Col1, string textLine3Col2, string textLine4Col1, string textLine4Col2, string language = null, string fallback = null, BrandingType? branding = null)
         {
             var binding = new TileBinding()
@@ -740,6 +758,7 @@ namespace PushSharp.Windows
         /// <summary>
         /// One header string in larger text over one string of regular text wrapped over a maximum of four lines. For more information and example screenshots of the various Tile Layouts see http://msdn.microsoft.com/en-us/library/windows/apps/hh761491.aspx
         /// </summary>
+        [Obsolete("TileWideText09 may be altered or unavailable for releases after Windows 8.1. Instead, use TileWide310x150Text09.")]
         public static WindowsTileNotification WithTileWideText09(this WindowsTileNotification notification, string largeTextLine1, string wrappedTextLine2, string language = null, string fallback = null, BrandingType? branding = null)
         {
             var binding = new TileBinding()
@@ -760,6 +779,7 @@ namespace PushSharp.Windows
         /// One header string in larger text over eight short strings of regular text arranged in two columns of four lines each. The column widths are such that the first column acts as a label and the second column as the content. This template is similar to TileWideText07, but the first column is narrower.
         ///  For more information and example screenshots of the various Tile Layouts see http://msdn.microsoft.com/en-us/library/windows/apps/hh761491.aspx
         /// </summary>
+        [Obsolete("TileWideText10 may be altered or unavailable for releases after Windows 8.1. Instead, use TileWide310x150Text10.")]
         public static WindowsTileNotification WithTileWideText10(this WindowsTileNotification notification, string largeTextLine1, string textLine2Col1, string textLine2Col2, string textLine3Col1, string textLine3Col2, string textLine4Col1, string textLine4Col2, string language = null, string fallback = null, BrandingType? branding = null)
         {
             var binding = new TileBinding()
@@ -785,6 +805,7 @@ namespace PushSharp.Windows
         /// Ten short strings of regular text arranged in two columns of five lines each. The column widths are such that the first column acts as a label and the second column as the content. This template is similar to TileWideText08, but the first column is narrower.
         ///  For more information and example screenshots of the various Tile Layouts see http://msdn.microsoft.com/en-us/library/windows/apps/hh761491.aspx
         /// </summary>
+        [Obsolete("TileWideText11 may be altered or unavailable for releases after Windows 8.1. Instead, use TileWide310x150Text11.")]
         public static WindowsTileNotification WithTileWideText11(this WindowsTileNotification notification, string textLine1Col1, string textLine1Col2, string textLine2Col1, string textLine2Col2, string textLine3Col1, string textLine3Col2, string textLine4Col1, string textLine4Col2, string language = null, string fallback = null, BrandingType? branding = null)
         {
             var binding = new TileBinding()
@@ -810,6 +831,7 @@ namespace PushSharp.Windows
         /// <summary>
         /// One wide image that fills the entire tile, no text. For more information and example screenshots of the various Tile Layouts see http://msdn.microsoft.com/en-us/library/windows/apps/hh761491.aspx
         /// </summary>
+        [Obsolete("TileWideImage may be altered or unavailable for releases after Windows 8.1. Instead, use TileWide310x150Image.")]
         public static WindowsTileNotification WithTileWideImage(this WindowsTileNotification notification, string image1Source, string image1Alt = null, string language = null, string fallback = null, string baseUri = null, BrandingType? branding = null, bool? addImageQuery = null)
         {
             var binding = new TileBinding()
@@ -830,6 +852,7 @@ namespace PushSharp.Windows
         /// <summary>
         /// One large square image with four smaller square images to its right, no text. For more information and example screenshots of the various Tile Layouts see http://msdn.microsoft.com/en-us/library/windows/apps/hh761491.aspx
         /// </summary>
+        [Obsolete("TileWideImageCollection may be altered or unavailable for releases after Windows 8.1. Instead, use TileWide310x150ImageCollection.")]
         public static WindowsTileNotification WithTileWideImageCollection(this WindowsTileNotification notification, string largeImage1Source, string largeImage1Alt, string image2Source, string image2Alt, string image3Source, string image3Alt, string image4Source, string image4Alt, string image5Source, string image5Alt, string language = null, string fallback = null, string baseUri = null, BrandingType? branding = null, bool? addImageQuery = null)
         {
             var binding = new TileBinding()
@@ -854,6 +877,7 @@ namespace PushSharp.Windows
         /// <summary>
         /// One wide image over one string of regular text wrapped over a maximum of two lines. For more information and example screenshots of the various Tile Layouts see http://msdn.microsoft.com/en-us/library/windows/apps/hh761491.aspx
         /// </summary>
+        [Obsolete("TileWideImageAndText01 may be altered or unavailable for releases after Windows 8.1. Instead, use TileWide310x150ImageAndText01.")]
         public static WindowsTileNotification WithTileWideImageAndText01(this WindowsTileNotification notification, string wrappedText, string image1Source, string image1Alt = null, string language = null, string fallback = null, string baseUri = null, BrandingType? branding = null, bool? addImageQuery = null)
         {
             var binding = new TileBinding()
@@ -875,6 +899,7 @@ namespace PushSharp.Windows
         /// <summary>
         /// One wide image over two strings of regular text on two lines. Text does not wrap. For more information and example screenshots of the various Tile Layouts see http://msdn.microsoft.com/en-us/library/windows/apps/hh761491.aspx
         /// </summary>
+        [Obsolete("TileWideImageAndText02 may be altered or unavailable for releases after Windows 8.1. Instead, use TileWide310x150ImageAndText02.")]
         public static WindowsTileNotification WithTileWideImageAndText02(this WindowsTileNotification notification, string textLine1, string textLine2, string image1Source, string image1Alt = null, string language = null, string fallback = null, string baseUri = null, BrandingType? branding = null, bool? addImageQuery = null)
         {
             var binding = new TileBinding()
@@ -897,6 +922,7 @@ namespace PushSharp.Windows
         /// <summary>
         /// Four strings of regular, unwrapped text on the left; large block text over a single, short string of bold, regular text on the right. For more information and example screenshots of the various Tile Layouts see http://msdn.microsoft.com/en-us/library/windows/apps/hh761491.aspx
         /// </summary>
+        [Obsolete("TileWideBlockAndText01 may be altered or unavailable for releases after Windows 8.1. Instead, use TileWide310x150BlockAndText01.")]
         public static WindowsTileNotification WithTileWideBlockAndText01(this WindowsTileNotification notification, string textLine1, string textLine2, string textLine3, string textLine4, string boldLargeTextRight, string boldTextBottomRight, string language = null, string fallback = null, BrandingType? branding = null)
         {
             var binding = new TileBinding()
@@ -921,6 +947,7 @@ namespace PushSharp.Windows
         /// One string of regular text wrapped over a maximum of four lines on the left; large block text over a single, short string of bold, regular text on the right.
         ///  For more information and example screenshots of the various Tile Layouts see http://msdn.microsoft.com/en-us/library/windows/apps/hh761491.aspx
         /// </summary>
+        [Obsolete("TileWideBlockAndText02 may be altered or unavailable for releases after Windows 8.1. Instead, use TileWide310x150BlockAndText02.")]
         public static WindowsTileNotification WithTileWideBlockAndText02(this WindowsTileNotification notification, string wrappedTextLeft, string boldLargeTextRight, string boldTextBottomRight, string language = null, string fallback = null, BrandingType? branding = null)
         {
             var binding = new TileBinding()
@@ -942,6 +969,7 @@ namespace PushSharp.Windows
         /// On the left, one small image; on the right, one string of large text wrapped over a maximum of three lines.
         ///  For more information and example screenshots of the various Tile Layouts see http://msdn.microsoft.com/en-us/library/windows/apps/hh761491.aspx
         /// </summary>
+        [Obsolete("TileWideSmallImageAndText01 may be altered or unavailable for releases after Windows 8.1. Instead, use TileWide310x150SmallImageAndText01.")]
         public static WindowsTileNotification WithTileWideSmallImageAndText01(this WindowsTileNotification notification, string wrappedTextRight, string image1Source, string image1Alt = null, string language = null, string fallback = null, string baseUri = null, BrandingType? branding = null, bool? addImageQuery = null)
         {
             var binding = new TileBinding()
@@ -964,6 +992,7 @@ namespace PushSharp.Windows
         /// On the left, one small image; on the right, one header string in larger text on the first line over four strings of regular text on the next four lines. Text does not wrap.
         ///  For more information and example screenshots of the various Tile Layouts see http://msdn.microsoft.com/en-us/library/windows/apps/hh761491.aspx
         /// </summary>
+        [Obsolete("TileWideSmallImageAndText02 may be altered or unavailable for releases after Windows 8.1. Instead, use TileWide310x150SmallImageAndText02.")]
         public static WindowsTileNotification WithTileWideSmallImageAndText02(this WindowsTileNotification notification, string largeTextLine1, string textLine2, string textLine3, string textLine4, string image1Source, string image1Alt = null, string language = null, string fallback = null, string baseUri = null, BrandingType? branding = null, bool? addImageQuery = null)
         {
             var binding = new TileBinding()
@@ -989,6 +1018,7 @@ namespace PushSharp.Windows
         /// On the left, one small image; on the right, one string of regular text wrapped over a maximum of five lines.
         ///  For more information and example screenshots of the various Tile Layouts see http://msdn.microsoft.com/en-us/library/windows/apps/hh761491.aspx
         /// </summary>
+        [Obsolete("TileWideSmallImageAndText03 may be altered or unavailable for releases after Windows 8.1. Instead, use TileWide310x150SmallImageAndText03.")]
         public static WindowsTileNotification WithTileWideSmallImageAndText03(this WindowsTileNotification notification, string wrappedTextRight, string image1Source, string image1Alt = null, string language = null, string fallback = null, string baseUri = null, BrandingType? branding = null, bool? addImageQuery = null)
         {
             var binding = new TileBinding()
@@ -1011,6 +1041,7 @@ namespace PushSharp.Windows
         /// On the left, one small image; on the right, one header string of larger text on the first line over one string of regular text wrapped over a maximum of four lines.
         ///  For more information and example screenshots of the various Tile Layouts see http://msdn.microsoft.com/en-us/library/windows/apps/hh761491.aspx
         /// </summary>
+        [Obsolete("TileWideSmallImageAndText04 may be altered or unavailable for releases after Windows 8.1. Instead, use TileWide310x150SmallImageAndText04.")]
         public static WindowsTileNotification WithTileWideSmallImageAndText04(this WindowsTileNotification notification, string largeTextRight, string wrappedTextRight, string image1Source, string image1Alt = null, string language = null, string fallback = null, string baseUri = null, BrandingType? branding = null, bool? addImageQuery = null)
         {
             var binding = new TileBinding()
@@ -1034,6 +1065,7 @@ namespace PushSharp.Windows
         /// On the left, one header string in larger text over one string of regular text wrapped over a maximum of four lines; on the right, one small image with 3:4 dimensions.
         ///  For more information and example screenshots of the various Tile Layouts see http://msdn.microsoft.com/en-us/library/windows/apps/hh761491.aspx
         /// </summary>
+        [Obsolete("TileWideSmallImageAndText05 may be altered or unavailable for releases after Windows 8.1. Instead, use TileWide310x150SmallImageAndText05.")]
         public static WindowsTileNotification WithTileWideSmallImageAndText05(this WindowsTileNotification notification, string largeTextLeft, string wrappedTextLeft, string image1Source, string image1Alt = null, string language = null, string fallback = null, string baseUri = null, BrandingType? branding = null, bool? addImageQuery = null)
         {
             var binding = new TileBinding()
@@ -1057,6 +1089,7 @@ namespace PushSharp.Windows
         /// Top: One large square image with four smaller square images to its right, no text. Bottom: One header string in larger text over one string of regular text wrapped over a maximum of four lines.
         ///  For more information and example screenshots of the various Tile Layouts see http://msdn.microsoft.com/en-us/library/windows/apps/hh761491.aspx
         /// </summary>
+        [Obsolete("TileWidePeekImageCollection01 may be altered or unavailable for releases after Windows 8.1. Instead, use TileWide310x150PeekImageCollection01.")]
         public static WindowsTileNotification WithTileWidePeekImageCollection01(this WindowsTileNotification notification, string largeTextLine1, string wrappedTextLine2, string image1Source, string image1Alt, string image2, string image2Alt, string image3, string image3Alt, string image4, string image4Alt, string image5, string image5Alt, string language = null, string fallback = null, string baseUri = null, BrandingType? branding = null, bool? addImageQuery = null)
         {
             var binding = new TileBinding()
@@ -1079,6 +1112,7 @@ namespace PushSharp.Windows
         /// Top: One large square image with four smaller square images to its right, no text. Bottom: One header string in larger text on the first line, four strings of regular text on the next four lines. Text does not wrap.
         ///  For more information and example screenshots of the various Tile Layouts see http://msdn.microsoft.com/en-us/library/windows/apps/hh761491.aspx
         /// </summary>
+        [Obsolete("TileWidePeekImageCollection02 may be altered or unavailable for releases after Windows 8.1. Instead, use TileWide310x150PeekImageCollection02.")]
         public static WindowsTileNotification WithTileWidePeekImageCollection02(this WindowsTileNotification notification, string largeTextLine1, string textLine2, string textLine3, string textLine4, string image1Source, string image1Alt, string image2Source, string image2Alt, string image3Source, string image3Alt, string image4Source, string image4Alt, string image5Source, string image5Alt, string language = null, string fallback = null, string baseUri = null, BrandingType? branding = null, bool? addImageQuery = null)
         {
             var binding = new TileBinding()
@@ -1108,6 +1142,7 @@ namespace PushSharp.Windows
         /// Top: One large square image with four smaller square images to its right, no text. Bottom: One string of large text wrapped over a maximum of three lines.
         ///  For more information and example screenshots of the various Tile Layouts see http://msdn.microsoft.com/en-us/library/windows/apps/hh761491.aspx
         /// </summary>
+        [Obsolete("TileWidePeekImageCollection03 may be altered or unavailable for releases after Windows 8.1. Instead, use TileWide310x150PeekImageCollection03.")]
         public static WindowsTileNotification WithTileWidePeekImageCollection03(this WindowsTileNotification notification, string largeWrappedText, string largeImage1Source, string largeImage1Alt, string image2Source, string image2Alt, string image3Source, string image3Alt, string image4Source, string image4Alt, string image5Source, string image5Alt, string language = null, string fallback = null, string baseUri = null, BrandingType? branding = null, bool? addImageQuery = null)
         {
             var binding = new TileBinding()
@@ -1134,6 +1169,7 @@ namespace PushSharp.Windows
         /// Top: One large square image with four smaller square images to its right, no text. Bottom: One string of regular text wrapped over a maximum of five lines.
         ///  For more information and example screenshots of the various Tile Layouts see http://msdn.microsoft.com/en-us/library/windows/apps/hh761491.aspx
         /// </summary>
+        [Obsolete("TileWidePeekImageCollection04 may be altered or unavailable for releases after Windows 8.1. Instead, use TileWide310x150PeekImageCollection04.")]
         public static WindowsTileNotification WithTileWidePeekImageCollection04(this WindowsTileNotification notification, string wrappedText, string largeImage1Source, string largeImage1Alt, string image2Source, string image2Alt, string image3Source, string image3Alt, string image4Source, string image4Alt, string image5Source, string image5Alt, string language = null, string fallback = null, string baseUri = null, BrandingType? branding = null, bool? addImageQuery = null)
         {
             var binding = new TileBinding()
@@ -1160,6 +1196,7 @@ namespace PushSharp.Windows
         /// Top: One large square image with four smaller square images to its right, no text. Bottom: On the left, one small image; on the right, one header string of larger text on the first line over one string of regular text wrapped over a maximum of four lines.
         ///  For more information and example screenshots of the various Tile Layouts see http://msdn.microsoft.com/en-us/library/windows/apps/hh761491.aspx
         /// </summary>
+        [Obsolete("TileWidePeekImageCollection05 may be altered or unavailable for releases after Windows 8.1. Instead, use TileWide310x150PeekImageCollection05.")]
         public static WindowsTileNotification WithTileWidePeekImageCollection05(this WindowsTileNotification notification, string largeBottomTextLine1, string bottomTextLine2, string bottomImageSource, string bottomImageAlt, string largeImage1Source, string largeImage1Alt, string image2Source, string image2Alt, string image3Source, string image3Alt, string image4Source, string image4Alt, string image5Source, string image5Alt, string language = null, string fallback = null, string baseUri = null, BrandingType? branding = null, bool? addImageQuery = null)
         {
             var binding = new TileBinding()
@@ -1188,6 +1225,7 @@ namespace PushSharp.Windows
         /// Top: One large square image with four smaller square images to its right, no text. Bottom: On the left, one small image; on the right, one string of large text wrapped over a maximum of three lines.
         ///  For more information and example screenshots of the various Tile Layouts see http://msdn.microsoft.com/en-us/library/windows/apps/hh761491.aspx
         /// </summary>
+        [Obsolete("TileWidePeekImageCollection06 may be altered or unavailable for releases after Windows 8.1. Instead, use TileWide310x150PeekImageCollection06.")]
         public static WindowsTileNotification WithTileWidePeekImageCollection06(this WindowsTileNotification notification, string largeWrappedBottomText, string bottomImageSource, string bottomImageAlt, string largeImage1Source, string largeImage1Alt, string image2Source, string image2Alt, string image3Source, string image3Alt, string image4Source, string image4Alt, string image5Source, string image5Alt, string language = null, string fallback = null, string baseUri = null, BrandingType? branding = null, bool? addImageQuery = null)
         {
             var binding = new TileBinding()
@@ -1215,6 +1253,7 @@ namespace PushSharp.Windows
         /// Top: One wide image. Bottom: One string of regular text wrapped over a maximum of five lines.
         ///  For more information and example screenshots of the various Tile Layouts see http://msdn.microsoft.com/en-us/library/windows/apps/hh761491.aspx
         /// </summary>
+        [Obsolete("TileWidePeekImageAndText01 may be altered or unavailable for releases after Windows 8.1. Instead, use TileWide310x150PeekImageAndText01.")]
         public static WindowsTileNotification WithTileWidePeekImageAndText01(this WindowsTileNotification notification, string wrappedText, string image1Source, string image1Alt = null, string language = null, string fallback = null, string baseUri = null, BrandingType? branding = null, bool? addImageQuery = null)
         {
             var binding = new TileBinding()
@@ -1237,6 +1276,7 @@ namespace PushSharp.Windows
         /// Top: One wide image. Bottom: Five strings of regular text on five lines. Text does not wrap.
         ///  For more information and example screenshots of the various Tile Layouts see http://msdn.microsoft.com/en-us/library/windows/apps/hh761491.aspx
         /// </summary>
+        [Obsolete("TileWidePeekImageAndText02 may be altered or unavailable for releases after Windows 8.1. Instead, use TileWide310x150PeekImageAndText02.")]
         public static WindowsTileNotification WithTileWidePeekImageAndText02(this WindowsTileNotification notification, string textLine1, string textLine2, string textLine3, string textLine4, string textLine5, string image1Source, string image1Alt = null, string language = null, string fallback = null, string baseUri = null, BrandingType? branding = null, bool? addImageQuery = null)
         {
             var binding = new TileBinding()
@@ -1263,6 +1303,7 @@ namespace PushSharp.Windows
         /// Top: One wide image. Bottom: One header string in larger text over one string of regular text that wraps over a maximum of four lines.
         ///  For more information and example screenshots of the various Tile Layouts see http://msdn.microsoft.com/en-us/library/windows/apps/hh761491.aspx
         /// </summary>
+        [Obsolete("TileWidePeekImage01 may be altered or unavailable for releases after Windows 8.1. Instead, use TileWide310x150PeekImage01.")]
         public static WindowsTileNotification WithTileWidePeekImage01(this WindowsTileNotification notification, string largeTextLine1, string wrappedTextLine2, string image1Source, string image1Alt = null, string language = null, string fallback = null, string baseUri = null, BrandingType? branding = null, bool? addImageQuery = null)
         {
             var binding = new TileBinding()
@@ -1286,6 +1327,7 @@ namespace PushSharp.Windows
         /// Top: One wide image. Bottom: One header string in larger text on the first line, four strings of regular text on the next four lines. Text does not wrap.
         ///  For more information and example screenshots of the various Tile Layouts see http://msdn.microsoft.com/en-us/library/windows/apps/hh761491.aspx
         /// </summary>
+        [Obsolete("TileWidePeekImage02 may be altered or unavailable for releases after Windows 8.1. Instead, use TileWide310x150PeekImage02.")]
         public static WindowsTileNotification WithTileWidePeekImage02(this WindowsTileNotification notification, string largeTextLine1, string textLine2, string textLine3, string textLine4, string textLine5, string image1Source, string image1Alt = null, string language = null, string fallback = null, string baseUri = null, BrandingType? branding = null, bool? addImageQuery = null)
         {
             var binding = new TileBinding()
@@ -1312,6 +1354,7 @@ namespace PushSharp.Windows
         /// Top: One wide image. Bottom: One string of large text wrapped over a maximum of three lines.
         ///  For more information and example screenshots of the various Tile Layouts see http://msdn.microsoft.com/en-us/library/windows/apps/hh761491.aspx
         /// </summary>
+        [Obsolete("TileWidePeekImage03 may be altered or unavailable for releases after Windows 8.1. Instead, use TileWide310x150PeekImage03.")]
         public static WindowsTileNotification WithTileWidePeekImage03(this WindowsTileNotification notification, string largeWrappedTextLine1, string image1Source, string image1Alt = null, string language = null, string fallback = null, string baseUri = null, BrandingType? branding = null, bool? addImageQuery = null)
         {
             var binding = new TileBinding()
@@ -1334,6 +1377,7 @@ namespace PushSharp.Windows
         /// Top: One wide image. Bottom: One string of regular text wrapped over a maximum of five lines.
         ///  For more information and example screenshots of the various Tile Layouts see http://msdn.microsoft.com/en-us/library/windows/apps/hh761491.aspx
         /// </summary>
+        [Obsolete("TileWidePeekImage04 may be altered or unavailable for releases after Windows 8.1. Instead, use TileWide310x150PeekImage04.")]
         public static WindowsTileNotification WithTileWidePeekImage04(this WindowsTileNotification notification, string wrappedTextLine1, string image1Source, string image1Alt = null, string language = null, string fallback = null, string baseUri = null, BrandingType? branding = null, bool? addImageQuery = null)
         {
             var binding = new TileBinding()
@@ -1356,6 +1400,7 @@ namespace PushSharp.Windows
         /// Top: One wide image. Bottom: On the left, one small image; on the right, one header string of larger text on the first line over one string of regular text wrapped over a maximum of four lines.
         ///  For more information and example screenshots of the various Tile Layouts see http://msdn.microsoft.com/en-us/library/windows/apps/hh761491.aspx
         /// </summary>
+        [Obsolete("TileWidePeekImage05 may be altered or unavailable for releases after Windows 8.1. Instead, use TileWide310x150PeekImage05.")]
         public static WindowsTileNotification WithTileWidePeekImage05(this WindowsTileNotification notification, string largeTextLine1, string wrappedTextLine2, string bottomImageLeftSource, string bottomImageLeftAlt, string image1Source, string image1Alt = null, string language = null, string fallback = null, string baseUri = null, BrandingType? branding = null, bool? addImageQuery = null)
         {
             var binding = new TileBinding()
