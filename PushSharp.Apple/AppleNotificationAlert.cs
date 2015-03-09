@@ -94,8 +94,9 @@ namespace PushSharp.Apple
 				if (!string.IsNullOrEmpty(Body)
 					|| !string.IsNullOrEmpty(ActionLocalizedKey)
 					|| !string.IsNullOrEmpty(LocalizedKey)
-					|| (LocalizedArgs != null && LocalizedArgs.Count > 0)
+                    || (LocalizedArgs != null && LocalizedArgs.Count > 0)
                     || !string.IsNullOrEmpty(LaunchImage)
+                    || !string.IsNullOrEmpty(Title)
                     )
 					return false;
 				else
@@ -108,8 +109,9 @@ namespace PushSharp.Apple
 	        return !string.IsNullOrEmpty(Body)
 	               && string.IsNullOrEmpty(LocalizedKey)
 	               && string.IsNullOrEmpty(ActionLocalizedKey)
-	               && (LocalizedArgs == null || LocalizedArgs.Count <= 0)
-	               && string.IsNullOrEmpty(LaunchImage)
+                   && (LocalizedArgs == null || LocalizedArgs.Count <= 0)
+                   && string.IsNullOrEmpty(LaunchImage)
+                   && string.IsNullOrEmpty(Title)
                    && !hideActionButton;
 	    }
 	}
