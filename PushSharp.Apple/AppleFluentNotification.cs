@@ -20,26 +20,26 @@ namespace PushSharp
 			n.Expiration = expiryDate;
 			return n;
 		}
-		
+
 		public static AppleNotification WithAlert(this AppleNotification n, string body)
 		{
 			if (n.Payload == null)
 				n.Payload = new AppleNotificationPayload();
 
 			n.Payload.Alert = new AppleNotificationAlert() { Body = body };
-						
+
 			return n;
 		}
 
-        public static AppleNotification WithAlert(this AppleNotification n, string body, string launchImage)
-        {
-            if (n.Payload == null)
-                n.Payload = new AppleNotificationPayload();
+		public static AppleNotification WithAlert(this AppleNotification n, string body, string launchImage)
+		{
+			if (n.Payload == null)
+				n.Payload = new AppleNotificationPayload();
 
-            n.Payload.Alert = new AppleNotificationAlert() { Body = body, LaunchImage = launchImage };
+			n.Payload.Alert = new AppleNotificationAlert() { Body = body, LaunchImage = launchImage };
 
-            return n;
-        }
+			return n;
+		}
 
 		public static AppleNotification WithAlert(this AppleNotification n, AppleNotificationAlert alert)
 		{
@@ -47,7 +47,7 @@ namespace PushSharp
 				n.Payload = new AppleNotificationPayload();
 
 			n.Payload.Alert = alert;
-			
+
 			return n;
 		}
 
@@ -61,21 +61,21 @@ namespace PushSharp
 			return n;
 		}
 
-        public static AppleNotification WithAlert(this AppleNotification n, string body, string localizedKey, string actionLocalizedKey, IEnumerable<object> localizedArgs, string launchImage)
-        {
-            if (n.Payload == null)
-                n.Payload = new AppleNotificationPayload();
+		public static AppleNotification WithAlert(this AppleNotification n, string body, string localizedKey, string actionLocalizedKey, IEnumerable<object> localizedArgs, string launchImage)
+		{
+			if (n.Payload == null)
+				n.Payload = new AppleNotificationPayload();
 
-            n.Payload.Alert = new AppleNotificationAlert() { Body = body, LocalizedKey = localizedKey, ActionLocalizedKey = actionLocalizedKey, LocalizedArgs = localizedArgs.ToList(), LaunchImage = launchImage };
+			n.Payload.Alert = new AppleNotificationAlert() { Body = body, LocalizedKey = localizedKey, ActionLocalizedKey = actionLocalizedKey, LocalizedArgs = localizedArgs.ToList(), LaunchImage = launchImage };
 
-            return n;
-        }
+			return n;
+		}
 
 		public static AppleNotification WithBadge(this AppleNotification n, int badge)
 		{
 			if (n.Payload == null)
 				n.Payload = new AppleNotificationPayload();
-			
+
 			n.Payload.Badge = badge;
 
 			return n;
@@ -87,7 +87,7 @@ namespace PushSharp
 				n.Payload = new AppleNotificationPayload();
 
 			n.Payload.Sound = sound;
-			
+
 			return n;
 		}
 
@@ -118,22 +118,22 @@ namespace PushSharp
 			return n;
 		}
 
-        public static AppleNotification WithPasskitUpdate(this AppleNotification n)
-        {
-            var payLoad = new AppleNotificationPayload();
-            payLoad.AddCustom("aps", string.Empty);
+		public static AppleNotification WithPasskitUpdate(this AppleNotification n)
+		{
+			var payLoad = new AppleNotificationPayload();
+			payLoad.AddCustom("aps", string.Empty);
 
-            n.Payload = payLoad;
+			n.Payload = payLoad;
 
-            return n;
-        }
+			return n;
+		}
 
-        public static AppleNotification WithTag(this AppleNotification n, object tag)
-        {
-            n.Tag = tag;
+		public static AppleNotification WithTag(this AppleNotification n, object tag)
+		{
+			n.Tag = tag;
 
-            return n;
-        }
+			return n;
+		}
 
 		public static AppleNotification WithCategory(this AppleNotification n, string category)
 		{
