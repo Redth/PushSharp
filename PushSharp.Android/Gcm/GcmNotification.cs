@@ -28,7 +28,7 @@ namespace PushSharp.Android
 			var result = new GcmNotification();
 			result.Tag = msg.Tag;
 			result.RegistrationIds.Add(registrationId);
-			result.MessageId = response.Results[resultIndex].MessageId;
+			result.MessageId = msg.MessageId;
 			result.CollapseKey = msg.CollapseKey;
 			result.JsonData = msg.JsonData;
 			result.DelayWhileIdle = msg.DelayWhileIdle;
