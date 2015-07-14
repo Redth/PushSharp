@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Net;
@@ -36,8 +36,9 @@ namespace PushSharp.Apple
 				nextIdentifier = 0;
 		}
 
-		public int Identifier { get; private set; }
-		public string DeviceToken { get; set; }
+		public int Identifier { get; set; }
+        public byte Priority { get; set; }
+        public string DeviceToken { get; set; }
 		public AppleNotificationPayload Payload { get; set; }
 		/// <summary>
 		/// The expiration date after which Apple will no longer store and forward this push notification.
@@ -55,8 +56,8 @@ namespace PushSharp.Apple
 		{
 			DeviceToken = string.Empty;
 			Payload = new AppleNotificationPayload();
-
 			Identifier = GetNextIdentifier();
+            Priority = 10;
 		}
 
 		public AppleNotification(string deviceToken)
@@ -160,7 +161,7 @@ namespace PushSharp.Apple
 			//byte[] buffer = new byte[bufferSize];
 
 			List<byte[]> notificationParts = new List<byte[]>();
-
+            /* Legacy format
 			notificationParts.Add(new byte[] { 0x01 }); // Enhanced notification format command
 			notificationParts.Add(identifierBytes);
 			notificationParts.Add(expiry);
@@ -168,6 +169,40 @@ namespace PushSharp.Apple
 			notificationParts.Add(deviceToken);
 			notificationParts.Add(payloadSize);
 			notificationParts.Add(payload);
+
+            */
+            /*
+
+            1 Device token              32 bytes        The device token in binary form, as was registered by the device.
+            2 Payload                   variable length, less than or equal to 2 kilobytes The JSON-formatted payload. The payload must not be null-terminated.
+            3 Notification identifier   4 bytes         An arbitrary, opaque value that identifies this notification. This identifier is used for reporting errors to your server.
+            4 Expiration date           4 bytes         A UNIX epoch date expressed in seconds (UTC) that identifies when the notification is no longer valid and can be discarded.
+                If this value is non-zero, APNs stores the notification tries to deliver the notification at least once. Specify zero to indicate that the notification expires immediately and that APNs should not store the notification at all.
+            5 Priority                  1 byte          The notification’s priority. Provide one of the following values:
+                     *  10 The push message is sent immediately. The remote notification must trigger an alert, sound, or badge on the device. It is an error to use this priority for a push that contains only the content-available key.
+                     *  5 The push message is sent at a time that conserves power on the device receiving it.
+         
+             */
+            notificationParts.Add(new byte[] { 0x2 });
+            notificationParts.Add(BitConverter.GetBytes(IPAddress.HostToNetworkOrder(Convert.ToInt32(
+                                1 * 5 + 2 * 5 + 32 + payload.Length + identifierBytes.Length + expiry.Length + 1
+                                ))));
+            notificationParts.Add(new byte[] { 0x1 });
+            notificationParts.Add(BitConverter.GetBytes(IPAddress.HostToNetworkOrder(Convert.ToInt16(32))));
+            notificationParts.Add(deviceToken);
+            notificationParts.Add(new byte[] { 0x2 });
+            notificationParts.Add(BitConverter.GetBytes(IPAddress.HostToNetworkOrder(Convert.ToInt16(payload.Length))));
+            notificationParts.Add(payload);
+            notificationParts.Add(new byte[] { 0x3 });
+            notificationParts.Add(BitConverter.GetBytes(IPAddress.HostToNetworkOrder(Convert.ToInt16(identifierBytes.Length))));
+            notificationParts.Add(identifierBytes);
+            notificationParts.Add(new byte[] { 0x4 });
+            notificationParts.Add(BitConverter.GetBytes(IPAddress.HostToNetworkOrder(Convert.ToInt16(expiry.Length))));
+            notificationParts.Add(expiry);
+            notificationParts.Add(new byte[] { 0x5 });
+            notificationParts.Add(BitConverter.GetBytes(IPAddress.HostToNetworkOrder(Convert.ToInt16(1))));
+            notificationParts.Add(new byte[] { Priority });
+
 
 			return BuildBufferFrom(notificationParts);
 		}
