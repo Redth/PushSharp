@@ -23,6 +23,15 @@ namespace PushSharp.Apple
             LaunchImage = null;
 		}
 
+        /// <summary>
+        /// Title Text of the Notification's Alert
+        /// </summary>
+        public string Title
+        {
+            get;
+            set;
+        }
+
 		/// <summary>
 		/// Body Text of the Notification's Alert
 		/// </summary>
@@ -81,7 +90,8 @@ namespace PushSharp.Apple
 		{
 			get
 			{
-				if (!string.IsNullOrEmpty(Body)
+				if (!string.IsNullOrEmpty(Title)
+                    || !string.IsNullOrEmpty(Body)
 					|| !string.IsNullOrEmpty(ActionLocalizedKey)
 					|| !string.IsNullOrEmpty(LocalizedKey)
 					|| (LocalizedArgs != null && LocalizedArgs.Count > 0)
