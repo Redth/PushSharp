@@ -16,6 +16,7 @@ namespace PushSharp.Apple
 		/// </summary>
 		public AppleNotificationAlert()
 		{
+            Title = null;
 			Body = null;
 			ActionLocalizedKey = null;
 			LocalizedKey = null;
