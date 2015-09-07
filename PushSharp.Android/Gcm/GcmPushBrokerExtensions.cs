@@ -14,7 +14,7 @@ namespace PushSharp
 			RegisterGcmService (broker, channelSettings, null, serviceSettings);
 		}
 
-		public static void RegisterGcmService(this PushBroker broker, GcmPushChannelSettings channelSettings, string applicationId, IPushServiceSettings serviceSettings = null)
+		public static void RegisterGcmService(this PushBroker broker, GcmPushChannelSettings channelSettings, string applicationId, IPushServiceSettings serviceSettings = null, Action<string> ret=null)
 		{
 			broker.RegisterService<GcmNotification>(new GcmPushService(new GcmPushChannelFactory(), channelSettings, serviceSettings), applicationId);
 		}
