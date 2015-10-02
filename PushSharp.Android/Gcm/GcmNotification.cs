@@ -19,6 +19,7 @@ namespace PushSharp.Android
 			result.CollapseKey = response.Message.CollapseKey;
 			result.JsonData = response.Message.JsonData;
 			result.DelayWhileIdle = response.Message.DelayWhileIdle;
+            result.Priority = response.Message.Priority;
 			return result;
 		}
 
@@ -30,6 +31,7 @@ namespace PushSharp.Android
 			result.CollapseKey = msg.CollapseKey;
 			result.JsonData = msg.JsonData;
 			result.DelayWhileIdle = msg.DelayWhileIdle;
+            result.Priority = msg.Priority;
 			return result;
 		}
 
@@ -37,6 +39,7 @@ namespace PushSharp.Android
 		{
 			this.RegistrationIds = new List<string>();
 			this.CollapseKey = string.Empty;
+            this.Priority = string.Empty;
 			this.JsonData = string.Empty;
 			this.DelayWhileIdle = null;
 		}
@@ -86,6 +89,15 @@ namespace PushSharp.Android
 			set;
 		}
 
+        /// <summary>
+        /// Delivery priority ("normal", "high"). Set high priority for apps where you need the message to be delivered without delay (instant messaging, chat). Default is "normal".
+        /// </summary>
+        public string Priority
+        {
+            get;
+            set;
+        }
+
 		/// <summary>
 		/// If true, dry_run attribute will be sent in payload causing the notification not to be actually sent, but the result returned simulating the message
 		/// </summary>
@@ -112,7 +124,10 @@ namespace PushSharp.Android
 
 			if (!string.IsNullOrEmpty(this.CollapseKey))
 				json["collapse_key"] = this.CollapseKey;
-			
+
+            if (!string.IsNullOrEmpty(this.Priority))
+                json["priority"] = this.Priority;
+
 			if (this.TimeToLive.HasValue)
 				json["time_to_live"] = this.TimeToLive.Value;
 
