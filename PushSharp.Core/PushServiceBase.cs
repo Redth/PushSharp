@@ -554,8 +554,10 @@ namespace PushSharp.Core
 					Log.Info("Notification send timeout");
 
 					var evt = this.OnNotificationFailed;
-					if (evt != null)
-						evt(this, notification, new TimeoutException("Notification send timed out"));
+                    if (evt != null)
+                    {
+                        evt(this, notification, new TimeoutException("Notification send timed out"));
+                    }
 				}
 
                 if (waitForNotification != null)

@@ -78,6 +78,7 @@ namespace PushSharp.Windows
                 case WindowsNotificationType.Badge:
                     wnsType = "wns/badge";
                     break;
+                case WindowsNotificationType.DeleteNotification:
                 case WindowsNotificationType.Toast:
                     wnsType = "wns/toast";
                     break;
@@ -87,7 +88,10 @@ namespace PushSharp.Windows
             }
 
             var request = (HttpWebRequest)HttpWebRequest.Create(winNotification.ChannelUri); // "https://notify.windows.com");
-            request.Method = "POST";
+            if (winNotification.Type == WindowsNotificationType.DeleteNotification)
+                request.Method = "DELETE";
+            else
+                request.Method = "POST";
             request.Headers.Add("X-WNS-Type", wnsType);
             request.Headers.Add("Authorization", string.Format("Bearer {0}", this.AccessToken));
             request.ContentType = "text/xml";
@@ -120,17 +124,32 @@ namespace PushSharp.Windows
                         request.Headers.Add("X-WNS-Cache-Policy", winTileBadge.CachePolicy == WindowsNotificationCachePolicyType.Cache ? "cache" : "no-cache");
                 }
             }
+            else if (winNotification.Type == WindowsNotificationType.Toast)
+            {
+                var winToastPopup = winNotification as WindowsToastNotification; ;
+
+                if (winToastPopup != null && winToastPopup.SuppressPopup)
+                    request.Headers.Add("X-WNS-SuppressPopup", "true");
+            }
+            else if (winNotification.Type == WindowsNotificationType.DeleteNotification)
+            {
+                var deleteArgs = "type=wns/toast";
+                if (!string.IsNullOrEmpty(winNotification.NotificationTag))
+                    deleteArgs += string.Format(";tag={0}", winNotification.NotificationTag);
+                if (!string.IsNullOrEmpty(winNotification.NotificationGroup))
+                    deleteArgs += string.Format(";group={0}", winNotification.NotificationGroup);
+
+                request.Headers.Add("X-WNS-Match", deleteArgs);
+            }
 
             if (winNotification.RequestForStatus.HasValue)
                 request.Headers.Add("X-WNS-RequestForStatus", winNotification.RequestForStatus.Value.ToString().ToLower());
 
-            if (winNotification.Type == WindowsNotificationType.Tile)
-            {
-                var winTileNot = winNotification as WindowsTileNotification;
+            if (!string.IsNullOrEmpty(winNotification.NotificationTag))
+                request.Headers.Add("X-WNS-Tag", winNotification.NotificationTag);
 
-                if (winTileNot != null && !string.IsNullOrEmpty(winTileNot.NotificationTag))
-                    request.Headers.Add("X-WNS-Tag", winTileNot.NotificationTag); // TILE only
-            }
+            if (!string.IsNullOrEmpty(winNotification.NotificationGroup))
+                request.Headers.Add("X-WNS-Group", winNotification.NotificationGroup);
 
             if (winNotification.TimeToLive.HasValue)
                 request.Headers.Add("X-WNS-TTL", winNotification.TimeToLive.Value.ToString()); //Time to live in seconds
@@ -246,9 +265,9 @@ namespace PushSharp.Windows
                 }
 
             }
-            catch(Exception ex)
+            catch (Exception ex)
             {
-                Log.Error("Error parsing notification status: {0}",ex.ToString());
+                Log.Error("Error parsing notification status: {0}", ex.ToString());
             }
             return result;
         }

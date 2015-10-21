@@ -54,7 +54,26 @@ namespace PushSharp.Windows
             notification.NotificationTag = tag;
             return notification;
         }
-
+        public static WindowsToastNotification WithTag(this WindowsToastNotification notification, string tag)
+        {
+            notification.NotificationTag = tag;
+            return notification;
+        }
+        public static WindowsDeleteToastNotification WithTag(this WindowsDeleteToastNotification notification, string tag)
+        {
+            notification.NotificationTag = tag;
+            return notification;
+        }
+        public static WindowsToastNotification WithGroup(this WindowsToastNotification notification, string group)
+        {
+            notification.NotificationGroup = group;
+            return notification;
+        }
+        public static WindowsDeleteToastNotification WithGroup(this WindowsDeleteToastNotification notification, string group)
+        {
+            notification.NotificationGroup = group;
+            return notification;
+        }
         public static WindowsTileNotification WithCachePolicy(this WindowsTileNotification notification, WindowsNotificationCachePolicyType cachePolicy)
         {
             notification.CachePolicy = cachePolicy;
@@ -170,10 +189,20 @@ namespace PushSharp.Windows
             notification.Audio = new ToastAudio() { Loop = loop, Source = source };
             return notification;
         }
-
+        public static WindowsToastNotification WithCustomAudio(this WindowsToastNotification notification, string ResourceUri, bool loop = false)
+        {
+            notification.Audio = new ToastAudio() { Loop = loop, Source = ToastAudioSource.Custom, CustomAudioSource = ResourceUri };
+            return notification;
+        }
         public static WindowsToastNotification WithDuration(this WindowsToastNotification notification, ToastDuration duration)
         {
             notification.Duration = duration;
+            return notification;
+        }
+
+        public static WindowsToastNotification WithSuppressedPopup(this WindowsToastNotification notification, bool isSuppressed)
+        {
+            notification.SuppressPopup = isSuppressed;
             return notification;
         }
 
