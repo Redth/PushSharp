@@ -32,6 +32,12 @@ namespace PushSharp
             return n;
         }
 
+        public static GcmCCSNotification WithDeliveryReceiptRequest(this GcmCCSNotification n,bool requestDeliverRecipt)
+        {
+            n.RequestDeliveryReceipt = requestDeliverRecipt;
+            return n;
+        }
+
         public static GcmCCSNotification WithJson(this GcmCCSNotification n, string json)
 		{
 			try { Newtonsoft.Json.Linq.JObject.Parse(json); }

@@ -58,6 +58,15 @@ namespace PushSharp.Android
         }
 
         /// <summary>
+        /// Get delivery receipts (sent from CCS to your app server) when a device confirms that it received a message sent by CCS.
+        /// </summary>
+        public bool? RequestDeliveryReceipt
+        {
+            get;
+            set;
+        }
+
+        /// <summary>
         /// JSON Payload to be sent in the message
         /// </summary>
         public string JsonData
@@ -114,6 +123,9 @@ namespace PushSharp.Android
             if (this.TimeToLive.HasValue)
                 json["time_to_live"] = this.TimeToLive.Value;
 
+            if (this.RequestDeliveryReceipt.HasValue)
+                json["delivery_receipt_requested"] = this.RequestDeliveryReceipt.Value;
+
             //json["registration_ids"] = new JArray(this.RegistrationIds.ToArray());
             json["to"] = this.To;
 
@@ -145,7 +157,7 @@ namespace PushSharp.Android
 
         public override string ToString()
         {
-            return GetJson();
+            return GetType()+"; " + To; //GetJson();
         }
 
 

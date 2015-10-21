@@ -29,8 +29,13 @@ namespace PushSharp.Android
         private static String GCM_ELEMENT_NAME = "gcm";
         private static String GCM_NAMESPACE = "google:mobile:data";
         private static String SERVER_NAME = "gcm.googleapis.com";
+#if DEBUG
+        private static String SERVER_URL = "gcm-preprod.googleapis.com";
+        private static int PORT = 5236;
+#else
+                private static String SERVER_URL = "gcm-xmpp.googleapis.com";
         private static int PORT = 5235;
-
+#endif
         private XmppClientConnection _xmpp;
         private GcmCCSPushChannelSettings _gcmSettings;
         private ConcurrentQueue<INotification> _notificationQueue;
@@ -79,7 +84,7 @@ namespace PushSharp.Android
             }
 
             Connect();
-            _keepConnectedTimer = new System.Timers.Timer(5000);
+            _keepConnectedTimer = new System.Timers.Timer(10000);
             _keepConnectedTimer.Elapsed += _keepConnectedTimer_Elapsed;
             _keepConnectedTimer.AutoReset = false;
             _keepConnectedTimer.Start();
@@ -108,23 +113,12 @@ namespace PushSharp.Android
             {
                 _isConnecting = true;
 
-                if (_xmpp != null)
-                {
-                    _xmpp.OnClose -= xmpp_OnClose;
-                    _xmpp.OnMessage -= xmpp_OnMessage;
-                    _xmpp.OnAuthError -= OnAuthError;
-                    _xmpp.OnError -= OnError;
-                    _xmpp.OnSocketError -= xmpp_OnSocketError;
-                    _xmpp.OnBinded -= xmpp_OnBinded;
-                    _xmpp = null;
-                }
-
                 _xmpp = new XmppClientConnection
                 {
                     UseSSL = true,
                     UseStartTLS = false,
-                    Server = SERVER_NAME,
-                    ConnectServer = SERVER_NAME,
+                    Server = SERVER_URL,
+                    ConnectServer = SERVER_URL,
                     Port = PORT,
                     Username = Username,
                     Password = Password,
@@ -191,12 +185,7 @@ namespace PushSharp.Android
                     // Normal upstream data message
                     HandleUpstreamMessage(jsonObject);
 
-                    // Send ACK to CCS
-                    String messageId = (String)jsonObject["message_id"];
-                    String from = (String)jsonObject["from"];
-                    String ack = createJsonAck(from, messageId);
-                    // send(ack);
-                    _xmpp.Send(CreateXML(ack, messageId));
+                    SendAck(jsonObject);
                 }
                 else if ("ack".Equals(messageType.ToString()))
                 {
@@ -213,6 +202,10 @@ namespace PushSharp.Android
                     // Process control message
                     handleControlMessage(jsonObject);
                 }
+                else if ("receipt".Equals(messageType.ToString()))
+                {
+                    handleMessageReceipt(jsonObject);
+                }
                 else
                 {
                     Log.Warning("{0}->{1}", "Unrecognized message type", messageType.ToString());
@@ -225,22 +218,73 @@ namespace PushSharp.Android
             }
 
         }
+
+        private void SendAck(JObject jsonObject)
+        {
+            // Send ACK to CCS
+            String messageId = (String)jsonObject["message_id"];
+            String from = (String)jsonObject["from"];
+            String ack = createJsonAck(from, messageId);
+            // send(ack);
+            _xmpp.Send(CreateXML(ack, messageId));
+        }
+
+        private void handleMessageReceipt(JObject jsonObject)
+        {
+            SendAck(jsonObject);
+            //TODO: Handle message receipt
+
+            //JToken data = jsonObject.GetValue("data");
+            //String messageId = (string)data["original_message_id"];
+            //GcmCCSNotification notification = (GcmCCSNotification)_pendingNotifications[messageId];
+            //if (notification != null)
+            //{
+            //    SendNotificationCallbackDelegate callback = _callbacks[messageId];
+            //    callback(this, new SendNotificationResult(notification));
+
+            //    if (notification.RequestDeliveryReceipt.GetValueOrDefault(false) == true)
+            //    {
+            //        _callbacks.Remove(messageId);
+            //        _pendingNotifications.Remove(messageId);
+            //    }
+            //}
+        }
+
         /**
-  * Handles an ACK.
-  *
-  * <p>Logs a INFO message, but subclasses could override it to
-  * properly handle ACKs.
-  */
+        * Handles an ACK.
+        *
+        * <p>Logs a INFO message, but subclasses could override it to
+        * properly handle ACKs.
+        */
         protected void HandleAckReceipt(JObject jsonObject)
         {
             String messageId = (String)jsonObject["message_id"];
             String from = (String)jsonObject["from"];
+            String CanonicalRegistrationId = (String)jsonObject["registration_id"];
 
             Log.Info("handleAckReceipt from {0},messageID: {1}", from, messageId);
             SendNotificationCallbackDelegate callback = _callbacks[messageId];
-            callback(this, new SendNotificationResult(_pendingNotifications[messageId]));
+
+            GcmCCSNotification notification = (GcmCCSNotification)_pendingNotifications[messageId];
+            SendNotificationResult result = null;
+            if (!String.IsNullOrEmpty(CanonicalRegistrationId))
+            {
+                result = new SendNotificationResult(notification, false, new DeviceSubscriptonExpiredException())
+                {
+                    OldSubscriptionId = notification.To,
+                    NewSubscriptionId = CanonicalRegistrationId,
+                    IsSubscriptionExpired = true
+                };
+            }
+            else
+                result = new SendNotificationResult(notification);
+
+            //if (notification.RequestDeliveryReceipt.GetValueOrDefault(false) == false)
+            //{
+            callback(this, result);
             _callbacks.Remove(messageId);
             _pendingNotifications.Remove(messageId);
+            //}
         }
 
         /**
@@ -254,6 +298,7 @@ namespace PushSharp.Android
             String messageId = (String)jsonObject["message_id"];
             String from = (String)jsonObject["from"];
             string error = (String)jsonObject["error"];
+            string errorDescription = (String)jsonObject["error_description"];
             GcmCCSMessageTransportResponseStatus status = ParseError(error);
             SendNotificationCallbackDelegate callback = _callbacks[messageId];
             GcmCCSNotification notification = (GcmCCSNotification)_pendingNotifications[messageId];
@@ -269,7 +314,7 @@ namespace PushSharp.Android
                     callback(this, new SendNotificationResult(notification, true, new Exception("Unavailable Response Status")));
                     break;
                 default:
-                    callback(this, new SendNotificationResult(notification, false, new GcmCCSMessageTransportException(error, status)));
+                    callback(this, new SendNotificationResult(notification, false, new GcmCCSMessageTransportException(String.Format("{0}: {1}", error, errorDescription), status)));
                     break;
             }
             Log.Info("handleNackReceipt from {0},messageID: {1}", from, messageId);
@@ -286,12 +331,12 @@ namespace PushSharp.Android
 
             GcmCCSMessageTransportResponseStatus status = GcmCCSMessageTransportResponseStatus.ERROR;
 
-             Enum.TryParse(err,out status);
+            Enum.TryParse(err, out status);
             return status;
-    }
+        }
 
 
-    protected void handleControlMessage(JObject jsonObject)
+        protected void handleControlMessage(JObject jsonObject)
         {
             Log.Info("handleControlMessage(): {0}", jsonObject);
             String controlType = (String)jsonObject["control_type"];
@@ -343,6 +388,7 @@ namespace PushSharp.Android
             try
             {
                 var msg = notification as GcmCCSNotification;
+
                 _callbacks[msg.MessageID] = callback;
                 _pendingNotifications[msg.MessageID] = notification;
                 string xml = CreateXML(msg.GetJson(), msg.MessageID);
