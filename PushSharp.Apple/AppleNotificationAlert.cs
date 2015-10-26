@@ -20,7 +20,7 @@ namespace PushSharp.Apple
 			ActionLocalizedKey = null;
 			LocalizedKey = null;
 			LocalizedArgs = new List<object>();
-			LaunchImage = null;
+            LaunchImage = null;
 			Title = null;
 			TitleLocalizedKey = null;
 			TitleLocalizedArgs = new List<object>();
@@ -67,15 +67,15 @@ namespace PushSharp.Apple
 			this.LocalizedArgs.AddRange(values);
 		}
 
-		/// <summary>
-		/// Filename of the Lauch Image (with ou without extension)
-		/// >= iOS 4.0
-		/// </summary>
-		public string LaunchImage
-		{
-			get;
-			set;
-		}
+        /// <summary>
+        /// Filename of the Lauch Image (with ou without extension)
+        /// >= iOS 4.0
+        /// </summary>
+        public string LaunchImage
+        {
+            get;
+            set;
+        }
 
 		/// <summary>
 		/// A short string describing the purpose of the notification
@@ -123,7 +123,7 @@ namespace PushSharp.Apple
 					|| !string.IsNullOrEmpty(ActionLocalizedKey)
 					|| !string.IsNullOrEmpty(LocalizedKey)
 					|| (LocalizedArgs != null && LocalizedArgs.Count > 0)
-					|| !string.IsNullOrEmpty(LaunchImage)
+                    || !string.IsNullOrEmpty(LaunchImage)
 					|| !string.IsNullOrEmpty(Title)
 					|| !string.IsNullOrEmpty(TitleLocalizedKey)
 					|| (TitleLocalizedArgs != null && TitleLocalizedArgs.Count > 0)

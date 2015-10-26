@@ -80,7 +80,7 @@ namespace PushSharp.Apple
 
 			if (!this.Alert.IsEmpty)
 			{
-				if (!string.IsNullOrEmpty(this.Alert.Body)
+                if (!string.IsNullOrEmpty(this.Alert.Body)
 					&& string.IsNullOrEmpty(this.Alert.LocalizedKey)
 					&& string.IsNullOrEmpty(this.Alert.ActionLocalizedKey)
 					&& (this.Alert.LocalizedArgs == null || this.Alert.LocalizedArgs.Count <= 0)
@@ -88,7 +88,7 @@ namespace PushSharp.Apple
 					&& string.IsNullOrEmpty(this.Alert.Title)
 					&& string.IsNullOrEmpty(this.Alert.TitleLocalizedKey)
 					&& (this.Alert.TitleLocalizedArgs == null || this.Alert.TitleLocalizedArgs.Count <= 0)
-					&& !this.HideActionButton)
+                    && !this.HideActionButton)
 				{
 					aps["alert"] = new JValue(this.Alert.Body);
 				}
@@ -110,10 +110,10 @@ namespace PushSharp.Apple
 					else if (!string.IsNullOrEmpty(this.Alert.ActionLocalizedKey))
 						jsonAlert["action-loc-key"] = new JValue(this.Alert.ActionLocalizedKey);
 
-					if (!string.IsNullOrEmpty(this.Alert.LaunchImage))
-						jsonAlert["launch-image"] = new JValue(this.Alert.LaunchImage);
+                    if (!string.IsNullOrEmpty(this.Alert.LaunchImage))
+                        jsonAlert["launch-image"] = new JValue(this.Alert.LaunchImage);
 
-					if (!string.IsNullOrEmpty(this.Alert.TitleLocalizedKey))
+					if (!string.IsNullOrEmpty(this.Alert.Title))
 						jsonAlert["title"] = new JValue(this.Alert.Title);
 
 					if (!string.IsNullOrEmpty(this.Alert.TitleLocalizedKey))
