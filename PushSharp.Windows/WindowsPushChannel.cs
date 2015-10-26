@@ -172,25 +172,21 @@ namespace PushSharp.Windows
             catch (WebException wex)
             {
                 WindowsNotificationStatus status = null;
-                try
-                {
                     //Handle different httpstatuses
                     status = ParseStatus(wex.Response as HttpWebResponse, winNotification);
                     HandleStatus(status, callback);
-
-                }
-                catch (Exception ex)
+            }
+            catch (Exception ex)
+            {
+                Log.Error("{0}", ex);
+                HandleStatus(new WindowsNotificationStatus()
                 {
-                    Log.Error(ex.Message, ex);
-                    HandleStatus(new WindowsNotificationStatus()
-                    {
-                        HttpStatus = HttpStatusCode.RequestTimeout,
-                        DeviceConnectionStatus = WindowsDeviceConnectionStatus.Connected,
-                        MessageID = "",
-                        Notification = winNotification,
-                        NotificationStatus = WindowsNotificationSendStatus.Dropped,
-                    }, callback);
-                }
+                    HttpStatus = HttpStatusCode.RequestTimeout,
+                    DeviceConnectionStatus = WindowsDeviceConnectionStatus.Connected,
+                    MessageID = "",
+                    Notification = winNotification,
+                    NotificationStatus = WindowsNotificationSendStatus.Dropped,
+                }, callback);
             }
         }
 
@@ -206,26 +202,25 @@ namespace PushSharp.Windows
             var winNotification = (WindowsNotification)objs[1];
             var callback = (SendNotificationCallbackDelegate)objs[2];
 
-            var resp = wr.EndGetResponse(asyncResult) as HttpWebResponse;
-            try
-            {
+
+            //try
+            //{
+                var resp = wr.EndGetResponse(asyncResult) as HttpWebResponse;
                 var status = ParseStatus(resp, winNotification);
                 HandleStatus(status, callback);
-            }
-            catch (Exception ex)
-            {
-                Log.Error("{0}", ex);
-                HandleStatus(new WindowsNotificationStatus()
-                {
-                    HttpStatus = HttpStatusCode.RequestTimeout,
-                    DeviceConnectionStatus = WindowsDeviceConnectionStatus.Connected,
-                    MessageID = "",
-                    Notification = winNotification,
-                    NotificationStatus = WindowsNotificationSendStatus.Dropped,
-                }, callback);
-            }
-
-
+            //}
+            //catch (Exception ex)
+            //{
+            //    Log.Error("{0}", ex);
+            //    HandleStatus(new WindowsNotificationStatus()
+            //    {
+            //        HttpStatus = HttpStatusCode.RequestTimeout,
+            //        DeviceConnectionStatus = WindowsDeviceConnectionStatus.Connected,
+            //        MessageID = "",
+            //        Notification = winNotification,
+            //        NotificationStatus = WindowsNotificationSendStatus.Dropped,
+            //    }, callback);
+            //}
         }
 
 

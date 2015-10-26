@@ -525,9 +525,7 @@ namespace PushSharp.Core
 									}
 									else
 									{
-										var evt = this.OnDeviceSubscriptionExpired;
-										if (evt != null)
-											evt(this, result.OldSubscriptionId, result.SubscriptionExpiryUtc, result.Notification);
+                                        RaiseSubscriptionExpired(result.OldSubscriptionId, result.SubscriptionExpiryUtc, result.Notification);
 									}
 								}
 								else //Otherwise some general failure
