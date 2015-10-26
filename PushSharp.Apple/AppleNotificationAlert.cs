@@ -20,7 +20,10 @@ namespace PushSharp.Apple
 			ActionLocalizedKey = null;
 			LocalizedKey = null;
 			LocalizedArgs = new List<object>();
-            LaunchImage = null;
+			LaunchImage = null;
+			Title = null;
+			TitleLocalizedKey = null;
+			TitleLocalizedArgs = new List<object>();
 		}
 
 		/// <summary>
@@ -64,15 +67,50 @@ namespace PushSharp.Apple
 			this.LocalizedArgs.AddRange(values);
 		}
 
-        /// <summary>
-        /// Filename of the Lauch Image (with ou without extension)
-        /// >= iOS 4.0
-        /// </summary>
-        public string LaunchImage
-        {
-            get;
-            set;
-        }
+		/// <summary>
+		/// Filename of the Lauch Image (with ou without extension)
+		/// >= iOS 4.0
+		/// </summary>
+		public string LaunchImage
+		{
+			get;
+			set;
+		}
+
+		/// <summary>
+		/// A short string describing the purpose of the notification
+		/// >= iOS 8.2
+		/// </summary>
+		public string Title
+		{
+			get;
+			set;
+		}
+
+		/// <summary>
+		/// Title Localized Key
+		/// >= iOS 8.2
+		/// </summary>
+		public string TitleLocalizedKey
+		{
+			get;
+			set;
+		}
+
+		/// <summary>
+		/// Title Localized Argument List
+		/// >= iOS 8.2
+		/// </summary>
+		public List<object> TitleLocalizedArgs
+		{
+			get;
+			set;
+		}
+
+		public void AddTitleLocalizedArgs(params object[] values)
+		{
+			this.TitleLocalizedArgs.AddRange(values);
+		}
 
 		/// <summary>
 		/// Determines if the Alert is empty and should be excluded from the Notification Payload
@@ -85,8 +123,11 @@ namespace PushSharp.Apple
 					|| !string.IsNullOrEmpty(ActionLocalizedKey)
 					|| !string.IsNullOrEmpty(LocalizedKey)
 					|| (LocalizedArgs != null && LocalizedArgs.Count > 0)
-                    || !string.IsNullOrEmpty(LaunchImage)
-                    )
+					|| !string.IsNullOrEmpty(LaunchImage)
+					|| !string.IsNullOrEmpty(Title)
+					|| !string.IsNullOrEmpty(TitleLocalizedKey)
+					|| (TitleLocalizedArgs != null && TitleLocalizedArgs.Count > 0)
+					)
 					return false;
 				else
 					return true;
