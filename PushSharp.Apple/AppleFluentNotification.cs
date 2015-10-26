@@ -71,6 +71,16 @@ namespace PushSharp
             return n;
         }
 
+		public static AppleNotification WithAlert(this AppleNotification n, string body, string localizedKey, string actionLocalizedKey, IEnumerable<object> localizedArgs, string launchImage, string title = null, string titleLocalizedKey = null, IEnumerable<object> titleLocalizedArgs = null)
+		{
+			if (n.Payload == null)
+				n.Payload = new AppleNotificationPayload();
+
+			n.Payload.Alert = new AppleNotificationAlert() { Body = body, LocalizedKey = localizedKey, ActionLocalizedKey = actionLocalizedKey, LocalizedArgs = localizedArgs.ToList(), LaunchImage = launchImage, Title = title, TitleLocalizedKey = titleLocalizedKey, TitleLocalizedArgs = titleLocalizedArgs == null ? null : titleLocalizedArgs.ToList() };
+
+			return n;
+		}
+
 		public static AppleNotification WithBadge(this AppleNotification n, int badge)
 		{
 			if (n.Payload == null)
