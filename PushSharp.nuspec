@@ -30,5 +30,6 @@
         <file src="PushSharp.Firefox\bin\Release\PushSharp.Firefox.dll" target="lib\net45\PushSharp.Firefox.dll" />
         <file src="PushSharp.Windows\bin\Release\PushSharp.Windows.dll" target="lib\net45\PushSharp.Windows.dll" />
         <file src="PushSharp.Google\bin\Release\PushSharp.Google.dll" target="lib\net45\PushSharp.Google.dll" />
+        <file src="PushSharp.Blackberry\bin\Release\PushSharp.Blackberry.dll" target="lib\net45\PushSharp.Blackberry.dll" />
     </files>
 </package>
