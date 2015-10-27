@@ -3,10 +3,10 @@
   <PropertyGroup>
     <Configuration Condition=" '$(Configuration)' == '' ">Debug</Configuration>
     <Platform Condition=" '$(Platform)' == '' ">AnyCPU</Platform>
-    <ProjectGuid>{A9D99F80-FEEB-4E74-96C5-66F17103C773}</ProjectGuid>
-    <OutputType>Library</OutputType>
-    <RootNamespace>PushSharp.Apple</RootNamespace>
-    <AssemblyName>PushSharp.Apple</AssemblyName>
+    <ProjectGuid>{DE0D53D0-2122-42EC-98D9-6E82F956CC04}</ProjectGuid>
+    <OutputType>Exe</OutputType>
+    <RootNamespace>PushSharp.Tests.Runner</RootNamespace>
+    <AssemblyName>PushSharp.Tests.Runner</AssemblyName>
     <TargetFrameworkVersion>v4.5</TargetFrameworkVersion>
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|AnyCPU' ">
@@ -25,31 +25,28 @@
     <OutputPath>bin\Release</OutputPath>
     <ErrorReport>prompt</ErrorReport>
     <WarningLevel>4</WarningLevel>
-    <ConsolePause>false</ConsolePause>
+    <Externalconsole>true</Externalconsole>
   </PropertyGroup>
   <ItemGroup>
     <Reference Include="System" />
-    <Reference Include="Newtonsoft.Json">
-      <HintPath>..\packages\Newtonsoft.Json.7.0.1\lib\net45\Newtonsoft.Json.dll</HintPath>
-    </Reference>
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="Program.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
-    <Compile Include="ApnsServiceConnection.cs" />
-    <Compile Include="ApnsConnection.cs" />
-    <Compile Include="ApnsConfiguration.cs" />
-    <Compile Include="ApnsNotification.cs" />
-    <Compile Include="Exceptions.cs" />
-    <Compile Include="ApnsHttp2Connection.cs" />
   </ItemGroup>
   <Import Project="$(MSBuildBinPath)\Microsoft.CSharp.targets" />
   <ItemGroup>
+    <ProjectReference Include="..\PushSharp.Tests\PushSharp.Tests.csproj">
+      <Project>{989B7357-800E-46B9-91AF-A4CE8A55F389}</Project>
+      <Name>PushSharp.Tests</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\PushSharp.Apple\PushSharp.Apple.csproj">
+      <Project>{A9D99F80-FEEB-4E74-96C5-66F17103C773}</Project>
+      <Name>PushSharp.Apple</Name>
+    </ProjectReference>
     <ProjectReference Include="..\PushSharp.Core\PushSharp.Core.csproj">
       <Project>{2B44A8DA-60BC-4577-A2D7-D9D53F164B2E}</Project>
       <Name>PushSharp.Core</Name>
     </ProjectReference>
-  </ItemGroup>
-  <ItemGroup>
-    <None Include="packages.config" />
   </ItemGroup>
 </Project>

@@ -3,10 +3,10 @@
   <PropertyGroup>
     <Configuration Condition=" '$(Configuration)' == '' ">Debug</Configuration>
     <Platform Condition=" '$(Platform)' == '' ">AnyCPU</Platform>
-    <ProjectGuid>{A9D99F80-FEEB-4E74-96C5-66F17103C773}</ProjectGuid>
+    <ProjectGuid>{54A4C1F9-6571-4086-BB4B-EC202138AF00}</ProjectGuid>
     <OutputType>Library</OutputType>
-    <RootNamespace>PushSharp.Apple</RootNamespace>
-    <AssemblyName>PushSharp.Apple</AssemblyName>
+    <RootNamespace>PushSharp.Firefox</RootNamespace>
+    <AssemblyName>PushSharp.Firefox</AssemblyName>
     <TargetFrameworkVersion>v4.5</TargetFrameworkVersion>
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|AnyCPU' ">
@@ -29,18 +29,13 @@
   </PropertyGroup>
   <ItemGroup>
     <Reference Include="System" />
-    <Reference Include="Newtonsoft.Json">
-      <HintPath>..\packages\Newtonsoft.Json.7.0.1\lib\net45\Newtonsoft.Json.dll</HintPath>
-    </Reference>
+    <Reference Include="System.Net.Http" />
   </ItemGroup>
   <ItemGroup>
     <Compile Include="Properties\AssemblyInfo.cs" />
-    <Compile Include="ApnsServiceConnection.cs" />
-    <Compile Include="ApnsConnection.cs" />
-    <Compile Include="ApnsConfiguration.cs" />
-    <Compile Include="ApnsNotification.cs" />
-    <Compile Include="Exceptions.cs" />
-    <Compile Include="ApnsHttp2Connection.cs" />
+    <Compile Include="FirefoxNotification.cs" />
+    <Compile Include="FirefoxConnection.cs" />
+    <Compile Include="FirefoxConfiguration.cs" />
   </ItemGroup>
   <Import Project="$(MSBuildBinPath)\Microsoft.CSharp.targets" />
   <ItemGroup>
@@ -48,8 +43,5 @@
       <Project>{2B44A8DA-60BC-4577-A2D7-D9D53F164B2E}</Project>
       <Name>PushSharp.Core</Name>
     </ProjectReference>
-  </ItemGroup>
-  <ItemGroup>
-    <None Include="packages.config" />
   </ItemGroup>
 </Project>
