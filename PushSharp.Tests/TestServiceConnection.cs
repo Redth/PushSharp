@@ -55,16 +55,12 @@ namespace PushSharp.Tests
 		{         
             var id = notification.TestId;
 
-            Console.WriteLine ("Sending {0}...", id);
-
             await Task.Delay (250).ConfigureAwait (false);
 
             if (notification.ShouldFail) {
                 Console.WriteLine ("Fail {0}...", id);
                 throw new Exception ("Notification Should Fail: " + id);
             }
-
-            Console.WriteLine ("Sent {0}...", id);	
 		}
 	}
 } 
