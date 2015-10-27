@@ -324,7 +324,6 @@ namespace PushSharp.Apple
                 } catch {
                 }
             } catch (Exception ex) {
-                //TODO: Handle this issue
                 throw new ApnsConnectionException ("Failed to Connect, check your firewall settings!", ex);
             }
 

@@ -48,9 +48,9 @@ namespace PushSharp.Apple
 
         public bool LowPriority { get; set; }
 
-        public const int DEVICE_TOKEN_BINARY_SIZE = 32;
-        public const int DEVICE_TOKEN_STRING_SIZE = 64;
-        public const int MAX_PAYLOAD_SIZE = 2048;
+        public const int DEVICE_TOKEN_BINARY_MIN_SIZE = 32;
+        public const int DEVICE_TOKEN_STRING_MIN_SIZE = 64;
+        public const int MAX_PAYLOAD_SIZE = 2048; //will be 4096 soon
         public static readonly DateTime DoNotStore = DateTime.MinValue;
         private static readonly DateTime UNIX_EPOCH = new DateTime (1970, 1, 1, 0, 0, 0, DateTimeKind.Utc);
 
@@ -64,7 +64,7 @@ namespace PushSharp.Apple
 
         public ApnsNotification (string deviceToken, JObject payload)
         {
-            if (!string.IsNullOrEmpty (deviceToken) && deviceToken.Length != DEVICE_TOKEN_STRING_SIZE)
+            if (!string.IsNullOrEmpty (deviceToken) && deviceToken.Length < DEVICE_TOKEN_STRING_MIN_SIZE)
                 throw new NotificationException ("Invalid DeviceToken Length", this);
 
             DeviceToken = deviceToken;
@@ -111,7 +111,7 @@ namespace PushSharp.Apple
                 }
             }
 
-            if (deviceToken.Length != DEVICE_TOKEN_BINARY_SIZE)
+            if (deviceToken.Length < DEVICE_TOKEN_BINARY_MIN_SIZE)
                 throw new NotificationException ("Invalid DeviceToken Length", this);
 
             builder.Add (0x01); // Device Token ID
