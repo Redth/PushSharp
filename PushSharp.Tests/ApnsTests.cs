@@ -45,7 +45,7 @@ namespace PushSharp.Tests
             });
         }
 
-        [Test]
+        //[Test]
         public async Task APNS_Scale_Brokers ()
         {
             await Apns (10, 10100, new List<ApnsResponseFilter> {
