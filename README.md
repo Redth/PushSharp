@@ -64,17 +64,16 @@ If you have an app with a significant number of installs/users, and are interest
    - XMPP transport still under development
    - Untested for Chrome (should work in theory)
  - **ADM - Amazon Device Messaging**
-   - Untested - will be tested soon
+   - Working!
  - **Windows**
-   - Not complete
-   - Will Drop support for WPS (old Windows Phone push service)
+   - Untested
+   - Drops support for WPS (old Windows Phone push service)
    - WNS will be supported, payload will be up to developer to specify initially
  - **Firefox**
    - The SimplePush format should work, but is untested
    - There's some push to make W3C standardized push notifications, waiting to see how this plays out
  - **Other**
    - More NUnit tests to be written, with a test GCM Server, and eventually Test servers for other platforms
-   - AppVeyor CI
    - New Xamarin Client samples (how to setup each platform as a push client) will be built and live in a separate repository to be less confusing
    
 
