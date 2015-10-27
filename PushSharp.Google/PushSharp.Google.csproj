@@ -6,7 +6,7 @@
     <ProjectGuid>{94F16497-471F-433F-A99E-C455FB2D7724}</ProjectGuid>
     <OutputType>Library</OutputType>
     <RootNamespace>PushSharp.Google</RootNamespace>
-    <AssemblyName>PushSharp.Google.Gcm</AssemblyName>
+    <AssemblyName>PushSharp.Google</AssemblyName>
     <TargetFrameworkVersion>v4.5</TargetFrameworkVersion>
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|AnyCPU' ">
