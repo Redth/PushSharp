@@ -9,6 +9,19 @@ namespace PushSharp
 {
 	public static class FluentNotification
 	{
+        public static AppleNotification WithJson(this AppleNotification n, string json)
+        {
+            try { Newtonsoft.Json.Linq.JObject.Parse(json); }
+            catch { throw new InvalidCastException("Invalid JSON detected!"); }
+
+            if (n.Payload == null)
+                n.Payload = new AppleNotificationPayload();
+
+            n.Payload.JsonData = json ;
+
+            return n;
+        }
+
 		public static AppleNotification ForDeviceToken(this AppleNotification n, string deviceToken)
 		{
 			n.DeviceToken = deviceToken;
