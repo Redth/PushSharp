@@ -13,6 +13,13 @@ namespace PushSharp.Tests
             get {
                 if (instance == null) {
 
+                    var envData = Environment.GetEnvironmentVariable ("TEST_CONFIG_JSON");
+
+                    if (!string.IsNullOrEmpty (envData)) {
+                        instance = JsonConvert.DeserializeObject<Settings> (envData);
+                        return instance;
+                    }
+
                     var baseDir = AppDomain.CurrentDomain.BaseDirectory;
 
                     var settingsFile = Path.Combine (baseDir, "settings.json");
