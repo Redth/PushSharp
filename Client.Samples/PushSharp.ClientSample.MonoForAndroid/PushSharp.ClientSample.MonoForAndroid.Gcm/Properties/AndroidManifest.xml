@@ -1,6 +1,0 @@
-﻿<?xml version="1.0" encoding="utf-8"?>
-<manifest xmlns:android="http://schemas.android.com/apk/res/android" package="com.pushsharp.test" android:installLocation="internalOnly" android:versionCode="2" android:versionName="2.0">
-  <uses-sdk android:targetSdkVersion="8" />
-  <application android:label="PushSharp Test GCM">
-  </application>
-</manifest>
