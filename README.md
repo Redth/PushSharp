@@ -1,7 +1,7 @@
 PushSharp v3.0 - The Push Awakens!
 ==================================
 
-PushSharp is a server-side library for sending Push Notifications to iOS/OSX (APNS), Android/Chrome (GCM), Windows/Windows Phone, and Amazon (ADM) devices!
+PushSharp is a server-side library for sending Push Notifications to iOS/OSX (APNS), Android/Chrome (GCM), Windows/Windows Phone, Amazon (ADM) and Blackberry devices!
 
 PushSharp v3.0 is a complete rewrite of the original library, aimed at taking advantage of things like async/await, HttpClient, and generally a better infrastructure using lessons learned from the old code.
 
@@ -72,6 +72,8 @@ If you have an app with a significant number of installs/users, and are interest
  - **Firefox**
    - The SimplePush format should work, but is untested
    - There's some push to make W3C standardized push notifications, waiting to see how this plays out
+ - **Blackberry**
+   - Untested - code ported from previous PushSharp releases
  - **Other**
    - More NUnit tests to be written, with a test GCM Server, and eventually Test servers for other platforms
    - New Xamarin Client samples (how to setup each platform as a push client) will be built and live in a separate repository to be less confusing
