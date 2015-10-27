@@ -1,0 +1,34 @@
+<?xml version="1.0" encoding="utf-8"?>
+<package xmlns="http://schemas.microsoft.com/packaging/2011/10/nuspec.xsd">
+    <metadata>
+        <id>PushSharp</id>
+        <version>3.0.0-alpha1</version>
+        <title>PushSharp</title>
+        <authors>Redth</authors>
+        <owners>Redth</owners>
+        <licenseUrl>http://www.apache.org/licenses/LICENSE-2.0.txt</licenseUrl>
+        <projectUrl>https://github.com/Redth/PushSharp/tree/3.0-dev</projectUrl>
+        <iconUrl>https://github.com/Redth/PushSharp/raw/master/Resources/PushSharp-Icon-NuGet-Small.png</iconUrl>
+        <requireLicenseAcceptance>false</requireLicenseAcceptance>
+        <description>A server-side library for sending Push Notifications to iOS/OSX (APNS), Android/Chrome (GCM), Windows Phone/Windows (WNS), Amazon (ADM) and Firefox OS</description>
+        <summary>A server-side library for sending Push Notifications to many platforms (APNS, GCM, WNS, ADM)</summary>
+        <releaseNotes>
+            3.0.0-alpha1 - Complete Rewrite, New API, see project site for more info
+        </releaseNotes>
+        <copyright>2012-2015 Redth</copyright>
+        <language>en-US</language>
+        <tags>APN, APNS, GCM, XMPP, ADM, GCMXMPP, C2DM, PAP, iOS, Android, iPad, iPhone, PushSharp, MDM, UWP, WNS, Windows Notification, Amazon, Amazon Device, Push, Push Notifications, Google Cloud, Cloud Messaging, Google Cloud Messaging, OSX, Mac, WindowsPhone, PassKit</tags>
+        <dependencies>
+            <dependency id="Newtonsoft.Json" version="7.0.1" />
+        </dependencies>
+    </metadata>
+    <files>
+        <file src="PushSharp.Core\bin\Release\PushSharp.Core.dll" target="lib\net45\PushSharp.Core.dll" />
+
+        <file src="PushSharp.Amazon\bin\Release\PushSharp.Amazon.dll" target="lib\net45\PushSharp.Amazon.dll" />
+        <file src="PushSharp.Apple\bin\Release\PushSharp.Apple.dll" target="lib\net45\PushSharp.Apple.dll" />
+        <file src="PushSharp.Firefox\bin\Release\PushSharp.Firefox.dll" target="lib\net45\PushSharp.Firefox.dll" />
+        <file src="PushSharp.Windows\bin\Release\PushSharp.Windows.dll" target="lib\net45\PushSharp.Windows.dll" />
+        <file src="PushSharp.Google\bin\Release\PushSharp.Google.dll" target="lib\net45\PushSharp.Google.dll" />
+    </files>
+</package>
