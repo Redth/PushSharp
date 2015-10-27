@@ -11,8 +11,7 @@ namespace PushSharp.Tests
 
 		public TestNotification()
 		{
-
-            this.TestId = TestNotification.TESTID++;
+            TestId = TestNotification.TESTID++;
 		}
 
         public object Tag { get;set; }
@@ -58,7 +57,7 @@ namespace PushSharp.Tests
 
             Console.WriteLine ("Sending {0}...", id);
 
-            await Task.Delay (500).ConfigureAwait (false);
+            await Task.Delay (250).ConfigureAwait (false);
 
             if (notification.ShouldFail) {
                 Console.WriteLine ("Fail {0}...", id);
@@ -67,8 +66,6 @@ namespace PushSharp.Tests
 
             Console.WriteLine ("Sent {0}...", id);	
 		}
-
-
 	}
 } 
 

@@ -37,13 +37,14 @@
     </Reference>
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="Test.cs" />
     <Compile Include="TestServiceConnection.cs" />
     <Compile Include="GcmXmppTests.cs" />
     <Compile Include="Servers\TestApnsServer.cs" />
     <Compile Include="ApnsTests.cs" />
-    <Compile Include="Utils\SocketAwaitable.cs" />
-    <Compile Include="GcmTests.cs" />
+    <Compile Include="Settings.cs" />
+    <Compile Include="AdmRealTests.cs" />
+    <Compile Include="GcmRealTests.cs" />
+    <Compile Include="BrokerTests.cs" />
   </ItemGroup>
   <Import Project="$(MSBuildBinPath)\Microsoft.CSharp.targets" />
   <ItemGroup>
@@ -59,9 +60,14 @@
       <Project>{94F16497-471F-433F-A99E-C455FB2D7724}</Project>
       <Name>PushSharp.Google.Gcm</Name>
     </ProjectReference>
+    <ProjectReference Include="..\PushSharp.Amazon\PushSharp.Amazon.csproj">
+      <Project>{2468C63B-C964-4FC3-9B16-13DC17CF7D11}</Project>
+      <Name>PushSharp.Amazon</Name>
+    </ProjectReference>
   </ItemGroup>
   <ItemGroup>
     <None Include="packages.config" />
+    <None Include="settings.json" />
   </ItemGroup>
   <ItemGroup />
   <ItemGroup>

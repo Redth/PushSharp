@@ -1,0 +1,22 @@
+﻿{
+	"apns_cert_file" : "",
+    "apns_cert_pwd" : "",
+	"apns_device_tokens" : 
+	[
+		"",
+	],
+    
+	"gcm_auth_token" : "",
+    "gcm_sender_id" : "",
+    "gcm_registration_ids" : 
+	[
+		"", 
+	],
+        
+	"adm_client_id" : "",
+    "adm_client_secret" : "",
+	"adm_registration_ids" : 
+	[
+		"",
+	],
+}

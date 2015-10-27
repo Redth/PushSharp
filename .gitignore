@@ -30,3 +30,5 @@ PushSharp.Sample.LocalTesting/
 
 node_modules/
 .idea/
+
+settings.json

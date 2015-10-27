@@ -5,10 +5,12 @@ using PushSharp.Apple;
 using System.Threading;
 using Newtonsoft.Json.Linq;
 using NUnit.Framework;
+using PushSharp.Core;
 
 namespace PushSharp.Tests
 {
     [TestFixture]
+    [Category ("Fake")]
     public class ApnsTests
     {   
         [Test]
@@ -132,10 +134,14 @@ namespace PushSharp.Tests
             if (scale != 1)
                 broker.ChangeScale (scale);
 
+            var c = Log.StartCounter ();
+
             foreach (var n in notifications)
                 broker.QueueNotification (n);
 
             broker.Stop ();
+
+            c.StopAndLog ("Test Took {0} ms");
 
             await server.Stop ().ConfigureAwait (false);
 

@@ -10,32 +10,36 @@ using Newtonsoft.Json.Linq;
 namespace PushSharp.Tests
 {
     [TestFixture]
+    [Category ("Disabled")]
     public class GcmXmppTests
     {
-        const string SENDER_ID = "785671162406";
-        const string AUTH_TOKEN = "AIzaSyCQ6mYcuT6XHbAPaPsm7RfycPhWBvuX_XA";
-
         [Test]
         public async Task GCMXMPP_Connect ()
         {
+            var succeeded = 0;
+            var failed = 0;
+            var attempted = 0;
+
             var c = new GcmXmppConfiguration {
                 Production = false,
-                AuthenticationToken = AUTH_TOKEN,
-                SenderIDs = new List<string> { SENDER_ID }
+                AuthenticationToken = Settings.Instance.GcmAuthToken,
+                SenderIDs = new List<string> { Settings.Instance.GcmSenderId }
             };
 
             var gcm = new GcmXmppConnection (c);
             await gcm.Connect ();
 
-            gcm.Send (new GcmXmppConnection.CompletableNotification (new GcmXmppNotification {
-                To = "dCsRXe5aSKU:APA91bE2BbDi8f30j4IuMKCy8m8xBMZesT4UD7oBmOyaJWwr6LtR0PtXx2Kwlvo3IPuOQ4XsRxUiIuvbSThsinooNvbvqVCm1aw2uqyxg8mEyGQGzzU_SH8CjcT9aZ93qjJwPSmt0-Tk",
-                Data = JObject.Parse ("{ \"somekey\" : \"somevalue\" }")
-            }));
+            foreach (var regId in Settings.Instance.GcmRegistrationIds) {
+                gcm.Send (new GcmXmppConnection.CompletableNotification (new GcmXmppNotification {
+                    To = regId,
+                    Data = JObject.Parse ("{ \"somekey\" : \"somevalue\" }")
+                }));
+            }
 
             gcm.Close ();
 
-            //await Task.Delay (5000).ConfigureAwait (false);
-            Log.Debug ("Done");
+            Assert.AreEqual (attempted, succeeded);
+            Assert.AreEqual (0, failed);
         }
     }
 }

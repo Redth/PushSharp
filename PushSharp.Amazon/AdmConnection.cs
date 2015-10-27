@@ -27,9 +27,9 @@ namespace PushSharp.Amazon
         }
     }
 
-    public class FirefoxServiceBroker : ServiceBroker<AdmNotification>
+    public class AdmServiceBroker : ServiceBroker<AdmNotification>
     {
-        public FirefoxServiceBroker (AdmConfiguration configuration) : base (new AdmServiceConnectionFactory (configuration))
+        public AdmServiceBroker (AdmConfiguration configuration) : base (new AdmServiceConnectionFactory (configuration))
         {
         }
     }
