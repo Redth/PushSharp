@@ -28,9 +28,9 @@ namespace PushSharp.Tests
         [Test]
         public async Task APNS_Send_Many ()
         {
-            await Apns (10, 10100, new List<ApnsResponseFilter> {
+            await Apns (10, 1010, new List<ApnsResponseFilter> {
                 new ApnsResponseFilter ((id, deviceToken, payload) => {
-                    return id % 1000 == 0;
+                    return id % 100 == 0;
                 })
             });
         }
