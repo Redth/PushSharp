@@ -4,7 +4,7 @@ using System.Net.Http;
 using System.Net.Http.Headers;
 using Newtonsoft.Json;
 
-namespace PushSharp.Google.Gcm
+namespace PushSharp.Google
 {
     public class GcmMessageResult
     {

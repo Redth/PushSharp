@@ -1,68 +1,30 @@
-using System;
-using Newtonsoft.Json.Linq;
-using System.Collections.Generic;
+﻿using System;
 using PushSharp.Core;
-using System.Linq;
+using Newtonsoft.Json.Linq;
 using Newtonsoft.Json;
 
-namespace PushSharp.Google.Gcm
+namespace PushSharp.Google
 {
-    public class GcmNotification : INotification
+    public class GcmXmppNotification : INotification
     {
-        public static GcmNotification ForSingleResult (GcmResponse response, int resultIndex)
+        public GcmXmppNotification ()
         {
-            var result = new GcmNotification ();
-            result.Tag = response.OriginalNotification.Tag;
-            result.RegistrationIds.Add (response.OriginalNotification.RegistrationIds [resultIndex]);
-            result.CollapseKey = response.OriginalNotification.CollapseKey;
-            result.Data = response.OriginalNotification.Data;
-            result.DelayWhileIdle = response.OriginalNotification.DelayWhileIdle;
-            result.ContentAvailable = response.OriginalNotification.ContentAvailable;
-            result.DryRun = response.OriginalNotification.DryRun;
-            result.Priority = response.OriginalNotification.Priority;
-            result.To = response.OriginalNotification.To;
-            result.NotificationKey = response.OriginalNotification.NotificationKey;
-
-            return result;
-        }
-
-        public static GcmNotification ForSingleRegistrationId (GcmNotification msg, string registrationId)
-        {
-            var result = new GcmNotification ();
-            result.Tag = msg.Tag;
-            result.RegistrationIds.Add (registrationId);
-            result.To = null;
-            result.CollapseKey = msg.CollapseKey;
-            result.Data = msg.Data;
-            result.DelayWhileIdle = msg.DelayWhileIdle;
-            result.ContentAvailable = msg.ContentAvailable;
-            result.DryRun = msg.DryRun;
-            result.Priority = msg.Priority;
-            result.NotificationKey = msg.NotificationKey;
-
-            return result;
-        }
-
-        public GcmNotification ()
-        {
-            RegistrationIds = new List<string> ();
+            MessageId = "m-" + Guid.NewGuid ().ToString ("N");
             CollapseKey = string.Empty;
             Data = null;
             DelayWhileIdle = null;
         }
-           
+
         public bool IsDeviceRegistrationIdValid ()
         {
-            return RegistrationIds != null && RegistrationIds.Any ();
+            return !string.IsNullOrEmpty (To);
         }
 
+        [JsonIgnore]
         public object Tag { get;set; }
 
-        /// <summary>
-        /// Registration ID of the Device(s).  Maximum of 1000 registration Id's per notification.
-        /// </summary>
-        [JsonProperty ("registration_ids")]
-        public List<string> RegistrationIds { get; set; }
+        [JsonProperty  ("message_id")]
+        public string MessageId { get;set; }
 
         /// <summary>
         /// Registration ID or Group/Topic to send notification to.  Overrides RegsitrationIds.
@@ -89,6 +51,9 @@ namespace PushSharp.Google.Gcm
         /// <value>The notification payload.</value>
         [JsonProperty ("notification")]
         public JObject Notification { get; set; }
+
+        [JsonProperty ("delivery_receipt_requested")]
+        public bool? DeliveryReceiptRequested { get; set; }
 
         /// <summary>
         /// If true, GCM will only be delivered once the device's screen is on
@@ -143,11 +108,12 @@ namespace PushSharp.Google.Gcm
         {
             return GetJson ();
         }
-    }
 
-    public enum GcmNotificationPriority
-    {
-        Normal = 5,
-        High = 10
+
+        public string ToJson ()
+        {
+            return JsonConvert.SerializeObject (this);
+        }
     }
 }
+

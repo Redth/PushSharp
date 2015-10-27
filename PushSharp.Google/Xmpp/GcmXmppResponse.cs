@@ -3,7 +3,7 @@ using Newtonsoft.Json;
 using Newtonsoft.Json.Converters;
 using System.Runtime.Serialization;
 
-namespace PushSharp.Google.Gcm.Xmpp
+namespace PushSharp.Google
 {
     public class GcmXmppResponse
     {

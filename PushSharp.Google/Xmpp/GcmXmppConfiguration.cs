@@ -2,7 +2,7 @@
 using System.Collections.Generic;
 using System.Text;
 
-namespace PushSharp.Google.Gcm.Xmpp
+namespace PushSharp.Google
 {
     public class GcmXmppConfiguration
     {

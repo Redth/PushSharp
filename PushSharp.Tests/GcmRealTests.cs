@@ -1,6 +1,6 @@
 ﻿using System;
 using NUnit.Framework;
-using PushSharp.Google.Gcm;
+using PushSharp.Google;
 using System.Collections.Generic;
 using Newtonsoft.Json.Linq;
 

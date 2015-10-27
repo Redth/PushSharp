@@ -2,7 +2,7 @@
 using PushSharp.Core;
 using System.Threading.Tasks;
 
-namespace PushSharp.Google.Gcm.Xmpp
+namespace PushSharp.Google
 {
     public class GcmXmppServiceConnectionFactory : IServiceConnectionFactory<GcmXmppNotification>
     {

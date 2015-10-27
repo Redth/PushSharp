@@ -3,7 +3,7 @@ using Newtonsoft.Json;
 using System.Collections.Generic;
 using System.Runtime.Serialization;
 
-namespace PushSharp.Google.Gcm
+namespace PushSharp.Google
 {
     public class GcmResponse
     {

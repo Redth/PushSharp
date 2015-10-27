@@ -11,13 +11,13 @@ Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Platforms", "Platforms", "{
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "PushSharp.Apple", "PushSharp.Apple\PushSharp.Apple.csproj", "{A9D99F80-FEEB-4E74-96C5-66F17103C773}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "PushSharp.Google.Gcm", "PushSharp.Google.Gcm\PushSharp.Google.Gcm.csproj", "{94F16497-471F-433F-A99E-C455FB2D7724}"
-EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "PushSharp.Windows", "PushSharp.Windows\PushSharp.Windows.csproj", "{DC80552B-6730-44AA-9B74-1E036BD909C3}"
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "PushSharp.Firefox", "PushSharp.Firefox\PushSharp.Firefox.csproj", "{54A4C1F9-6571-4086-BB4B-EC202138AF00}"
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "PushSharp.Amazon", "PushSharp.Amazon\PushSharp.Amazon.csproj", "{2468C63B-C964-4FC3-9B16-13DC17CF7D11}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "PushSharp.Google", "PushSharp.Google\PushSharp.Google.csproj", "{94F16497-471F-433F-A99E-C455FB2D7724}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -60,9 +60,9 @@ Global
 	EndGlobalSection
 	GlobalSection(NestedProjects) = preSolution
 		{A9D99F80-FEEB-4E74-96C5-66F17103C773} = {2B7243CB-60A5-4682-802B-B7EC3DEBCF9A}
-		{94F16497-471F-433F-A99E-C455FB2D7724} = {2B7243CB-60A5-4682-802B-B7EC3DEBCF9A}
 		{DC80552B-6730-44AA-9B74-1E036BD909C3} = {2B7243CB-60A5-4682-802B-B7EC3DEBCF9A}
 		{54A4C1F9-6571-4086-BB4B-EC202138AF00} = {2B7243CB-60A5-4682-802B-B7EC3DEBCF9A}
 		{2468C63B-C964-4FC3-9B16-13DC17CF7D11} = {2B7243CB-60A5-4682-802B-B7EC3DEBCF9A}
+		{94F16497-471F-433F-A99E-C455FB2D7724} = {2B7243CB-60A5-4682-802B-B7EC3DEBCF9A}
 	EndGlobalSection
 EndGlobal

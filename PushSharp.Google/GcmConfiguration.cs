@@ -1,6 +1,6 @@
 ﻿using System;
 
-namespace PushSharp.Google.Gcm
+namespace PushSharp.Google
 {
     public class GcmConfiguration
     {

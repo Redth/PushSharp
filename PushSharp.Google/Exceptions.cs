@@ -1,7 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 
-namespace PushSharp.Google.Gcm
+namespace PushSharp.Google
 {
     public class GcmConnectionException : Exception
     {

@@ -10,7 +10,7 @@ using PushSharp.Core;
 using System.Security.Cryptography.X509Certificates;
 using System.Collections.Generic;
 
-namespace PushSharp.Google.Gcm.Xmpp
+namespace PushSharp.Google
 {
     public class GcmXmppConnection
     {

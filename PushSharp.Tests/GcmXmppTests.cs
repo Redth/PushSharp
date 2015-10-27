@@ -1,10 +1,9 @@
 ﻿using System;
 using NUnit.Framework;
 using System.Threading.Tasks;
-using PushSharp.Google.Gcm;
+using PushSharp.Google;
 using PushSharp.Core;
 using System.Collections.Generic;
-using PushSharp.Google.Gcm.Xmpp;
 using Newtonsoft.Json.Linq;
 
 namespace PushSharp.Tests
