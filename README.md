@@ -1,6 +1,9 @@
 PushSharp [![Build Status](http://teamcity.codebetter.com/app/rest/builds/buildType:\(id:bt990\)/statusIcon)](http://teamcity.codebetter.com/project.html?projectId=project338&tab=projectOverview&guest=1)
 ===========================
 
+**UPDATE: Oct, 2015** 
+Many people have been asking about the future of PushSharp (rightfully so).  First of all, it is NOT DEAD!   Second, I apologize for the lack of updates to this code, but I promise, [it will be worth the wait](https://github.com/Redth/PushSharp/tree/3.0-dev#pushsharp-v30---the-push-awakens)!
+
 A server-side library for sending Push Notifications to iOS (iPhone/iPad APNS), OSX (APNS 10.8+) Android (C2DM and GCM - Google Cloud Message), Chrome (GCM) Windows Phone, Windows 8, Blackberry (PAP), and Amazon (ADM) devices!
 
 ![PushSharp Diagram](https://github.com/Redth/PushSharp/raw/master/Resources/PushSharp-Diagram.png)
