@@ -45,6 +45,7 @@
     <Compile Include="AdmRealTests.cs" />
     <Compile Include="GcmRealTests.cs" />
     <Compile Include="BrokerTests.cs" />
+    <Compile Include="ApnsRealTest.cs" />
   </ItemGroup>
   <Import Project="$(MSBuildBinPath)\Microsoft.CSharp.targets" />
   <ItemGroup>
