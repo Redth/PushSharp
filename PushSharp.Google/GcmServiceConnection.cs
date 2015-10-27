@@ -113,6 +113,8 @@ namespace PushSharp.Google
             foreach (var r in result.Results) {
                 var singleResultNotification = GcmNotification.ForSingleResult (result, index);
 
+                singleResultNotification.MessageId = r.MessageId;
+
                 if (r.ResponseStatus == GcmResponseStatus.Ok) { // Success
                     multicastResult.Succeeded.Add (singleResultNotification);
                 } else if (r.ResponseStatus == GcmResponseStatus.CanonicalRegistrationId) { //Need to swap reg id's

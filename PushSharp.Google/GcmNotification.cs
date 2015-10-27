@@ -13,6 +13,7 @@ namespace PushSharp.Google
         {
             var result = new GcmNotification ();
             result.Tag = response.OriginalNotification.Tag;
+            result.MessageId = response.OriginalNotification.MessageId;
             result.RegistrationIds.Add (response.OriginalNotification.RegistrationIds [resultIndex]);
             result.CollapseKey = response.OriginalNotification.CollapseKey;
             result.Data = response.OriginalNotification.Data;
@@ -30,6 +31,7 @@ namespace PushSharp.Google
         {
             var result = new GcmNotification ();
             result.Tag = msg.Tag;
+            result.MessageId = msg.MessageId;
             result.RegistrationIds.Add (registrationId);
             result.To = null;
             result.CollapseKey = msg.CollapseKey;
@@ -57,6 +59,9 @@ namespace PushSharp.Google
         }
 
         public object Tag { get;set; }
+
+        [JsonProperty  ("message_id")]
+        public string MessageId { get; internal set; }
 
         /// <summary>
         /// Registration ID of the Device(s).  Maximum of 1000 registration Id's per notification.
