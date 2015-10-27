@@ -41,6 +41,7 @@
     <Compile Include="ApnsNotification.cs" />
     <Compile Include="Exceptions.cs" />
     <Compile Include="ApnsHttp2Connection.cs" />
+    <Compile Include="ApnsFeedbackService.cs" />
   </ItemGroup>
   <Import Project="$(MSBuildBinPath)\Microsoft.CSharp.targets" />
   <ItemGroup>
