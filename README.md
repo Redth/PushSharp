@@ -66,9 +66,9 @@ If you have an app with a significant number of installs/users, and are interest
  - **ADM - Amazon Device Messaging**
    - Working!
  - **Windows**
-   - Untested
+   - Working (Basic toasts tested)
    - Drops support for WPS (old Windows Phone push service)
-   - WNS will be supported, payload will be up to developer to specify initially
+   - XML Payload is up to the developer to construct
  - **Firefox**
    - The SimplePush format should work, but is untested
    - There's some push to make W3C standardized push notifications, waiting to see how this plays out
