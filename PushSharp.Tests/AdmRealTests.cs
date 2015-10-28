@@ -9,7 +9,7 @@ namespace PushSharp.Tests
     public class AdmRealTests
     {
         [Test]
-        [Category ("Real")]
+        [Category ("Disabled")]
         public void ADM_Send_Single ()
         {
             var succeeded = 0;
