@@ -35,6 +35,8 @@
     <Reference Include="Newtonsoft.Json">
       <HintPath>..\packages\Newtonsoft.Json.7.0.1\lib\net45\Newtonsoft.Json.dll</HintPath>
     </Reference>
+    <Reference Include="System.Xml.Linq" />
+    <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
     <Compile Include="TestServiceConnection.cs" />
@@ -46,6 +48,7 @@
     <Compile Include="GcmRealTests.cs" />
     <Compile Include="BrokerTests.cs" />
     <Compile Include="ApnsRealTest.cs" />
+    <Compile Include="WnsRealTests.cs" />
   </ItemGroup>
   <Import Project="$(MSBuildBinPath)\Microsoft.CSharp.targets" />
   <ItemGroup>
@@ -64,6 +67,10 @@
     <ProjectReference Include="..\PushSharp.Google\PushSharp.Google.csproj">
       <Project>{94F16497-471F-433F-A99E-C455FB2D7724}</Project>
       <Name>PushSharp.Google</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\PushSharp.Windows\PushSharp.Windows.csproj">
+      <Project>{DC80552B-6730-44AA-9B74-1E036BD909C3}</Project>
+      <Name>PushSharp.Windows</Name>
     </ProjectReference>
   </ItemGroup>
   <ItemGroup>

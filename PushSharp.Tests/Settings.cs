@@ -63,6 +63,15 @@ namespace PushSharp.Tests
         public string AdmClientSecret { get;set; }
         [JsonProperty ("adm_registration_ids")]
         public List<string> AdmRegistrationIds { get;set; }
+
+        [JsonProperty ("wns_package_name")]
+        public string WnsPackageName { get;set; }
+        [JsonProperty ("wns_package_sid")]
+        public string WnsPackageSid { get;set; }
+        [JsonProperty ("wns_client_secret")]
+        public string WnsClientSecret { get;set; }
+        [JsonProperty ("wns_channel_uris")]
+        public List<string> WnsChannelUris { get;set; }
     }
 }
 
