@@ -36,7 +36,7 @@ namespace PushSharp.Windows
         NoCache
     }
 
-    public enum WindowsNotificationType
+    public enum WnsNotificationType
     {
         Badge,
         Tile,

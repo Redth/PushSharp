@@ -8,6 +8,7 @@ using Newtonsoft.Json.Linq;
 using System.Xml;
 using System.Linq;
 using System.Net;
+using System.Text;
 
 namespace PushSharp.Windows
 {
@@ -54,22 +55,23 @@ namespace PushSharp.Windows
         {           
             //See if we need an access token
             if (string.IsNullOrEmpty(AccessToken))
-                RenewAccessToken();
+                await RenewAccessToken();
             
             //https://cloud.notify.windows.com/?token=.....
             //Authorization: Bearer {AccessToken}
             //
 
-            http.DefaultRequestHeaders.Add ("X-WNS-Type", string.Format ("wns/{0}", notification.Type.ToString ().ToLower ()));
-            http.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue ("Bearer", AccessToken);
+            http.DefaultRequestHeaders.TryAddWithoutValidation ("X-WNS-Type", string.Format ("wns/{0}", notification.Type.ToString ().ToLower ()));
+            //http.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue ("Bearer", AccessToken);
+            http.DefaultRequestHeaders.TryAddWithoutValidation("Authorization", "Bearer " + AccessToken);
 
             if (notification.RequestForStatus.HasValue)
-                http.DefaultRequestHeaders.Add("X-WNS-RequestForStatus", notification.RequestForStatus.Value.ToString().ToLower());
+                http.DefaultRequestHeaders.TryAddWithoutValidation ("X-WNS-RequestForStatus", notification.RequestForStatus.Value.ToString().ToLower());
 
             if (notification.TimeToLive.HasValue)
-                http.DefaultRequestHeaders.Add("X-WNS-TTL", notification.TimeToLive.Value.ToString()); //Time to live in seconds
+                http.DefaultRequestHeaders.TryAddWithoutValidation ("X-WNS-TTL", notification.TimeToLive.Value.ToString()); //Time to live in seconds
 
-            if (notification.Type == WindowsNotificationType.Tile)
+            if (notification.Type == WnsNotificationType.Tile)
             {
                 var winTileNot = notification as WnsTileNotification;
 
@@ -79,9 +81,9 @@ namespace PushSharp.Windows
                 if (winTileNot != null && !string.IsNullOrEmpty(winTileNot.NotificationTag))
                     http.DefaultRequestHeaders.Add("X-WNS-Tag", winTileNot.NotificationTag); // TILE only
             }
-            else if (notification.Type == WindowsNotificationType.Badge)
+            else if (notification.Type == WnsNotificationType.Badge)
             {
-                var winTileBadge = notification as WindowsBadgeNotification;
+                var winTileBadge = notification as WnsBadgeNotification;
 
                 if (winTileBadge != null && winTileBadge.CachePolicy.HasValue)
                     http.DefaultRequestHeaders.Add("X-WNS-Cache-Policy", winTileBadge.CachePolicy == WnsNotificationCachePolicyType.Cache ? "cache" : "no-cache");
@@ -90,11 +92,11 @@ namespace PushSharp.Windows
             var content = new StringContent (
                 notification.Payload.ToString (), // Get XML payload 
                 System.Text.Encoding.UTF8, 
-                notification.Type == WindowsNotificationType.Raw ? "application/octet-stream" : "application/xml");
+                notification.Type == WnsNotificationType.Raw ? "application/octet-stream" : "text/xml");
             
             var result = await http.PostAsync (notification.ChannelUri, content);
 
-            var status = ParseStatus (result, notification);
+            var status = await ParseStatus (result, notification);
 
             //RESPONSE HEADERS
             // X-WNS-Debug-Trace   string
@@ -139,7 +141,7 @@ namespace PushSharp.Windows
             var p = new Dictionary<string, string> {
                 { "grant_type", "client_credentials" },
                 { "client_id", Configuration.PackageSecurityIdentifier },
-                { "client_scope", Configuration.ClientSecret },
+                { "client_secret", Configuration.ClientSecret },
                 { "scope", "notify.windows.com" }
             };
 
@@ -164,18 +166,18 @@ namespace PushSharp.Windows
         }
 
 
-        WnsNotificationStatus ParseStatus(HttpResponseMessage resp, WnsNotification notification)
+        async Task<WnsNotificationStatus> ParseStatus(HttpResponseMessage resp, WnsNotification notification)
         {
             var result = new WnsNotificationStatus();
 
             result.Notification = notification;
             result.HttpStatus = resp.StatusCode;
 
-            var wnsDebugTrace = resp.Headers.GetValues ("X-WNS-Debug-Trace").FirstOrDefault ();
-            var wnsDeviceConnectionStatus = resp.Headers.GetValues ("X-WNS-DeviceConnectionStatus").FirstOrDefault () ?? "connected";
-            var wnsErrorDescription = resp.Headers.GetValues ("X-WNS-Error-Description").FirstOrDefault ();
-            var wnsMsgId = resp.Headers.GetValues ("X-WNS-Msg-ID").FirstOrDefault ();
-            var wnsNotificationStatus = resp.Headers.GetValues ("X-WNS-NotificationStatus").FirstOrDefault () ?? "";
+            var wnsDebugTrace = TryGetHeaderValue (resp.Headers, "X-WNS-DEBUG-TRACE") ?? "";
+            var wnsDeviceConnectionStatus = TryGetHeaderValue (resp.Headers, "X-WNS-DEVICECONNECTIONSTATUS") ?? "connected";
+            var wnsErrorDescription = TryGetHeaderValue (resp.Headers, "X-WNS-ERROR-DESCRIPTION") ?? "";
+            var wnsMsgId = TryGetHeaderValue (resp.Headers, "X-WNS-MSG-ID");
+            var wnsNotificationStatus = TryGetHeaderValue (resp.Headers, "X-WNS-NOTIFICATIONSTATUS") ?? "";
 
             result.DebugTrace = wnsDebugTrace;
             result.ErrorDescription = wnsErrorDescription;
@@ -196,6 +198,15 @@ namespace PushSharp.Windows
                 result.DeviceConnectionStatus = WnsDeviceConnectionStatus.Disconnected;
 
             return result;
+        }
+
+        string TryGetHeaderValue (HttpResponseHeaders headers, string headerName)
+        {
+            IEnumerable<string> values;
+            if (headers.TryGetValues (headerName, out values))
+                return values.FirstOrDefault ();
+
+            return null;
         }
     }
 }

@@ -12,7 +12,7 @@ namespace PushSharp.Windows
 
         public XElement Payload { get; set; }
 
-        public abstract WindowsNotificationType Type { get; }
+        public abstract WnsNotificationType Type { get; }
 
         public bool IsDeviceRegistrationIdValid ()
         {
@@ -24,9 +24,9 @@ namespace PushSharp.Windows
 
     public class WnsTileNotification : WnsNotification
     {
-        public override WindowsNotificationType Type
+        public override WnsNotificationType Type
         {
-            get { return WindowsNotificationType.Tile; }
+            get { return WnsNotificationType.Tile; }
         }
 
         public WnsNotificationCachePolicyType? CachePolicy { get; set; }
@@ -34,19 +34,19 @@ namespace PushSharp.Windows
         public string NotificationTag { get; set; }
     }
 
-    public class WindowsToastNotification : WnsNotification
+    public class WnsToastNotification : WnsNotification
     {
-        public override WindowsNotificationType Type
+        public override WnsNotificationType Type
         {
-            get { return WindowsNotificationType.Toast; }
+            get { return WnsNotificationType.Toast; }
         }
     }
 
-    public class WindowsBadgeNotification : WnsNotification
+    public class WnsBadgeNotification : WnsNotification
     {
-        public override WindowsNotificationType Type
+        public override WnsNotificationType Type
         {
-            get { return WindowsNotificationType.Badge; }
+            get { return WnsNotificationType.Badge; }
         }
 
         public WnsNotificationCachePolicyType? CachePolicy { get; set; }
