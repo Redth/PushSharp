@@ -5,8 +5,6 @@ PushSharp is a server-side library for sending Push Notifications to iOS/OSX (AP
 
 PushSharp v3.0 is a complete rewrite of the original library, aimed at taking advantage of things like async/await, HttpClient, and generally a better infrastructure using lessons learned from the old code.
 
-This is still a work in progress, and there are no binaries released at this point.
-
 [![Join the chat at https://gitter.im/Redth/PushSharp](https://badges.gitter.im/Join%20Chat.svg)](https://gitter.im/Redth/PushSharp?utm_source=badge&utm_medium=badge&utm_campaign=pr-badge&utm_content=badge)
 
 ![AppVeyor CI Status](https://ci.appveyor.com/api/projects/status/github/Redth/PushSharp?branch=3.0-dev&svg=true)
