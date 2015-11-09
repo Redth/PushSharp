@@ -6,7 +6,7 @@ PushSharp [![Build Status](http://teamcity.codebetter.com/app/rest/builds/buildT
 PushSharp 3.0 is under development.  
  - Read more on my blog http://redth.codes/pushsharp-3-0-the-push-awakens/
  - Check out the *[3.0-dev branch](https://github.com/Redth/PushSharp/tree/3.0-dev)* with the latest code 
- - Try out the latest *-PreRelease* NuGet Packages
+ - Try out the latest *-PreRelease* [NuGet Packages](https://www.nuget.org/packages/PushSharp/3.0.0-beta29)
  - Join the [Gitter.im](https://gitter.im/Redth/PushSharp) channel with questions/feedback
 
 
