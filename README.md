@@ -9,6 +9,10 @@ PushSharp v3.0 is a complete rewrite of the original library, aimed at taking ad
 
 ![AppVeyor CI Status](https://ci.appveyor.com/api/projects/status/github/Redth/PushSharp?branch=3.0-dev&svg=true)
 
+ - Read more on my blog http://redth.codes/pushsharp-3-0-the-push-awakens/
+ - Try out the latest -PreRelease [NuGet Packages](https://www.nuget.org/packages/PushSharp/3.0.0-beta29)
+ - Join the [Gitter.im channel](https://gitter.im/Redth/PushSharp) with questions/feedback
+
 ---
 
 ## Sample Usage
