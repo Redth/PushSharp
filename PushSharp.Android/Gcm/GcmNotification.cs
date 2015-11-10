@@ -16,6 +16,7 @@ namespace PushSharp.Android
 			var result = new GcmNotification();
 			result.Tag = response.Message.Tag;
 			result.RegistrationIds.Add(response.Message.RegistrationIds[resultIndex]);
+			result.MessageId = response.Results[resultIndex].MessageId;
 			result.CollapseKey = response.Message.CollapseKey;
 			result.JsonData = response.Message.JsonData;
 			result.DelayWhileIdle = response.Message.DelayWhileIdle;
@@ -27,6 +28,7 @@ namespace PushSharp.Android
 			var result = new GcmNotification();
 			result.Tag = msg.Tag;
 			result.RegistrationIds.Add(registrationId);
+			result.MessageId = msg.MessageId;
 			result.CollapseKey = msg.CollapseKey;
 			result.JsonData = msg.JsonData;
 			result.DelayWhileIdle = msg.DelayWhileIdle;
@@ -37,6 +39,7 @@ namespace PushSharp.Android
 		{
 			this.RegistrationIds = new List<string>();
 			this.CollapseKey = string.Empty;
+			this.MessageId = string.Empty;
 			this.JsonData = string.Empty;
 			this.DelayWhileIdle = null;
 		}
@@ -48,6 +51,15 @@ namespace PushSharp.Android
 		{
 			get;
 			set;
+		}
+		
+		/// <summary>
+		/// Message ID of the notification return from server for use with GCM diagnostics
+		/// </summary>
+		public string MessageId
+		{
+			get;
+			private set;
 		}
 
 		/// <summary>
@@ -95,6 +107,8 @@ namespace PushSharp.Android
 			set; 
 		}
 		
+		
+		
 		/// <summary>
 		/// A string that maps a single user to multiple registration IDs associated with that user. This allows a 3rd-party server to send a single message to multiple app instances (typically on multiple devices) owned by a single user.
 		/// </summary>
@@ -131,6 +145,9 @@ namespace PushSharp.Android
 				if (jsonData != null)
 					json["data"] = jsonData;
 			}
+			
+			if (!string.IsNullOrWhiteSpace(this.MessageId))
+				json["message_id"] = MessageId;
 			
 			if (!string.IsNullOrWhiteSpace(this.NotificationKey))
 				json["notification_key"] = NotificationKey;
