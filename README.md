@@ -76,7 +76,7 @@ Using the library to send push notifications should be easy, and the platform fa
 var push = new PushBroker();
 
 //Registering the Apple Service and sending an iOS Notification
-var appleCert = File.ReadAllBytes("ApnsSandboxCert.p12"));
+var appleCert = File.ReadAllBytes("ApnsSandboxCert.p12");
 push.RegisterAppleService(new ApplePushChannelSettings(appleCert, "pwd"));
 push.QueueNotification(new AppleNotification()
                            .ForDeviceToken("DEVICE TOKEN HERE")
