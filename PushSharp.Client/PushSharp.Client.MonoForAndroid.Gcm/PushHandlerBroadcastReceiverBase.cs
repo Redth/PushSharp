@@ -25,7 +25,6 @@ namespace PushSharp.Client
 			Log.Verbose(TAG, "GCM IntentService Class: " + className);
 
 			PushHandlerServiceBase.RunIntentInService(context, intent, typeof(TIntentService));
-			SetResult(Result.Ok, null, null);
 		}
 	}
 }
