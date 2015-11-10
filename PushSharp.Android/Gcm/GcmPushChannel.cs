@@ -43,6 +43,8 @@ namespace PushSharp.Android
 		
 		public void SendNotification(INotification notification, SendNotificationCallbackDelegate callback)
 		{
+            Interlocked.Increment(ref waitCounter);
+
 			var msg = notification as GcmNotification;
 
 			var result = new GcmMessageTransportResponse();

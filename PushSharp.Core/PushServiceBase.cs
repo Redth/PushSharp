@@ -592,6 +592,13 @@ namespace PushSharp.Core
 			public void Dispose()
 			{
 				CancelTokenSource.Cancel();
+                
+                var slept = 0;
+                while (!this.WorkerTask.IsCompleted && slept <= 5000)
+                {
+                    slept += 100;
+                    Thread.Sleep(100);
+                }
 			}
 
             public string Id { get; private set; }

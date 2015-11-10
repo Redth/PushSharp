@@ -80,18 +80,16 @@ namespace PushSharp.Apple
 
 			if (!this.Alert.IsEmpty)
 			{
-                if (!string.IsNullOrEmpty(this.Alert.Body)
-					&& string.IsNullOrEmpty(this.Alert.LocalizedKey)
-					&& string.IsNullOrEmpty(this.Alert.ActionLocalizedKey)
-					&& (this.Alert.LocalizedArgs == null || this.Alert.LocalizedArgs.Count <= 0)
-					&& string.IsNullOrEmpty(this.Alert.LaunchImage)
-                    && !this.HideActionButton)
+                if (this.Alert.ShouldSerializeAsString(this.HideActionButton))
 				{
 					aps["alert"] = new JValue(this.Alert.Body);
 				}
 				else
 				{
 					JObject jsonAlert = new JObject();
+
+                    if (!string.IsNullOrEmpty(this.Alert.Title))
+                        jsonAlert["title"] = new JValue(this.Alert.Title);
 
 					if (!string.IsNullOrEmpty(this.Alert.LocalizedKey))
 						jsonAlert["loc-key"] = new JValue(this.Alert.LocalizedKey);
