@@ -5,6 +5,7 @@ using System.Linq;
 using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
+using System.Collections.ObjectModel;
 
 namespace PushSharp.Core
 {
@@ -17,6 +18,7 @@ namespace PushSharp.Core
 	public delegate void ServiceExceptionDelegate(object sender, Exception error);
 	public delegate void DeviceSubscriptionExpiredDelegate(object sender, string expiredSubscriptionId, DateTime expirationDateUtc, INotification notification);
 	public delegate void DeviceSubscriptionChangedDelegate(object sender, string oldSubscriptionId, string newSubscriptionId, INotification notification);
+    public delegate void GcmMessageReceivedDelegate(object sender, Dictionary<string,object> notificationDic);
 
 	public abstract class PushServiceBase : IPushService
 	{
@@ -61,7 +63,7 @@ namespace PushSharp.Core
 		Timer timerCheckScale;
 		int scaleSync;
 		volatile bool stopping;
-		List<ChannelWorker> channels = new List<ChannelWorker>();
+         ObservableCollection<ChannelWorker> channels = new ObservableCollection<ChannelWorker>();
 		NotificationQueue queuedNotifications;
 		CancellationTokenSource cancelTokenSource = new CancellationTokenSource();
 		List<WaitTimeMeasurement> measurements = new List<WaitTimeMeasurement>();
@@ -391,14 +393,14 @@ namespace PushSharp.Core
 					if (action == ChannelScaleAction.Create)
 					{
 						newChannel = this.PushChannelFactory.CreateChannel(this.ChannelSettings);
-
+                      
 						var chanWorker = new ChannelWorker(newChannel, DoChannelWork);
 						chanWorker.WorkerTask.ContinueWith(t =>
 						{
 							var ex = t.Exception;
 							Log.Error("Channel Worker Failed Task: " + ex.ToString());
 						}, TaskContinuationOptions.OnlyOnFaulted);
-							
+				
 						channels.Add(chanWorker);
 
 						newCount = channels.Count;
@@ -523,9 +525,7 @@ namespace PushSharp.Core
 									}
 									else
 									{
-										var evt = this.OnDeviceSubscriptionExpired;
-										if (evt != null)
-											evt(this, result.OldSubscriptionId, result.SubscriptionExpiryUtc, result.Notification);
+                                        RaiseSubscriptionExpired(result.OldSubscriptionId, result.SubscriptionExpiryUtc, result.Notification);
 									}
 								}
 								else //Otherwise some general failure
@@ -552,8 +552,10 @@ namespace PushSharp.Core
 					Log.Info("Notification send timeout");
 
 					var evt = this.OnNotificationFailed;
-					if (evt != null)
-						evt(this, notification, new TimeoutException("Notification send timed out"));
+                    if (evt != null)
+                    {
+                        evt(this, notification, new TimeoutException("Notification send timed out"));
+                    }
 				}
 
                 if (waitForNotification != null)
@@ -578,30 +580,30 @@ namespace PushSharp.Core
 			public long Milliseconds { get; set; }
 		}
 
-		internal class ChannelWorker : IDisposable
-		{
-			public ChannelWorker(IPushChannel channel, Action<IPushChannel, CancellationTokenSource> worker)
-			{
-			    this.Id = Guid.NewGuid().ToString();
-				this.CancelTokenSource = new CancellationTokenSource();
-				this.Channel = channel;
-				this.WorkerTask = Task.Factory.StartNew(() => worker(channel, this.CancelTokenSource),
-				                                        TaskCreationOptions.LongRunning);
-			}
+        internal class ChannelWorker : IDisposable
+        {
+            public ChannelWorker(IPushChannel channel, Action<IPushChannel, CancellationTokenSource> worker)
+            {
+                this.Id = Guid.NewGuid().ToString();
+                this.CancelTokenSource = new CancellationTokenSource();
+                this.Channel = channel;
+                this.WorkerTask = Task.Factory.StartNew(() => worker(channel, this.CancelTokenSource),
+                                                        TaskCreationOptions.LongRunning);
+            }
 
-			public void Dispose()
-			{
-				CancelTokenSource.Cancel();
-			}
+            public void Dispose()
+            {
+                CancelTokenSource.Cancel();
+            }
 
             public string Id { get; private set; }
 
-			public Task WorkerTask { get; private set; }
-			
-			public IPushChannel Channel { get; set; }
+            public Task WorkerTask { get; private set; }
 
-			public CancellationTokenSource CancelTokenSource { get; set; }
-		}
+            public IPushChannel Channel { get; set; }
+
+            public CancellationTokenSource CancelTokenSource { get; set; }
+        }
 	}
 
 	public enum ChannelScaleAction
