@@ -90,11 +90,13 @@ push.RegisterGcmService(new GcmPushChannelSettings("theauthorizationtokenhere"))
 //Fluent construction of an Android GCM Notification
 //IMPORTANT: For Android you MUST use your own RegistrationId here that gets generated within your Android app itself!
 push.QueueNotification(new GcmNotification().ForDeviceRegistrationId("DEVICE REGISTRATION ID HERE")
-                      .WithJson("{\"alert\":\"Hello World!\",\"badge\":7,\"sound\":\"sound.caf\"}"));
+                      .WithJson(@"{""alert"":""This is the future"",""badge"":7,""sound"":""sound.caf"",""title"":""Status Bar title"",""message"":""Some text you want to display to the user""}"));
 
 ```	
 
 Please see the PushSharp.Sample project for a more thorough example!
+
+// UPDATE: For those using cordova 3+ You need to include the properties "title" and "message" in the .WithJson() method above or the notification will not be handled on android.
 
 ********************
 
