@@ -76,13 +76,13 @@ namespace PushSharp.WindowsPhone
 			if (this.windowsPhoneSettings.WebServiceCertificate != null)
 				wr.ClientCertificates.Add(this.windowsPhoneSettings.WebServiceCertificate);
 
-			using (var rs = wr.GetRequestStream())
-			{
-				rs.Write(data, 0, data.Length);
-			}
-
 			try
 			{
+                using (var rs = wr.GetRequestStream())
+                {
+                    rs.Write(data, 0, data.Length);
+                }
+
 				wr.BeginGetResponse(getResponseCallback, new object[] { wr, wpNotification, callback });
 			}
 			catch (WebException wex)
