@@ -38,6 +38,12 @@ namespace PushSharp
             return n;
         }
 
+        public static GcmNotification WithPriority(this GcmNotification n, string priority)
+        {
+            n.Priority = priority;
+            return n;
+        }
+
 		public static GcmNotification WithJson(this GcmNotification n, string json)
 		{
 			try { Newtonsoft.Json.Linq.JObject.Parse(json); }
