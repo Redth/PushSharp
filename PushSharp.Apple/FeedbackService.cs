@@ -67,7 +67,10 @@ namespace PushSharp.Apple
 
 
 			//Set up
-			byte[] buffer = new byte[38];
+			byte[] buffer = new byte[1482];
+			int bufferIndex = 0;
+			int bufferLevel = 0;
+			int completePacketSize = 4 + 2 + 32;
 			int recd = 0;
 			DateTime minTimestamp = DateTime.Now.AddYears(-1);
 
@@ -77,49 +80,66 @@ namespace PushSharp.Apple
 			//Continue while we have results and are not disposing
 			while (recd > 0 && !cancelToken.IsCancellationRequested)
 			{
+				//Update how much data is in the buffer, and reset the position to the beginning
+				bufferLevel += recd;
+				bufferIndex = 0;
+
 				try
 				{
-
-					//Get our seconds since 1970 ?
-					byte[] bSeconds = new byte[4];
-					byte[] bDeviceToken = new byte[32];
-
-					Array.Copy(buffer, 0, bSeconds, 0, 4);
-
-					//Check endianness
-					if (BitConverter.IsLittleEndian)
-						Array.Reverse(bSeconds);
-
-					int tSeconds = BitConverter.ToInt32(bSeconds, 0);
-
-					//Add seconds since 1970 to that date, in UTC
-					var timestamp = new DateTime(1970, 1, 1, 0, 0, 0, DateTimeKind.Utc).AddSeconds(tSeconds);
-
-					//flag to allow feedback times in UTC or local, but default is local
-					if (!settings.FeedbackTimeIsUTC)
-						timestamp = timestamp.ToLocalTime();
-				
-					//Now copy out the device token
-					Array.Copy(buffer, 6, bDeviceToken, 0, 32);
-
-					var deviceToken = BitConverter.ToString(bDeviceToken).Replace("-", "").ToLower().Trim();
-
-					//Make sure we have a good feedback tuple
-					if (deviceToken.Length == 64
-						&& timestamp > minTimestamp)
+					//Process each complete notification "packet" available in the buffer
+					while (bufferLevel - bufferIndex >= completePacketSize)
 					{
-						//Raise event
-						RaiseFeedbackReceived(deviceToken, timestamp);
-					}
+						//Get our seconds since 1970 ?
+						byte[] bSeconds = new byte[4];
+						byte[] bDeviceToken = new byte[32];
 
+						Array.Copy(buffer, bufferIndex, bSeconds, 0, 4);
+
+						//Check endianness
+						if (BitConverter.IsLittleEndian)
+							Array.Reverse(bSeconds);
+
+						int tSeconds = BitConverter.ToInt32(bSeconds, 0);
+
+						//Add seconds since 1970 to that date, in UTC
+						var timestamp = new DateTime(1970, 1, 1, 0, 0, 0, DateTimeKind.Utc).AddSeconds(tSeconds);
+
+						//flag to allow feedback times in UTC or local, but default is local
+						if (!settings.FeedbackTimeIsUTC)
+							timestamp = timestamp.ToLocalTime();
+
+						//Now copy out the device token
+						Array.Copy(buffer, bufferIndex + 6, bDeviceToken, 0, 32);
+
+						var deviceToken = BitConverter.ToString(bDeviceToken).Replace("-", "").ToLower().Trim();
+
+						//Make sure we have a good feedback tuple
+						if (deviceToken.Length == 64
+							&& timestamp > minTimestamp)
+						{
+							//Raise event
+							try
+							{
+								RaiseFeedbackReceived(deviceToken, timestamp);
+							}
+							catch { }
+						}
+
+						//Keep track of where we are in the received data buffer
+						bufferIndex += completePacketSize;
+					}
 				}
 				catch { }
 
-				//Clear our array to reuse it
-				Array.Clear(buffer, 0, buffer.Length);
+				//Figure out how much data we have left over in the buffer still
+				bufferLevel -= bufferIndex;
+
+				//Copy any leftover data in the buffer to the start of the buffer
+				if (bufferLevel > 0)
+					Array.Copy(buffer, bufferIndex, buffer, 0, bufferLevel);
 
 				//Read the next feedback
-				recd = stream.Read(buffer, 0, buffer.Length);
+				recd = stream.Read(buffer, bufferLevel, buffer.Length - bufferLevel);
 			}
 
 			try
