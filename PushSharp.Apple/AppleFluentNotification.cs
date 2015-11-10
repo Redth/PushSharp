@@ -14,6 +14,16 @@ namespace PushSharp
 			n.DeviceToken = deviceToken;
 			return n;
 		}
+        public static AppleNotification WithID(this AppleNotification n, Int32 id)
+        {
+            n.Identifier = id;
+            return n;
+        }
+        public static AppleNotification WithPriority(this AppleNotification n, byte priority)
+        {
+            n.Priority = priority;
+            return n;
+        }
 
 		public static AppleNotification WithExpiry(this AppleNotification n, DateTime expiryDate)
 		{
