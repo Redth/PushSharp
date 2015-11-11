@@ -94,23 +94,29 @@ namespace PushSharp.Apple
 
 		void CheckProductionCertificateMatching(bool production)
 		{
-			if (this.Certificate != null)
-			{
-				var issuerName = this.Certificate.IssuerName.Name;
-				var subjectName = this.Certificate.SubjectName.Name;
+		    if (this.Certificate != null)
+		    {
+		        var issuerName = this.Certificate.IssuerName.Name;
+		        var subjectName = this.Certificate.SubjectName.Name;
 
-				if (!issuerName.Contains("Apple"))
-					throw new ArgumentException("Your Certificate does not appear to be issued by Apple!  Please check to ensure you have the correct certificate!");
+		        if (!issuerName.Contains("Apple"))
+		            throw new ArgumentException(
+		                "Your Certificate does not appear to be issued by Apple!  Please check to ensure you have the correct certificate!");
+		        if (!subjectName.Contains("CN=VoIP Services"))
+		        {
+		            if (production && !subjectName.Contains("Apple Production IOS Push Services"))
+		                throw new ArgumentException(
+		                    "You have selected the Production server, yet your Certificate does not appear to be the Production certificate!  Please check to ensure you have the correct certificate!");
 
-				if (production && !subjectName.Contains("Apple Production IOS Push Services"))
-					throw new ArgumentException("You have selected the Production server, yet your Certificate does not appear to be the Production certificate!  Please check to ensure you have the correct certificate!");
 
-
-				if (!production && !subjectName.Contains("Apple Development IOS Push Services") && !subjectName.Contains("Pass Type ID"))
-						throw new ArgumentException("You have selected the Development/Sandbox (Not production) server, yet your Certificate does not appear to be the Development/Sandbox certificate!  Please check to ensure you have the correct certificate!");				
-			}
-			else
-				throw new ArgumentNullException("You must provide a Certificate to connect to APNS with!");
+		            if (!production && !subjectName.Contains("Apple Development IOS Push Services") &&
+		                !subjectName.Contains("Pass Type ID"))
+		                throw new ArgumentException(
+		                    "You have selected the Development/Sandbox (Not production) server, yet your Certificate does not appear to be the Development/Sandbox certificate!  Please check to ensure you have the correct certificate!");
+		        }
+		    }
+		    else
+		        throw new ArgumentNullException("You must provide a Certificate to connect to APNS with!");
 		}
 
 		public void OverrideServer(string host, int port)
