@@ -38,7 +38,7 @@ namespace PushSharp
 		public void RegisterService<TPushNotification>(IPushService pushService, string applicationId, bool raiseErrorOnDuplicateRegistrations = true) where TPushNotification : Notification
 		{
 			if (raiseErrorOnDuplicateRegistrations && GetRegistrations<TPushNotification> (applicationId).Any ())
-				throw new InvalidOperationException ("There's already a service registered to handle " + typeof(TPushNotification).Name + " notification types for the Application Id: " + (applicationId ?? "[ANY].  If you want to register the service anyway, pass in the raiseErrorOnDuplicateRegistrations=true parameter to this method."));
+				throw new InvalidOperationException ("There's already a service registered to handle " + typeof(TPushNotification).Name + " notification types for the Application Id: " + (applicationId ?? "[ANY].  If you want to register the service anyway, pass in the raiseErrorOnDuplicateRegistrations=false parameter to this method."));
 
 			var registration = ServiceRegistration.Create<TPushNotification> (pushService, applicationId);
 
