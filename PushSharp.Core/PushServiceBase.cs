@@ -18,28 +18,132 @@ namespace PushSharp.Core
 	public delegate void DeviceSubscriptionExpiredDelegate(object sender, string expiredSubscriptionId, DateTime expirationDateUtc, INotification notification);
 	public delegate void DeviceSubscriptionChangedDelegate(object sender, string oldSubscriptionId, string newSubscriptionId, INotification notification);
 
-	public abstract class PushServiceBase : IPushService
-	{
-		public event ChannelCreatedDelegate OnChannelCreated;
-		public event ChannelDestroyedDelegate OnChannelDestroyed;
-		public event NotificationSentDelegate OnNotificationSent;
-		public event NotificationFailedDelegate OnNotificationFailed;
-		public event NotificationRequeueDelegate OnNotificationRequeue;
-		public event ChannelExceptionDelegate OnChannelException;
-		public event ServiceExceptionDelegate OnServiceException;
-		public event DeviceSubscriptionExpiredDelegate OnDeviceSubscriptionExpired;
-		public event DeviceSubscriptionChangedDelegate OnDeviceSubscriptionChanged;
+	public abstract class PushServiceBase : IPushService{
+	    event ChannelCreatedDelegate onChannelCreated;
+		public event ChannelCreatedDelegate OnChannelCreated{
+		    add{
+                if (onChannelCreated == null || !onChannelCreated.GetInvocationList().Contains(value))
+                {
+                    onChannelCreated += value;
+		        }
+		    }
+		    remove { onChannelCreated -= value; }
+		}
+
+        event ChannelDestroyedDelegate onChannelDestroyed;
+        public event ChannelDestroyedDelegate OnChannelDestroyed
+        {
+            add
+            {
+                if (onChannelDestroyed == null || !onChannelDestroyed.GetInvocationList().Contains(value))
+                {
+                    onChannelDestroyed += value;
+                }
+            }
+            remove { onChannelDestroyed -= value; }
+        }
+
+        event NotificationSentDelegate onNotificationSent;
+        public event NotificationSentDelegate OnNotificationSent
+        {
+            add
+            {
+                if (onNotificationSent == null || !onNotificationSent.GetInvocationList().Contains(value))
+                {
+                    onNotificationSent += value;
+                }
+            }
+            remove { onNotificationSent -= value; }
+        }
+
+        event NotificationFailedDelegate onNotificationFailed;
+        public event NotificationFailedDelegate OnNotificationFailed
+        {
+            add
+            {
+                if (onNotificationFailed == null || !onNotificationFailed.GetInvocationList().Contains(value))
+                {
+                    onNotificationFailed += value;
+                }
+            }
+            remove { onNotificationFailed -= value; }
+        }
+
+        event NotificationRequeueDelegate onNotificationRequeue;
+        public event NotificationRequeueDelegate OnNotificationRequeue
+        {
+            add
+            {
+                if (onNotificationRequeue == null || !onNotificationRequeue.GetInvocationList().Contains(value))
+                {
+                    onNotificationRequeue += value;
+                }
+            }
+            remove { onNotificationRequeue -= value; }
+        }
+
+        event ChannelExceptionDelegate onChannelException;
+        public event ChannelExceptionDelegate OnChannelException
+        {
+            add
+            {
+                if (onChannelException == null || !onChannelException.GetInvocationList().Contains(value))
+                {
+                    onChannelException += value;
+                }
+            }
+            remove { onChannelException -= value; }
+        }
+
+        event ServiceExceptionDelegate onServiceException;
+        public event ServiceExceptionDelegate OnServiceException
+        {
+            add
+            {
+                if (onServiceException == null || !onServiceException.GetInvocationList().Contains(value))
+                {
+                    onServiceException += value;
+                }
+            }
+            remove { onServiceException -= value; }
+        }
+
+        event DeviceSubscriptionExpiredDelegate onDeviceSubscriptionExpired;
+        public event DeviceSubscriptionExpiredDelegate OnDeviceSubscriptionExpired
+        {
+            add
+            {
+                if (onDeviceSubscriptionExpired == null || !onDeviceSubscriptionExpired.GetInvocationList().Contains(value))
+                {
+                    onDeviceSubscriptionExpired += value;
+                }
+            }
+            remove { onDeviceSubscriptionExpired -= value; }
+        }
+
+        event DeviceSubscriptionChangedDelegate onDeviceSubscriptionChanged;
+        public event DeviceSubscriptionChangedDelegate OnDeviceSubscriptionChanged
+        {
+            add
+            {
+                if (onDeviceSubscriptionChanged == null || !onDeviceSubscriptionChanged.GetInvocationList().Contains(value))
+                {
+                    onDeviceSubscriptionChanged += value;
+                }
+            }
+            remove { onDeviceSubscriptionChanged -= value; }
+        }
 
 		protected void RaiseSubscriptionExpired(string expiredSubscriptionId, DateTime expirationDateUtc, INotification notification)
 		{
-			var evt = OnDeviceSubscriptionExpired;
+			var evt = onDeviceSubscriptionExpired;
 			if (evt != null)
 				evt(this, expiredSubscriptionId, expirationDateUtc, notification);
 		}
 
 		public void RaiseServiceException(Exception error)
 		{
-			var evt = OnServiceException;
+			var evt = onServiceException;
 			if (evt != null)
 				evt(this, error);
 		}
@@ -136,7 +240,7 @@ namespace PushSharp.Core
 			}
 			else
 			{
-				var evt = this.OnNotificationFailed;
+				var evt = this.onNotificationFailed;
 				if (evt != null)
 					evt(this, notification, new MaxSendAttemptsReachedException());
 
@@ -419,13 +523,13 @@ namespace PushSharp.Core
 
 				if (destroyed.HasValue && !destroyed.Value)
 				{
-					var evt = OnChannelCreated;
+					var evt = onChannelCreated;
 					if (evt != null)
 						evt(this, newChannel);
 				}
 				else if (destroyed.HasValue && destroyed.Value)
 				{
-					var evt = this.OnChannelDestroyed;
+					var evt = this.onChannelDestroyed;
 					if (evt != null)
 						evt(this);
 				}
@@ -497,7 +601,7 @@ namespace PushSharp.Core
 						if (result.ShouldRequeue)
 						{
 							var eventArgs = new NotificationRequeueEventArgs(result.Notification, result.Error);
-							var evt = this.OnNotificationRequeue;
+							var evt = this.onNotificationRequeue;
 							if (evt != null)
 								evt(this, eventArgs);
 
@@ -517,27 +621,27 @@ namespace PushSharp.Core
 									//This is a fairly special case that only GCM should really ever raise
 									if (!string.IsNullOrEmpty(result.NewSubscriptionId))
 									{
-										var evt = this.OnDeviceSubscriptionChanged;
+										var evt = this.onDeviceSubscriptionChanged;
 										if (evt != null)
 											evt(this, result.OldSubscriptionId, result.NewSubscriptionId, result.Notification);
 									}
 									else
 									{
-										var evt = this.OnDeviceSubscriptionExpired;
+										var evt = this.onDeviceSubscriptionExpired;
 										if (evt != null)
 											evt(this, result.OldSubscriptionId, result.SubscriptionExpiryUtc, result.Notification);
 									}
 								}
 								else //Otherwise some general failure
 								{
-									var evt = this.OnNotificationFailed;
+									var evt = this.onNotificationFailed;
 									if (evt != null)
 										evt(this, result.Notification, result.Error);
 								}
 							}
 							else
 							{
-								var evt = this.OnNotificationSent;
+								var evt = this.onNotificationSent;
 								if (evt != null)
 									evt(this, result.Notification);
 							}
@@ -551,7 +655,7 @@ namespace PushSharp.Core
 
 					Log.Info("Notification send timeout");
 
-					var evt = this.OnNotificationFailed;
+					var evt = this.onNotificationFailed;
 					if (evt != null)
 						evt(this, notification, new TimeoutException("Notification send timed out"));
 				}
