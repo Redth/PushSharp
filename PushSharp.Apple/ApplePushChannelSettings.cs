@@ -75,6 +75,9 @@ namespace PushSharp.Apple
 				CheckProductionCertificateMatching(production);
 
             this.ValidateServerCertificate = false;
+
+            this.KeepAlivePeriod = new TimeSpan(0, 20, 0);
+            this.KeepAliveRetryPeriod = new TimeSpan(0, 0, 0, 30);
         }
 
 		public bool DetectProduction(X509Certificate2 certificate)
@@ -199,5 +202,15 @@ namespace PushSharp.Apple
 
 		public int ConnectionTimeout { get; set; }
 		public int MaxConnectionAttempts { get; set; }
+
+        /// <summary>
+        /// Gets or sets the keep alive period to set on the APNS socket
+        /// </summary>
+	    public TimeSpan KeepAlivePeriod { get; set; }
+
+        /// <summary>
+        /// Gets or sets the keep alive retry period to set on the APNS socket
+        /// </summary>
+	    public TimeSpan KeepAliveRetryPeriod { get; set; }
 	}
 }
