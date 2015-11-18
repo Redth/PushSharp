@@ -1,13 +1,9 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Collections.Concurrent;
 using System.Security.Cryptography.X509Certificates;
-using System.Linq;
 using System.Net.Sockets;
 using System.Net.Security;
-using System.Text;
 using System.Threading;
-using System.Threading.Tasks;
 using System.Net;
 using PushSharp.Core;
 
@@ -16,8 +12,6 @@ namespace PushSharp.Apple
 	public class ApplePushChannel : IPushChannel
 	{
 		#region Constants
-		private const string hostSandbox = "gateway.sandbox.push.apple.com";
-		private const string hostProduction = "gateway.push.apple.com";
 		private const int initialReconnectDelay = 3000;
 		#endregion
 				
@@ -42,7 +36,28 @@ namespace PushSharp.Apple
 
 		private int cleanupSync;
 		private Timer timerCleanup;
-		
+
+		int cleanedUp = 0;
+		int reconnects = 0;
+
+		int connectionAttemptCounter = 0;
+		readonly object sentLock = new object();
+		readonly object connectLock = new object();
+		readonly object streamWriteLock = new object();
+		int reconnectDelay = 3000;
+		float reconnectBackoffMultiplier = 1.5f;
+
+		byte[] readBuffer = new byte[6];
+		volatile bool connected = false;
+
+		X509Certificate certificate;
+		X509CertificateCollection certificates;
+		TcpClient client;
+		SslStream stream;
+		System.IO.Stream networkStream;
+
+		long trackedNotificationCount = 0;
+
 		public ApplePushChannel(ApplePushChannelSettings channelSettings)
 		{
 			cancelToken = cancelTokenSrc.Token;
@@ -71,28 +86,6 @@ namespace PushSharp.Apple
 			timerCleanup = new Timer(state => Cleanup(), null, TimeSpan.FromMilliseconds(1000), TimeSpan.FromMilliseconds(1000));
 
 		}
-
-		int cleanedUp = 0;
-		int reconnects = 0;
-
-		int connectionAttemptCounter = 0;
-		readonly object sentLock = new object();
-		readonly object connectLock = new object();
-		readonly object streamWriteLock = new object();
-		int reconnectDelay = 3000;
-		float reconnectBackoffMultiplier = 1.5f;
-		
-		byte[] readBuffer = new byte[6];
-		volatile bool connected = false;
-
-		X509Certificate certificate;
-		X509CertificateCollection certificates;
-		TcpClient client;
-		SslStream stream;
-		System.IO.Stream networkStream;
-		
-		long trackedNotificationCount = 0;
-		
 
 		public void SendNotification(INotification notification, SendNotificationCallbackDelegate callback)
 		{
@@ -136,40 +129,28 @@ namespace PushSharp.Apple
 						if (!stillConnected)
 							throw new ObjectDisposedException("Connection to APNS is not Writable");
 							
-						//if (notificationData.Length > 45)
-						//{
-						//	networkStream.Write(notificationData, 0, 45);
-						//	networkStream.Write(notificationData, 45, notificationData.Length - 45);
-						//}
-						//else
 						networkStream.Write(notificationData, 0, notificationData.Length);
-
 						networkStream.Flush();
 
 						sentNotifications.Add(new SentNotification(appleNotification) {Callback = callback});
 
-
 						Thread.Sleep(1);
-						//Cleanup();
 					}
 				}
 				catch (Exception ex)
 				{
 					connected = false;
+					disconnect(); // release resources and close streams so we don't try to reuse them if they've been forcibly closed by Apple
 
 					//If this failed, we probably had a networking error, so let's requeue the notification
 					Interlocked.Decrement(ref trackedNotificationCount);
 
 					Log.Error ("Exception during APNS Send: {0} -> {1}", appleNotification.Identifier, ex);
 
-					var shouldRequeue = true;
-
 					if (callback != null)
-						callback(this, new SendNotificationResult(notification, shouldRequeue, ex));
+						callback(this, new SendNotificationResult(notification, true, ex));
 				}
-
 			}
-
 		}
 
 		public void Dispose()
@@ -186,7 +167,7 @@ namespace PushSharp.Apple
 
 			while (sentNotificationCount > 0 || Interlocked.Read(ref trackedNotificationCount) > 0)
 			{
-				Cleanup ();
+				Cleanup();
 
 				Thread.Sleep(100);
 	
@@ -194,19 +175,19 @@ namespace PushSharp.Apple
 					sentNotificationCount = sentNotifications.Count;
 			}
 
-			Cleanup ();
+			Cleanup();
 
 			timerCleanup.Change (Timeout.Infinite, Timeout.Infinite);
 
 			cancelTokenSrc.Cancel();
 
-			Log.Info ("ApplePushChannel: Cleaned up {0}, Reconnects: {1}", cleanedUp, reconnects);
+			Log.Info("ApplePushChannel: Cleaned up {0}, Reconnects: {1}", cleanedUp, reconnects);
 			Log.Info("ApplePushChannel->DISPOSE.");
 		}
 
 	    private IAsyncResult readAsyncResult = default(IAsyncResult);
 
-		void Reader()
+		private void Reader()
 		{
 			try
 			{
@@ -337,7 +318,7 @@ namespace PushSharp.Apple
 							//See if anything is here to process
 							if (sentNotifications.Count > 0)
 							{
-								//Don't expire any notifications while we are in a connecting state, o rat least ensure all notifications have been sent
+								//Don't expire any notifications while we are in a connecting state, or at least ensure all notifications have been sent
 								// in case we may have no connection because no notifications were causing a connection to be initiated
 								if (connected)
 								{
