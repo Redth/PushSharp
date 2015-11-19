@@ -72,7 +72,7 @@ namespace PushSharp.Apple
 				this.CustomItems.Add(key, values);
 		}
 
-		public string ToJson()
+		public virtual string ToJson()
 		{
 			JObject json = new JObject();
 
@@ -277,4 +277,40 @@ namespace PushSharp.Apple
 			return ToJson();
 		}
 	}
+
+    public class AppleSafariNotificationPayload : AppleNotificationPayload
+    {
+        public AppleSafariNotificationPayload() { }
+
+        public AppleSafariNotificationPayload(string title, string body, string action = "View", params string[] urlArgs)
+        {
+            this.Title = title;
+            this.Body = body;
+            this.Action = action;
+            this.UrlArgs = urlArgs;
+        }
+
+        public override string ToJson()
+        {
+            var json = new JObject();
+            var aps = new JObject();
+            var alert = new JObject();
+
+            alert["title"] = new JValue(this.Title);
+            alert["body"] = new JValue(this.Body);
+            alert["action"] = new JValue(this.Action);
+
+            aps["alert"] = alert;
+            aps["url-args"] = new JArray(this.UrlArgs);
+
+            json["aps"] = aps;
+
+            return json.ToString(Newtonsoft.Json.Formatting.None, null);
+        }
+
+        public string Title { get; set; }
+        public string Body { get; set; }
+        public string Action { get; set; }
+        public string[] UrlArgs { get; set; }
+    }
 }
