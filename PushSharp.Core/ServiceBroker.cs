@@ -51,10 +51,7 @@ namespace PushSharp.Core
 
         public IEnumerable<TNotification> TakeMany ()
         {
-            TNotification n;
-
-            while (notifications.TryTake (out n))
-                yield return n;
+            return notifications.GetConsumingEnumerable ();
         }
 
         public bool IsCompleted {
