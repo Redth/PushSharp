@@ -83,8 +83,9 @@ namespace PushSharp.Apple
                     if (data.Count >= 4 + 2 + tokenLength) {
 
                         var tokenBuffer = data.GetRange (6, tokenLength).ToArray ();
-                        if (BitConverter.IsLittleEndian)
-                            Array.Reverse (tokenBuffer);
+                        // Strings shouldn't care about endian-ness... this shouldn't be reversed
+                        //if (BitConverter.IsLittleEndian)
+                        //    Array.Reverse (tokenBuffer);
                         var token = BitConverter.ToString (tokenBuffer).Replace ("-", "").ToLower ().Trim ();
 
                         // Remove what we parsed from the buffer
