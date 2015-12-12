@@ -6,6 +6,7 @@ using System.Xml.Linq;
 namespace PushSharp.Tests
 {
     [TestFixture]
+    [Category ("Disabled")]
     public class WnsRealTests
     {
         [Test]
