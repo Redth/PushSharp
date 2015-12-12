@@ -96,7 +96,7 @@ namespace PushSharp.Windows
             
             var result = await http.PostAsync (notification.ChannelUri, content);
 
-            var status = await ParseStatus (result, notification);
+            var status = ParseStatus (result, notification);
 
             //RESPONSE HEADERS
             // X-WNS-Debug-Trace   string
@@ -133,7 +133,7 @@ namespace PushSharp.Windows
             }
 
             // Any other error
-            throw new NotificationException (status.ToString (), notification);
+            throw new WnsNotificationException (status);
         }
 
         async Task RenewAccessToken()
@@ -166,7 +166,7 @@ namespace PushSharp.Windows
         }
 
 
-        async Task<WnsNotificationStatus> ParseStatus(HttpResponseMessage resp, WnsNotification notification)
+        WnsNotificationStatus ParseStatus(HttpResponseMessage resp, WnsNotification notification)
         {
             var result = new WnsNotificationStatus();
 
