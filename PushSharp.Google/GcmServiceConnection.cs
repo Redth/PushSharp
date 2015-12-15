@@ -38,27 +38,23 @@ namespace PushSharp.Google
         public GcmServiceConnection (GcmConfiguration configuration)
         {
             Configuration = configuration;
+            http = new HttpClient ();
+
+            http.DefaultRequestHeaders.UserAgent.Clear ();
+            http.DefaultRequestHeaders.UserAgent.Add (new ProductInfoHeaderValue ("PushSharp", "3.0"));
+            http.DefaultRequestHeaders.TryAddWithoutValidation ("Authorization", "key=" + Configuration.SenderAuthToken);
         }
 
         public GcmConfiguration Configuration { get; private set; }
 
-        readonly HttpClient http = new HttpClient ();
+        readonly HttpClient http;
 
         public async Task Send (GcmNotification notification)
         {
             var json = notification.GetJson ();
 
             var content = new StringContent (json, System.Text.Encoding.UTF8, "application/json");
-            http.DefaultRequestHeaders.UserAgent.Clear ();
-            http.DefaultRequestHeaders.UserAgent.Add (new ProductInfoHeaderValue ("PushSharp", "3.0"));
-            //http.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue ("Authorization:", "key=" + Configuration.SenderAuthToken);
-            http.DefaultRequestHeaders.TryAddWithoutValidation("Authorization", "key=" + Configuration.SenderAuthToken);
 
-//            var req = new HttpRequestMessage (HttpMethod.Post, Configuration.GcmUrl);
-//            req.Headers.try.Add ("Authorization", "key=" + Configuration.SenderAuthToken);
-//            req.Content = content;
-
-            //var response = await http.SendAsync (req);
             var response = await http.PostAsync (Configuration.GcmUrl, content);
 
             if (response.IsSuccessStatusCode) {
