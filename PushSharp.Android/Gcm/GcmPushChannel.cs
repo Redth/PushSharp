@@ -100,11 +100,19 @@ namespace PushSharp.Android
 			}
 			catch (Exception ex)
 			{
-				//Raise individual failures for each registration id for the notification
-				foreach (var r in asyncParam.Message.RegistrationIds)
-					asyncParam.Callback(this, new SendNotificationResult(GcmNotification.ForSingleRegistrationId(asyncParam.Message, r), false, ex));
+                if (asyncParam.Message.RegistrationIds.Any())
+                {
+                    //Raise individual failures for each registration id for the notification
+                    foreach (var r in asyncParam.Message.RegistrationIds)
+                        asyncParam.Callback(this, new SendNotificationResult(GcmNotification.ForSingleRegistrationId(asyncParam.Message, r), false, ex));
+                }
+                else
+                {
+                    //Raise failure for the topic
+                    asyncParam.Callback(this, new SendNotificationResult(GcmNotification.ForTopic(asyncParam.Message), false, ex));
+                }
 
-				Interlocked.Decrement(ref waitCounter);
+                Interlocked.Decrement(ref waitCounter);
 			}
 		}
 
@@ -127,11 +135,19 @@ namespace PushSharp.Android
 			}
 			catch (Exception ex)
 			{
-				//Raise individual failures for each registration id for the notification
-				foreach (var r in asyncParam.Message.RegistrationIds)
-					asyncParam.Callback(this, new SendNotificationResult(GcmNotification.ForSingleRegistrationId(asyncParam.Message, r), false, ex));
+                if (asyncParam.Message.RegistrationIds.Any())
+                {
+                    //Raise individual failures for each registration id for the notification
+                    foreach (var r in asyncParam.Message.RegistrationIds)
+                        asyncParam.Callback(this, new SendNotificationResult(GcmNotification.ForSingleRegistrationId(asyncParam.Message, r), false, ex));
+                }
+                else
+                {
+                    //Raise failure for the topic
+                    asyncParam.Callback(this, new SendNotificationResult(GcmNotification.ForTopic(asyncParam.Message), false, ex));
+                }
 
-				Interlocked.Decrement(ref waitCounter);
+                Interlocked.Decrement(ref waitCounter);
 			}
 		}
 
@@ -160,10 +176,28 @@ namespace PushSharp.Android
 					
 			var jsonResults = json["results"] as JArray;
 
-			if (jsonResults == null)
-				jsonResults = new JArray();
+            if (jsonResults == null)
+            {
+                //Logic to check if the response is for the topic. As response for topic only returns message_id.
+                var messageId = json["message_id"].Value<string>();
 
-			foreach (var r in jsonResults)
+                if (messageId != null)
+                {
+                    var topicResult = new GcmMessageResult();
+                    topicResult.MessageId = messageId;
+                    topicResult.ResponseStatus = GcmMessageTransportResponseStatus.Ok;
+                    result.Results.Add(topicResult);
+                    var singleResultNotification = GcmNotification.ForTopicResult(result);
+                    asyncParam.Callback(this, new SendNotificationResult(singleResultNotification));
+                    Interlocked.Decrement(ref waitCounter);
+
+                    return;
+                }
+
+                jsonResults = new JArray();
+            }
+
+            foreach (var r in jsonResults)
 			{
 				var msgResult = new GcmMessageResult();
 								

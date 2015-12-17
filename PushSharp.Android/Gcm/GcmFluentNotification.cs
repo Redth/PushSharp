@@ -20,7 +20,15 @@ namespace PushSharp
             return n;
         }
 
-		public static GcmNotification WithCollapseKey(this GcmNotification n, string collapseKey)
+        public static GcmNotification ForTopic(this GcmNotification n, string topic)
+        {
+            if (!string.IsNullOrEmpty(topic) && !topic.StartsWith("/topics/"))
+                n.Topic = "/topics/" + topic;
+
+            return n;
+        }
+
+        public static GcmNotification WithCollapseKey(this GcmNotification n, string collapseKey)
 		{
 			n.CollapseKey = collapseKey;
 			return n;
