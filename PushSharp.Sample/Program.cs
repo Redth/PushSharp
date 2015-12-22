@@ -84,13 +84,14 @@ namespace PushSharp.Sample
 			//IMPORTANT: For Android you MUST use your own RegistrationId here that gets generated within your Android app itself!
 			push.QueueNotification(new GcmNotification().ForDeviceRegistrationId("DEVICE REGISTRATION ID HERE")
 			                      .WithJson("{\"alert\":\"Hello World!\",\"badge\":7,\"sound\":\"sound.caf\"}"));
-			
 
-			//-----------------------------
-			// WINDOWS PHONE NOTIFICATIONS
-			//-----------------------------
+            push.QueueNotification(new GcmNotification().ForTopic("global").WithJson("{\"message\":\"Hello World!\"}"));
+
+            //-----------------------------
+            // WINDOWS PHONE NOTIFICATIONS
+            //-----------------------------
             //Configure and start Windows Phone Notifications
-			push.RegisterWindowsPhoneService();
+            push.RegisterWindowsPhoneService();
 			//Fluent construction of a Windows Phone Toast notification
 			//IMPORTANT: For Windows Phone you MUST use your own Endpoint Uri here that gets generated within your Windows Phone app itself!
 			push.QueueNotification(new WindowsPhoneToastNotification()
