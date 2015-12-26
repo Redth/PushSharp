@@ -19,19 +19,27 @@ namespace PushSharp.Apple
 
     public class ApnsNotificationException : Exception
     {
-        public ApnsNotificationException (byte errorStatusCode, ApnsNotification notification) : base ()
+        public ApnsNotificationException(byte errorStatusCode, ApnsNotification notification)
+            : this(ToErrorStatusCode(errorStatusCode), notification)
+        { }
+
+        public ApnsNotificationException (ApnsNotificationErrorStatusCode errorStatusCode, ApnsNotification notification)
+            : base ($"Apns notification error: '{errorStatusCode}'")
         {
             Notification = notification;
-
-            var s = ApnsNotificationErrorStatusCode.Unknown;
-            Enum.TryParse<ApnsNotificationErrorStatusCode> (errorStatusCode.ToString (), out s);
-            ErrorStatusCode = s;
-
+            ErrorStatusCode = errorStatusCode;
         }
 
         public ApnsNotification Notification { get; set; }
 
         public ApnsNotificationErrorStatusCode ErrorStatusCode { get; private set; }
+        
+        private static ApnsNotificationErrorStatusCode ToErrorStatusCode(byte errorStatusCode)
+        {
+            var s = ApnsNotificationErrorStatusCode.Unknown;
+            Enum.TryParse<ApnsNotificationErrorStatusCode>(errorStatusCode.ToString(), out s);
+            return s;
+        }
     }
 
     public class ApnsConnectionException : Exception

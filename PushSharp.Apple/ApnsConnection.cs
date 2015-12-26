@@ -129,20 +129,29 @@ namespace PushSharp.Apple
 
             try {
 
-                await connectingSemaphore.WaitAsync ();
-
-                try {
-                    // See if we need to connect
-                    if (!socketCanWrite ())
-                        await connect ();
-                } finally {
-                    connectingSemaphore.Release ();
-                }
-                
                 var data = createBatch (toSend);
 
                 if (data != null && data.Length > 0) {
-                    await networkStream.WriteAsync (data, 0, data.Length).ConfigureAwait (false);
+
+                    for (var i = 0; i <= Configuration.InternalBatchFailureRetryCount; i++) {
+
+                        await connectingSemaphore.WaitAsync ();
+
+                        try {
+                            // See if we need to connect
+                            if (!socketCanWrite () || i > 0)
+                                await connect ();
+                        } finally {
+                            connectingSemaphore.Release ();
+                        }
+                
+                        try {
+                            await networkStream.WriteAsync(data, 0, data.Length).ConfigureAwait(false);
+                            break;
+                        } catch (Exception ex) when (i != Configuration.InternalBatchFailureRetryCount) {
+                            Log.Info("APNS-CLIENT[{0}]: Retrying Batch: Batch ID={1}, Error={2}", id, batchId, ex);
+                        }
+                    }
 
                     foreach (var n in toSend)
                         sent.Add (new SentNotification (n));
@@ -290,6 +299,12 @@ namespace PushSharp.Apple
         bool socketCanWrite ()
         {
             if (client == null)
+                return false;
+
+            if (networkStream == null || !networkStream.CanWrite)
+                return false;
+
+            if (!client.Client.Connected)
                 return false;
 
             var p = client.Client.Poll (1000, SelectMode.SelectWrite); 

@@ -92,6 +92,8 @@ namespace PushSharp.Apple
 
             InternalBatchSize = 1000;
             InternalBatchingWaitPeriod = TimeSpan.FromMilliseconds (750);
+
+            InternalBatchFailureRetryCount = 1;
         }
 
         public bool DetectProduction (X509Certificate2 certificate)
@@ -199,6 +201,12 @@ namespace PushSharp.Apple
         /// </summary>
         /// <value>The internal batching wait period.</value>
         public TimeSpan InternalBatchingWaitPeriod { get; set; }
+
+        /// <summary>
+        /// How many times the internal batch will retry to send in case of network failure. The default value is 1.
+        /// </summary>
+        /// <value>The internal batch failure retry count.</value>
+        public int InternalBatchFailureRetryCount { get; set; }
 
         /// <summary>
         /// Gets or sets the keep alive period to set on the APNS socket
