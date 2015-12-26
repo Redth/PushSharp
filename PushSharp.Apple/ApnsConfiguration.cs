@@ -7,7 +7,6 @@ namespace PushSharp.Apple
     public class ApnsConfiguration
     {
         #region Constants
-
         const string APNS_SANDBOX_HOST = "gateway.sandbox.push.apple.com";
         const string APNS_PRODUCTION_HOST = "gateway.push.apple.com";
 
@@ -22,49 +21,35 @@ namespace PushSharp.Apple
 
         #endregion
 
-        public ApnsConfiguration (bool production, string certificateFile, string certificateFilePwd, bool disableCertificateCheck = false)
-            : this (production, System.IO.File.ReadAllBytes (certificateFile), certificateFilePwd, disableCertificateCheck)
+        public ApnsConfiguration (ApnsServerEnvironment serverEnvironment, string certificateFile, string certificateFilePwd)
+            : this (serverEnvironment, System.IO.File.ReadAllBytes (certificateFile), certificateFilePwd)
         {
         }
 
-        public ApnsConfiguration (string certificateFile, string certificateFilePwd, bool disableCertificateCheck = false)
-            : this (System.IO.File.ReadAllBytes (certificateFile), certificateFilePwd, disableCertificateCheck)
+        public ApnsConfiguration (ApnsServerEnvironment serverEnvironment, byte[] certificateData, string certificateFilePwd)
+            : this (serverEnvironment, new X509Certificate2 (certificateData, certificateFilePwd,
+                X509KeyStorageFlags.MachineKeySet | X509KeyStorageFlags.PersistKeySet | X509KeyStorageFlags.Exportable))
         {
         }
 
-        public ApnsConfiguration (bool production, byte[] certificateData, string certificateFilePwd, bool disableCertificateCheck = false)
-            : this (production, new X509Certificate2 (certificateData, certificateFilePwd,
-                X509KeyStorageFlags.MachineKeySet | X509KeyStorageFlags.PersistKeySet | X509KeyStorageFlags.Exportable), disableCertificateCheck)
+        public ApnsConfiguration (string overrideHost, int overridePort, bool skipSsl = true)
         {
-        }
+            SkipSsl = skipSsl;
 
-        public ApnsConfiguration (byte[] certificateData, string certificateFilePwd, bool disableCertificateCheck = false)
-            : this (new X509Certificate2 (certificateData, certificateFilePwd,
-                X509KeyStorageFlags.MachineKeySet | X509KeyStorageFlags.PersistKeySet | X509KeyStorageFlags.Exportable), disableCertificateCheck)
-        {
-        }
-            
-        public ApnsConfiguration (string overrideHost, int overridePort)
-        {
-            SkipSsl = true;
-
-            Initialize (false, null, true);
+            Initialize (ApnsServerEnvironment.Sandbox, null);
 
             OverrideServer (overrideHost, overridePort);
         }
 
-        public ApnsConfiguration (X509Certificate2 certificate, bool disableCertificateCheck = false)
+        public ApnsConfiguration (ApnsServerEnvironment serverEnvironment, X509Certificate2 certificate)
         {
-            Initialize (DetectProduction (certificate), certificate, disableCertificateCheck);
+            Initialize (serverEnvironment, certificate);
         }
 
-        public ApnsConfiguration (bool production, X509Certificate2 certificate, bool disableCertificateCheck = false)
+        void Initialize (ApnsServerEnvironment serverEnvironment, X509Certificate2 certificate)
         {
-            Initialize (production, certificate, disableCertificateCheck);
-        }
+            var production = serverEnvironment == ApnsServerEnvironment.Production;
 
-        void Initialize (bool production, X509Certificate2 certificate, bool disableCertificateCheck)
-        {
             Host = production ? APNS_PRODUCTION_HOST : APNS_SANDBOX_HOST;
             FeedbackHost = production ? APNS_PRODUCTION_FEEDBACK_HOST : APNS_SANDBOX_FEEDBACK_HOST;
             Port = production ? APNS_PRODUCTION_PORT : APNS_SANDBOX_PORT;
@@ -82,8 +67,7 @@ namespace PushSharp.Apple
             AdditionalCertificates = new List<X509Certificate2> ();
             AddLocalAndMachineCertificateStores = false;
 
-            if (!disableCertificateCheck)
-                CheckProductionCertificateMatching (production);
+            CheckIsApnsCertificate ();
 
             ValidateServerCertificate = false;
 
@@ -96,52 +80,17 @@ namespace PushSharp.Apple
             InternalBatchFailureRetryCount = 1;
         }
 
-        public bool DetectProduction (X509Certificate2 certificate)
-        {
-            var production = false;
 
-            if (certificate != null) {
-                var subjectName = certificate.SubjectName.Name;
-                var issuerName = certificate.IssuerName.Name;
-
-                if (subjectName.Contains ("Apple Production IOS Push Services")
-                    || subjectName.Contains ("Apple Production Mac Push Services")
-                    || subjectName.Contains ("Pass Type ID") // Can only be used with production
-                    || issuerName.Contains ("CN=VoIP Services")) // Assuming to be used with production
-                    production = true;
-            }
-
-            return production;
-        }
-
-        public bool DetectSandbox (X509Certificate2 certificate)
-        {
-            var sandbox = false;
-
-            if (certificate != null) {
-                var subjectName = certificate.SubjectName.Name;
-
-                if (subjectName.Contains ("Apple Development IOS Push Services")
-                    || subjectName.Contains ("Apple Development Mac Push Services"))
-                    sandbox = true;
-            }
-
-            return sandbox;
-        }
-
-        void CheckProductionCertificateMatching (bool production)
+        void CheckIsApnsCertificate ()
         {
             if (Certificate != null) {
                 var issuerName = Certificate.IssuerName.Name;
+                var commonName = Certificate.SubjectName.Name;
 
                 if (!issuerName.Contains ("Apple"))
                     throw new ApnsConnectionException ("Your Certificate does not appear to be issued by Apple!  Please check to ensure you have the correct certificate!");
-
-                if (production && !DetectProduction (Certificate))
-                    throw new ApnsConnectionException ("You have selected the Production server, yet your Certificate does not appear to be the Production certificate!  Please check to ensure you have the correct certificate!");
-
-                if (!production && !DetectSandbox (Certificate))
-                    throw new ApnsConnectionException ("You have selected the Development/Sandbox (Not production) server, yet your Certificate does not appear to be the Development/Sandbox certificate!  Please check to ensure you have the correct certificate!");             
+                if (!commonName.StartsWith ("Apple Push Services:"))
+                    throw new ApnsConnectionException ("Your Certificate is not in the new combined Sandbox/Production APNS certificate format, please create a new single certificate to use");
 
             } else {
                 throw new ApnsConnectionException ("You must provide a Certificate to connect to APNS with!");
@@ -217,5 +166,10 @@ namespace PushSharp.Apple
         /// Gets or sets the keep alive retry period to set on the APNS socket
         /// </summary>
         public TimeSpan KeepAliveRetryPeriod { get; set; }
+
+        public enum ApnsServerEnvironment {
+            Sandbox,
+            Production
+        }
     }
 }
