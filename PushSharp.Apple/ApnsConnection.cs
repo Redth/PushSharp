@@ -292,6 +292,12 @@ namespace PushSharp.Apple
             if (client == null)
                 return false;
 
+            if (networkStream == null || !networkStream.CanWrite)
+                return false;
+
+            if (!client.Client.Connected)
+                return false;
+
             var p = client.Client.Poll (1000, SelectMode.SelectWrite); 
 
             Log.Info ("APNS-Client[{0}]: Can Write? {1}", id, p);
