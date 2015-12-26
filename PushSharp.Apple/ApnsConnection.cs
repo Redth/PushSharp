@@ -139,8 +139,7 @@ namespace PushSharp.Apple
 
                         try {
                             // See if we need to connect
-                            var retry = (i != 0 && i == Configuration.InternalBatchFailureRetryCount);
-                            if (!socketCanWrite () || retry)
+                            if (!socketCanWrite () || i > 0)
                                 await connect ();
                         } finally {
                             connectingSemaphore.Release ();
