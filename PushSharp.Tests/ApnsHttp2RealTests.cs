@@ -16,7 +16,7 @@ namespace PushSharp.Tests
             var failed = 0;
             var attempted = 0;
 
-            var config = new ApnsHttp2Configuration(ApnsHttp2Configuration.ApnsServerEnvironment.Production, Settings.Instance.ApnsCertificateFile, Settings.Instance.ApnsCertificatePassword);
+            var config = new ApnsHttp2Configuration(ApnsHttp2Configuration.ApnsServerEnvironment.Sandbox, Settings.Instance.ApnsCertificateFile, Settings.Instance.ApnsCertificatePassword);
             var broker = new ApnsHttp2ServiceBroker(config);
             broker.OnNotificationFailed += (notification, exception) => {
                 failed++;
