@@ -85,13 +85,13 @@ namespace PushSharp.Apple
                 headers.Add ("apns-topic", notification.Topic); // string topic
 
             var response = await http2.Post (uri, headers, data);
-
-            // Check for matching uuid's
-            //var responseUuid = response.Headers ["apns-id"];
-            //if (responseUuid != notification.Uuid)
-            //    throw new Exception ("Mismatched APNS-ID header values");
-
+            
             if (response.Status == System.Net.HttpStatusCode.OK) {
+                // Check for matching uuid's
+                var responseUuid = response.Headers ["apns-id"];
+                if (responseUuid != notification.Uuid)
+                    throw new Exception ("Mismatched APNS-ID header values");
+                
                 Console.WriteLine("OK");
             } else {
                 // Try parsing json body
