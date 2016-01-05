@@ -16,7 +16,7 @@ namespace PushSharp.Tests
             var failed = 0;
             var attempted = 0;
 
-            var config = new ApnsHttp2Configuration(ApnsHttp2Configuration.ApnsServerEnvironment.Sandbox, Settings.Instance.ApnsCertificateFile, Settings.Instance.ApnsCertificatePassword);
+            var config = new ApnsHttp2Configuration(ApnsHttp2Configuration.ApnsServerEnvironment.Production, Settings.Instance.ApnsCertificateFile, Settings.Instance.ApnsCertificatePassword);
             var broker = new ApnsHttp2ServiceBroker(config);
             broker.OnNotificationFailed += (notification, exception) => {
                 failed++;
@@ -32,7 +32,8 @@ namespace PushSharp.Tests
                 broker.QueueNotification(new ApnsHttp2Notification
                 {
                     DeviceToken = dt,
-                    Payload = JObject.Parse("{ \"aps\" : { \"alert\" : \"Hello PushSharp!\" } }")
+                    Topic = "com.pushsharp.sample",
+                    Payload = JObject.Parse("{ \"aps\" : { \"alert\" : \"Hello PushSharp!\", \"badge\" : 5, \"sound\" : \"blank.aiff\" } }")
                 });
             }
 

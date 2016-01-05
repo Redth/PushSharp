@@ -7,8 +7,8 @@ namespace PushSharp.Apple
     public class ApnsHttp2Configuration
     {
         #region Constants
-        const string APNS_SANDBOX_HOST = "gateway.sandbox.push.apple.com";
-        const string APNS_PRODUCTION_HOST = "gateway.push.apple.com";
+        const string APNS_SANDBOX_HOST = "api.development.push.apple.com";
+        const string APNS_PRODUCTION_HOST = "api.push.apple.com";
 
         const uint APNS_SANDBOX_PORT = 443;
         const uint APNS_PRODUCTION_PORT = 443;
@@ -80,7 +80,7 @@ namespace PushSharp.Apple
 
                 if (!issuerName.Contains ("Apple"))
                     throw new ApnsConnectionException ("Your Certificate does not appear to be issued by Apple!  Please check to ensure you have the correct certificate!");
-                if (!commonName.StartsWith ("Apple Push Services:"))
+                if (!commonName.Contains ("Apple Push Services:"))
                     throw new ApnsConnectionException ("Your Certificate is not in the new combined Sandbox/Production APNS certificate format, please create a new single certificate to use");
 
             } else {
