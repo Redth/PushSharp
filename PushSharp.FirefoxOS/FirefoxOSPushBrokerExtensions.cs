@@ -1,5 +1,5 @@
 ﻿using System;
-
+using PushSharp.Core;
 using PushSharp.FirefoxOS;
 
 namespace PushSharp
@@ -14,7 +14,7 @@ namespace PushSharp
         /// </summary>
         /// 
         /// <param name="broker">Registration broker.</param>
-        public static void RegisterFirefoxOSService(this PushBroker broker)
+        public static void RegisterFirefoxOSService(this IPushBroker broker)
         {
             broker.RegisterService<FirefoxOSNotification>(new FirefoxOSPushService());
         }
@@ -26,7 +26,7 @@ namespace PushSharp
         /// <param name="broker">Registration broker.</param>
         /// 
         /// <returns>Created notification object.</returns>
-        public static FirefoxOSNotification FirefoxOSNotification(this PushBroker broker)
+        public static FirefoxOSNotification FirefoxOSNotification(this IPushBroker broker)
         {
             return new FirefoxOSNotification();
         }
