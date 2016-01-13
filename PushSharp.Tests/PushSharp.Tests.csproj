@@ -39,6 +39,7 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="ApnsHttp2RealTests.cs" />
     <Compile Include="TestServiceConnection.cs" />
     <Compile Include="GcmXmppTests.cs" />
     <Compile Include="Servers\TestApnsServer.cs" />
