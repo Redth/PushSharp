@@ -84,7 +84,7 @@ namespace PushSharp.Apple
 
             if (notification.Priority.HasValue)
                 headers.Add ("apns-priority", notification.Priority == ApnsPriority.Low ? "5" : "10"); // 5 or 10
-            
+
             headers.Add ("content-length", data.Length.ToString ());
 
             if (!string.IsNullOrEmpty (notification.Topic)) 
@@ -97,8 +97,6 @@ namespace PushSharp.Apple
                 var responseUuid = response.Headers ["apns-id"];
                 if (responseUuid != notification.Uuid)
                     throw new Exception ("Mismatched APNS-ID header values");
-                
-                Console.WriteLine("OK");
             } else {
                 // Try parsing json body
                 var json = new JObject ();

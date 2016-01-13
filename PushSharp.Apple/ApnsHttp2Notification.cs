@@ -44,9 +44,8 @@ namespace PushSharp.Apple
 
         public string Topic { get;set; }
 
-        public const int MAX_PAYLOAD_SIZE = 4096; //will be 4096 soon
+        public const int MAX_PAYLOAD_SIZE = 4096;
         public static readonly DateTime DoNotStore = DateTime.MinValue;
-        private static readonly DateTime UNIX_EPOCH = new DateTime (1970, 1, 1, 0, 0, 0, DateTimeKind.Utc);
 
         public ApnsHttp2Notification () : this (string.Empty, new JObject ())
         {
@@ -88,4 +87,3 @@ namespace PushSharp.Apple
         High = 10
     }
 }
-
