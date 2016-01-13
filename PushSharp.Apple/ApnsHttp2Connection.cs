@@ -6,6 +6,7 @@ using System.Collections.Generic;
 using System.Text;
 using System.Linq;
 using Newtonsoft.Json.Linq;
+using System.Net;
 
 namespace PushSharp.Apple
 {
@@ -44,8 +45,13 @@ namespace PushSharp.Apple
             if (certificate != null)
                 certificates.Add (certificate);
 
-            http2 = new HttpTwo.Http2Client (Configuration.Host, (uint)Configuration.Port, true);
-            http2.Certificates = certificates;
+            var http2Settings = new HttpTwo.Http2ConnectionSettings (
+                Configuration.Host,
+               (uint)Configuration.Port, 
+                true, 
+                certificates);
+            
+            http2 = new HttpTwo.Http2Client (http2Settings);
         }
 
         public ApnsHttp2Configuration Configuration { get; private set; }
@@ -86,7 +92,7 @@ namespace PushSharp.Apple
 
             var response = await http2.Post (uri, headers, data);
             
-            if (response.Status == System.Net.HttpStatusCode.OK) {
+            if (response.Status == HttpStatusCode.OK) {
                 // Check for matching uuid's
                 var responseUuid = response.Headers ["apns-id"];
                 if (responseUuid != notification.Uuid)
@@ -102,7 +108,7 @@ namespace PushSharp.Apple
                     json = JObject.Parse (body);
                 }
 
-                if (response.Status == System.Net.HttpStatusCode.Gone) {
+                if (response.Status == HttpStatusCode.Gone) {
 
                     var timestamp = DateTime.UtcNow;
                     if (json != null && json["timestamp"] != null) {
