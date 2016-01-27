@@ -288,7 +288,7 @@ namespace PushSharp.Core
 						}
                         while (ChannelCount < ServiceSettings.Channels && !this.cancelTokenSource.IsCancellationRequested
                             && (DateTime.UtcNow - lastNotificationQueueTime) <= ServiceSettings.IdleTimeout
-                            && QueueLength > 0)
+                            && (Interlocked.Read(ref trackedNotificationCount) > 0 || QueueLength > 0))
 						{
 							Log.Info("{0} -> Creating Channel", this);
 							ScaleChannels(ChannelScaleAction.Create);
