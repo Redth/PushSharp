@@ -11,7 +11,7 @@ namespace PushSharp.Core
 		bool IsCompleted { get; }
 
         void RaiseNotificationSucceeded (TNotification notification);
-        void RaiseNotificationFailed (TNotification notification, Exception ex);
+        void RaiseNotificationFailed (TNotification notification, AggregateException ex);
 	}
 }
 

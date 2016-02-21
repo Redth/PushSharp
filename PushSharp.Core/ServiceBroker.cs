@@ -130,7 +130,7 @@ namespace PushSharp.Core
                 evt (notification);
         }
 
-        public void RaiseNotificationFailed (TNotification notification, Exception exception)
+        public void RaiseNotificationFailed (TNotification notification, AggregateException exception)
         {
             var evt = OnNotificationFailed;
             if (evt != null)
