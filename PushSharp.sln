@@ -5,8 +5,6 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "PushSharp.Core", "PushSharp
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "PushSharp.Tests", "PushSharp.Tests\PushSharp.Tests.csproj", "{989B7357-800E-46B9-91AF-A4CE8A55F389}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "PushSharp.Tests.Runner", "PushSharp.Tests.Runner\PushSharp.Tests.Runner.csproj", "{DE0D53D0-2122-42EC-98D9-6E82F956CC04}"
-EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Platforms", "Platforms", "{2B7243CB-60A5-4682-802B-B7EC3DEBCF9A}"
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "PushSharp.Apple", "PushSharp.Apple\PushSharp.Apple.csproj", "{A9D99F80-FEEB-4E74-96C5-66F17103C773}"
@@ -73,10 +71,6 @@ Global
 		{DC80552B-6730-44AA-9B74-1E036BD909C3}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{DC80552B-6730-44AA-9B74-1E036BD909C3}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{DC80552B-6730-44AA-9B74-1E036BD909C3}.Release|Any CPU.Build.0 = Release|Any CPU
-		{DE0D53D0-2122-42EC-98D9-6E82F956CC04}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
-		{DE0D53D0-2122-42EC-98D9-6E82F956CC04}.Debug|Any CPU.Build.0 = Debug|Any CPU
-		{DE0D53D0-2122-42EC-98D9-6E82F956CC04}.Release|Any CPU.ActiveCfg = Release|Any CPU
-		{DE0D53D0-2122-42EC-98D9-6E82F956CC04}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(NestedProjects) = preSolution
 		{A9D99F80-FEEB-4E74-96C5-66F17103C773} = {2B7243CB-60A5-4682-802B-B7EC3DEBCF9A}
