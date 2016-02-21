@@ -43,12 +43,7 @@
     <Compile Include="GcmMessageResult.cs" />
     <Compile Include="GcmConfiguration.cs" />
     <Compile Include="GcmResponse.cs" />
-    <Compile Include="Xmpp\GcmXmppConfiguration.cs" />
-    <Compile Include="Xmpp\GcmXmppConnection.cs" />
-    <Compile Include="Xmpp\GcmXmppNotification.cs" />
-    <Compile Include="Xmpp\GcmXmppResponse.cs" />
     <Compile Include="Exceptions.cs" />
-    <Compile Include="Xmpp\GcmXmppService.cs" />
     <Compile Include="GcmServiceConnection.cs" />
   </ItemGroup>
   <Import Project="$(MSBuildBinPath)\Microsoft.CSharp.targets" />
@@ -57,9 +52,6 @@
       <Project>{2B44A8DA-60BC-4577-A2D7-D9D53F164B2E}</Project>
       <Name>PushSharp.Core</Name>
     </ProjectReference>
-  </ItemGroup>
-  <ItemGroup>
-    <Folder Include="Xmpp\" />
   </ItemGroup>
   <ItemGroup>
     <None Include="packages.config" />
