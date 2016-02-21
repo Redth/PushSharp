@@ -1,84 +1,55 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
 
 namespace PushSharp.Apple
 {
-	public class ConnectionFailureException : Exception
-	{
-		public ConnectionFailureException(string msg, Exception innerException) : base(msg, innerException) { }
-	}
+    public enum ApnsNotificationErrorStatusCode
+    {
+        NoErrors = 0,
+        ProcessingError = 1,
+        MissingDeviceToken = 2,
+        MissingTopic = 3,
+        MissingPayload = 4,
+        InvalidTokenSize = 5,
+        InvalidTopicSize = 6,
+        InvalidPayloadSize = 7,
+        InvalidToken = 8,
+        Shutdown = 10,
+        Unknown = 255
+    }
 
+    public class ApnsNotificationException : Exception
+    {
+        public ApnsNotificationException(byte errorStatusCode, ApnsNotification notification)
+            : this(ToErrorStatusCode(errorStatusCode), notification)
+        { }
 
-	public class NotificationFailureException : Exception
-	{
+        public ApnsNotificationException (ApnsNotificationErrorStatusCode errorStatusCode, ApnsNotification notification)
+            : base ($"Apns notification error: '{errorStatusCode}'")
+        {
+            Notification = notification;
+            ErrorStatusCode = errorStatusCode;
+        }
 
-		public NotificationFailureException(int errorStatusCode, AppleNotification notification) : base() 
-		{
-			this.ErrorStatusCode = errorStatusCode;
-			this.Notification = notification;
-		}
+        public ApnsNotification Notification { get; set; }
 
-		public AppleNotification Notification { get; set; }
+        public ApnsNotificationErrorStatusCode ErrorStatusCode { get; private set; }
+        
+        private static ApnsNotificationErrorStatusCode ToErrorStatusCode(byte errorStatusCode)
+        {
+            var s = ApnsNotificationErrorStatusCode.Unknown;
+            Enum.TryParse<ApnsNotificationErrorStatusCode>(errorStatusCode.ToString(), out s);
+            return s;
+        }
+    }
 
-		public int ErrorStatusCode { get; set; }
+    public class ApnsConnectionException : Exception
+    {
+        public ApnsConnectionException (string message) : base (message)
+        {
+        }
 
-		public string ErrorStatusDescription
-		{
-			get
-			{
-				var msg = string.Empty;
-
-				switch (ErrorStatusCode)
-				{
-					case 0:
-						msg = "No errors encountered";
-						break;
-					case 1:
-						msg = "Processing error";
-						break;
-					case 2:
-						msg = "Missing device token";
-						break;
-					case 3:
-						msg = "Missing topic";
-						break;
-					case 4:
-						msg = "Missing payload";
-						break;
-					case 5:
-						msg = "Invalid token size";
-						break;
-					case 6:
-						msg = "Invaid topic size";
-						break;
-					case 7:
-						msg = "Invalid payload size";
-						break;
-					case 8:
-						msg = "Invalid token";
-						break;
-					case 255:
-						msg = "None (unknown)";
-						break;
-					default:
-						msg = "Undocumented error status code";
-						break;
-				}
-				return msg;
-			}
-		}
-
-		public override string ToString()
-		{
-			var nstr = string.Empty;
-
-			if (Notification != null)
-				nstr = Notification.ToString();
-
-			return string.Format("APNS NotificationFailureException -> {0} : {1} -> {2}", ErrorStatusCode, ErrorStatusDescription, nstr);
-		}
-	}
-	
+        public ApnsConnectionException (string message, Exception innerException) : base (message, innerException)
+        {
+        }
+    }
 }

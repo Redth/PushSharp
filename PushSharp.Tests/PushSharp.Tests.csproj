@@ -1,0 +1,84 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project DefaultTargets="Build" ToolsVersion="4.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <PropertyGroup>
+    <Configuration Condition=" '$(Configuration)' == '' ">Debug</Configuration>
+    <Platform Condition=" '$(Platform)' == '' ">AnyCPU</Platform>
+    <ProjectGuid>{989B7357-800E-46B9-91AF-A4CE8A55F389}</ProjectGuid>
+    <OutputType>Library</OutputType>
+    <RootNamespace>PushSharp.Tests</RootNamespace>
+    <AssemblyName>PushSharp.Tests</AssemblyName>
+    <TargetFrameworkVersion>v4.5</TargetFrameworkVersion>
+  </PropertyGroup>
+  <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|AnyCPU' ">
+    <DebugSymbols>true</DebugSymbols>
+    <DebugType>full</DebugType>
+    <Optimize>false</Optimize>
+    <OutputPath>bin\Debug</OutputPath>
+    <DefineConstants>DEBUG;</DefineConstants>
+    <ErrorReport>prompt</ErrorReport>
+    <WarningLevel>4</WarningLevel>
+    <ConsolePause>false</ConsolePause>
+  </PropertyGroup>
+  <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Release|AnyCPU' ">
+    <DebugType>full</DebugType>
+    <Optimize>true</Optimize>
+    <OutputPath>bin\Release</OutputPath>
+    <ErrorReport>prompt</ErrorReport>
+    <WarningLevel>4</WarningLevel>
+    <ConsolePause>false</ConsolePause>
+  </PropertyGroup>
+  <ItemGroup>
+    <Reference Include="System" />
+    <Reference Include="nunit.framework">
+      <HintPath>..\packages\NUnit.2.6.4\lib\nunit.framework.dll</HintPath>
+    </Reference>
+    <Reference Include="Newtonsoft.Json">
+      <HintPath>..\packages\Newtonsoft.Json.7.0.1\lib\net45\Newtonsoft.Json.dll</HintPath>
+    </Reference>
+    <Reference Include="System.Xml.Linq" />
+    <Reference Include="System.Xml" />
+  </ItemGroup>
+  <ItemGroup>
+    <Compile Include="TestServiceConnection.cs" />
+    <Compile Include="GcmXmppTests.cs" />
+    <Compile Include="Servers\TestApnsServer.cs" />
+    <Compile Include="ApnsTests.cs" />
+    <Compile Include="Settings.cs" />
+    <Compile Include="AdmRealTests.cs" />
+    <Compile Include="GcmRealTests.cs" />
+    <Compile Include="BrokerTests.cs" />
+    <Compile Include="ApnsRealTest.cs" />
+    <Compile Include="WnsRealTests.cs" />
+  </ItemGroup>
+  <Import Project="$(MSBuildBinPath)\Microsoft.CSharp.targets" />
+  <ItemGroup>
+    <ProjectReference Include="..\PushSharp.Core\PushSharp.Core.csproj">
+      <Project>{2B44A8DA-60BC-4577-A2D7-D9D53F164B2E}</Project>
+      <Name>PushSharp.Core</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\PushSharp.Apple\PushSharp.Apple.csproj">
+      <Project>{A9D99F80-FEEB-4E74-96C5-66F17103C773}</Project>
+      <Name>PushSharp.Apple</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\PushSharp.Amazon\PushSharp.Amazon.csproj">
+      <Project>{2468C63B-C964-4FC3-9B16-13DC17CF7D11}</Project>
+      <Name>PushSharp.Amazon</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\PushSharp.Google\PushSharp.Google.csproj">
+      <Project>{94F16497-471F-433F-A99E-C455FB2D7724}</Project>
+      <Name>PushSharp.Google</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\PushSharp.Windows\PushSharp.Windows.csproj">
+      <Project>{DC80552B-6730-44AA-9B74-1E036BD909C3}</Project>
+      <Name>PushSharp.Windows</Name>
+    </ProjectReference>
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="packages.config" />
+    <None Include="settings.json" />
+  </ItemGroup>
+  <ItemGroup />
+  <ItemGroup>
+    <Service Include="{82A7F48D-3B50-4B1E-B82E-3ADA8210C358}" />
+  </ItemGroup>
+</Project>
