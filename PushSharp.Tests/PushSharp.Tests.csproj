@@ -40,7 +40,6 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="TestServiceConnection.cs" />
-    <Compile Include="GcmXmppTests.cs" />
     <Compile Include="Servers\TestApnsServer.cs" />
     <Compile Include="ApnsTests.cs" />
     <Compile Include="Settings.cs" />
