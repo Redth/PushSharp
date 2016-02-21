@@ -1,5 +1,5 @@
-PushSharp v3.0 - The Push Awakens!
-==================================
+PushSharp v3.0
+==============
 
 PushSharp is a server-side library for sending Push Notifications to iOS/OSX (APNS), Android/Chrome (GCM), Windows/Windows Phone, Amazon (ADM) and Blackberry devices!
 
@@ -9,8 +9,9 @@ PushSharp v3.0 is a complete rewrite of the original library, aimed at taking ad
 
 ![AppVeyor CI Status](https://ci.appveyor.com/api/projects/status/github/Redth/PushSharp?branch=3.0-dev&svg=true)
 
+[![NuGet Version](https://badge.fury.io/nu/PushSharp.svg)](https://badge.fury.io/nu/PushSharp)
+
  - Read more on my blog http://redth.codes/pushsharp-3-0-the-push-awakens/
- - Try out the latest -PreRelease [NuGet Packages](https://www.nuget.org/packages/PushSharp/3.0.0-beta29)
  - Join the [Gitter.im channel](https://gitter.im/Redth/PushSharp) with questions/feedback
 
 ---
@@ -28,9 +29,31 @@ var config = new ApnsConfiguration ("push-cert.pfx", "push-cert-pwd");
 var broker = new ApnsServiceBroker (config);
     
 // Wire up events
-broker.OnNotificationFailed += (notification, exception) => {
-	Console.WriteLine ("Notification Failed!");
+broker.OnNotificationFailed += (notification, aggregateEx) => {
+
+	aggregateEx.Handle (ex => {
+	
+		// See what kind of exception it was to further diagnose
+		if (exception is ApnsNotificationException) {
+			var apnsEx = ex as ApnsNotificationException;
+
+			// Deal with the failed notification
+			var n = apnsEx.Notification;
+		
+			Console.WriteLine ($"Notification Failed: ID={n.Identifier}, Code={apnsEx.ErrorStatusCode}");
+	
+		} else if (ex is ApnsConnectionException) {
+			// Something failed while connecting (maybe bad cert?)
+			Console.WriteLine ("Notification Failed (Bad APNS Connection)!");
+		} else {
+			Console.WriteLine ("Notification Failed (Unknown Reason)!");
+		}
+
+		// Mark it as handled
+		return true;
+	});
 };
+
 broker.OnNotificationSucceeded += (notification) => {
 	Console.WriteLine ("Notification Sent!");
 };
@@ -45,46 +68,34 @@ broker.QueueNotification (new ApnsNotification {
 	});
    
 // Stop the broker, wait for it to finish   
+// This isn't done after every message, but after you're
+// done with the broker
 broker.Stop ();
 ```
 
-## Interested in helping to test?
+Other platforms are structured the same way, although the configuration of each broker may vary.
 
-If you have an app with a significant number of installs/users, and are interested in helping test this library at scale, please contact me!  
 
- 
+
+## How to Migrate from PushSharp 2.x to 3.x
+
+Please see this Wiki page for more information: https://github.com/Redth/PushSharp/wiki/Migrating-from-PushSharp-2.x-to-3.x
+
 
 ## Roadmap
 
  - **APNS - Apple Push Notification Service** 
-   - Working!
-   - Uses latest binary format from Apple's docs
-   - Untested on very large scale (Looking for help here!)
-   - Waiting for Apple to release HTTP/2 transport specs to add support
+   - Finish HTTP/2 support (currently in another branch)
  - **GCM - Google Cloud Messaging** 
-   - HTTP transport working!
    - XMPP transport still under development
-   - Untested for Chrome (should work in theory)
- - **ADM - Amazon Device Messaging**
-   - Working!
- - **Windows**
-   - Working (Basic toasts tested)
-   - Drops support for WPS (old Windows Phone push service)
-   - XML Payload is up to the developer to construct
- - **Firefox**
-   - The SimplePush format should work, but is untested
-   - There's some push to make W3C standardized push notifications, waiting to see how this plays out
- - **Blackberry**
-   - Untested - code ported from previous PushSharp releases
  - **Other**
    - More NUnit tests to be written, with a test GCM Server, and eventually Test servers for other platforms
    - New Xamarin Client samples (how to setup each platform as a push client) will be built and live in a separate repository to be less confusing
    
 
-
 License
 -------
-Copyright 2012-2015 Jonathan Dick
+Copyright 2012-2016 Jonathan Dick
 
 Licensed under the Apache License, Version 2.0 (the "License");
 you may not use this file except in compliance with the License.
