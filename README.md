@@ -34,7 +34,7 @@ broker.OnNotificationFailed += (notification, aggregateEx) => {
 	aggregateEx.Handle (ex => {
 	
 		// See what kind of exception it was to further diagnose
-		if (exception is ApnsNotificationException) {
+		if (ex is ApnsNotificationException) {
 			var apnsEx = ex as ApnsNotificationException;
 
 			// Deal with the failed notification
