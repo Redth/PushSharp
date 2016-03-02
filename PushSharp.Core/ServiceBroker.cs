@@ -99,10 +99,11 @@ namespace PushSharp.Core
             if (newScaleSize <= 0)
                 throw new ArgumentOutOfRangeException ("newScaleSize", "Must be Greater than Zero");
 
+            // Set the scale size
+            ScaleSize = newScaleSize;
+
             if (!running)
                 return;
-
-            ScaleSize = newScaleSize;
 
             lock (lockWorkers) {
 
