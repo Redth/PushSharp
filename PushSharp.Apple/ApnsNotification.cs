@@ -8,16 +8,16 @@ using System.Text.RegularExpressions;
 
 namespace PushSharp.Apple
 {
-	/// <summary>
-	/// Apple push service notification
-	/// </summary>
-	public class ApnsNotification : INotification
+    /// <summary>
+    /// Apple push service notification
+    /// </summary>
+    public class ApnsNotification : INotification
     {
         static readonly object nextIdentifierLock = new object ();
         static int nextIdentifier = 1;
-		static Regex deviceRegistrationValidityRegex = new Regex(@"^[0-9A-F]+$", RegexOptions.IgnoreCase | RegexOptions.Compiled);
+        static Regex deviceRegistrationValidityRegex = new Regex(@"^[0-9A-F]+$", RegexOptions.IgnoreCase | RegexOptions.Compiled);
 
-		static int GetNextIdentifier ()
+        static int GetNextIdentifier ()
         {
             lock (nextIdentifierLock) {
                 if (nextIdentifier >= int.MaxValue - 10)
@@ -121,16 +121,16 @@ namespace PushSharp.Apple
             if (payload.Length > MAX_PAYLOAD_SIZE)
                 throw new NotificationException ("Payload too large (must be " + MAX_PAYLOAD_SIZE + " bytes or smaller", this);
 
-			var builder = new List<byte>();
+            var builder = new List<byte>();
 
-			builder.Add(0x01); // Device Token ID
-			builder.AddRange(BitConverter.GetBytes(IPAddress.HostToNetworkOrder(Convert.ToInt16(deviceToken.Length))));
-			builder.AddRange(deviceToken);
+            builder.Add(0x01); // Device Token ID
+            builder.AddRange(BitConverter.GetBytes(IPAddress.HostToNetworkOrder(Convert.ToInt16(deviceToken.Length))));
+            builder.AddRange(deviceToken);
 
-			builder.Add (0x02); // Payload ID
+            builder.Add (0x02); // Payload ID
             builder.AddRange (BitConverter.GetBytes (IPAddress.HostToNetworkOrder (Convert.ToInt16 (payload.Length))));
             builder.AddRange (payload);
-                                    			
+                                                
             // 3 - Identifier
             builder.Add (0x03);
             builder.AddRange (BitConverter.GetBytes (IPAddress.HostToNetworkOrder ((Int16)4)));
@@ -145,12 +145,12 @@ namespace PushSharp.Apple
                 TimeSpan epochTimeSpan = concreteExpireDateUtc - UNIX_EPOCH;
                 expiryTimeStamp = (int)epochTimeSpan.TotalSeconds;
             }
-            	
+                
             builder.Add (0x04); // 4 - Expiry ID
             builder.AddRange (BitConverter.GetBytes (IPAddress.HostToNetworkOrder ((Int16)4)));
             builder.AddRange (BitConverter.GetBytes (IPAddress.HostToNetworkOrder (expiryTimeStamp)));
 
-			
+            
             // 5 - Priority
             //TODO: Add priority
             var priority = LowPriority ? (byte)5 : (byte)10;

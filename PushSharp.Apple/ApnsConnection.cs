@@ -11,14 +11,14 @@ using PushSharp.Core;
 
 namespace PushSharp.Apple
 {
-	/// <summary>
-	/// Connection to Apple push service
-	/// </summary>
+    /// <summary>
+    /// Connection to Apple push service
+    /// </summary>
     public class ApnsConnection
     {
         static int ID = 0;
 
-		public ApnsConnection (ApnsConfiguration configuration)
+        public ApnsConnection (ApnsConfiguration configuration)
         {
             id = ++ID;
             if (id >= int.MaxValue)
