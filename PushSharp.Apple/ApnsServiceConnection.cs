@@ -27,7 +27,7 @@ namespace PushSharp.Apple
     }
 
 	public class ApnsServiceConnection : IServiceConnection<ApnsNotification>
-	{    
+	{
         readonly ApnsConnection connection;
         
         public ApnsServiceConnection (ApnsConfiguration configuration)
@@ -35,8 +35,8 @@ namespace PushSharp.Apple
             connection = new ApnsConnection (configuration);
         }
         
-        public async Task Send (ApnsNotification notification)
-        {
+		public async Task Send (ApnsNotification notification)
+		{
             var completableNotification = new ApnsConnection.CompletableApnsNotification (notification);
 
             connection.Send (completableNotification);
