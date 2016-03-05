@@ -39,17 +39,11 @@ namespace PushSharp.Windows
     }
 
     public class WnsServiceConnection : IServiceConnection<WnsNotification>
-    {           
-        HttpClient http;
-
+    {
         public WnsServiceConnection (WnsConfiguration configuration, WnsAccessTokenManager accessTokenManager)
         {
             AccessTokenManager = accessTokenManager;
             Configuration = configuration;
-
-            //TODO: Microsoft recommends we disable expect-100 to improve latency
-            // Not sure how to do this in httpclient
-            http = new HttpClient ();
         }
 
         public WnsAccessTokenManager AccessTokenManager { get; private set; }
@@ -63,6 +57,10 @@ namespace PushSharp.Windows
             //https://cloud.notify.windows.com/?token=.....
             //Authorization: Bearer {AccessToken}
             //
+
+            //TODO: Microsoft recommends we disable expect-100 to improve latency
+            // Not sure how to do this in httpclient
+            var http = new HttpClient ();
 
             http.DefaultRequestHeaders.TryAddWithoutValidation ("X-WNS-Type", string.Format ("wns/{0}", notification.Type.ToString ().ToLower ()));
             http.DefaultRequestHeaders.TryAddWithoutValidation("Authorization", "Bearer " + accessToken);
