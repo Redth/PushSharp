@@ -4,8 +4,8 @@ using System.Threading.Tasks;
 
 namespace PushSharp.Apple
 {
-	public class ApnsServiceConnectionFactory : IServiceConnectionFactory<ApnsNotification>
-	{
+    public class ApnsServiceConnectionFactory : IServiceConnectionFactory<ApnsNotification>
+    {
         public ApnsServiceConnectionFactory (ApnsConfiguration configuration)
         {
             Configuration = configuration;
@@ -13,11 +13,11 @@ namespace PushSharp.Apple
 
         public ApnsConfiguration Configuration { get; private set; }
 
-		public IServiceConnection<ApnsNotification> Create()
-		{
-			return new ApnsServiceConnection (Configuration);
-		}
-	}
+        public IServiceConnection<ApnsNotification> Create()
+        {
+            return new ApnsServiceConnection (Configuration);
+        }
+    }
 
     public class ApnsServiceBroker : ServiceBroker<ApnsNotification>
     {
@@ -26,17 +26,17 @@ namespace PushSharp.Apple
         }
     }
 
-	public class ApnsServiceConnection : IServiceConnection<ApnsNotification>
-	{	
+    public class ApnsServiceConnection : IServiceConnection<ApnsNotification>
+    {
         readonly ApnsConnection connection;
-        
+
         public ApnsServiceConnection (ApnsConfiguration configuration)
         {
             connection = new ApnsConnection (configuration);
         }
         
-		public async Task Send (ApnsNotification notification)
-		{
+        public async Task Send (ApnsNotification notification)
+        {
             var completableNotification = new ApnsConnection.CompletableApnsNotification (notification);
 
             connection.Send (completableNotification);
@@ -48,6 +48,6 @@ namespace PushSharp.Apple
             if (ex != null) {
                 throw ex;
             }
-		}
-	}
+        }
+    }
 }

@@ -94,7 +94,7 @@ namespace PushSharp.Apple
                         // Raise the event to the consumer
                         var evt = FeedbackReceived;
                         if (evt != null)
-                            evt (token, timestamp);                        
+                            evt (token, timestamp);
                     } else {
                         continue;
                     }
