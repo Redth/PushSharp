@@ -12,6 +12,11 @@ namespace PushSharp.Windows
 
         public new WnsNotification Notification { get; set; }
         public WnsNotificationStatus Status { get; private set; }
+
+        public override string ToString ()
+        {
+            return base.ToString() + " Status = " + Status.HttpStatus;
+        }
     }
 }
 

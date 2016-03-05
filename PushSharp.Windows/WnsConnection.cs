@@ -15,8 +15,11 @@ namespace PushSharp.Windows
 {
     public class WnsServiceConnectionFactory : IServiceConnectionFactory<WnsNotification>
     {
+        WnsAccessTokenManager wnsAccessTokenManager;
+
         public WnsServiceConnectionFactory (WnsConfiguration configuration)
         {
+            wnsAccessTokenManager = new WnsAccessTokenManager (configuration);
             Configuration = configuration;
         }
 
@@ -24,7 +27,7 @@ namespace PushSharp.Windows
 
         public IServiceConnection<WnsNotification> Create()
         {
-            return new WnsServiceConnection (Configuration);
+            return new WnsServiceConnection (Configuration, wnsAccessTokenManager);
         }
     }
 
@@ -39,8 +42,9 @@ namespace PushSharp.Windows
     {           
         HttpClient http;
 
-        public WnsServiceConnection (WnsConfiguration configuration)
+        public WnsServiceConnection (WnsConfiguration configuration, WnsAccessTokenManager accessTokenManager)
         {
+            AccessTokenManager = accessTokenManager;
             Configuration = configuration;
 
             //TODO: Microsoft recommends we disable expect-100 to improve latency
@@ -48,23 +52,20 @@ namespace PushSharp.Windows
             http = new HttpClient ();
         }
 
+        public WnsAccessTokenManager AccessTokenManager { get; private set; }
         public WnsConfiguration Configuration { get; private set; }
-        public string AccessToken { get; private set; }
-        public string TokenType { get; private set; }
 
         public async Task Send (WnsNotification notification)
         {           
-            //See if we need an access token
-            if (string.IsNullOrEmpty(AccessToken))
-                await RenewAccessToken();
-            
+            // Get or renew our access token
+            var accessToken = await AccessTokenManager.GetAccessToken ();
+
             //https://cloud.notify.windows.com/?token=.....
             //Authorization: Bearer {AccessToken}
             //
 
             http.DefaultRequestHeaders.TryAddWithoutValidation ("X-WNS-Type", string.Format ("wns/{0}", notification.Type.ToString ().ToLower ()));
-            //http.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue ("Bearer", AccessToken);
-            http.DefaultRequestHeaders.TryAddWithoutValidation("Authorization", "Bearer " + AccessToken);
+            http.DefaultRequestHeaders.TryAddWithoutValidation("Authorization", "Bearer " + accessToken);
 
             if (notification.RequestForStatus.HasValue)
                 http.DefaultRequestHeaders.TryAddWithoutValidation ("X-WNS-RequestForStatus", notification.RequestForStatus.Value.ToString().ToLower());
@@ -131,6 +132,12 @@ namespace PushSharp.Windows
                 return;
             }
 
+            //401
+            if (status.HttpStatus == HttpStatusCode.Unauthorized) {
+                AccessTokenManager.InvalidateAccessToken (accessToken);
+                throw new RetryAfterException ("Access token expired", DateTime.UtcNow.AddSeconds (5));
+            }
+
             //404 or 410
             if (status.HttpStatus == HttpStatusCode.NotFound || status.HttpStatus == HttpStatusCode.Gone) { 
                 throw new DeviceSubscriptonExpiredException {
@@ -139,39 +146,10 @@ namespace PushSharp.Windows
                 };
             }
 
+
             // Any other error
             throw new WnsNotificationException (status);
         }
-
-        async Task RenewAccessToken()
-        {
-            var p = new Dictionary<string, string> {
-                { "grant_type", "client_credentials" },
-                { "client_id", Configuration.PackageSecurityIdentifier },
-                { "client_secret", Configuration.ClientSecret },
-                { "scope", "notify.windows.com" }
-            };
-
-            var result = await http.PostAsync ("https://login.live.com/accesstoken.srf", new FormUrlEncodedContent (p));
-
-            var data = await result.Content.ReadAsStringAsync ();
-
-            var json = new JObject();
-
-            try { json = JObject.Parse (data); }
-            catch { }
-
-            var accessToken = json.Value<string>("access_token");
-            var tokenType = json.Value<string>("token_type");
-
-            if (!string.IsNullOrEmpty(accessToken) && !string.IsNullOrEmpty(tokenType)) {
-                AccessToken = accessToken;
-                TokenType = tokenType;
-            } else {
-                throw new UnauthorizedAccessException("Could not retrieve access token for the supplied Package Security Identifier (SID) and client secret");
-            }
-        }
-
 
         WnsNotificationStatus ParseStatus(HttpResponseMessage resp, WnsNotification notification)
         {
