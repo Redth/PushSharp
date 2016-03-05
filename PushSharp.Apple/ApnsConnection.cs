@@ -463,9 +463,8 @@ namespace PushSharp.Apple
 
             uint dummy = 0; //lenth = 4
             byte[] inOptionValues = new byte[System.Runtime.InteropServices.Marshal.SizeOf (dummy) * 3]; //size = lenth * 3 = 12
-            bool OnOff = true;
 
-            BitConverter.GetBytes ((uint)(OnOff ? 1 : 0)).CopyTo (inOptionValues, 0);
+            BitConverter.GetBytes ((uint)1).CopyTo (inOptionValues, 0);
             BitConverter.GetBytes ((uint)KeepAliveTime).CopyTo (inOptionValues, System.Runtime.InteropServices.Marshal.SizeOf (dummy));
             BitConverter.GetBytes ((uint)KeepAliveInterval).CopyTo (inOptionValues, System.Runtime.InteropServices.Marshal.SizeOf (dummy) * 2);
             // of course there are other ways to marshal up this byte array, this is just one way
