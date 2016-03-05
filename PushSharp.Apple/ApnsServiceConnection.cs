@@ -27,7 +27,7 @@ namespace PushSharp.Apple
     }
 
 	public class ApnsServiceConnection : IServiceConnection<ApnsNotification>
-	{	
+	{
         readonly ApnsConnection connection;
         
         public ApnsServiceConnection (ApnsConfiguration configuration)

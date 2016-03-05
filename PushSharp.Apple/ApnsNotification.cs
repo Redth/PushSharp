@@ -1,16 +1,21 @@
-﻿using System;
+﻿using Newtonsoft.Json.Linq;
 using PushSharp.Core;
-using Newtonsoft.Json.Linq;
+using System;
+using System.Collections.Generic;
 using System.Net;
 using System.Text;
-using System.Collections.Generic;
+using System.Text.RegularExpressions;
 
 namespace PushSharp.Apple
 {
+    /// <summary>
+    /// Apple push service notification
+    /// </summary>
     public class ApnsNotification : INotification
     {
         static readonly object nextIdentifierLock = new object ();
         static int nextIdentifier = 1;
+        static Regex deviceRegistrationValidityRegex = new Regex(@"^[0-9A-F]+$", RegexOptions.IgnoreCase | RegexOptions.Compiled);
 
         static int GetNextIdentifier ()
         {
@@ -75,8 +80,7 @@ namespace PushSharp.Apple
 
         public bool IsDeviceRegistrationIdValid ()
         {
-            var r = new System.Text.RegularExpressions.Regex (@"^[0-9A-F]+$", System.Text.RegularExpressions.RegexOptions.IgnoreCase);
-            return r.Match (this.DeviceToken).Success;
+            return deviceRegistrationValidityRegex.Match (this.DeviceToken).Success;
         }
 
         public override string ToString ()
@@ -92,8 +96,6 @@ namespace PushSharp.Apple
 
         public byte[] ToBytes ()
         {
-            var builder = new List<byte> ();
-
             // 1 - Device Token
             if (string.IsNullOrEmpty (this.DeviceToken))
                 throw new NotificationException ("Missing DeviceToken", this);
@@ -114,19 +116,21 @@ namespace PushSharp.Apple
             if (deviceToken.Length < DEVICE_TOKEN_BINARY_MIN_SIZE)
                 throw new NotificationException ("Invalid DeviceToken Length", this);
 
-            builder.Add (0x01); // Device Token ID
-            builder.AddRange (BitConverter.GetBytes (IPAddress.HostToNetworkOrder (Convert.ToInt16 (deviceToken.Length))));
-            builder.AddRange (deviceToken);
-
             // 2 - Payload
             var payload = Encoding.UTF8.GetBytes (ToString ());
             if (payload.Length > MAX_PAYLOAD_SIZE)
                 throw new NotificationException ("Payload too large (must be " + MAX_PAYLOAD_SIZE + " bytes or smaller", this);
 
+            var builder = new List<byte>();
+
+            builder.Add(0x01); // Device Token ID
+            builder.AddRange(BitConverter.GetBytes(IPAddress.HostToNetworkOrder(Convert.ToInt16(deviceToken.Length))));
+            builder.AddRange(deviceToken);
+
             builder.Add (0x02); // Payload ID
             builder.AddRange (BitConverter.GetBytes (IPAddress.HostToNetworkOrder (Convert.ToInt16 (payload.Length))));
             builder.AddRange (payload);
-                                    			
+                                                
             // 3 - Identifier
             builder.Add (0x03);
             builder.AddRange (BitConverter.GetBytes (IPAddress.HostToNetworkOrder ((Int16)4)));
@@ -141,12 +145,12 @@ namespace PushSharp.Apple
                 TimeSpan epochTimeSpan = concreteExpireDateUtc - UNIX_EPOCH;
                 expiryTimeStamp = (int)epochTimeSpan.TotalSeconds;
             }
-            	
+
             builder.Add (0x04); // 4 - Expiry ID
             builder.AddRange (BitConverter.GetBytes (IPAddress.HostToNetworkOrder ((Int16)4)));
             builder.AddRange (BitConverter.GetBytes (IPAddress.HostToNetworkOrder (expiryTimeStamp)));
 
-			
+
             // 5 - Priority
             //TODO: Add priority
             var priority = LowPriority ? (byte)5 : (byte)10;
