@@ -126,7 +126,7 @@ namespace PushSharp.Apple
             builder.Add (0x02); // Payload ID
             builder.AddRange (BitConverter.GetBytes (IPAddress.HostToNetworkOrder (Convert.ToInt16 (payload.Length))));
             builder.AddRange (payload);
-                                    			
+
             // 3 - Identifier
             builder.Add (0x03);
             builder.AddRange (BitConverter.GetBytes (IPAddress.HostToNetworkOrder ((Int16)4)));
@@ -141,18 +141,17 @@ namespace PushSharp.Apple
                 TimeSpan epochTimeSpan = concreteExpireDateUtc - UNIX_EPOCH;
                 expiryTimeStamp = (int)epochTimeSpan.TotalSeconds;
             }
-            	
+
             builder.Add (0x04); // 4 - Expiry ID
             builder.AddRange (BitConverter.GetBytes (IPAddress.HostToNetworkOrder ((Int16)4)));
             builder.AddRange (BitConverter.GetBytes (IPAddress.HostToNetworkOrder (expiryTimeStamp)));
 
-			
             // 5 - Priority
             //TODO: Add priority
             var priority = LowPriority ? (byte)5 : (byte)10;
             builder.Add (0x05); // 5 - Priority
             builder.AddRange (BitConverter.GetBytes (IPAddress.HostToNetworkOrder ((Int16)1)));
-            builder.Add (priority); //.AddRange (BitConverter.GetBytes (IPAddress.HostToNetworkOrder ((byte)priority)));
+            builder.Add (priority);
 
             var frameLength = builder.Count;
 
