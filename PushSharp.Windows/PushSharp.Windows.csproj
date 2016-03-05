@@ -43,6 +43,7 @@
     <Compile Include="WnsNotificationStatus.cs" />
     <Compile Include="WnsConnection.cs" />
     <Compile Include="Exceptions.cs" />
+    <Compile Include="WnsTokenAccessManager.cs" />
   </ItemGroup>
   <Import Project="$(MSBuildBinPath)\Microsoft.CSharp.targets" />
   <ItemGroup>
