@@ -141,7 +141,15 @@ namespace PushSharp.Google
 
         internal string GetJson ()
         {
-            return JsonConvert.SerializeObject (this);
+            // If 'To' was used instead of RegistrationIds, let's make RegistrationId's null
+            // so we don't serialize an empty array for this property
+            // otherwise, google will complain that we specified both instead
+            if (RegistrationIds != null && RegistrationIds.Count <= 0 && !string.IsNullOrEmpty (To))
+                RegistrationIds = null;
+
+            // Ignore null values
+            return JsonConvert.SerializeObject (this,
+                new JsonSerializerSettings { NullValueHandling = NullValueHandling.Ignore });
         }
 
         public override string ToString ()
