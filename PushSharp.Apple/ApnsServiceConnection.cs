@@ -4,7 +4,7 @@ using System.Threading.Tasks;
 
 namespace PushSharp.Apple
 {
-    public class ApnsServiceConnectionFactory : IServiceConnectionFactory<ApnsNotification>
+	public class ApnsServiceConnectionFactory : IServiceConnectionFactory<ApnsNotification>
     {
         public ApnsServiceConnectionFactory (ApnsConfiguration configuration)
         {
@@ -17,7 +17,7 @@ namespace PushSharp.Apple
         {
             return new ApnsServiceConnection (Configuration);
         }
-    }
+	}
 
     public class ApnsServiceBroker : ServiceBroker<ApnsNotification>
     {
