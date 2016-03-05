@@ -9,6 +9,7 @@ using System.Xml;
 using System.Linq;
 using System.Net;
 using System.Text;
+using System.IO;
 
 namespace PushSharp.Windows
 {
@@ -89,11 +90,17 @@ namespace PushSharp.Windows
                     http.DefaultRequestHeaders.Add("X-WNS-Cache-Policy", winTileBadge.CachePolicy == WnsNotificationCachePolicyType.Cache ? "cache" : "no-cache");
             }
 
-            var content = new StringContent (
-                notification.Payload.ToString (), // Get XML payload 
-                System.Text.Encoding.UTF8, 
-                notification.Type == WnsNotificationType.Raw ? "application/octet-stream" : "text/xml");
-            
+            HttpContent content = null;
+
+            if (notification.Type == WnsNotificationType.Raw) {
+                content = new StreamContent (new MemoryStream (Encoding.UTF8.GetBytes (notification.Payload.ToString())));
+            } else  {
+                content = new StringContent(
+                notification.Payload.ToString(), // Get XML payload 
+                Encoding.UTF8, 
+                "text/xml");
+            }
+
             var result = await http.PostAsync (notification.ChannelUri, content);
 
             var status = ParseStatus (result, notification);
