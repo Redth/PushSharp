@@ -14,7 +14,10 @@ namespace PushSharp.Google
             var result = new GcmNotification ();
             result.Tag = response.OriginalNotification.Tag;
             result.MessageId = response.OriginalNotification.MessageId;
-            result.RegistrationIds.Add (response.OriginalNotification.RegistrationIds [resultIndex]);
+
+            if (response.OriginalNotification.RegistrationIds != null && response.OriginalNotification.RegistrationIds.Count >= (resultIndex + 1))
+                result.RegistrationIds.Add (response.OriginalNotification.RegistrationIds [resultIndex]);
+
             result.CollapseKey = response.OriginalNotification.CollapseKey;
             result.Data = response.OriginalNotification.Data;
             result.DelayWhileIdle = response.OriginalNotification.DelayWhileIdle;
