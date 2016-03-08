@@ -119,7 +119,13 @@ namespace PushSharp.Google
                     var oldRegistrationId = string.Empty;
 
                     if (singleResultNotification.RegistrationIds != null && singleResultNotification.RegistrationIds.Count > 0)
-                        oldRegistrationId = singleResultNotification.RegistrationIds [0];
+                    {
+                        oldRegistrationId = singleResultNotification.RegistrationIds[0];
+                    }
+                    else if (!string.IsNullOrEmpty(singleResultNotification.To))
+                    {
+                        oldRegistrationId = singleResultNotification.To;
+                    }
 
                     multicastResult.Failed.Add (singleResultNotification, new DeviceSubscriptonExpiredException {
                         OldSubscriptionId = oldRegistrationId,
@@ -131,7 +137,13 @@ namespace PushSharp.Google
                     var oldRegistrationId = string.Empty;
 
                     if (singleResultNotification.RegistrationIds != null && singleResultNotification.RegistrationIds.Count > 0)
-                        oldRegistrationId = singleResultNotification.RegistrationIds [0];
+                    {
+                        oldRegistrationId = singleResultNotification.RegistrationIds[0];
+                    }
+                    else if (!string.IsNullOrEmpty(singleResultNotification.To))
+                    {
+                        oldRegistrationId = singleResultNotification.To;
+                    }   
 
                     multicastResult.Failed.Add (singleResultNotification, new DeviceSubscriptonExpiredException { OldSubscriptionId = oldRegistrationId });
                 } else {
