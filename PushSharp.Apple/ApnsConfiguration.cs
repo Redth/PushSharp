@@ -48,6 +48,8 @@ namespace PushSharp.Apple
 
         void Initialize (ApnsServerEnvironment serverEnvironment, X509Certificate2 certificate)
         {
+            ServerEnvironment = serverEnvironment;
+
             var production = serverEnvironment == ApnsServerEnvironment.Production;
 
             Host = production ? APNS_PRODUCTION_HOST : APNS_SANDBOX_HOST;
@@ -89,10 +91,16 @@ namespace PushSharp.Apple
 
                 if (!issuerName.Contains ("Apple"))
                     throw new ApnsConnectionException ("Your Certificate does not appear to be issued by Apple!  Please check to ensure you have the correct certificate!");
-                if (!commonName.Contains ("Apple Push Services:")
-                    && !commonName.Contains ("Website Push ID:"))
-                    throw new ApnsConnectionException ("Your Certificate is not in the new combined Sandbox/Production APNS certificate format, please create a new single certificate to use");
 
+                if (!Regex.IsMatch (commonName, "Apple.*?Push Services")
+                    && !commonName.Contains ("Website Push ID:"))
+                    throw new ApnsConnectionException ("Your Certificate is not a valid certificate for connecting to Apple's APNS servers");
+
+                if (commonName.Contains ("Development") && ServerEnvironment != ApnsServerEnvironment.Sandbox)
+                    throw new ApnsConnectionException ("You are using a certificate created for connecting only to the Sandbox APNS server but have selected a different server environment to connect to.");
+
+                if (commonName.Contains ("Production") && ServerEnvironment != ApnsServerEnvironment.Production)
+                    throw new ApnsConnectionException ("You are using a certificate created for connecting only to the Production APNS server but have selected a different server environment to connect to.");
             } else {
                 throw new ApnsConnectionException ("You must provide a Certificate to connect to APNS with!");
             }
@@ -167,6 +175,12 @@ namespace PushSharp.Apple
         /// Gets or sets the keep alive retry period to set on the APNS socket
         /// </summary>
         public TimeSpan KeepAliveRetryPeriod { get; set; }
+
+        /// <summary>
+        /// Gets the configured APNS server environment 
+        /// </summary>
+        /// <value>The server environment.</value>
+        public ApnsServerEnvironment ServerEnvironment { get; private set; }
 
         public enum ApnsServerEnvironment {
             Sandbox,
