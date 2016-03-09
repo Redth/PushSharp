@@ -27,7 +27,9 @@ namespace PushSharp.Tests
 
         public List<ApnsResponseFilter> ResponseFilters { get; set; }
 
+        #pragma warning disable 1998
         public async Task Stop ()
+        #pragma warning restore 1998
         {
             running = false;
 
@@ -75,7 +77,9 @@ namespace PushSharp.Tests
 
 
                 // Start receiving from the client connection on a new thread
+                #pragma warning disable 4014
                 Task.Factory.StartNew (() => {
+                #pragma warning restore 4014
 
                     var sentErrorResponse = false;
                     var s = socket;
