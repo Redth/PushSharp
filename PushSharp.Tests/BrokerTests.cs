@@ -50,7 +50,9 @@ namespace PushSharp.Tests
 
 
         [Test]
+        #pragma warning disable 1998
         public async Task Broker_Some_Fail ()
+        #pragma warning restore 1998
         {
             var succeeded = 0;
             var failed = 0;
