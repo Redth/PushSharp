@@ -48,7 +48,7 @@ namespace PushSharp.Apple
         {
             SkipSsl = skipSsl;
 
-            Initialize (ApnsServerEnvironment.Sandbox, null);
+            Initialize (ApnsServerEnvironment.Sandbox, null, false);
 
             OverrideServer (overrideHost, overridePort);
         }
