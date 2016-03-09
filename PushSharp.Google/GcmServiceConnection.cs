@@ -58,10 +58,9 @@ namespace PushSharp.Google
             var response = await http.PostAsync (Configuration.GcmUrl, content);
 
             if (response.IsSuccessStatusCode) {
-                await processResponseOk (response, notification);
+                await processResponseOk (response, notification).ConfigureAwait (false);
             } else {
-                var body = await response.Content.ReadAsStringAsync ();
-                processResponseError (response, notification);
+                await processResponseError (response, notification).ConfigureAwait (false);
             }
         }
 
@@ -168,14 +167,20 @@ namespace PushSharp.Google
                 throw multicastResult;
         }
 
-        void processResponseError (HttpResponseMessage httpResponse, GcmNotification notification)
+        async Task processResponseError (HttpResponseMessage httpResponse, GcmNotification notification)
         {
+            string responseBody = null;
+
+            try {
+                responseBody = await httpResponse.Content.ReadAsStringAsync ().ConfigureAwait (false);
+            } catch { }
+
             //401 bad auth token
             if (httpResponse.StatusCode == HttpStatusCode.Unauthorized)
                 throw new UnauthorizedAccessException ("GCM Authorization Failed");
 
             if (httpResponse.StatusCode == HttpStatusCode.BadRequest)
-                throw new GcmConnectionException ("HTTP 400 Bad Request");
+                throw new GcmConnectionException ("HTTP 400 Bad Request", responseBody);
 
             if ((int)httpResponse.StatusCode >= 500 && (int)httpResponse.StatusCode < 600) {
                 //First try grabbing the retry-after header and parsing it.
@@ -187,7 +192,7 @@ namespace PushSharp.Google
                 }                  
             }
 
-            throw new GcmConnectionException ("GCM HTTP Error: " + httpResponse.StatusCode);           
+            throw new GcmConnectionException ("GCM HTTP Error: " + httpResponse.StatusCode, responseBody);           
         }
 
         static GcmResponseStatus GetGcmResponseStatus (string str)

@@ -5,9 +5,16 @@ namespace PushSharp.Google
 {
     public class GcmConnectionException : Exception
     {
-        public GcmConnectionException (string msg ) : base (msg)
+        public GcmConnectionException (string msg) : base (msg)
         {
         }
+
+        public GcmConnectionException (string msg, string description) : base (msg)
+        {
+            Description = description;
+        }
+
+        public string Description { get; private set; }
     }
 
     public class GcmMulticastResultException : Exception
