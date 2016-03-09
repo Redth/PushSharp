@@ -63,7 +63,8 @@ namespace PushSharp.Windows
             var http = new HttpClient ();
 
             http.DefaultRequestHeaders.TryAddWithoutValidation ("X-WNS-Type", string.Format ("wns/{0}", notification.Type.ToString ().ToLower ()));
-            http.DefaultRequestHeaders.TryAddWithoutValidation("Authorization", "Bearer " + accessToken);
+            if(!http.DefaultRequestHeaders.Contains("Authorization")) //prevent double values
+                http.DefaultRequestHeaders.TryAddWithoutValidation("Authorization", "Bearer " + accessToken);
 
             if (notification.RequestForStatus.HasValue)
                 http.DefaultRequestHeaders.TryAddWithoutValidation ("X-WNS-RequestForStatus", notification.RequestForStatus.Value.ToString().ToLower());
