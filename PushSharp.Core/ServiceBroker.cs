@@ -84,11 +84,11 @@ namespace PushSharp.Core
                 var all = (from sw in workers
                                        select sw.WorkerTask).ToArray ();
 
-                Console.WriteLine ("Waiting on Tasks");
+                Log.Info ("Stopping: Waiting on Tasks");
 
                 Task.WaitAll (all);
 
-                Console.WriteLine ("Done Waiting on Tasks");
+                Log.Info ("Stopping: Done Waiting on Tasks");
 
                 workers.Clear ();
             }
@@ -119,7 +119,7 @@ namespace PushSharp.Core
                     worker.Start ();
                 }
 
-                Console.WriteLine ("Scaled Changed to: " + workers.Count);
+                Log.Debug ("Scaled Changed to: " + workers.Count);
             }
         }
 
@@ -185,33 +185,32 @@ namespace PushSharp.Core
                             continue;
                        
                         try {
-                            //Task.WaitAll (toSend.ToArray (), CancelTokenSource.Token);
-                            Console.WriteLine ("Waiting on all tasks {0}", toSend.Count ());
+                            Log.Info ("Waiting on all tasks {0}", toSend.Count ());
                             await Task.WhenAll (toSend).ConfigureAwait (false);
-                            Console.WriteLine ("All Tasks Finished");
+                            Log.Info ("All Tasks Finished");
                         } catch (Exception ex) {
-                            Console.WriteLine ("When All Failed");
+                            Log.Error ("Waiting on all tasks Failed: {0}", ex);
 
                         }
-                        Console.WriteLine ("Passed WhenAll");
+                        Log.Info ("Passed WhenAll");
 
                     } catch (Exception ex) {
-                        Console.WriteLine ("Broker.Take: {0}", ex);
+                        Log.Error ("Broker.Take: {0}", ex);
                     }
                 }
 
                 if (CancelTokenSource.IsCancellationRequested)
-                    Console.WriteLine ("CancellationRequested");
+                    Log.Info ("Cancellation was requested");
                 if (Broker.IsCompleted)
-                    Console.WriteLine ("IsCompleted");
+                    Log.Info ("Broker IsCompleted");
 
-                Console.WriteLine ("Task Ended");
+                Log.Debug ("Broker Task Ended");
             }, CancelTokenSource.Token, TaskCreationOptions.LongRunning | TaskCreationOptions.DenyChildAttach, TaskScheduler.Default).Unwrap ();
 				
             WorkerTask.ContinueWith (t => {
                 var ex = t.Exception;
                 if (ex != null)
-                    Console.WriteLine ("ServiceWorker.WorkerTask: {0}", ex);
+                    Log.Error ("ServiceWorker.WorkerTask Error: {0}", ex);
             }, TaskContinuationOptions.OnlyOnFaulted);              
         }
 
