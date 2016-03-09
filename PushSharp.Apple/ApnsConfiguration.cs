@@ -22,8 +22,19 @@ namespace PushSharp.Apple
 
         #endregion
 
+        public ApnsConfiguration (ApnsServerEnvironment serverEnvironment, string certificateFile, string certificateFilePwd, bool validateIsApnsCertificate)
+            : this (serverEnvironment, System.IO.File.ReadAllBytes (certificateFile), certificateFilePwd, validateIsApnsCertificate)
+        {
+        }
+
         public ApnsConfiguration (ApnsServerEnvironment serverEnvironment, string certificateFile, string certificateFilePwd)
             : this (serverEnvironment, System.IO.File.ReadAllBytes (certificateFile), certificateFilePwd)
+        {
+        }
+
+        public ApnsConfiguration (ApnsServerEnvironment serverEnvironment, byte[] certificateData, string certificateFilePwd, bool validateIsApnsCertificate)
+            : this (serverEnvironment, new X509Certificate2 (certificateData, certificateFilePwd,
+                X509KeyStorageFlags.MachineKeySet | X509KeyStorageFlags.PersistKeySet | X509KeyStorageFlags.Exportable), validateIsApnsCertificate)
         {
         }
 
@@ -44,10 +55,15 @@ namespace PushSharp.Apple
 
         public ApnsConfiguration (ApnsServerEnvironment serverEnvironment, X509Certificate2 certificate)
         {
-            Initialize (serverEnvironment, certificate);
+            Initialize (serverEnvironment, certificate, true);
         }
 
-        void Initialize (ApnsServerEnvironment serverEnvironment, X509Certificate2 certificate)
+        public ApnsConfiguration (ApnsServerEnvironment serverEnvironment, X509Certificate2 certificate, bool validateIsApnsCertificate)
+        {
+            Initialize (serverEnvironment, certificate, validateIsApnsCertificate);
+        }
+
+        void Initialize (ApnsServerEnvironment serverEnvironment, X509Certificate2 certificate, bool validateIsApnsCertificate)
         {
             ServerEnvironment = serverEnvironment;
 
@@ -70,7 +86,8 @@ namespace PushSharp.Apple
             AdditionalCertificates = new List<X509Certificate2> ();
             AddLocalAndMachineCertificateStores = false;
 
-            CheckIsApnsCertificate ();
+            if (validateIsApnsCertificate)
+                CheckIsApnsCertificate ();
 
             ValidateServerCertificate = false;
 
