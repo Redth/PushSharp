@@ -43,7 +43,7 @@ namespace PushSharp.Firefox
             var result = await http.PutAsync (notification.EndPointUrl, new StringContent (data));
 
             if (result.StatusCode != HttpStatusCode.OK && result.StatusCode != HttpStatusCode.NoContent) {
-                throw new NotificationException ("Notification Failed", notification);
+                throw new FirefoxNotificationException (notification, "HTTP Status: " + result.StatusCode);
             }
         }
     }

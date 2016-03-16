@@ -72,7 +72,7 @@ namespace PushSharp.Blackberry
             status.NotificationStatus = notStatus;
 
             if (status.NotificationStatus == BlackberryNotificationStatus.NoAppReceivePush)
-                throw new DeviceSubscriptonExpiredException ();
+                throw new DeviceSubscriptonExpiredException (notification);
 
             if (status.HttpStatus == HttpStatusCode.OK
                 && status.NotificationStatus == BlackberryNotificationStatus.RequestAcceptedForProcessing)

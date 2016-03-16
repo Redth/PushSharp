@@ -134,12 +134,12 @@ namespace PushSharp.Windows
             //401
             if (status.HttpStatus == HttpStatusCode.Unauthorized) {
                 AccessTokenManager.InvalidateAccessToken (accessToken);
-                throw new RetryAfterException ("Access token expired", DateTime.UtcNow.AddSeconds (5));
+                throw new RetryAfterException (notification, "Access token expired", DateTime.UtcNow.AddSeconds (5));
             }
 
             //404 or 410
             if (status.HttpStatus == HttpStatusCode.NotFound || status.HttpStatus == HttpStatusCode.Gone) { 
-                throw new DeviceSubscriptonExpiredException {
+                throw new DeviceSubscriptonExpiredException (notification) {
                     OldSubscriptionId = notification.ChannelUri,
                     ExpiredAt = DateTime.UtcNow
                 };

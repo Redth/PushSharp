@@ -1,19 +1,23 @@
 ﻿using System;
 using System.Collections.Generic;
+using PushSharp.Core;
 
 namespace PushSharp.Google
 {
-    public class GcmConnectionException : Exception
+    public class GcmNotificationException : NotificationException
     {
-        public GcmConnectionException (string msg) : base (msg)
+        public GcmNotificationException (GcmNotification notification, string msg) : base (msg, notification)
         {
+            Notification = notification;
         }
 
-        public GcmConnectionException (string msg, string description) : base (msg)
+        public GcmNotificationException (GcmNotification notification, string msg, string description) : base (msg, notification)
         {
+            Notification = notification;
             Description = description;
         }
 
+        public new GcmNotification Notification { get; private set; }
         public string Description { get; private set; }
     }
 

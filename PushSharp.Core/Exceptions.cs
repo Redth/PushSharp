@@ -1,10 +1,11 @@
 ﻿using System;
+using System.Collections.Generic;
 
 namespace PushSharp.Core
 {
-    public class DeviceSubscriptonExpiredException : Exception
+    public class DeviceSubscriptonExpiredException : NotificationException
     {
-        public DeviceSubscriptonExpiredException () : base ("Device Subscription has Expired")
+        public DeviceSubscriptonExpiredException (INotification notification) : base ("Device Subscription has Expired", notification)
         {
             ExpiredAt = DateTime.UtcNow;
         }
@@ -30,9 +31,9 @@ namespace PushSharp.Core
         public INotification Notification { get; set; }
     }
 
-    public class RetryAfterException : Exception
+    public class RetryAfterException : NotificationException
     {
-        public RetryAfterException (string message, DateTime retryAfterUtc) : base (message)
+        public RetryAfterException (INotification notification, string message, DateTime retryAfterUtc) : base (message, notification)
         {
             RetryAfterUtc = retryAfterUtc;
         }
