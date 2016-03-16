@@ -38,6 +38,7 @@
     <Compile Include="FirefoxNotification.cs" />
     <Compile Include="FirefoxConnection.cs" />
     <Compile Include="FirefoxConfiguration.cs" />
+    <Compile Include="Exceptions.cs" />
   </ItemGroup>
   <Import Project="$(MSBuildBinPath)\Microsoft.CSharp.targets" />
   <ItemGroup>

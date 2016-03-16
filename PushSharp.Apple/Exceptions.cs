@@ -1,4 +1,5 @@
 ﻿using System;
+using PushSharp.Core;
 
 namespace PushSharp.Apple
 {
@@ -14,24 +15,31 @@ namespace PushSharp.Apple
         InvalidPayloadSize = 7,
         InvalidToken = 8,
         Shutdown = 10,
+        ConnectionError = 254,
         Unknown = 255
     }
 
-    public class ApnsNotificationException : Exception
+    public class ApnsNotificationException : NotificationException
     {
         public ApnsNotificationException(byte errorStatusCode, ApnsNotification notification)
             : this(ToErrorStatusCode(errorStatusCode), notification)
         { }
 
         public ApnsNotificationException (ApnsNotificationErrorStatusCode errorStatusCode, ApnsNotification notification)
-            : base ("Apns notification error: '" + errorStatusCode + "'")
+            : base ("Apns notification error: '" + errorStatusCode + "'", notification)
         {
             Notification = notification;
             ErrorStatusCode = errorStatusCode;
         }
 
-        public ApnsNotification Notification { get; set; }
+        public ApnsNotificationException (ApnsNotificationErrorStatusCode errorStatusCode, ApnsNotification notification, Exception innerException)
+            : base ("Apns notification error: '" + errorStatusCode + "'", notification, innerException)
+        {
+            Notification = notification;
+            ErrorStatusCode = errorStatusCode;
+        }
 
+        public new ApnsNotification Notification { get; set; }
         public ApnsNotificationErrorStatusCode ErrorStatusCode { get; private set; }
         
         private static ApnsNotificationErrorStatusCode ToErrorStatusCode(byte errorStatusCode)
