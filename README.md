@@ -75,6 +75,23 @@ broker.Stop ();
 
 Other platforms are structured the same way, although the configuration of each broker may vary.
 
+### Apple APNS Feedback Service
+
+For APNS you will also need to occasionally check with the feedback service to see if there are any expired device tokens you should no longer send notifications to.  Here's an example of how you would do that:
+
+```csharp
+var config = new ApnsConfiguration (
+    ApnsConfiguration.ApnsServerEnvironment.Sandbox, 
+    Settings.Instance.ApnsCertificateFile, 
+    Settings.Instance.ApnsCertificatePassword);
+
+var fbs = new FeedbackService (config);
+fbs.FeedbackReceived += (string deviceToken, DateTime timestamp) => {
+    // Remove the deviceToken from your database
+    // timestamp is the time the token was reported as expired
+};
+fbs.Check ();
+```
 
 
 ## How to Migrate from PushSharp 2.x to 3.x
