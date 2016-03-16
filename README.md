@@ -20,7 +20,9 @@ PushSharp v3.0 is a complete rewrite of the original library, aimed at taking ad
 
 The API in v3.x series is quite different from 2.x.  The goal is to simplify things and focus on the core functionality of the library, leaving things like constructing valid payloads up to the developer.
 
+### APNS Sample Usage
 Here is an example of how you would send an APNS notification:
+
 ```csharp
 // Configuration
 var config = new ApnsConfiguration ("push-cert.pfx", "push-cert-pwd");
@@ -35,18 +37,17 @@ broker.OnNotificationFailed += (notification, aggregateEx) => {
 	
 		// See what kind of exception it was to further diagnose
 		if (ex is ApnsNotificationException) {
-			var apnsEx = ex as ApnsNotificationException;
-
+			var notificationException = ex as ApnsNotificationException;
+			
 			// Deal with the failed notification
-			var n = apnsEx.Notification;
-		
-			Console.WriteLine ($"Notification Failed: ID={n.Identifier}, Code={apnsEx.ErrorStatusCode}");
+			var apnsNotification = notificationException.Notification;
+			var statusCode = notificationException.ErrorStatusCode;
+
+			Console.WriteLine ($"Notification Failed: ID={apnsNotification.Identifier}, Code={statusCode}");
 	
-		} else if (ex is ApnsConnectionException) {
-			// Something failed while connecting (maybe bad cert?)
-			Console.WriteLine ("Notification Failed (Bad APNS Connection)!");
 		} else {
-			Console.WriteLine ("Notification Failed (Unknown Reason)!");
+			// Inner exception might hold more useful information like an ApnsConnectionException			
+			Console.WriteLine ($"Notification Failed for some (Unknown Reason) : {ex.InnerException}");
 		}
 
 		// Mark it as handled
@@ -61,11 +62,13 @@ broker.OnNotificationSucceeded += (notification) => {
 // Start the broker
 broker.Start ();
 
-// Queue a notification to send
-broker.QueueNotification (new ApnsNotification {
-		DeviceToken = "device-token-from-device",
+foreach (var deviceToken in MY_DEVICE_TOKENS) {
+	// Queue a notification to send
+	broker.QueueNotification (new ApnsNotification {
+		DeviceToken = deviceToken,
 		Payload = JObject.Parse ("{\"aps\":{\"badge\":7}}")
 	});
+}
    
 // Stop the broker, wait for it to finish   
 // This isn't done after every message, but after you're
@@ -73,9 +76,7 @@ broker.QueueNotification (new ApnsNotification {
 broker.Stop ();
 ```
 
-Other platforms are structured the same way, although the configuration of each broker may vary.
-
-### Apple APNS Feedback Service
+#### Apple APNS Feedback Service
 
 For APNS you will also need to occasionally check with the feedback service to see if there are any expired device tokens you should no longer send notifications to.  Here's an example of how you would do that:
 
@@ -91,6 +92,169 @@ fbs.FeedbackReceived += (string deviceToken, DateTime timestamp) => {
     // timestamp is the time the token was reported as expired
 };
 fbs.Check ();
+```
+
+
+### GCM Sample Usage
+
+Here is how you would send a GCM Notification:
+
+```csharp
+// Configuration
+var config = new GcmConfiguration ("GCM-SENDER-ID", "AUTH-TOKEN", null);
+
+// Create a new broker
+var broker = new GcmServiceBroker (config);
+    
+// Wire up events
+broker.OnNotificationFailed += (notification, aggregateEx) => {
+
+	aggregateEx.Handle (ex => {
+	
+		// See what kind of exception it was to further diagnose
+		if (ex is GcmNotificationException) {
+			var notificationException = ex as GcmNotificationException;
+			
+			// Deal with the failed notification
+			var gcmNotification = notificationException.Notification;
+			var description = notificationException.Description;
+
+			Console.WriteLine ($"Notification Failed: ID={gcmNotification.MessageId}, Desc={description}");
+		} else if (ex is GcmMulticastResultException) {
+
+			multicastException = ex as GcmMulticastResultException;
+
+			foreach (var succeededNotification in multicastException.Succeeded) {
+				Console.WriteLine ($"Notification Failed: ID={succeededNotification.MessageId}");
+			}
+
+			foreach (var failedKvp in multicastException.Failed) {
+				var n = failedKvp.Key;
+				var e = failedKvp.Value;
+
+				Console.WriteLine ($"Notification Failed: ID={n.MessageId}, Desc={e.Description}");
+			}
+
+		} else if (ex is DeviceSubscriptionExpiredException) {
+
+			var oldId = ex.OldSubscriptionId;
+			var newId = ex.NewSubscriptionId;
+
+			Console.WriteLine ($"Device RegistrationId Expired: {oldId}");
+
+			if (!string.IsNullOrEmpty (newId)) {
+				// If this value isn't null, our subscription changed and we should update our database
+				Console.WriteLine ($"Device RegistrationId Changed To: {newId}");
+			}
+		} else if (ex is RetryAfterException) {
+			// If you get rate limited, you should stop sending messages until after the RetryAfterUtc date
+			Console.WriteLine ($"Rate Limited, don't send more until after {ex.RetryAfterUtc}");
+		} else {
+			Console.WriteLine ("Notification Failed for some (Unknown Reason)");
+		}
+
+		// Mark it as handled
+		return true;
+	});
+};
+
+broker.OnNotificationSucceeded += (notification) => {
+	Console.WriteLine ("Notification Sent!");
+};
+
+// Start the broker
+broker.Start ();
+
+foreach (var regId in MY_REGISTRATION_IDS) {
+	// Queue a notification to send
+	broker.QueueNotification (new GcmNotification {
+		RegistrationIds = new List<string> { 
+			regId
+		},
+		Data = JObject.Parse ("{ \"somekey\" : \"somevalue\" }")
+	});
+}
+   
+// Stop the broker, wait for it to finish   
+// This isn't done after every message, but after you're
+// done with the broker
+broker.Stop ();
+```
+
+### WNS Sample Usage
+
+Here's how to send WNS Notifications:
+
+```csharp
+// Configuration
+var config = new WnsConfiguration ("WNS_PACKAGE_NAME", "WNS_PACKAGE_SID", "WNS_CLIENT_SECRET");
+
+// Create a new broker
+var broker = new GcmServiceBroker (config);
+
+// Wire up events
+broker.OnNotificationFailed += (notification, aggregateEx) => {
+
+	aggregateEx.Handle (ex => {
+	
+		// See what kind of exception it was to further diagnose
+		if (ex is WnsNotificationException) {
+			var notificationException = ex as WnsNotificationException;
+			
+			// Deal with the failed notification
+			var wnsNotification = notificationException.Notification;
+			var status = notificationException.Status;
+
+			Console.WriteLine ($"Notification Failed: ID={wnsNotification.ChannelUri}, Status={status}");
+		} else if (ex is DeviceSubscriptionExpiredException) {
+
+			var oldId = ex.OldSubscriptionId;
+			var newId = ex.NewSubscriptionId;
+
+			Console.WriteLine ($"Device RegistrationId Expired: {oldId}");
+
+			if (!string.IsNullOrEmpty (newId)) {
+				// If this value isn't null, our subscription changed and we should update our database
+				Console.WriteLine ($"Device RegistrationId Changed To: {newId}");
+			}
+		} else if (ex is RetryAfterException) {
+			// If you get rate limited, you should stop sending messages until after the RetryAfterUtc date
+			Console.WriteLine ($"Rate Limited, don't send more until after {ex.RetryAfterUtc}");
+		} else {
+			Console.WriteLine ("Notification Failed for some (Unknown Reason)");
+		}
+
+		// Mark it as handled
+		return true;
+	});
+};
+
+broker.OnNotificationSucceeded += (notification) => {
+	Console.WriteLine ("Notification Sent!");
+};
+
+// Start the broker
+broker.Start ();
+
+foreach (var uri in MY_DEVICE_CHANNEL_URIS) {
+	// Queue a notification to send
+	broker.QueueNotification (new WnsToastNotification {
+		ChannelUri = uri,
+		Payload = XElement.Parse (@"
+			<toast>
+				<visual>
+					<binding template=""ToastText01"">
+						<text id=""1"">WNS_Send_Single</text>
+					</binding>  
+				</visual>
+			</toast>")
+	});
+}
+
+// Stop the broker, wait for it to finish   
+// This isn't done after every message, but after you're
+// done with the broker
+broker.Stop ();
 ```
 
 
