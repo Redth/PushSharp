@@ -24,7 +24,7 @@ namespace PushSharp.Apple
         { }
 
         public ApnsNotificationException (ApnsNotificationErrorStatusCode errorStatusCode, ApnsNotification notification)
-            : base ($"Apns notification error: '{errorStatusCode}'")
+            : base ("Apns notification error: '" + errorStatusCode + "'")
         {
             Notification = notification;
             ErrorStatusCode = errorStatusCode;
