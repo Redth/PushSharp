@@ -1,5 +1,6 @@
-﻿using System;
+using System;
 using System.Collections.Generic;
+using System.Net;
 using System.Security.Cryptography.X509Certificates;
 using System.Text.RegularExpressions;
 
@@ -108,19 +109,19 @@ namespace PushSharp.Apple
                 var commonName = Certificate.SubjectName.Name;
 
                 if (!issuerName.Contains ("Apple"))
-                    throw new ArgumentOutOfRangeException ("Your Certificate does not appear to be issued by Apple!  Please check to ensure you have the correct certificate!");
+                    throw new ApnsConnectionException ("Your Certificate does not appear to be issued by Apple!  Please check to ensure you have the correct certificate!");
 
                 if (!Regex.IsMatch (commonName, "Apple.*?Push Services")
                     && !commonName.Contains ("Website Push ID:"))
-                    throw new ArgumentOutOfRangeException ("Your Certificate is not a valid certificate for connecting to Apple's APNS servers");
+                    throw new ApnsConnectionException ("Your Certificate is not a valid certificate for connecting to Apple's APNS servers");
 
                 if (commonName.Contains ("Development") && ServerEnvironment != ApnsServerEnvironment.Sandbox)
-                    throw new ArgumentOutOfRangeException ("You are using a certificate created for connecting only to the Sandbox APNS server but have selected a different server environment to connect to.");
+                    throw new ApnsConnectionException ("You are using a certificate created for connecting only to the Sandbox APNS server but have selected a different server environment to connect to.");
 
                 if (commonName.Contains ("Production") && ServerEnvironment != ApnsServerEnvironment.Production)
-                    throw new ArgumentOutOfRangeException ("You are using a certificate created for connecting only to the Production APNS server but have selected a different server environment to connect to.");
+                    throw new ApnsConnectionException ("You are using a certificate created for connecting only to the Production APNS server but have selected a different server environment to connect to.");
             } else {
-                throw new ArgumentOutOfRangeException ("You must provide a Certificate to connect to APNS with!");
+                throw new ApnsConnectionException ("You must provide a Certificate to connect to APNS with!");
             }
         }
 
@@ -136,6 +137,22 @@ namespace PushSharp.Apple
             FeedbackPort = port;
         }
 
+        public void SetProxy(string proxyHost, int proxyPort)
+        {
+            UseProxy = true;
+            ProxyHost = proxyHost;
+            ProxyPort = proxyPort;
+            ProxyCredentials = CredentialCache.DefaultNetworkCredentials;
+        }
+
+        public void SetProxy(string proxyHost, int proxyPort, string userName, string password, string domain)
+        {
+            UseProxy = true;
+            ProxyHost = proxyHost;
+            ProxyPort = proxyPort;
+            ProxyCredentials = new NetworkCredential(userName, password, domain);
+        }
+
         public string Host { get; private set; }
 
         public int Port { get; private set; }
@@ -144,6 +161,14 @@ namespace PushSharp.Apple
 
         public int FeedbackPort { get; private set; }
 
+        public bool UseProxy { get; private set; }
+
+        public string ProxyHost { get; private set; }
+
+        public int ProxyPort { get; private set; }
+
+        public NetworkCredential ProxyCredentials { get; private set; }
+        
         public X509Certificate2 Certificate { get; private set; }
 
         public List<X509Certificate2> AdditionalCertificates { get; private set; }
