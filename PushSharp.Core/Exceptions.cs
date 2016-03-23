@@ -3,6 +3,14 @@ using System.Collections.Generic;
 
 namespace PushSharp.Core
 {
+    public class DeviceSubscriptionExpiredException : DeviceSubscriptonExpiredException
+    {
+        public DeviceSubscriptionExpiredException (INotification notification) : base (notification)
+        {
+        }
+    }
+
+    [Obsolete ("Do not use this class directly, it has a typo in it, instead use DeviceSubscriptionExpiredException")]
     public class DeviceSubscriptonExpiredException : NotificationException
     {
         public DeviceSubscriptonExpiredException (INotification notification) : base ("Device Subscription has Expired", notification)
