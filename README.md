@@ -252,9 +252,9 @@ wnsBroker.Stop ();
 ```
 
 
-## How to Migrate from PushSharp 2.x to 3.x
+## How to Migrate from PushSharp 2.x to 3.x and higher
 
-Please see this Wiki page for more information: https://github.com/Redth/PushSharp/wiki/Migrating-from-PushSharp-2.x-to-3.x
+Please see this Wiki page for more information: https://github.com/Redth/PushSharp/wiki/Migrating-from-PushSharp-2.x-to-3.x-
 
 
 ## Roadmap
