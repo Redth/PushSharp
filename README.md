@@ -141,8 +141,8 @@ gcmBroker.OnNotificationFailed += (notification, aggregateEx) => {
 				Console.WriteLine ($"GCM Notification Failed: ID={n.MessageId}, Desc={e.Description}");
 			}
 
-		} else if (ex is DeviceSubscriptonExpiredException) {
-			var expiredException = (DeviceSubscriptonExpiredException)ex;
+		} else if (ex is DeviceSubscriptionExpiredException) {
+			var expiredException = (DeviceSubscriptionExpiredException)ex;
 			
 			var oldId = expiredException.OldSubscriptionId;
 			var newId = expiredException.NewSubscriptionId;
