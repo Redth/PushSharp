@@ -27,7 +27,8 @@ Here is an example of how you would send an APNS notification:
 
 ```csharp
 // Configuration (NOTE: .pfx can also be used here)
-var config = new ApnsConfiguration ("push-cert.p12", "push-cert-pwd");
+var config = new ApnsConfiguration (ApnsConfiguration.ApnsServerEnvironment.Sandbox, 
+    "push-cert.p12", "push-cert-pwd");
 
 // Create a new broker
 var apnsBroker = new ApnsServiceBroker (config);
