@@ -26,8 +26,8 @@ The API in v3.x+ series is quite different from 2.x.  The goal is to simplify th
 Here is an example of how you would send an APNS notification:
 
 ```csharp
-// Configuration
-var config = new ApnsConfiguration ("push-cert.pfx", "push-cert-pwd");
+// Configuration (NOTE: .pfx can also be used here)
+var config = new ApnsConfiguration ("push-cert.p12", "push-cert-pwd");
 
 // Create a new broker
 var apnsBroker = new ApnsServiceBroker (config);
