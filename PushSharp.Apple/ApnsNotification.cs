@@ -83,7 +83,7 @@ namespace PushSharp.Apple
         {
             try { 
                 if (Payload != null)
-                    return Payload.ToString ();
+                     return Payload.ToString(Newtonsoft.Json.Formatting.None);
             } catch {
             }
 
