@@ -127,7 +127,7 @@ namespace PushSharp.Google
                     }
 
                     multicastResult.Failed.Add (singleResultNotification, 
-                        new DeviceSubscriptonExpiredException (singleResultNotification) {
+                        new DeviceSubscriptionExpiredException (singleResultNotification) {
                             OldSubscriptionId = oldRegistrationId,
                             NewSubscriptionId = newRegistrationId
                         });
@@ -146,7 +146,7 @@ namespace PushSharp.Google
                     }   
 
                     multicastResult.Failed.Add (singleResultNotification, 
-                                                new DeviceSubscriptonExpiredException (singleResultNotification) { 
+                                                new DeviceSubscriptionExpiredException (singleResultNotification) { 
                                                     OldSubscriptionId = oldRegistrationId });
                 } else {
                     multicastResult.Failed.Add (singleResultNotification, new GcmNotificationException (singleResultNotification, "Unknown Failure: " + r.ResponseStatus));

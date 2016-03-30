@@ -139,7 +139,7 @@ namespace PushSharp.Windows
 
             //404 or 410
             if (status.HttpStatus == HttpStatusCode.NotFound || status.HttpStatus == HttpStatusCode.Gone) { 
-                throw new DeviceSubscriptonExpiredException (notification) {
+                throw new DeviceSubscriptionExpiredException (notification) {
                     OldSubscriptionId = notification.ChannelUri,
                     ExpiredAt = DateTime.UtcNow
                 };
