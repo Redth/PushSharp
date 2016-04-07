@@ -1,4 +1,5 @@
 using System;
+using System.Runtime.Serialization;
 using Newtonsoft.Json.Linq;
 using System.Collections.Generic;
 using PushSharp.Core;
@@ -139,7 +140,7 @@ namespace PushSharp.Google
         /// Corresponds to iOS APNS priorities (Normal is 5 and high is 10).  Default is Normal.
         /// </summary>
         /// <value>The priority.</value>
-        [JsonProperty ("priority")]
+        [JsonProperty ("priority"), JsonConverter (typeof (Newtonsoft.Json.Converters.StringEnumConverter))]
         public GcmNotificationPriority? Priority { get; set; }
 
         internal string GetJson ()
@@ -163,7 +164,9 @@ namespace PushSharp.Google
 
     public enum GcmNotificationPriority
     {
+        [EnumMember (Value="normal")]
         Normal = 5,
+        [EnumMember (Value="high")]
         High = 10
     }
 }
