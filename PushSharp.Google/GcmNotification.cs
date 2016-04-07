@@ -62,6 +62,7 @@ namespace PushSharp.Google
             return RegistrationIds != null && RegistrationIds.Any ();
         }
 
+        [JsonIgnore]
         public object Tag { get;set; }
 
         [JsonProperty  ("message_id")]
