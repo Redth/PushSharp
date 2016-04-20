@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Security.Cryptography.X509Certificates;
+using System.Text.RegularExpressions;
 
 namespace PushSharp.Apple
 {
@@ -21,8 +22,19 @@ namespace PushSharp.Apple
 
         #endregion
 
+        public ApnsConfiguration (ApnsServerEnvironment serverEnvironment, string certificateFile, string certificateFilePwd, bool validateIsApnsCertificate)
+            : this (serverEnvironment, System.IO.File.ReadAllBytes (certificateFile), certificateFilePwd, validateIsApnsCertificate)
+        {
+        }
+
         public ApnsConfiguration (ApnsServerEnvironment serverEnvironment, string certificateFile, string certificateFilePwd)
             : this (serverEnvironment, System.IO.File.ReadAllBytes (certificateFile), certificateFilePwd)
+        {
+        }
+
+        public ApnsConfiguration (ApnsServerEnvironment serverEnvironment, byte[] certificateData, string certificateFilePwd, bool validateIsApnsCertificate)
+            : this (serverEnvironment, new X509Certificate2 (certificateData, certificateFilePwd,
+                X509KeyStorageFlags.MachineKeySet | X509KeyStorageFlags.PersistKeySet | X509KeyStorageFlags.Exportable), validateIsApnsCertificate)
         {
         }
 
@@ -36,18 +48,25 @@ namespace PushSharp.Apple
         {
             SkipSsl = skipSsl;
 
-            Initialize (ApnsServerEnvironment.Sandbox, null);
+            Initialize (ApnsServerEnvironment.Sandbox, null, false);
 
             OverrideServer (overrideHost, overridePort);
         }
 
         public ApnsConfiguration (ApnsServerEnvironment serverEnvironment, X509Certificate2 certificate)
         {
-            Initialize (serverEnvironment, certificate);
+            Initialize (serverEnvironment, certificate, true);
         }
 
-        void Initialize (ApnsServerEnvironment serverEnvironment, X509Certificate2 certificate)
+        public ApnsConfiguration (ApnsServerEnvironment serverEnvironment, X509Certificate2 certificate, bool validateIsApnsCertificate)
         {
+            Initialize (serverEnvironment, certificate, validateIsApnsCertificate);
+        }
+
+        void Initialize (ApnsServerEnvironment serverEnvironment, X509Certificate2 certificate, bool validateIsApnsCertificate)
+        {
+            ServerEnvironment = serverEnvironment;
+
             var production = serverEnvironment == ApnsServerEnvironment.Production;
 
             Host = production ? APNS_PRODUCTION_HOST : APNS_SANDBOX_HOST;
@@ -67,7 +86,8 @@ namespace PushSharp.Apple
             AdditionalCertificates = new List<X509Certificate2> ();
             AddLocalAndMachineCertificateStores = false;
 
-            CheckIsApnsCertificate ();
+            if (validateIsApnsCertificate)
+                CheckIsApnsCertificate ();
 
             ValidateServerCertificate = false;
 
@@ -88,13 +108,19 @@ namespace PushSharp.Apple
                 var commonName = Certificate.SubjectName.Name;
 
                 if (!issuerName.Contains ("Apple"))
-                    throw new ApnsConnectionException ("Your Certificate does not appear to be issued by Apple!  Please check to ensure you have the correct certificate!");
-                if (!commonName.Contains ("Apple Push Services:")
-                    && !commonName.Contains ("Website Push ID:"))
-                    throw new ApnsConnectionException ("Your Certificate is not in the new combined Sandbox/Production APNS certificate format, please create a new single certificate to use");
+                    throw new ArgumentOutOfRangeException ("Your Certificate does not appear to be issued by Apple!  Please check to ensure you have the correct certificate!");
 
+                if (!Regex.IsMatch (commonName, "Apple.*?Push Services")
+                    && !commonName.Contains ("Website Push ID:"))
+                    throw new ArgumentOutOfRangeException ("Your Certificate is not a valid certificate for connecting to Apple's APNS servers");
+
+                if (commonName.Contains ("Development") && ServerEnvironment != ApnsServerEnvironment.Sandbox)
+                    throw new ArgumentOutOfRangeException ("You are using a certificate created for connecting only to the Sandbox APNS server but have selected a different server environment to connect to.");
+
+                if (commonName.Contains ("Production") && ServerEnvironment != ApnsServerEnvironment.Production)
+                    throw new ArgumentOutOfRangeException ("You are using a certificate created for connecting only to the Production APNS server but have selected a different server environment to connect to.");
             } else {
-                throw new ApnsConnectionException ("You must provide a Certificate to connect to APNS with!");
+                throw new ArgumentOutOfRangeException ("You must provide a Certificate to connect to APNS with!");
             }
         }
 
@@ -167,6 +193,12 @@ namespace PushSharp.Apple
         /// Gets or sets the keep alive retry period to set on the APNS socket
         /// </summary>
         public TimeSpan KeepAliveRetryPeriod { get; set; }
+
+        /// <summary>
+        /// Gets the configured APNS server environment 
+        /// </summary>
+        /// <value>The server environment.</value>
+        public ApnsServerEnvironment ServerEnvironment { get; private set; }
 
         public enum ApnsServerEnvironment {
             Sandbox,

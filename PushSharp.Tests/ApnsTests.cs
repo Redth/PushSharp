@@ -63,7 +63,9 @@ namespace PushSharp.Tests
             long success = 0;
 
             var server = new TestApnsServer ();
+            #pragma warning disable 4014
             server.Start ();
+            #pragma warning restore 4014
 
             var config = new ApnsConfiguration ("invalidhost", 2195);
             var broker = new ApnsServiceBroker (config);
@@ -116,7 +118,9 @@ namespace PushSharp.Tests
             server.ResponseFilters.AddRange (responseFilters);
 
             // We don't want to await this, so we can start the server and listen without blocking
+            #pragma warning disable 4014
             server.Start ();
+            #pragma warning restore 4014
 
             var config = new ApnsConfiguration ("127.0.0.1", 2195) {
                 InternalBatchSize = batchSize

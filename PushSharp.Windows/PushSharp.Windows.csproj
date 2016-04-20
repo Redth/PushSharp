@@ -8,6 +8,8 @@
     <RootNamespace>PushSharp.Windows</RootNamespace>
     <AssemblyName>PushSharp.Windows</AssemblyName>
     <TargetFrameworkVersion>v4.5</TargetFrameworkVersion>
+    <SignAssembly>true</SignAssembly>
+    <AssemblyOriginatorKeyFile>..\PushSharp-Signing.snk</AssemblyOriginatorKeyFile>
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|AnyCPU' ">
     <DebugSymbols>true</DebugSymbols>
@@ -43,6 +45,7 @@
     <Compile Include="WnsNotificationStatus.cs" />
     <Compile Include="WnsConnection.cs" />
     <Compile Include="Exceptions.cs" />
+    <Compile Include="WnsTokenAccessManager.cs" />
   </ItemGroup>
   <Import Project="$(MSBuildBinPath)\Microsoft.CSharp.targets" />
   <ItemGroup>

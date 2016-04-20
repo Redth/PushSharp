@@ -58,10 +58,9 @@ namespace PushSharp.Google
             var response = await http.PostAsync (Configuration.GcmUrl, content);
 
             if (response.IsSuccessStatusCode) {
-                await processResponseOk (response, notification);
+                await processResponseOk (response, notification).ConfigureAwait (false);
             } else {
-                var body = await response.Content.ReadAsStringAsync ();
-                processResponseError (response, notification);
+                await processResponseError (response, notification).ConfigureAwait (false);
             }
         }
 
@@ -119,23 +118,38 @@ namespace PushSharp.Google
                     var oldRegistrationId = string.Empty;
 
                     if (singleResultNotification.RegistrationIds != null && singleResultNotification.RegistrationIds.Count > 0)
-                        oldRegistrationId = singleResultNotification.RegistrationIds [0];
+                    {
+                        oldRegistrationId = singleResultNotification.RegistrationIds[0];
+                    }
+                    else if (!string.IsNullOrEmpty(singleResultNotification.To))
+                    {
+                        oldRegistrationId = singleResultNotification.To;
+                    }
 
-                    multicastResult.Failed.Add (singleResultNotification, new DeviceSubscriptonExpiredException {
-                        OldSubscriptionId = oldRegistrationId,
-                        NewSubscriptionId = newRegistrationId
-                    });
+                    multicastResult.Failed.Add (singleResultNotification, 
+                        new DeviceSubscriptionExpiredException (singleResultNotification) {
+                            OldSubscriptionId = oldRegistrationId,
+                            NewSubscriptionId = newRegistrationId
+                        });
                 } else if (r.ResponseStatus == GcmResponseStatus.Unavailable) { // Unavailable
-                    multicastResult.Failed.Add (singleResultNotification, new GcmConnectionException ("Unavailable Response Status"));
+                    multicastResult.Failed.Add (singleResultNotification, new GcmNotificationException (singleResultNotification, "Unavailable Response Status"));
                 } else if (r.ResponseStatus == GcmResponseStatus.NotRegistered) { //Bad registration Id
                     var oldRegistrationId = string.Empty;
 
                     if (singleResultNotification.RegistrationIds != null && singleResultNotification.RegistrationIds.Count > 0)
-                        oldRegistrationId = singleResultNotification.RegistrationIds [0];
+                    {
+                        oldRegistrationId = singleResultNotification.RegistrationIds[0];
+                    }
+                    else if (!string.IsNullOrEmpty(singleResultNotification.To))
+                    {
+                        oldRegistrationId = singleResultNotification.To;
+                    }   
 
-                    multicastResult.Failed.Add (singleResultNotification, new DeviceSubscriptonExpiredException { OldSubscriptionId = oldRegistrationId });
+                    multicastResult.Failed.Add (singleResultNotification, 
+                                                new DeviceSubscriptionExpiredException (singleResultNotification) { 
+                                                    OldSubscriptionId = oldRegistrationId });
                 } else {
-                    multicastResult.Failed.Add (singleResultNotification, new GcmConnectionException ("Unknown Failure: " + r.ResponseStatus));
+                    multicastResult.Failed.Add (singleResultNotification, new GcmNotificationException (singleResultNotification, "Unknown Failure: " + r.ResponseStatus));
                 }
 
                 index++;
@@ -156,14 +170,20 @@ namespace PushSharp.Google
                 throw multicastResult;
         }
 
-        void processResponseError (HttpResponseMessage httpResponse, GcmNotification notification)
+        async Task processResponseError (HttpResponseMessage httpResponse, GcmNotification notification)
         {
+            string responseBody = null;
+
+            try {
+                responseBody = await httpResponse.Content.ReadAsStringAsync ().ConfigureAwait (false);
+            } catch { }
+
             //401 bad auth token
             if (httpResponse.StatusCode == HttpStatusCode.Unauthorized)
                 throw new UnauthorizedAccessException ("GCM Authorization Failed");
 
             if (httpResponse.StatusCode == HttpStatusCode.BadRequest)
-                throw new GcmConnectionException ("HTTP 400 Bad Request");
+                throw new GcmNotificationException (notification, "HTTP 400 Bad Request", responseBody);
 
             if ((int)httpResponse.StatusCode >= 500 && (int)httpResponse.StatusCode < 600) {
                 //First try grabbing the retry-after header and parsing it.
@@ -171,11 +191,11 @@ namespace PushSharp.Google
 
                 if (retryAfterHeader != null && retryAfterHeader.Delta.HasValue) {
                     var retryAfter = retryAfterHeader.Delta.Value;
-                    throw new RetryAfterException ("GCM Requested Backoff", DateTime.UtcNow + retryAfter);
+                    throw new RetryAfterException (notification, "GCM Requested Backoff", DateTime.UtcNow + retryAfter);
                 }                  
             }
 
-            throw new GcmConnectionException ("GCM HTTP Error: " + httpResponse.StatusCode);           
+            throw new GcmNotificationException (notification, "GCM HTTP Error: " + httpResponse.StatusCode, responseBody);           
         }
 
         static GcmResponseStatus GetGcmResponseStatus (string str)

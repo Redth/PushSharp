@@ -1,8 +1,9 @@
 ﻿using System;
+using PushSharp.Core;
 
 namespace PushSharp.Windows
 {
-    public class WnsNotificationException : PushSharp.Core.NotificationException
+    public class WnsNotificationException : NotificationException
     {
         public WnsNotificationException (WnsNotificationStatus status) : base (status.ErrorDescription, status.Notification) 
         {
@@ -12,6 +13,11 @@ namespace PushSharp.Windows
 
         public new WnsNotification Notification { get; set; }
         public WnsNotificationStatus Status { get; private set; }
+
+        public override string ToString ()
+        {
+            return base.ToString() + " Status = " + Status.HttpStatus;
+        }
     }
 }
 

@@ -36,9 +36,6 @@ namespace PushSharp.Amazon
 
     public class AdmServiceConnection : IServiceConnection<AdmNotification>
     {
-        long waitCounter = 0;
-
-
         public AdmServiceConnection (AdmConfiguration configuration)
         {
             Configuration = configuration;
@@ -98,7 +95,7 @@ namespace PushSharp.Amazon
                 case HttpStatusCode.BadGateway: //400
                 case HttpStatusCode.BadRequest: //
                     if ("InvalidRegistrationId".Equals (reason, StringComparison.InvariantCultureIgnoreCase)) {
-                        throw new DeviceSubscriptonExpiredException {
+                        throw new DeviceSubscriptionExpiredException (notification) {
                             OldSubscriptionId = regId,
                             ExpiredAt = DateTime.UtcNow
                         };
@@ -110,13 +107,10 @@ namespace PushSharp.Amazon
                     throw new UnauthorizedAccessException ("Access token failed authorization");
                 case HttpStatusCode.Forbidden: //403
                     throw new AdmRateLimitExceededException (reason, notification);
-                    break;
                 case HttpStatusCode.RequestEntityTooLarge: //413
                     throw new AdmMessageTooLargeException (notification);
-                    break;
                 default:
                     throw new NotificationException ("Unknown ADM Failure", notification);
-                    break;
                 }
             }
             catch (Exception ex)

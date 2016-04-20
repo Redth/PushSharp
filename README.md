@@ -1,13 +1,15 @@
-PushSharp v3.0
+PushSharp v4.0
 ==============
 
 PushSharp is a server-side library for sending Push Notifications to iOS/OSX (APNS), Android/Chrome (GCM), Windows/Windows Phone, Amazon (ADM) and Blackberry devices!
 
-PushSharp v3.0 is a complete rewrite of the original library, aimed at taking advantage of things like async/await, HttpClient, and generally a better infrastructure using lessons learned from the old code.
+PushSharp v3.0+ is a complete rewrite of the original library, aimed at taking advantage of things like async/await, HttpClient, and generally a better infrastructure using lessons learned from the old code.
+
+PushSharp will now follow [semver](http://semver.org/) versioning, so major version numbers will go up as there are any breaking api changes. 
 
 [![Join the chat at https://gitter.im/Redth/PushSharp](https://badges.gitter.im/Join%20Chat.svg)](https://gitter.im/Redth/PushSharp?utm_source=badge&utm_medium=badge&utm_campaign=pr-badge&utm_content=badge)
 
-![AppVeyor CI Status](https://ci.appveyor.com/api/projects/status/github/Redth/PushSharp?branch=3.0-dev&svg=true)
+[![AppVeyor CI Status](https://ci.appveyor.com/api/projects/status/github/Redth/PushSharp?branch=master&svg=true)](https://ci.appveyor.com/project/Redth/pushsharp)
 
 [![NuGet Version](https://badge.fury.io/nu/PushSharp.svg)](https://badge.fury.io/nu/PushSharp)
 
@@ -18,35 +20,37 @@ PushSharp v3.0 is a complete rewrite of the original library, aimed at taking ad
 
 ## Sample Usage
 
-The API in v3.x series is quite different from 2.x.  The goal is to simplify things and focus on the core functionality of the library, leaving things like constructing valid payloads up to the developer.
+The API in v3.x+ series is quite different from 2.x.  The goal is to simplify things and focus on the core functionality of the library, leaving things like constructing valid payloads up to the developer.
 
+### APNS Sample Usage
 Here is an example of how you would send an APNS notification:
+
 ```csharp
-// Configuration
-var config = new ApnsConfiguration ("push-cert.pfx", "push-cert-pwd");
+// Configuration (NOTE: .pfx can also be used here)
+var config = new ApnsConfiguration (ApnsConfiguration.ApnsServerEnvironment.Sandbox, 
+    "push-cert.p12", "push-cert-pwd");
 
 // Create a new broker
-var broker = new ApnsServiceBroker (config);
+var apnsBroker = new ApnsServiceBroker (config);
     
 // Wire up events
-broker.OnNotificationFailed += (notification, aggregateEx) => {
+apnsBroker.OnNotificationFailed += (notification, aggregateEx) => {
 
 	aggregateEx.Handle (ex => {
 	
 		// See what kind of exception it was to further diagnose
-		if (exception is ApnsNotificationException) {
-			var apnsEx = ex as ApnsNotificationException;
-
+		if (ex is ApnsNotificationException) {
+			var notificationException = (ApnsNotificationException)ex;
+			
 			// Deal with the failed notification
-			var n = apnsEx.Notification;
-		
-			Console.WriteLine ($"Notification Failed: ID={n.Identifier}, Code={apnsEx.ErrorStatusCode}");
+			var apnsNotification = notificationException.Notification;
+			var statusCode = notificationException.ErrorStatusCode;
+
+			Console.WriteLine ($"Apple Notification Failed: ID={apnsNotification.Identifier}, Code={statusCode}");
 	
-		} else if (ex is ApnsConnectionException) {
-			// Something failed while connecting (maybe bad cert?)
-			Console.WriteLine ("Notification Failed (Bad APNS Connection)!");
 		} else {
-			Console.WriteLine ("Notification Failed (Unknown Reason)!");
+			// Inner exception might hold more useful information like an ApnsConnectionException			
+			Console.WriteLine ($"Apple Notification Failed for some unknown reason : {ex.InnerException}");
 		}
 
 		// Mark it as handled
@@ -54,32 +58,204 @@ broker.OnNotificationFailed += (notification, aggregateEx) => {
 	});
 };
 
-broker.OnNotificationSucceeded += (notification) => {
-	Console.WriteLine ("Notification Sent!");
+apnsBroker.OnNotificationSucceeded += (notification) => {
+	Console.WriteLine ("Apple Notification Sent!");
 };
 
 // Start the broker
-broker.Start ();
+apnsBroker.Start ();
 
-// Queue a notification to send
-broker.QueueNotification (new ApnsNotification {
-		DeviceToken = "device-token-from-device",
+foreach (var deviceToken in MY_DEVICE_TOKENS) {
+	// Queue a notification to send
+	apnsBroker.QueueNotification (new ApnsNotification {
+		DeviceToken = deviceToken,
 		Payload = JObject.Parse ("{\"aps\":{\"badge\":7}}")
 	});
+}
    
 // Stop the broker, wait for it to finish   
 // This isn't done after every message, but after you're
 // done with the broker
-broker.Stop ();
+apnsBroker.Stop ();
 ```
 
-Other platforms are structured the same way, although the configuration of each broker may vary.
+#### Apple Notification Payload
+
+More information about the payload sent in the ApnsNotification object can be found [here](https://developer.apple.com/library/ios/documentation/NetworkingInternet/Conceptual/RemoteNotificationsPG/Chapters/TheNotificationPayload.html).
 
 
+#### Apple APNS Feedback Service
 
-## How to Migrate from PushSharp 2.x to 3.x
+For APNS you will also need to occasionally check with the feedback service to see if there are any expired device tokens you should no longer send notifications to.  Here's an example of how you would do that:
 
-Please see this Wiki page for more information: https://github.com/Redth/PushSharp/wiki/Migrating-from-PushSharp-2.x-to-3.x
+```csharp
+var config = new ApnsConfiguration (
+    ApnsConfiguration.ApnsServerEnvironment.Sandbox, 
+    Settings.Instance.ApnsCertificateFile, 
+    Settings.Instance.ApnsCertificatePassword);
+
+var fbs = new FeedbackService (config);
+fbs.FeedbackReceived += (string deviceToken, DateTime timestamp) => {
+    // Remove the deviceToken from your database
+    // timestamp is the time the token was reported as expired
+};
+fbs.Check ();
+```
+
+
+### GCM Sample Usage
+
+Here is how you would send a GCM Notification:
+
+```csharp
+// Configuration
+var config = new GcmConfiguration ("GCM-SENDER-ID", "AUTH-TOKEN", null);
+
+// Create a new broker
+var gcmBroker = new GcmServiceBroker (config);
+    
+// Wire up events
+gcmBroker.OnNotificationFailed += (notification, aggregateEx) => {
+
+	aggregateEx.Handle (ex => {
+	
+		// See what kind of exception it was to further diagnose
+		if (ex is GcmNotificationException) {
+			var notificationException = (GcmNotificationException)ex;
+			
+			// Deal with the failed notification
+			var gcmNotification = notificationException.Notification;
+			var description = notificationException.Description;
+
+			Console.WriteLine ($"GCM Notification Failed: ID={gcmNotification.MessageId}, Desc={description}");
+		} else if (ex is GcmMulticastResultException) {
+			var multicastException = (GcmMulticastResultException)ex;
+
+			foreach (var succeededNotification in multicastException.Succeeded) {
+				Console.WriteLine ($"GCM Notification Failed: ID={succeededNotification.MessageId}");
+			}
+
+			foreach (var failedKvp in multicastException.Failed) {
+				var n = failedKvp.Key;
+				var e = failedKvp.Value;
+
+				Console.WriteLine ($"GCM Notification Failed: ID={n.MessageId}, Desc={e.Description}");
+			}
+
+		} else if (ex is DeviceSubscriptionExpiredException) {
+			var expiredException = (DeviceSubscriptionExpiredException)ex;
+			
+			var oldId = expiredException.OldSubscriptionId;
+			var newId = expiredException.NewSubscriptionId;
+
+			Console.WriteLine ($"Device RegistrationId Expired: {oldId}");
+
+			if (!string.IsNullOrWhitespace (newId)) {
+				// If this value isn't null, our subscription changed and we should update our database
+				Console.WriteLine ($"Device RegistrationId Changed To: {newId}");
+			}
+		} else if (ex is RetryAfterException) {
+			var retryException = (RetryAfterException)ex;
+			// If you get rate limited, you should stop sending messages until after the RetryAfterUtc date
+			Console.WriteLine ($"GCM Rate Limited, don't send more until after {retryException.RetryAfterUtc}");
+		} else {
+			Console.WriteLine ("GCM Notification Failed for some unknown reason");
+		}
+
+		// Mark it as handled
+		return true;
+	});
+};
+
+gcmBroker.OnNotificationSucceeded += (notification) => {
+	Console.WriteLine ("GCM Notification Sent!");
+};
+
+// Start the broker
+gcmBroker.Start ();
+
+foreach (var regId in MY_REGISTRATION_IDS) {
+	// Queue a notification to send
+	gcmBroker.QueueNotification (new GcmNotification {
+		RegistrationIds = new List<string> { 
+			regId
+		},
+		Data = JObject.Parse ("{ \"somekey\" : \"somevalue\" }")
+	});
+}
+   
+// Stop the broker, wait for it to finish   
+// This isn't done after every message, but after you're
+// done with the broker
+gcmBroker.Stop ();
+```
+
+#### Components of a GCM Notification
+
+GCM notifications are much more customizable than Apple Push Notifications. More information about the messaging concepts and options can be found [here](https://developers.google.com/cloud-messaging/concept-options#components-of-a-message).
+
+
+### WNS Sample Usage
+
+Here's how to send WNS Notifications:
+
+```csharp
+// Configuration
+var config = new WnsConfiguration ("WNS_PACKAGE_NAME", "WNS_PACKAGE_SID", "WNS_CLIENT_SECRET");
+
+// Create a new broker
+var wnsBroker = new WnsServiceBroker (config);
+
+// Wire up events
+wnsBroker.OnNotificationFailed += (notification, aggregateEx) => {
+
+	aggregateEx.Handle (ex => {
+	
+		// See what kind of exception it was to further diagnose
+		if (ex is WnsNotificationException) {
+			var notificationException = (WnsNotificationException)ex;
+			Console.WriteLine ($"WNS Notification Failed: {notificationException.Message}");
+		} else {
+			Console.WriteLine ("WNS Notification Failed for some (Unknown Reason)");
+		}
+
+		// Mark it as handled
+		return true;
+	});
+};
+
+wnsBroker.OnNotificationSucceeded += (notification) => {
+	Console.WriteLine ("WNS Notification Sent!");
+};
+
+// Start the broker
+wnsBroker.Start ();
+
+foreach (var uri in MY_DEVICE_CHANNEL_URIS) {
+	// Queue a notification to send
+	wnsBroker.QueueNotification (new WnsToastNotification {
+		ChannelUri = uri,
+		Payload = XElement.Parse (@"
+			<toast>
+				<visual>
+					<binding template=""ToastText01"">
+						<text id=""1"">WNS_Send_Single</text>
+					</binding>  
+				</visual>
+			</toast>")
+	});
+}
+
+// Stop the broker, wait for it to finish   
+// This isn't done after every message, but after you're
+// done with the broker
+wnsBroker.Stop ();
+```
+
+
+## How to Migrate from PushSharp 2.x to 3.x and higher
+
+Please see this Wiki page for more information: https://github.com/Redth/PushSharp/wiki/Migrating-from-PushSharp-2.x-to-3.x-
 
 
 ## Roadmap

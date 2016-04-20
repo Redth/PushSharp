@@ -1,4 +1,5 @@
 using System;
+using System.Runtime.Serialization;
 using Newtonsoft.Json.Linq;
 using System.Collections.Generic;
 using PushSharp.Core;
@@ -14,7 +15,10 @@ namespace PushSharp.Google
             var result = new GcmNotification ();
             result.Tag = response.OriginalNotification.Tag;
             result.MessageId = response.OriginalNotification.MessageId;
-            result.RegistrationIds.Add (response.OriginalNotification.RegistrationIds [resultIndex]);
+
+            if (response.OriginalNotification.RegistrationIds != null && response.OriginalNotification.RegistrationIds.Count >= (resultIndex + 1))
+                result.RegistrationIds.Add (response.OriginalNotification.RegistrationIds [resultIndex]);
+
             result.CollapseKey = response.OriginalNotification.CollapseKey;
             result.Data = response.OriginalNotification.Data;
             result.DelayWhileIdle = response.OriginalNotification.DelayWhileIdle;
@@ -58,6 +62,7 @@ namespace PushSharp.Google
             return RegistrationIds != null && RegistrationIds.Any ();
         }
 
+        [JsonIgnore]
         public object Tag { get;set; }
 
         [JsonProperty  ("message_id")]
@@ -136,12 +141,20 @@ namespace PushSharp.Google
         /// Corresponds to iOS APNS priorities (Normal is 5 and high is 10).  Default is Normal.
         /// </summary>
         /// <value>The priority.</value>
-        [JsonProperty ("priority")]
+        [JsonProperty ("priority"), JsonConverter (typeof (Newtonsoft.Json.Converters.StringEnumConverter))]
         public GcmNotificationPriority? Priority { get; set; }
 
         internal string GetJson ()
         {
-            return JsonConvert.SerializeObject (this);
+            // If 'To' was used instead of RegistrationIds, let's make RegistrationId's null
+            // so we don't serialize an empty array for this property
+            // otherwise, google will complain that we specified both instead
+            if (RegistrationIds != null && RegistrationIds.Count <= 0 && !string.IsNullOrEmpty (To))
+                RegistrationIds = null;
+
+            // Ignore null values
+            return JsonConvert.SerializeObject (this,
+                new JsonSerializerSettings { NullValueHandling = NullValueHandling.Ignore });
         }
 
         public override string ToString ()
@@ -152,7 +165,9 @@ namespace PushSharp.Google
 
     public enum GcmNotificationPriority
     {
+        [EnumMember (Value="normal")]
         Normal = 5,
+        [EnumMember (Value="high")]
         High = 10
     }
 }
