@@ -19,10 +19,10 @@ namespace PushSharp.Tests
 
             var config = new GcmConfiguration (Settings.Instance.GcmSenderId, Settings.Instance.GcmAuthToken, null);
             var broker = new GcmServiceBroker (config);
-            broker.OnNotificationFailed += (notification, exception) => {
+            broker.OnNotificationFailed += (notification, response, exception) => {
                 failed++;        
             };
-            broker.OnNotificationSucceeded += (notification) => {
+            broker.OnNotificationSucceeded += (notification, response) => {
                 succeeded++;
             };
 

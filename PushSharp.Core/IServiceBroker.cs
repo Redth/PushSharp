@@ -2,16 +2,31 @@
 
 namespace PushSharp.Core
 {
-    public interface IServiceBroker<TNotification> where TNotification : INotification
-    {
-        event NotificationSuccessDelegate<TNotification> OnNotificationSucceeded;
-        event NotificationFailureDelegate<TNotification> OnNotificationFailed;
+	public interface IServiceBroker<TNotification, TResponse> 
+		where TNotification : INotification
+		where TResponse : IResponse
+	{
+		event NotificationSuccessDelegate<TNotification, TResponse> OnNotificationSucceeded;
+		event NotificationFailureDelegate<TNotification, TResponse> OnNotificationFailed;
 
-        System.Collections.Generic.IEnumerable<TNotification> TakeMany ();
-        bool IsCompleted { get; }
+		System.Collections.Generic.IEnumerable<TNotification> TakeMany ();
+		bool IsCompleted { get; }
 
-        void RaiseNotificationSucceeded (TNotification notification);
-        void RaiseNotificationFailed (TNotification notification, AggregateException ex);
-    }
+		void RaiseNotificationSucceeded (TNotification notification, TResponse response);
+		void RaiseNotificationFailed (TNotification notification, TResponse response, AggregateException ex);
+	}
+
+	public interface IServiceBroker<TNotification>
+		where TNotification : INotification
+	{
+		event NotificationSuccessDelegate<TNotification> OnNotificationSucceeded;
+		event NotificationFailureDelegate<TNotification> OnNotificationFailed;
+
+		System.Collections.Generic.IEnumerable<TNotification> TakeMany();
+		bool IsCompleted { get; }
+
+		void RaiseNotificationSucceeded(TNotification notification);
+		void RaiseNotificationFailed(TNotification notification, AggregateException ex);
+	}
 }
 
