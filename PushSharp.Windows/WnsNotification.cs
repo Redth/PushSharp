@@ -52,5 +52,15 @@ namespace PushSharp.Windows
         public WnsNotificationCachePolicyType? CachePolicy { get; set; }
     }
 
+    public class WnsRawNotification : WnsNotification
+    {
+        public override WnsNotificationType Type
+        {
+            get { return WnsNotificationType.Raw; }
+        }
+
+        public byte[] RawData { get; set; }
+    }
+
 }
 

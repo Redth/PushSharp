@@ -57,12 +57,13 @@ namespace PushSharp.Windows
             //https://cloud.notify.windows.com/?token=.....
             //Authorization: Bearer {AccessToken}
             //
-
-            //TODO: Microsoft recommends we disable expect-100 to improve latency
+                        
             // Not sure how to do this in httpclient
             var http = new HttpClient ();
+            http.DefaultRequestHeaders.ExpectContinue = false; //Disable expect-100 to improve latency
 
-            http.DefaultRequestHeaders.TryAddWithoutValidation ("X-WNS-Type", string.Format ("wns/{0}", notification.Type.ToString ().ToLower ()));
+            http.DefaultRequestHeaders.TryAddWithoutValidation ("X-WNS-Type", string.Format ("wns/{0}", notification.Type.ToString().ToLower ()));
+
             if(!http.DefaultRequestHeaders.Contains("Authorization")) //prevent double values
                 http.DefaultRequestHeaders.TryAddWithoutValidation("Authorization", "Bearer " + accessToken);
 
@@ -92,13 +93,16 @@ namespace PushSharp.Windows
 
             HttpContent content = null;
 
-            if (notification.Type == WnsNotificationType.Raw) {
-                content = new StreamContent (new MemoryStream (Encoding.UTF8.GetBytes (notification.Payload.ToString())));
-            } else  {
+            if (notification.Type == WnsNotificationType.Raw)
+            {
+                content = new StreamContent(new MemoryStream(((WnsRawNotification)notification).RawData));
+            }
+            else
+            {
                 content = new StringContent(
-                notification.Payload.ToString(), // Get XML payload 
-                Encoding.UTF8, 
-                "text/xml");
+                    notification.Payload.ToString(), // Get XML payload 
+                    Encoding.UTF8, 
+                    "text/xml");
             }
 
             var result = await http.PostAsync (notification.ChannelUri, content);
