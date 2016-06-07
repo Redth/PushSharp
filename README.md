@@ -139,7 +139,7 @@ gcmBroker.OnNotificationFailed += (notification, aggregateEx) => {
 				var n = failedKvp.Key;
 				var e = failedKvp.Value;
 
-				Console.WriteLine ($"GCM Notification Failed: ID={n.MessageId}, Desc={e.Description}");
+				Console.WriteLine ($"GCM Notification Failed: ID={n.MessageId}, Desc={e}");
 			}
 
 		} else if (ex is DeviceSubscriptionExpiredException) {
@@ -150,7 +150,7 @@ gcmBroker.OnNotificationFailed += (notification, aggregateEx) => {
 
 			Console.WriteLine ($"Device RegistrationId Expired: {oldId}");
 
-			if (!string.IsNullOrWhitespace (newId)) {
+			if (!string.IsNullOrWhiteSpace (newId)) {
 				// If this value isn't null, our subscription changed and we should update our database
 				Console.WriteLine ($"Device RegistrationId Changed To: {newId}");
 			}
