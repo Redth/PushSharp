@@ -47,7 +47,11 @@ namespace PushSharp.Apple
             var data = new List<byte> ();
 
             //Get the first feedback
-            recd = stream.Read(buffer, 0, buffer.Length);
+            try
+            {
+                recd = stream.Read(buffer, 0, buffer.Length);
+            }
+            catch { }
 
             //Continue while we have results and are not disposing
             while (recd > 0)
@@ -102,7 +106,10 @@ namespace PushSharp.Apple
                 }
 
                 //Read the next feedback
-                recd = stream.Read (buffer, 0, buffer.Length);
+                try { 
+                    recd = stream.Read (buffer, 0, buffer.Length);
+                }
+                catch { }
             }
 
             try
