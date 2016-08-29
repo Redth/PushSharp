@@ -8,14 +8,14 @@ namespace PushSharp.Apple
     public class ApnsConfiguration
     {
         #region Constants
-        const string APNS_SANDBOX_HOST = "gateway.sandbox.push.apple.com";
-        const string APNS_PRODUCTION_HOST = "gateway.push.apple.com";
+        const string APNS_SANDBOX_HOST = "api.development.push.apple.com";
+        const string APNS_PRODUCTION_HOST = "api.push.apple.com";
 
         const string APNS_SANDBOX_FEEDBACK_HOST = "feedback.sandbox.push.apple.com";
         const string APNS_PRODUCTION_FEEDBACK_HOST = "feedback.push.apple.com";
 
-        const int APNS_SANDBOX_PORT = 2195;
-        const int APNS_PRODUCTION_PORT = 2195;
+        const int APNS_SANDBOX_PORT = 443;
+        const int APNS_PRODUCTION_PORT = 443;
 
         const int APNS_SANDBOX_FEEDBACK_PORT = 2196;
         const int APNS_PRODUCTION_FEEDBACK_PORT = 2196;
