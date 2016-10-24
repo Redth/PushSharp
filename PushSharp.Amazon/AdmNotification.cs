@@ -1,59 +1,59 @@
-﻿using System;
-using System.Collections.Generic;
-using PushSharp.Core;
+﻿using System.Collections.Generic;
 using Newtonsoft.Json.Linq;
+using PushSharp.Core;
 
 namespace PushSharp.Amazon
 {
-    public class AdmNotification : INotification
-    {
-        public AdmNotification ()
-        {
-            Data = new Dictionary<string, string> ();
-        }
+	public class AdmNotification : INotification
+	{
+		public AdmNotification()
+		{
+			Data = new Dictionary<string, string>();
+		}
 
-        public Dictionary<string, string> Data { get; set; }
+		public Dictionary<string, string> Data { get; set; }
 
-        public string ConsolidationKey { get;set; }
+		public string ConsolidationKey { get; set; }
 
-        public int? ExpiresAfter { get;set; }
+		public int? ExpiresAfter { get; set; }
 
-        public string RegistrationId { get;set; }
+		public string RegistrationId { get; set; }
 
-        public string ToJson()
-        {
-            var json = new JObject ();
-            var data = new JObject ();
+		public string ToJson()
+		{
+			var json = new JObject();
+			var data = new JObject();
 
-            if (Data != null && Data.Count > 0) {
-                foreach (var key in Data.Keys)
-                    data [key] = Data [key];
-            }
+			if (Data != null && Data.Count > 0)
+			{
+				foreach (var key in Data.Keys)
+					data[key] = Data[key];
+			}
 
-            json ["data"] = data;
+			json["data"] = data;
 
-            if (!string.IsNullOrEmpty (ConsolidationKey))
-                json ["consolidationKey"] = ConsolidationKey;
+			if (!string.IsNullOrEmpty(ConsolidationKey))
+				json["consolidationKey"] = ConsolidationKey;
 
-            if (ExpiresAfter.HasValue && ExpiresAfter.Value >= 0)
-                json ["expiresAfter"] = ExpiresAfter.Value;
+			if (ExpiresAfter.HasValue && ExpiresAfter.Value >= 0)
+				json["expiresAfter"] = ExpiresAfter.Value;
 
-            return json.ToString();
-        }
+			return json.ToString();
+		}
 
-        public override string ToString ()
-        {
-            return ToJson ();
-        }
+		public override string ToString()
+		{
+			return ToJson();
+		}
 
-        #region INotification implementation
-        public bool IsDeviceRegistrationIdValid ()
-        {
-            return !string.IsNullOrWhiteSpace (RegistrationId);
-        }
+		#region INotification implementation
+		public bool IsDeviceRegistrationIdValid()
+		{
+			return !string.IsNullOrWhiteSpace(RegistrationId);
+		}
 
-        public object Tag { get; set; }
-        #endregion
-    }
+		public object Tag { get; set; }
+		#endregion
+	}
 }
 

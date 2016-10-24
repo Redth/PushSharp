@@ -2,11 +2,11 @@
 
 namespace PushSharp.Firefox
 {
-    public class FirefoxConfiguration
-    {
-        public FirefoxConfiguration ()
-        {
-        }
-    }
+	public class FirefoxConfiguration
+	{
+		public FirefoxConfiguration()
+		{
+		}
+	}
 }
 
