@@ -1,53 +1,53 @@
-﻿using System;
+﻿using System.Threading.Tasks;
 using PushSharp.Core;
-using System.Threading.Tasks;
 
 namespace PushSharp.Apple
 {
-    public class ApnsServiceConnectionFactory : IServiceConnectionFactory<ApnsNotification>
-    {
-        public ApnsServiceConnectionFactory (ApnsConfiguration configuration)
-        {
-            Configuration = configuration;
-        }
+	public class ApnsServiceConnectionFactory : IServiceConnectionFactory<ApnsNotification>
+	{
+		public ApnsServiceConnectionFactory(ApnsConfiguration configuration)
+		{
+			Configuration = configuration;
+		}
 
-        public ApnsConfiguration Configuration { get; private set; }
+		public ApnsConfiguration Configuration { get; private set; }
 
-        public IServiceConnection<ApnsNotification> Create()
-        {
-            return new ApnsServiceConnection (Configuration);
-        }
-    }
+		public IServiceConnection<ApnsNotification> Create()
+		{
+			return new ApnsServiceConnection(Configuration);
+		}
+	}
 
-    public class ApnsServiceBroker : ServiceBroker<ApnsNotification>
-    {
-        public ApnsServiceBroker (ApnsConfiguration configuration) : base (new ApnsServiceConnectionFactory (configuration))
-        {
-        }
-    }
+	public class ApnsServiceBroker : ServiceBroker<ApnsNotification>
+	{
+		public ApnsServiceBroker(ApnsConfiguration configuration) : base(new ApnsServiceConnectionFactory(configuration))
+		{
+		}
+	}
 
-    public class ApnsServiceConnection : IServiceConnection<ApnsNotification>
-    {
-        readonly ApnsConnection connection;
+	public class ApnsServiceConnection : IServiceConnection<ApnsNotification>
+	{
+		readonly ApnsConnection connection;
 
-        public ApnsServiceConnection (ApnsConfiguration configuration)
-        {
-            connection = new ApnsConnection (configuration);
-        }
-        
-        public async Task Send (ApnsNotification notification)
-        {
-            var completableNotification = new ApnsConnection.CompletableApnsNotification (notification);
+		public ApnsServiceConnection(ApnsConfiguration configuration)
+		{
+			connection = new ApnsConnection(configuration);
+		}
 
-            connection.Send (completableNotification);
+		public async Task Send(ApnsNotification notification)
+		{
+			var completableNotification = new ApnsConnection.CompletableApnsNotification(notification);
 
-            var ex = await completableNotification.WaitForComplete ().ConfigureAwait (false);
+			connection.Send(completableNotification);
 
-            //Log.Info ("Finished Waiting for Notification: {0} (Had Exception? {1})", notification.Identifier, ex != null);
+			var ex = await completableNotification.WaitForComplete().ConfigureAwait(false);
 
-            if (ex != null) {
-                throw ex;
-            }
-        }
-    }
+			//Log.Info ("Finished Waiting for Notification: {0} (Had Exception? {1})", notification.Identifier, ex != null);
+
+			if (ex != null)
+			{
+				throw ex;
+			}
+		}
+	}
 }

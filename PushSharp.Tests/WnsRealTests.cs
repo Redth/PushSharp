@@ -1,40 +1,44 @@
-﻿using System;
-using NUnit.Framework;
-using PushSharp.Windows;
+﻿using System.ComponentModel;
 using System.Xml.Linq;
+using Microsoft.VisualStudio.TestTools.UnitTesting;
+using PushSharp.Windows;
 
 namespace PushSharp.Tests
 {
-    [TestFixture]
-    [Category ("Disabled")]
-    public class WnsRealTests
-    {
-        [Test]
-        public void WNS_Send_Single ()
-        {
-            var succeeded = 0;
-            var failed = 0;
-            var attempted = 0;
+	[TestClass]
+	[Category("Disabled")]
+	public class WnsRealTests
+	{
+		[TestMethod]
+		public void WNS_Send_Single()
+		{
+			var succeeded = 0;
+			var failed = 0;
+			var attempted = 0;
 
-            var config = new WnsConfiguration (Settings.Instance.WnsPackageName,
-                             Settings.Instance.WnsPackageSid,
-                             Settings.Instance.WnsClientSecret);
+			var config = new WnsConfiguration(Settings.Instance.WnsPackageName,
+											 Settings.Instance.WnsPackageSid,
+											 Settings.Instance.WnsClientSecret);
 
-            var broker = new WnsServiceBroker (config);
-            broker.OnNotificationFailed += (notification, exception) => {
-                failed++;
-            };
-            broker.OnNotificationSucceeded += (notification) => {
-                succeeded ++;
-            };
+			var broker = new WnsServiceBroker(config);
+			broker.OnNotificationFailed += (notification, exception) =>
+			{
+				failed++;
+			};
+			broker.OnNotificationSucceeded += (notification) =>
+			{
+				succeeded++;
+			};
 
-            broker.Start ();
+			broker.Start();
 
-            foreach (var uri in Settings.Instance.WnsChannelUris) {
-                attempted++;
-                broker.QueueNotification (new WnsToastNotification {
-                    ChannelUri = uri,
-                    Payload = XElement.Parse (@"
+			foreach (var uri in Settings.Instance.WnsChannelUris)
+			{
+				attempted++;
+				broker.QueueNotification(new WnsToastNotification
+				{
+					ChannelUri = uri,
+					Payload = XElement.Parse(@"
                         <toast>
                             <visual>
                                 <binding template=""ToastText01"">
@@ -43,42 +47,47 @@ namespace PushSharp.Tests
                             </visual>
                         </toast>
                     ")
-                });
-            }
+				});
+			}
 
-            broker.Stop ();
+			broker.Stop();
 
-            Assert.AreEqual (attempted, succeeded);
-            Assert.AreEqual (0, failed);
-        }
+			Assert.AreEqual(attempted, succeeded);
+			Assert.AreEqual(0, failed);
+		}
 
-        [Test]
-        public void WNS_Send_Mutiple ()
-        {
-            var succeeded = 0;
-            var failed = 0;
-            var attempted = 0;
+		[TestMethod]
+		public void WNS_Send_Mutiple()
+		{
+			var succeeded = 0;
+			var failed = 0;
+			var attempted = 0;
 
-            var config = new WnsConfiguration (Settings.Instance.WnsPackageName,
-                Settings.Instance.WnsPackageSid,
-                Settings.Instance.WnsClientSecret);
+			var config = new WnsConfiguration(Settings.Instance.WnsPackageName,
+					Settings.Instance.WnsPackageSid,
+					Settings.Instance.WnsClientSecret);
 
-            var broker = new WnsServiceBroker (config);
-            broker.OnNotificationFailed += (notification, exception) => {
-                failed++;
-            };
-            broker.OnNotificationSucceeded += (notification) => {
-                succeeded++;
-            };
+			var broker = new WnsServiceBroker(config);
+			broker.OnNotificationFailed += (notification, exception) =>
+			{
+				failed++;
+			};
+			broker.OnNotificationSucceeded += (notification) =>
+			{
+				succeeded++;
+			};
 
-            broker.Start ();
+			broker.Start();
 
-            foreach (var uri in Settings.Instance.WnsChannelUris) {
-                for (var i = 1; i <= 3; i++) {
-                    attempted++;
-                    broker.QueueNotification (new WnsToastNotification {
-                            ChannelUri = uri,
-                            Payload = XElement.Parse(@"
+			foreach (var uri in Settings.Instance.WnsChannelUris)
+			{
+				for (var i = 1; i <= 3; i++)
+				{
+					attempted++;
+					broker.QueueNotification(new WnsToastNotification
+					{
+						ChannelUri = uri,
+						Payload = XElement.Parse(@"
                                 <toast>
                                     <visual>
                                         <binding template=""ToastText01"">
@@ -87,15 +96,15 @@ namespace PushSharp.Tests
                                     </visual>
                                 </toast>
                             ")
-                        });
-                }
-            }
+					});
+				}
+			}
 
-            broker.Stop ();
+			broker.Stop();
 
-            Assert.AreEqual (attempted, succeeded);
-            Assert.AreEqual (0, failed);
-        }
-    }
+			Assert.AreEqual(attempted, succeeded);
+			Assert.AreEqual(0, failed);
+		}
+	}
 }
 
