@@ -2,23 +2,23 @@
 using System.ComponentModel;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Newtonsoft.Json.Linq;
-using PushSharp.Google;
+using PushSharp.Firebase;
 
 namespace PushSharp.Tests
 {
 	[TestClass]
 	[Category("Real")]
-	public class GcmRealTests
+	public class FcmRealTests
 	{
 		[TestMethod]
-		public void Gcm_Send_Single()
+		public void Fcm_Send_Single()
 		{
 			var succeeded = 0;
 			var failed = 0;
 			var attempted = 0;
 
-			var config = new GcmConfiguration(Settings.Instance.GcmSenderId, Settings.Instance.GcmAuthToken, null);
-			var broker = new GcmServiceBroker(config);
+			var config = new FcmConfiguration(Settings.Instance.FcmSenderId, Settings.Instance.FcmAuthToken, null);
+			var broker = new FcmServiceBroker(config);
 			broker.OnNotificationFailed += (notification, exception) =>
 			{
 				failed++;
@@ -30,13 +30,13 @@ namespace PushSharp.Tests
 
 			broker.Start();
 
-			foreach (var regId in Settings.Instance.GcmRegistrationIds)
+			foreach (var regId in Settings.Instance.FcmRegistrationIds)
 			{
 				attempted++;
 
-				broker.QueueNotification(new GcmNotification
+				broker.QueueNotification(new FcmNotification
 				{
-					RegistrationIds = new List<string> { regId },
+					RegistrationIds =  new List<string> { regId },
 					Data = JObject.Parse("{ \"somekey\" : \"somevalue\" }")
 				});
 			}

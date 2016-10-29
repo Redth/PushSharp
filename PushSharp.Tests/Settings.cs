@@ -61,6 +61,13 @@ namespace PushSharp.Tests
 		[JsonProperty("gcm_registration_ids")]
 		public List<string> GcmRegistrationIds { get; set; }
 
+		[JsonProperty("fcm_auth_token")]
+		public string FcmAuthToken { get; set; }
+		[JsonProperty("fcm_sender_id")]
+		public string FcmSenderId { get; set; }
+		[JsonProperty("fcm_registration_ids")]
+		public List<string> FcmRegistrationIds { get; set; }
+
 		[JsonProperty("adm_client_id")]
 		public string AdmClientId { get; set; }
 		[JsonProperty("adm_client_secret")]

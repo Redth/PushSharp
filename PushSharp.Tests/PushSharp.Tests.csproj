@@ -40,6 +40,8 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="FcmRealTests.cs" />
+    <Compile Include="FcmTests.cs" />
     <Compile Include="TestServiceConnection.cs" />
     <Compile Include="Servers\TestApnsServer.cs" />
     <Compile Include="ApnsTests.cs" />
@@ -64,6 +66,10 @@
     <ProjectReference Include="..\PushSharp.Amazon\PushSharp.Amazon.csproj">
       <Project>{2468C63B-C964-4FC3-9B16-13DC17CF7D11}</Project>
       <Name>PushSharp.Amazon</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\PushSharp.Firebase\PushSharp.Firebase.csproj">
+      <Project>{f75a4e2f-59df-41c9-8f16-b335e42836d9}</Project>
+      <Name>PushSharp.Firebase</Name>
     </ProjectReference>
     <ProjectReference Include="..\PushSharp.Google\PushSharp.Google.csproj">
       <Project>{94F16497-471F-433F-A99E-C455FB2D7724}</Project>

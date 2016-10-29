@@ -21,6 +21,8 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "PushSharp.Google", "PushSha
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "PushSharp.Blackberry", "PushSharp.Blackberry\PushSharp.Blackberry.csproj", "{9F972AE9-DE47-4C26-AEE0-97E8A14F2E12}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "PushSharp.Firebase", "PushSharp.Firebase\PushSharp.Firebase.csproj", "{F75A4E2F-59DF-41C9-8F16-B335E42836D9}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -59,6 +61,10 @@ Global
 		{9F972AE9-DE47-4C26-AEE0-97E8A14F2E12}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{9F972AE9-DE47-4C26-AEE0-97E8A14F2E12}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{9F972AE9-DE47-4C26-AEE0-97E8A14F2E12}.Release|Any CPU.Build.0 = Release|Any CPU
+		{F75A4E2F-59DF-41C9-8F16-B335E42836D9}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{F75A4E2F-59DF-41C9-8F16-B335E42836D9}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{F75A4E2F-59DF-41C9-8F16-B335E42836D9}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{F75A4E2F-59DF-41C9-8F16-B335E42836D9}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
@@ -70,5 +76,6 @@ Global
 		{2468C63B-C964-4FC3-9B16-13DC17CF7D11} = {2B7243CB-60A5-4682-802B-B7EC3DEBCF9A}
 		{94F16497-471F-433F-A99E-C455FB2D7724} = {2B7243CB-60A5-4682-802B-B7EC3DEBCF9A}
 		{9F972AE9-DE47-4C26-AEE0-97E8A14F2E12} = {2B7243CB-60A5-4682-802B-B7EC3DEBCF9A}
+		{F75A4E2F-59DF-41C9-8F16-B335E42836D9} = {2B7243CB-60A5-4682-802B-B7EC3DEBCF9A}
 	EndGlobalSection
 EndGlobal
