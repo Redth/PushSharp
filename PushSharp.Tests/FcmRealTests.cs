@@ -36,6 +36,7 @@ namespace PushSharp.Tests
 
 				broker.QueueNotification(new FcmNotification
 				{
+					//To = "/topics/news",
 					RegistrationIds =  new List<string> { regId },
 					Data = JObject.Parse("{ \"somekey\" : \"somevalue\" }")
 				});

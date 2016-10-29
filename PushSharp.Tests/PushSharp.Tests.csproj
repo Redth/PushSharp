@@ -82,6 +82,7 @@
   </ItemGroup>
   <ItemGroup>
     <None Include="packages.config" />
+    <None Include="settings-sample.json" />
     <None Include="settings.json" />
   </ItemGroup>
   <ItemGroup />
