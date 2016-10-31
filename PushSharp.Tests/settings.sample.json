@@ -12,6 +12,38 @@
 	[
 		"", 
 	],
+
+    "web_push": {
+        "crhome_subscription": {
+            "endpoint": "",
+            "keys": {
+                "p256dh": "",
+                "auth": ""
+            }
+        },
+        "crhome_outdated_subscription": {
+            "endpoint": "",
+            "keys": {
+                "p256dh": "",
+                "auth": ""
+            }
+        },
+        "firefox_subscription": {
+            "endpoint": "",
+            "keys": {
+                "auth": "",
+                "p256dh": ""
+            }
+        },
+
+        "firefox_outdated_subscription": {
+            "endpoint": "",
+            "keys": {
+                "auth": "",
+                "p256dh": ""
+            }
+        }
+    },
         
 	"adm_client_id" : "",
     "adm_client_secret" : "",
