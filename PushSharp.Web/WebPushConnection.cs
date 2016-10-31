@@ -86,8 +86,28 @@ namespace PushSharp.Web
 
             var msg = $"HTTP Error: Status: {httpResponse.StatusCode}, ReasonPhrase: {httpResponse.ReasonPhrase}";
 
-            var isExpiredSubscr = IsExpiredSubscription(httpResponse);
-            throw new WebPushNotificationException(notification, msg, responseBody, isExpiredSubscr);
+            throw new WebPushNotificationException(notification, msg, responseBody)
+            {
+                IsExpiredSubscription = IsExpiredSubscription(httpResponse),
+                IsPayloadExceedLimit = IsPayloadExceedLimit(httpResponse)
+            };
+        }
+
+        private bool IsPayloadExceedLimit(HttpResponseMessage response)
+        {
+            //gcm returns entity too large response
+            if (response.StatusCode == HttpStatusCode.RequestEntityTooLarge)
+            {
+                return true;
+            }
+
+            //mozilla push service returns gateway timeout response
+            if (response.StatusCode == HttpStatusCode.GatewayTimeout)
+            {
+                return true;
+            }
+
+            return false;
         }
 
         private bool IsExpiredSubscription(HttpResponseMessage response)

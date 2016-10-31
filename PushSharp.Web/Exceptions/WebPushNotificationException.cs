@@ -4,12 +4,11 @@ namespace PushSharp.Web.Exceptions
 {
     public class WebPushNotificationException : NotificationException
     {
-        public WebPushNotificationException(WebPushNotification notification, string msg, string description, bool isExpired)
+        public WebPushNotificationException(WebPushNotification notification, string msg, string description)
             : base(msg, notification)
         {
             Notification = notification;
             Description = description;
-            IsExpiredSubscription = isExpired;
         }
 
         public new WebPushNotification Notification { get; private set; }
@@ -17,5 +16,7 @@ namespace PushSharp.Web.Exceptions
         public string Description { get; private set; }
 
         public bool IsExpiredSubscription { get; set; }
+
+        public bool IsPayloadExceedLimit { get; set; }
     }
 }

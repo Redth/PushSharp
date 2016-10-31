@@ -31,6 +31,25 @@ namespace PushSharp.Tests
         }
 
         [Test]
+        public void Chrome_Notification_Should_Throw_Error_If_Payload_Exceed_Limit()
+        {
+            var settings = Settings.Instance;
+            var ctx = new BrokerContext();
+            ctx.Start();
+
+            var subsription = settings.WebPush.ChromeSubscription;
+
+            var notif = new WebPushNotification(subsription);
+            var value = new string('a', 1024 * 5);
+            notif.Payload = JObject.Parse($"{{ \"somekey\" : \"{value}\" }}");
+            ctx.Broker.QueueNotification(notif);
+
+            ctx.Broker.Stop();
+
+            ctx.AssertPayloadExceedLimit();
+        }
+
+        [Test]
         public void Chrome_Should_Throw_Correct_Error_For_OutDated_Subscription()
         {
             var settings = Settings.Instance;
@@ -66,6 +85,25 @@ namespace PushSharp.Tests
 
             Assert.AreEqual(1, ctx.Succeeded);
             Assert.AreEqual(0, ctx.Failed);
+        }
+
+        [Test]
+        public void Firefox_Notification_Should_Throw_Error_If_Payload_Exceed_Limit()
+        {
+            var settings = Settings.Instance;
+            var ctx = new BrokerContext();
+            ctx.Start();
+
+            var subsription = settings.WebPush.FirefoxSubscription;
+
+            var notif = new WebPushNotification(subsription);
+            var value = new string('a', 1024 * 5);
+            notif.Payload = JObject.Parse($"{{ \"somekey\" : \"{value}\" }}");
+            ctx.Broker.QueueNotification(notif);
+
+            ctx.Broker.Stop();
+
+            ctx.AssertPayloadExceedLimit();
         }
 
         [Test]
@@ -127,6 +165,15 @@ namespace PushSharp.Tests
 
                 var error = Exceptions[0] as WebPushNotificationException;
                 Assert.IsTrue(error.IsExpiredSubscription, "subscription should be expired");
+            }
+
+            public void AssertPayloadExceedLimit()
+            {
+                Assert.AreEqual(1, Exceptions.Count, "only one exception should be registered");
+                Assert.IsInstanceOf<WebPushNotificationException>(Exceptions[0]);
+
+                var error = Exceptions[0] as WebPushNotificationException;
+                Assert.IsTrue(error.IsPayloadExceedLimit, "Payload exceed limit should be true");
             }
         }
     }
