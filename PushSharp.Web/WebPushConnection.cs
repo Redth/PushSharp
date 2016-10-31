@@ -32,7 +32,7 @@ namespace PushSharp.Web
 
             if (response.StatusCode != HttpStatusCode.Created)
             {
-                await processResponseError(response, notification).ConfigureAwait(false);
+                await ProcessResponseError(response, notification).ConfigureAwait(false);
             }
         }
 
@@ -74,7 +74,7 @@ namespace PushSharp.Web
             return request;
         }
 
-        async Task processResponseError(HttpResponseMessage httpResponse, WebPushNotification notification)
+        async Task ProcessResponseError(HttpResponseMessage httpResponse, WebPushNotification notification)
         {
             string responseBody = null;
 
