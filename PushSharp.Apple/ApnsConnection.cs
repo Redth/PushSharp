@@ -71,8 +71,7 @@ namespace PushSharp.Apple
 
         SemaphoreSlim connectingSemaphore = new SemaphoreSlim (1);
         SemaphoreSlim batchSendSemaphore = new SemaphoreSlim (1);
-        object timerBatchWaitLock = new object ();
-
+        
         //readonly object connectingLock = new object ();
         ConcurrentQueue<CompletableApnsNotification> notifications = new ConcurrentQueue<CompletableApnsNotification>();
         List<SentNotification> sent = new List<SentNotification> ();
@@ -81,26 +80,22 @@ namespace PushSharp.Apple
 
         public void Send (CompletableApnsNotification notification)
         {
-
             notifications.Enqueue(notification);
-
-            lock (timerBatchWaitLock) {
-
-                if (notifications.Count >= Configuration.InternalBatchSize) {
-
-                    // Make the timer fire immediately and send a batch off
-                    timerBatchWait.Change (0, Timeout.Infinite);
-                    return;
-                }
-
-                // Restart the timer to wait for more notifications to be batched
-                //  This timer will keep getting 'restarted' before firing as long as notifications
-                //  are queued before the timer's due time
-                //  if the timer is actually called, it means no more notifications were queued, 
-                //  so we should flush out the queue instead of waiting for more to be batched as they
-                //  might not ever come and we don't want to leave anything stranded in the queue
-                timerBatchWait.Change (Configuration.InternalBatchingWaitPeriod, Timeout.InfiniteTimeSpan);
+            
+            if (notifications.Count >= Configuration.InternalBatchSize) {
+            
+                // Make the timer fire immediately and send a batch off
+                timerBatchWait.Change (0, Timeout.Infinite);
+                return;
             }
+            
+            // Restart the timer to wait for more notifications to be batched
+            //  This timer will keep getting 'restarted' before firing as long as notifications
+            //  are queued before the timer's due time
+            //  if the timer is actually called, it means no more notifications were queued, 
+            //  so we should flush out the queue instead of waiting for more to be batched as they
+            //  might not ever come and we don't want to leave anything stranded in the queue
+            timerBatchWait.Change (Configuration.InternalBatchingWaitPeriod, Timeout.InfiniteTimeSpan);
         }
 
         long batchId = 0;
