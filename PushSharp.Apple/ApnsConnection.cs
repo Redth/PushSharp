@@ -5,6 +5,7 @@ using System.Net.Security;
 using System.Threading.Tasks;
 using System.Security.Cryptography.X509Certificates;
 using System.Collections.Generic;
+using System.Collections.Concurrent;
 using System.Threading;
 using System.Net;
 using PushSharp.Core;
@@ -68,22 +69,22 @@ namespace PushSharp.Apple
         byte[] buffer = new byte[6];
         int id;
 
-
         SemaphoreSlim connectingSemaphore = new SemaphoreSlim (1);
         SemaphoreSlim batchSendSemaphore = new SemaphoreSlim (1);
-        object notificationBatchQueueLock = new object ();
+        object timerBatchWaitLock = new object ();
 
         //readonly object connectingLock = new object ();
-        Queue<CompletableApnsNotification> notifications = new Queue<CompletableApnsNotification> ();
+        ConcurrentQueue<CompletableApnsNotification> notifications = new ConcurrentQueue<CompletableApnsNotification>();
         List<SentNotification> sent = new List<SentNotification> ();
 
         Timer timerBatchWait;
 
         public void Send (CompletableApnsNotification notification)
         {
-            lock (notificationBatchQueueLock) {
 
-                notifications.Enqueue (notification);
+            notifications.Enqueue(notification);
+
+            lock (timerBatchWaitLock) {
 
                 if (notifications.Count >= Configuration.InternalBatchSize) {
 
@@ -113,15 +114,19 @@ namespace PushSharp.Apple
             // Pause the timer
             timerBatchWait.Change (Timeout.Infinite, Timeout.Infinite);
 
-            if (notifications.Count <= 0)
+            if (notifications.IsEmpty)
                 return;
 
             // Let's store the batch items to send internally
             var toSend = new List<CompletableApnsNotification> ();
 
-            while (notifications.Count > 0 && toSend.Count < Configuration.InternalBatchSize) {
-                var n = notifications.Dequeue ();
-                toSend.Add (n);
+            while (!notifications.IsEmpty && toSend.Count < Configuration.InternalBatchSize) {
+
+                CompletableApnsNotification n;
+                if (notifications.TryDequeue (out n))
+                {
+                    toSend.Add(n);
+                }
             }
 
 
