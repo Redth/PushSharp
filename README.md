@@ -132,7 +132,7 @@ gcmBroker.OnNotificationFailed += (notification, aggregateEx) => {
 			var multicastException = (GcmMulticastResultException)ex;
 
 			foreach (var succeededNotification in multicastException.Succeeded) {
-				Console.WriteLine ($"GCM Notification Failed: ID={succeededNotification.MessageId}");
+				Console.WriteLine ($"GCM Notification Succeeded: ID={succeededNotification.MessageId}");
 			}
 
 			foreach (var failedKvp in multicastException.Failed) {
