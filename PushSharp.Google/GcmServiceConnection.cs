@@ -38,8 +38,14 @@ namespace PushSharp.Google
         public GcmServiceConnection (GcmConfiguration configuration)
         {
             Configuration = configuration;
-            http = new HttpClient ();
-
+            if (Configuration.UseProxy)
+            {                
+                http = GetClientHTTPProxy(Configuration.ProxyHost, Configuration.ProxyPort, Configuration.ProxyCredentials);                
+            }
+            else
+            {
+                http = new HttpClient();
+            }
             http.DefaultRequestHeaders.UserAgent.Clear ();
             http.DefaultRequestHeaders.UserAgent.Add (new ProductInfoHeaderValue ("PushSharp", "3.0"));
             http.DefaultRequestHeaders.TryAddWithoutValidation ("Authorization", "key=" + Configuration.SenderAuthToken);
@@ -211,6 +217,32 @@ namespace PushSharp.Google
 
             //Default
             return GcmResponseStatus.Error;
+        }
+
+        private HttpClient GetClientHTTPProxy(string host, int port, NetworkCredential credentials)
+        {
+            HttpClient client = null;
+            try
+            {
+                string proxyUri = string.Format("{0}:{1}", host, port);
+                WebProxy proxy = new WebProxy(proxyUri, false)
+                {
+                    Credentials = credentials
+                };
+                HttpClientHandler httpClientHandler = new HttpClientHandler()
+                {
+                    Proxy = proxy,
+                    PreAuthenticate = false
+                };
+                client = new HttpClient(httpClientHandler);                
+            }
+            catch (Exception ex)
+            {
+                client = null;
+                Log.Error(ex.Message);
+                throw;
+            }
+            return client;
         }
     }
 }
