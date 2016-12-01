@@ -12,6 +12,9 @@ namespace PushSharp.Core
 
         void RaiseNotificationSucceeded (TNotification notification);
         void RaiseNotificationFailed (TNotification notification, AggregateException ex);
+
+        void Start();
+        void Stop(bool immediately = false);
     }
 }
 
