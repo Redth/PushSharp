@@ -7,14 +7,17 @@ namespace PushSharp.Core
         event NotificationSuccessDelegate<TNotification> OnNotificationSucceeded;
         event NotificationFailureDelegate<TNotification> OnNotificationFailed;
 
-        System.Collections.Generic.IEnumerable<TNotification> TakeMany ();
         bool IsCompleted { get; }
+        int ScaleSize { get; }
+        IServiceConnectionFactory<TNotification> ServiceConnectionFactory { get; set; }
 
+        void ChangeScale(int newScaleSize);
+        void QueueNotification(TNotification notification);
         void RaiseNotificationSucceeded (TNotification notification);
         void RaiseNotificationFailed (TNotification notification, AggregateException ex);
-
         void Start();
         void Stop(bool immediately = false);
+        System.Collections.Generic.IEnumerable<TNotification> TakeMany();
     }
 }
 
