@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using Newtonsoft.Json;
 using System.IO;
+using PushSharp.Web;
 
 namespace PushSharp.Tests
 {
@@ -72,6 +73,25 @@ namespace PushSharp.Tests
         public string WnsClientSecret { get;set; }
         [JsonProperty ("wns_channel_uris")]
         public List<string> WnsChannelUris { get;set; }
+
+        [JsonProperty("web_push")]
+        public WebPushSettings WebPush { get; set; }
+
+        public class WebPushSettings
+        {
+            [JsonProperty("crhome_subscription")]
+            public WebPushSubscription ChromeSubscription { get; set; }
+
+            [JsonProperty("crhome_outdated_subscription")]
+            public WebPushSubscription ChromeOutdatedSubscription { get; set; }
+            
+            [JsonProperty("firefox_subscription")]
+            public WebPushSubscription FirefoxSubscription { get; set; }
+
+
+            [JsonProperty("firefox_outdated_subscription")]
+            public WebPushSubscription FirefoxOutdatedSubscription { get; set; }
+        }
     }
 }
 
