@@ -8,7 +8,7 @@ using System.Net;
 
 namespace PushSharp.Core
 {
-    public class ServiceBroker<TNotification> : IServiceBroker<TNotification> where TNotification : INotification
+    public class ServiceBroker : IServiceBroker
     {
         static ServiceBroker ()
         {
@@ -30,8 +30,8 @@ namespace PushSharp.Core
             //AutoScaleMaxSize = 20;
         }
 
-        public event NotificationSuccessDelegate<TNotification> OnNotificationSucceeded;
-        public event NotificationFailureDelegate<TNotification> OnNotificationFailed;
+        public event NotificationSuccessDelegate<INotification> OnNotificationSucceeded;
+        public event NotificationFailureDelegate<INotification> OnNotificationFailed;
 
         //public bool AutoScale { get; set; }
         //public int AutoScaleMaxSize { get; set; }
@@ -114,7 +114,7 @@ namespace PushSharp.Core
 
                 // Scale up
                 while (workers.Count < ScaleSize) {
-                    var worker = new ServiceWorker ((IServiceBroker<INotification>)this, ServiceConnectionFactory.Create ());
+                    var worker = new ServiceWorker ((IServiceBroker)this, ServiceConnectionFactory.Create ());
                     workers.Add (worker);
                     worker.Start ();
                 }
@@ -123,14 +123,14 @@ namespace PushSharp.Core
             }
         }
 
-        public void RaiseNotificationSucceeded(TNotification notification)
+        public void RaiseNotificationSucceeded(INotification notification)
         {
             var evt = OnNotificationSucceeded;
             if (evt != null)
                 evt (notification);
         }
 
-        public void RaiseNotificationFailed(TNotification notification, AggregateException exception)
+        public void RaiseNotificationFailed(INotification notification, AggregateException exception)
         {
             var evt = OnNotificationFailed;
             if (evt != null)
@@ -140,7 +140,7 @@ namespace PushSharp.Core
 
     class ServiceWorker
     {
-        public ServiceWorker(IServiceBroker<INotification> broker, IServiceConnection<INotification> connection)
+        public ServiceWorker(IServiceBroker broker, IServiceConnection<INotification> connection)
         {
             Broker = broker;
             Connection = connection;
@@ -148,7 +148,7 @@ namespace PushSharp.Core
             CancelTokenSource = new CancellationTokenSource ();
         }
 
-        public IServiceBroker<INotification> Broker { get; private set; }
+        public IServiceBroker Broker { get; private set; }
 
         public IServiceConnection<INotification> Connection { get; private set; }
 

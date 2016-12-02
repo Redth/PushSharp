@@ -26,7 +26,7 @@ namespace PushSharp.Google
         }
     }
 
-    public class GcmServiceBroker : ServiceBroker<GcmNotification>
+    public class GcmServiceBroker : ServiceBroker
     {
         public GcmServiceBroker (GcmConfiguration configuration) : base (new GcmServiceConnectionFactory (configuration))
         {

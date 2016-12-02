@@ -31,7 +31,7 @@ namespace PushSharp.Windows
         }
     }
 
-    public class WnsServiceBroker : ServiceBroker<WnsNotification>
+    public class WnsServiceBroker : ServiceBroker
     {
         public WnsServiceBroker (WnsConfiguration configuration) : base (new WnsServiceConnectionFactory (configuration))
         {

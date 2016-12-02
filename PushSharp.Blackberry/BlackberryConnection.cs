@@ -22,7 +22,7 @@ namespace PushSharp.Blackberry
         }
     }
 
-    public class BlackberryServiceBroker : ServiceBroker<BlackberryNotification>
+    public class BlackberryServiceBroker : ServiceBroker
     {
         public BlackberryServiceBroker (BlackberryConfiguration configuration) : base (new BlackberryServiceConnectionFactory (configuration))
         {

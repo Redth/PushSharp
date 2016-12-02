@@ -19,7 +19,7 @@ namespace PushSharp.Apple
         }
     }
 
-    public class ApnsServiceBroker : ServiceBroker<ApnsNotification>
+    public class ApnsServiceBroker : ServiceBroker
     {
         public ApnsServiceBroker (ApnsConfiguration configuration) : base (new ApnsServiceConnectionFactory (configuration))
         {

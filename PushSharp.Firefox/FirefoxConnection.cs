@@ -22,7 +22,7 @@ namespace PushSharp.Firefox
         }
     }
 
-    public class FirefoxServiceBroker : ServiceBroker<FirefoxNotification>
+    public class FirefoxServiceBroker : ServiceBroker
     {
         public FirefoxServiceBroker (FirefoxConfiguration configuration) : base (new FirefoxServiceConnectionFactory (configuration))
         {

@@ -2,10 +2,10 @@
 
 namespace PushSharp.Core
 {
-    public interface IServiceBroker<TNotification> where TNotification : INotification
+    public interface IServiceBroker
     {
-        event NotificationSuccessDelegate<TNotification> OnNotificationSucceeded;
-        event NotificationFailureDelegate<TNotification> OnNotificationFailed;
+        event NotificationSuccessDelegate<INotification> OnNotificationSucceeded;
+        event NotificationFailureDelegate<INotification> OnNotificationFailed;
 
         bool IsCompleted { get; }
         int ScaleSize { get; }
@@ -13,8 +13,8 @@ namespace PushSharp.Core
 
         void ChangeScale(int newScaleSize);
         void QueueNotification(INotification notification);
-        void RaiseNotificationSucceeded(TNotification notification);
-        void RaiseNotificationFailed(TNotification notification, AggregateException ex);
+        void RaiseNotificationSucceeded(INotification notification);
+        void RaiseNotificationFailed(INotification notification, AggregateException ex);
         void Start();
         void Stop(bool immediately = false);
         System.Collections.Generic.IEnumerable<INotification> TakeMany();

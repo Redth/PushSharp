@@ -38,7 +38,7 @@ namespace PushSharp.Tests
 		}
 	}
 
-    public class TestServiceBroker : ServiceBroker<TestNotification>
+    public class TestServiceBroker : ServiceBroker
     {
         public TestServiceBroker (TestServiceConnectionFactory connectionFactory) : base (connectionFactory)
         {
