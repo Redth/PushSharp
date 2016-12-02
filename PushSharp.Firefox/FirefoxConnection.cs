@@ -7,7 +7,7 @@ using System.Net.Http.Headers;
 
 namespace PushSharp.Firefox
 {
-    public class FirefoxServiceConnectionFactory : IServiceConnectionFactory<FirefoxNotification>
+    public class FirefoxServiceConnectionFactory : IServiceConnectionFactory
     {
         public FirefoxServiceConnectionFactory (FirefoxConfiguration configuration)
         {
@@ -16,9 +16,9 @@ namespace PushSharp.Firefox
 
         public FirefoxConfiguration Configuration { get; private set; }
 
-        public IServiceConnection<FirefoxNotification> Create()
+        public IServiceConnection<INotification> Create()
         {
-            return new FirefoxServiceConnection ();
+            return new FirefoxServiceConnection() as IServiceConnection<INotification>;
         }
     }
 

@@ -16,15 +16,15 @@ namespace PushSharp.Core
             ServicePointManager.Expect100Continue = false;
         }
 
-        public ServiceBroker (IServiceConnectionFactory<TNotification> connectionFactory)
+        public ServiceBroker (IServiceConnectionFactory connectionFactory)
         {
             ServiceConnectionFactory = connectionFactory;
 
             lockWorkers = new object ();
-            workers = new List<ServiceWorker<TNotification>> ();
+            workers = new List<ServiceWorker>();
             running = false;
 
-            notifications = new BlockingCollection<TNotification> ();
+            notifications = new BlockingCollection<INotification>();
             ScaleSize = 1;
             //AutoScale = true;
             //AutoScaleMaxSize = 20;
@@ -37,19 +37,19 @@ namespace PushSharp.Core
         //public int AutoScaleMaxSize { get; set; }
         public int ScaleSize { get; private set; }
 
-        public IServiceConnectionFactory<TNotification> ServiceConnectionFactory { get; set; }
+        public IServiceConnectionFactory ServiceConnectionFactory { get; set; }
 
-        BlockingCollection<TNotification> notifications;
-        List<ServiceWorker<TNotification>> workers;
+        BlockingCollection<INotification> notifications;
+        List<ServiceWorker> workers;
         object lockWorkers;
         bool running;
 
-        public virtual void QueueNotification (TNotification notification)
+        public virtual void QueueNotification(INotification notification)
         {
             notifications.Add (notification);
         }
 
-        public IEnumerable<TNotification> TakeMany ()
+        public IEnumerable<INotification> TakeMany()
         {
             return notifications.GetConsumingEnumerable ();
         }
@@ -114,7 +114,7 @@ namespace PushSharp.Core
 
                 // Scale up
                 while (workers.Count < ScaleSize) {
-                    var worker = new ServiceWorker<TNotification> (this, ServiceConnectionFactory.Create ());
+                    var worker = new ServiceWorker ((IServiceBroker<INotification>)this, ServiceConnectionFactory.Create ());
                     workers.Add (worker);
                     worker.Start ();
                 }
@@ -123,14 +123,14 @@ namespace PushSharp.Core
             }
         }
 
-        public void RaiseNotificationSucceeded (TNotification notification)
+        public void RaiseNotificationSucceeded(TNotification notification)
         {
             var evt = OnNotificationSucceeded;
             if (evt != null)
                 evt (notification);
         }
 
-        public void RaiseNotificationFailed (TNotification notification, AggregateException exception)
+        public void RaiseNotificationFailed(TNotification notification, AggregateException exception)
         {
             var evt = OnNotificationFailed;
             if (evt != null)
@@ -138,9 +138,9 @@ namespace PushSharp.Core
         }
     }
 
-    class ServiceWorker<TNotification> where TNotification : INotification
+    class ServiceWorker
     {
-        public ServiceWorker (IServiceBroker<TNotification> broker, IServiceConnection<TNotification> connection)
+        public ServiceWorker(IServiceBroker<INotification> broker, IServiceConnection<INotification> connection)
         {
             Broker = broker;
             Connection = connection;
@@ -148,9 +148,9 @@ namespace PushSharp.Core
             CancelTokenSource = new CancellationTokenSource ();
         }
 
-        public IServiceBroker<TNotification> Broker { get; private set; }
+        public IServiceBroker<INotification> Broker { get; private set; }
 
-        public IServiceConnection<TNotification> Connection { get; private set; }
+        public IServiceConnection<INotification> Connection { get; private set; }
 
         public CancellationTokenSource CancelTokenSource { get; private set; }
 

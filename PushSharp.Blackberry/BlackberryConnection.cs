@@ -7,7 +7,7 @@ using PushSharp.Core;
 
 namespace PushSharp.Blackberry
 {
-    public class BlackberryServiceConnectionFactory : IServiceConnectionFactory<BlackberryNotification>
+    public class BlackberryServiceConnectionFactory : IServiceConnectionFactory
     {
         public BlackberryServiceConnectionFactory (BlackberryConfiguration configuration)
         {
@@ -16,9 +16,9 @@ namespace PushSharp.Blackberry
 
         public BlackberryConfiguration Configuration { get; private set; }
 
-        public IServiceConnection<BlackberryNotification> Create()
+        public IServiceConnection<INotification> Create()
         {
-            return new BlackberryServiceConnection (Configuration);
+            return new BlackberryServiceConnection(Configuration) as IServiceConnection<INotification>;
         }
     }
 

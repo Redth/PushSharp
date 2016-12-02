@@ -2,9 +2,9 @@
 
 namespace PushSharp.Core
 {
-    public interface IServiceConnectionFactory<TNotification> where TNotification : INotification
+    public interface IServiceConnectionFactory
     {
-        IServiceConnection<TNotification> Create ();
+        IServiceConnection<INotification> Create();
     }
 }
 

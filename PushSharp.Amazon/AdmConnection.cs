@@ -12,7 +12,7 @@ using System.Threading;
 
 namespace PushSharp.Amazon
 {
-    public class AdmServiceConnectionFactory : IServiceConnectionFactory<AdmNotification>
+    public class AdmServiceConnectionFactory : IServiceConnectionFactory
     {
         public AdmServiceConnectionFactory (AdmConfiguration configuration)
         {
@@ -21,9 +21,9 @@ namespace PushSharp.Amazon
 
         public AdmConfiguration Configuration { get; private set; }
 
-        public IServiceConnection<AdmNotification> Create()
+        public IServiceConnection<INotification> Create()
         {
-            return new AdmServiceConnection (Configuration);
+            return new AdmServiceConnection(Configuration) as IServiceConnection<INotification>;
         }
     }
 

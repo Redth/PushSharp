@@ -13,7 +13,7 @@ using System.IO;
 
 namespace PushSharp.Windows
 {
-    public class WnsServiceConnectionFactory : IServiceConnectionFactory<WnsNotification>
+    public class WnsServiceConnectionFactory : IServiceConnectionFactory
     {
         WnsAccessTokenManager wnsAccessTokenManager;
 
@@ -25,9 +25,9 @@ namespace PushSharp.Windows
 
         public WnsConfiguration Configuration { get; private set; }
 
-        public IServiceConnection<WnsNotification> Create()
+        public IServiceConnection<INotification> Create()
         {
-            return new WnsServiceConnection (Configuration, wnsAccessTokenManager);
+            return new WnsServiceConnection(Configuration, wnsAccessTokenManager) as IServiceConnection<INotification>;
         }
     }
 

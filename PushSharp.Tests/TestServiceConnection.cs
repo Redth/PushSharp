@@ -30,11 +30,11 @@ namespace PushSharp.Tests
         }
 	}
 
-	public class TestServiceConnectionFactory : IServiceConnectionFactory<TestNotification>
+	public class TestServiceConnectionFactory : IServiceConnectionFactory
 	{
-		public IServiceConnection<TestNotification> Create ()
+		public IServiceConnection<INotification> Create ()
 		{
-			return new TestServiceConnection ();
+            return new TestServiceConnection() as IServiceConnection<INotification>;
 		}
 	}
 

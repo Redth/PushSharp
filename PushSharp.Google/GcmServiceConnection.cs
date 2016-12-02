@@ -11,7 +11,7 @@ using System.Runtime.Serialization;
 
 namespace PushSharp.Google
 {
-    public class GcmServiceConnectionFactory : IServiceConnectionFactory<GcmNotification>
+    public class GcmServiceConnectionFactory : IServiceConnectionFactory
     {
         public GcmServiceConnectionFactory (GcmConfiguration configuration)
         {
@@ -20,9 +20,9 @@ namespace PushSharp.Google
 
         public GcmConfiguration Configuration { get; private set; }
 
-        public IServiceConnection<GcmNotification> Create()
+        public IServiceConnection<INotification> Create()
         {
-            return new GcmServiceConnection (Configuration);
+            return new GcmServiceConnection(Configuration) as IServiceConnection<INotification>;
         }
     }
 

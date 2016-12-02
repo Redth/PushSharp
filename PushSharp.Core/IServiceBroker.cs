@@ -9,15 +9,15 @@ namespace PushSharp.Core
 
         bool IsCompleted { get; }
         int ScaleSize { get; }
-        IServiceConnectionFactory<TNotification> ServiceConnectionFactory { get; set; }
+        IServiceConnectionFactory ServiceConnectionFactory { get; set; }
 
         void ChangeScale(int newScaleSize);
-        void QueueNotification(TNotification notification);
-        void RaiseNotificationSucceeded (TNotification notification);
-        void RaiseNotificationFailed (TNotification notification, AggregateException ex);
+        void QueueNotification(INotification notification);
+        void RaiseNotificationSucceeded(TNotification notification);
+        void RaiseNotificationFailed(TNotification notification, AggregateException ex);
         void Start();
         void Stop(bool immediately = false);
-        System.Collections.Generic.IEnumerable<TNotification> TakeMany();
+        System.Collections.Generic.IEnumerable<INotification> TakeMany();
     }
 }
 
