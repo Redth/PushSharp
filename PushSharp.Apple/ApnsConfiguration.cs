@@ -76,10 +76,9 @@ namespace PushSharp.Apple
 
             Certificate = certificate;
 
-            MillisecondsToWaitBeforeMessageDeclaredSuccess = 3000;
+            MillisecondsToWaitBeforeMessageDeclaredSuccess = 750;
             ConnectionTimeout = 10000;
             MaxConnectionAttempts = 3;
-            ResponseWaitTimeout = 750;
 
             FeedbackIntervalMinutes = 10;
             FeedbackTimeIsUTC = false;
@@ -162,8 +161,6 @@ namespace PushSharp.Apple
         public bool ValidateServerCertificate { get; set; }
 
         public int ConnectionTimeout { get; set; }
-
-        public int ResponseWaitTimeout { get; set; }
 
         public int MaxConnectionAttempts { get; set; }
 

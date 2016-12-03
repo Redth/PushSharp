@@ -199,7 +199,7 @@ namespace PushSharp.Apple
             // read (in the case that all the messages sent successfully, apple will send us nothing
             // So, let's make our read timeout after a reasonable amount of time to wait for apple to tell
             // us of any errors that happened.
-            readCancelToken.CancelAfter (Configuration.ResponseWaitTimeout);
+            readCancelToken.CancelAfter (Configuration.MillisecondsToWaitBeforeMessageDeclaredSuccess);
 
             int len = -1;
 
