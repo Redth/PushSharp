@@ -132,7 +132,7 @@ gcmBroker.OnNotificationFailed += (notification, aggregateEx) => {
 			var multicastException = (GcmMulticastResultException)ex;
 
 			foreach (var succeededNotification in multicastException.Succeeded) {
-				Console.WriteLine ($"GCM Notification Failed: ID={succeededNotification.MessageId}");
+				Console.WriteLine ($"GCM Notification Succeeded: ID={succeededNotification.MessageId}");
 			}
 
 			foreach (var failedKvp in multicastException.Failed) {
@@ -255,7 +255,7 @@ wnsBroker.Stop ();
 
 ## How to Migrate from PushSharp 2.x to 3.x and higher
 
-Please see this Wiki page for more information: https://github.com/Redth/PushSharp/wiki/Migrating-from-PushSharp-2.x-to-3.x-
+Please see this Wiki page for more information: https://github.com/Redth/PushSharp/wiki/Migrating-from-PushSharp-2.x-to-3.x
 
 
 ## Roadmap
