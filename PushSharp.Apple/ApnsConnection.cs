@@ -1,4 +1,4 @@
-using System;
+﻿using System;
 using System.IO;
 using System.Net.Sockets;
 using System.Net.Security;
@@ -7,6 +7,9 @@ using System.Security.Cryptography.X509Certificates;
 using System.Collections.Generic;
 using System.Threading;
 using System.Net;
+using System.Reflection;
+using System.Security.Cryptography;
+using System.Text;
 using PushSharp.Core;
 using System.Diagnostics;
 
@@ -128,28 +131,37 @@ namespace PushSharp.Apple
 
             Log.Info ("APNS-Client[{0}]: Sending Batch ID={1}, Count={2}", id, batchId, toSend.Count);
 
-            try {
+            try
+            {
 
                 var data = createBatch (toSend);
 
-                if (data != null && data.Length > 0) {
+                if (data != null && data.Length > 0)
+                {
 
-                    for (var i = 0; i <= Configuration.InternalBatchFailureRetryCount; i++) {
+                    for (var i = 0; i <= Configuration.InternalBatchFailureRetryCount; i++)
+                    {
 
                         await connectingSemaphore.WaitAsync ();
 
-                        try {
+                        try
+                        {
                             // See if we need to connect
                             if (!socketCanWrite () || i > 0)
                                 await connect ();
-                        } finally {
+                        }
+                        finally
+                        {
                             connectingSemaphore.Release ();
                         }
                 
-                        try {
+                        try
+                        {
                             await networkStream.WriteAsync(data, 0, data.Length).ConfigureAwait(false);
                             break;
-                        } catch (Exception ex) when (i != Configuration.InternalBatchFailureRetryCount) {
+                        }
+                        catch (Exception ex) when (i != Configuration.InternalBatchFailureRetryCount)
+                        {
                             Log.Info("APNS-CLIENT[{0}]: Retrying Batch: Batch ID={1}, Error={2}", id, batchId, ex);
                         }
                     }
@@ -157,11 +169,18 @@ namespace PushSharp.Apple
                     foreach (var n in toSend)
                         sent.Add (new SentNotification (n));
                 }
-
-            } catch (Exception ex) {
+            }
+            catch (WebException ex)
+            {
                 Log.Error ("APNS-CLIENT[{0}]: Send Batch Error: Batch ID={1}, Error={2}", id, batchId, ex);
                 foreach (var n in toSend)
                     n.CompleteFailed (new ApnsNotificationException (ApnsNotificationErrorStatusCode.ConnectionError, n.Notification, ex));
+                return;
+            }
+            catch (Exception ex) {
+                Log.Error ("APNS-CLIENT[{0}]: Send Batch Error: Batch ID={1}, Error={2}", id, batchId, ex);
+                foreach (var n in toSend)
+                    n.CompleteFailed(new ApnsNotificationException(ApnsNotificationErrorStatusCode.ConnectionError, n.Notification, ex));
             }
 
             Log.Info ("APNS-Client[{0}]: Sent Batch, waiting for possible response...", id);
@@ -315,6 +334,28 @@ namespace PushSharp.Apple
             return p;
         }
 
+        async Task connectHTTPProxy(TcpClient client)
+        {
+            Log.Info("APNS-Client[{0}]: Connecting Proxy (Batch ID={1})", id, batchId);
+            await client.ConnectAsync(Configuration.ProxyHost, Configuration.ProxyPort).ConfigureAwait(false);
+            var stream = client.GetStream();
+            var buffer = Encoding.UTF8.GetBytes(string.Format("CONNECT {0}:{1}  HTTP/1.1\r\nHost: {0}:{1}\r\n\r\n", Configuration.Host, Configuration.Port));
+            await stream.WriteAsync(buffer, 0, buffer.Length);
+            await stream.FlushAsync();
+            buffer = new byte[client.Client.ReceiveBufferSize];
+            using(var resp = new MemoryStream())
+            {
+                do
+                {
+                    var len = await stream.ReadAsync(buffer, 0, buffer.Length);
+                    resp.Write(buffer, 0, len);
+                }
+                while (client.Client.Available > 0);
+                buffer = resp.ToArray();
+            }
+            var content = Encoding.UTF8.GetString(buffer);
+            Log.Info("APNS-Client[{0}]: Proxy Connected (Batch ID={1}) : {2}", id, batchId, content);
+        }
 
         /// <summary>
         /// Source:
@@ -371,20 +412,24 @@ namespace PushSharp.Apple
             
             Log.Info ("APNS-Client[{0}]: Connecting (Batch ID={1})", id, batchId);
 
-            if (Configuration.UseProxy)
-            {
-                client = getClientViaHTTPProxy(Configuration.Host, Configuration.Port, Configuration.ProxyHost, Configuration.ProxyPort);
-            }
-            else
-            {
+            //if (Configuration.UseProxy)
+            //{
+            //    client = getClientViaHTTPProxy(Configuration.Host, Configuration.Port, Configuration.ProxyHost, Configuration.ProxyPort);
+            //}
+            //else
+            //{
                 client = new TcpClient();
-            }
+            //}
 
             try
             {
                 if (!Configuration.UseProxy)
                 {
                     await client.ConnectAsync (Configuration.Host, Configuration.Port).ConfigureAwait (false);
+                }
+                else
+                {
+                    await connectHTTPProxy(client).ConfigureAwait(false);
                 }
 
                 //Set keep alive on the socket may help maintain our APNS connection
@@ -410,7 +455,7 @@ namespace PushSharp.Apple
 
                 // Create our ssl stream
                 stream = new SslStream (client.GetStream (), 
-                    true,
+                    false,
                     ValidateRemoteCertificate,
                     (sender, targetHost, localCerts, remoteCert, acceptableIssuers) => certificate);
 
