@@ -339,11 +339,18 @@ namespace PushSharp.Apple
             Log.Info("APNS-Client[{0}]: Connecting Proxy (Batch ID={1})", id, batchId);
             await client.ConnectAsync(Configuration.ProxyHost, Configuration.ProxyPort).ConfigureAwait(false);
             var stream = client.GetStream();
-            var buffer = Encoding.UTF8.GetBytes(string.Format("CONNECT {0}:{1}  HTTP/1.1\r\nHost: {0}:{1}\r\nProxy-Connection: keep-alive\r\n\r\n", Configuration.Host, Configuration.Port));
+            var authorization = string.Empty;
+            if (Configuration.ProxyCredentials != null)
+            {
+                var credential = Convert.ToBase64String(Encoding.UTF8.GetBytes($"{Configuration.ProxyCredentials.UserName}:{Configuration.ProxyCredentials.Password}"));
+                authorization = $"\r\nAuthorization: Basic {credential}";
+            }
+            var buffer = Encoding.UTF8.GetBytes(string.Format("CONNECT {0}:{1}  HTTP/1.1\r\nHost: {0}:{1}{2}\r\nProxy-Connection: keep-alive\r\n\r\n", Configuration.Host, Configuration.Port, authorization));
+
             await stream.WriteAsync(buffer, 0, buffer.Length);
             await stream.FlushAsync();
             buffer = new byte[client.Client.ReceiveBufferSize];
-            using(var resp = new MemoryStream())
+            using (var resp = new MemoryStream())
             {
                 do
                 {
@@ -374,53 +381,6 @@ namespace PushSharp.Apple
             if (!statusCode.StartsWith("200"))
             {
                 throw new ApnsConnectionException($"Proxy returned {statusCode}. Check proxy settings and if it allows ssl through ports different of 443.");
-            }
-        }
-
-        /// <summary>
-        /// Source:
-        /// https://web.archive.org/web/20160317134733/https://nitormobiledevelopment.wordpress.com/2013/08/13/push-sharp-using-proxy/
-        /// </summary>
-        /// <param name="targetHost"></param>
-        /// <param name="targetPort"></param>
-        /// <param name="httpProxyHost"></param>
-        /// <param name="httpProxyPort"></param>
-        /// <returns></returns>
-        private TcpClient getClientViaHTTPProxy(string targetHost, int targetPort, string httpProxyHost, int httpProxyPort)
-        {
-            try
-            {
-                var uriBuilder = new UriBuilder
-                {
-                    Scheme = Uri.UriSchemeHttp,
-                    Host = httpProxyHost,
-                    Port = httpProxyPort
-                };
-                var proxyUri = uriBuilder.Uri;
-                var request = WebRequest.Create("http://" + targetHost + ":" + targetPort);
-                var webProxy = new WebProxy(proxyUri);
-                request.Proxy = webProxy;
-                request.Method = "CONNECT";
-                webProxy.Credentials = Configuration.ProxyCredentials;
-                var response = request.GetResponse();
-                var responseStream = response.GetResponseStream();
-                Debug.Assert(responseStream != null);
-                const System.Reflection.BindingFlags Flags = System.Reflection.BindingFlags.NonPublic | System.Reflection.BindingFlags.Instance;
-                var rsType = responseStream.GetType();
-                var connectionProperty = rsType.GetProperty("Connection", Flags);
-                var connection = connectionProperty.GetValue(responseStream, null);
-                var connectionType = connection.GetType();
-                var networkStreamProperty = connectionType.GetProperty("NetworkStream", Flags);
-                Stream networkStream1 = (Stream)networkStreamProperty.GetValue(connection, null);
-                var nsType = networkStream1.GetType();
-                var socketProperty = nsType.GetProperty("Socket", Flags);
-                var socket = (Socket)socketProperty.GetValue(networkStream1, null);
-                return new TcpClient { Client = socket };
-            }
-            catch (Exception ex)
-            {
-                Log.Error(ex.Message);
-                throw;
             }
         }
 
