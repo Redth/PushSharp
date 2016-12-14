@@ -170,7 +170,7 @@ namespace PushSharp.Apple
                         sent.Add (new SentNotification (n));
                 }
             }
-            catch (WebException ex)
+            catch (ApnsConnectionException ex)
             {
                 Log.Error ("APNS-CLIENT[{0}]: Send Batch Error: Batch ID={1}, Error={2}", id, batchId, ex);
                 foreach (var n in toSend)
@@ -339,7 +339,7 @@ namespace PushSharp.Apple
             Log.Info("APNS-Client[{0}]: Connecting Proxy (Batch ID={1})", id, batchId);
             await client.ConnectAsync(Configuration.ProxyHost, Configuration.ProxyPort).ConfigureAwait(false);
             var stream = client.GetStream();
-            var buffer = Encoding.UTF8.GetBytes(string.Format("CONNECT {0}:{1}  HTTP/1.1\r\nHost: {0}:{1}\r\n\r\n", Configuration.Host, Configuration.Port));
+            var buffer = Encoding.UTF8.GetBytes(string.Format("CONNECT {0}:{1}  HTTP/1.1\r\nHost: {0}:{1}\r\nProxy-Connection: keep-alive\r\n\r\n", Configuration.Host, Configuration.Port));
             await stream.WriteAsync(buffer, 0, buffer.Length);
             await stream.FlushAsync();
             buffer = new byte[client.Client.ReceiveBufferSize];
@@ -354,7 +354,27 @@ namespace PushSharp.Apple
                 buffer = resp.ToArray();
             }
             var content = Encoding.UTF8.GetString(buffer);
-            Log.Info("APNS-Client[{0}]: Proxy Connected (Batch ID={1}) : {2}", id, batchId, content);
+            var i = content.IndexOf('\r');
+            string statusCode;
+            if (i > 9)
+            {
+                statusCode = content.Substring(9, i - 9);
+            }
+            else
+            {
+                var max = content.Length;
+                if (max > 50)
+                {
+                    max = 50;
+                }
+                var append = max == 50 ? "..." : string.Empty;
+                statusCode = content.Substring(0, max) + append;
+            }
+            Log.Info("APNS-Client[{0}]: Proxy Connected (Batch ID={1}) : {2}", id, batchId, statusCode);
+            if (!statusCode.StartsWith("200"))
+            {
+                throw new ApnsConnectionException($"Proxy returned {statusCode}. Check proxy settings and if it allows ssl through ports different of 443.");
+            }
         }
 
         /// <summary>
@@ -433,19 +453,31 @@ namespace PushSharp.Apple
                 }
 
                 //Set keep alive on the socket may help maintain our APNS connection
-                try {
-                    client.Client.SetSocketOption (SocketOptionLevel.Socket, SocketOptionName.KeepAlive, true);
-                } catch {
+                try
+                {
+                    client.Client.SetSocketOption(SocketOptionLevel.Socket, SocketOptionName.KeepAlive, true);
+                }
+                catch
+                {
                 }
 
                 //Really not sure if this will work on MONO....
                 // This may help windows azure users
-                try {
-                    SetSocketKeepAliveValues (client.Client, (int)Configuration.KeepAlivePeriod.TotalMilliseconds, (int)Configuration.KeepAliveRetryPeriod.TotalMilliseconds);
-                } catch {
+                try
+                {
+                    SetSocketKeepAliveValues(client.Client, (int)Configuration.KeepAlivePeriod.TotalMilliseconds, (int)Configuration.KeepAliveRetryPeriod.TotalMilliseconds);
                 }
-            } catch (Exception ex) {
-                throw new ApnsConnectionException ("Failed to Connect, check your firewall settings!", ex);
+                catch
+                {
+                }
+            }
+            catch (ApnsConnectionException)
+            {
+                throw;
+            }
+            catch (Exception ex)
+            {
+                throw new ApnsConnectionException("Failed to Connect, check your firewall settings!", ex);
             }
 
             // We can configure skipping ssl all together, ie: if we want to hit a test server
