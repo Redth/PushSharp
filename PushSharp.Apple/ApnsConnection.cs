@@ -72,7 +72,6 @@ namespace PushSharp.Apple
         byte[] buffer = new byte[6];
         int id;
 
-
         SemaphoreSlim connectingSemaphore = new SemaphoreSlim (1);
         SemaphoreSlim batchSendSemaphore = new SemaphoreSlim (1);
         object notificationBatchQueueLock = new object ();
@@ -334,57 +333,6 @@ namespace PushSharp.Apple
             return p;
         }
 
-        async Task connectHTTPProxy(TcpClient client)
-        {
-            Log.Info("APNS-Client[{0}]: Connecting Proxy (Batch ID={1})", id, batchId);
-            await client.ConnectAsync(Configuration.ProxyHost, Configuration.ProxyPort).ConfigureAwait(false);
-            var stream = client.GetStream();
-            var authorization = string.Empty;
-            if (Configuration.ProxyCredentials != null)
-            {
-                var credential = Convert.ToBase64String(Encoding.UTF8.GetBytes($"{Configuration.ProxyCredentials.UserName}:{Configuration.ProxyCredentials.Password}"));
-                authorization = $"\r\nAuthorization: Basic {credential}";
-            }
-            var buffer = Encoding.UTF8.GetBytes(string.Format("CONNECT {0}:{1}  HTTP/1.1\r\nHost: {0}:{1}{2}\r\nProxy-Connection: keep-alive\r\n\r\n", Configuration.Host, Configuration.Port, authorization));
-
-            await stream.WriteAsync(buffer, 0, buffer.Length);
-            await stream.FlushAsync();
-            buffer = new byte[client.Client.ReceiveBufferSize];
-            using (var resp = new MemoryStream())
-            {
-                do
-                {
-                    var len = await stream.ReadAsync(buffer, 0, buffer.Length);
-                    resp.Write(buffer, 0, len);
-                }
-                while (client.Client.Available > 0);
-                buffer = resp.ToArray();
-            }
-            var content = Encoding.UTF8.GetString(buffer);
-            var i = content.IndexOf('\r');
-            string statusCode;
-            if (i > 9)
-            {
-                statusCode = content.Substring(9, i - 9);
-            }
-            else
-            {
-                var max = content.Length;
-                if (max > 50)
-                {
-                    max = 50;
-                }
-                var append = max == 50 ? "..." : string.Empty;
-                statusCode = content.Substring(0, max) + append;
-            }
-            Log.Info("APNS-Client[{0}]: Proxy Connected (Batch ID={1}) : {2}", id, batchId, statusCode);
-            if (!statusCode.StartsWith("200"))
-            {
-                throw new ApnsConnectionException($"Proxy returned {statusCode}. Check proxy settings and if it allows ssl through ports different of 443.");
-            }
-        }
-
-
         async Task connect ()
         {            
             if (client != null)
@@ -392,14 +340,7 @@ namespace PushSharp.Apple
             
             Log.Info ("APNS-Client[{0}]: Connecting (Batch ID={1})", id, batchId);
 
-            //if (Configuration.UseProxy)
-            //{
-            //    client = getClientViaHTTPProxy(Configuration.Host, Configuration.Port, Configuration.ProxyHost, Configuration.ProxyPort);
-            //}
-            //else
-            //{
                 client = new TcpClient();
-            //}
 
             try
             {
@@ -409,7 +350,10 @@ namespace PushSharp.Apple
                 }
                 else
                 {
-                    await connectHTTPProxy(client).ConfigureAwait(false);
+                    var proxyHelper = new ProxyHelper { ProxyConnectionExceptionCreator = (message) => new ApnsConnectionException(message) };
+                    proxyHelper.BeforeConnect += () => Log.Info("APNS-Client[{0}]: Connecting Proxy (Batch ID={1})", id, batchId);
+                    proxyHelper.AfterConnect += (status) => Log.Info("APNS-Client[{0}]: Proxy Connected (Batch ID={1}) : {2}", id, batchId, status);
+                    await proxyHelper.Connect(client, Configuration.Host, Configuration.Port, Configuration.ProxyHost, Configuration.ProxyPort, Configuration.ProxyCredentials).ConfigureAwait(false);
                 }
 
                 //Set keep alive on the socket may help maintain our APNS connection

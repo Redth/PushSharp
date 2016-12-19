@@ -83,7 +83,7 @@ namespace PushSharp.Apple
 
             FeedbackIntervalMinutes = 10;
             FeedbackTimeIsUTC = false;
-
+            
             AdditionalCertificates = new List<X509Certificate2> ();
             AddLocalAndMachineCertificateStores = false;
 
@@ -100,7 +100,6 @@ namespace PushSharp.Apple
 
             InternalBatchFailureRetryCount = 1;
         }
-
 
         void CheckIsApnsCertificate ()
         {
