@@ -8,6 +8,7 @@ using System.Net.Sockets;
 using System.Net.Security;
 using System.Security.Cryptography;
 using System.Security.Cryptography.X509Certificates;
+using PushSharp.Core;
 
 namespace PushSharp.Apple
 {
@@ -32,9 +33,22 @@ namespace PushSharp.Apple
             var certificates = new X509CertificateCollection();
             certificates.Add(certificate);
 
-            var client = new TcpClient (Configuration.FeedbackHost, Configuration.FeedbackPort);
+            var client = new TcpClient();
+            Log.Info("APNS-FeedbackService: Connecting");
+            if (Configuration.UseProxy)
+            {
+                var proxyHelper = new ProxyHelper { ProxyConnectionExceptionCreator = (message) => new ApnsConnectionException(message) };
+                proxyHelper.BeforeConnect += () => Log.Info("APNS-FeedbackService: Connecting Proxy");
+                proxyHelper.AfterConnect += (status) => Log.Info("APNS-FeedbackService: Proxy Connected : {0}", status);
+                proxyHelper.Connect(client, Configuration.FeedbackHost, Configuration.FeedbackPort, Configuration.ProxyHost, Configuration.ProxyPort, Configuration.ProxyCredentials).Wait();
+            }
+            else
+            {
+                client.Connect(Configuration.FeedbackHost, Configuration.FeedbackPort);
+            }
+            Log.Info("APNS-FeedbackService: Connected");
 
-            var stream = new SslStream (client.GetStream(), true,
+            var stream = new SslStream(client.GetStream(), true,
                 (sender, cert, chain, sslErrs) => { return true; },
                 (sender, targetHost, localCerts, remoteCert, acceptableIssuers) => { return certificate; });
 
