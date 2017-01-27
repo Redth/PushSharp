@@ -40,8 +40,8 @@ namespace PushSharp.Blackberry
         {
             if (!string.IsNullOrWhiteSpace(url))
             {
-                if (url.EndsWith("pushapi.na.blackberry.com", StringComparison.InvariantCultureIgnoreCase) ||
-                    url.EndsWith("pushapi.eval.blackberry.com", StringComparison.InvariantCultureIgnoreCase))
+                if (url.EndsWith("pushapi.na.blackberry.com", StringComparison.OrdinalIgnoreCase) ||
+                    url.EndsWith("pushapi.eval.blackberry.com", StringComparison.OrdinalIgnoreCase))
                     url = url + @"/mss/PD_pushRequest";
             }
             SendUrl = url;

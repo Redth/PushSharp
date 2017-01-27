@@ -7,6 +7,7 @@ using System.Net;
 using PushSharp.Core;
 using System.Collections.Generic;
 using System.Linq;
+using System.Reflection;
 using System.Runtime.Serialization;
 
 namespace PushSharp.Google
@@ -203,9 +204,9 @@ namespace PushSharp.Google
             var enumType = typeof(GcmResponseStatus);
 
             foreach (var name in Enum.GetNames (enumType)) {
-                var enumMemberAttribute = ((EnumMemberAttribute[])enumType.GetField (name).GetCustomAttributes (typeof(EnumMemberAttribute), true)).Single ();
+                var enumMemberAttribute = ((EnumMemberAttribute[])enumType.GetTypeInfo ().GetField (name).GetCustomAttributes (typeof(EnumMemberAttribute), true)).Single ();
 
-                if (enumMemberAttribute.Value.Equals (str, StringComparison.InvariantCultureIgnoreCase))
+                if (enumMemberAttribute.Value.Equals (str, StringComparison.OrdinalIgnoreCase))
                     return (GcmResponseStatus)Enum.Parse (enumType, name);
             }
 

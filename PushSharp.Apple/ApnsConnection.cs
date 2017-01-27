@@ -29,10 +29,10 @@ namespace PushSharp.Apple
 
             // Add local/machine certificate stores to our collection if requested
             if (Configuration.AddLocalAndMachineCertificateStores) {
-                var store = new X509Store (StoreLocation.LocalMachine);
+                var store = new X509Store (StoreName.Root, StoreLocation.LocalMachine);
                 certificates.AddRange (store.Certificates);
 
-                store = new X509Store (StoreLocation.CurrentUser);
+                store = new X509Store (StoreName.Root, StoreLocation.CurrentUser);
                 certificates.AddRange (store.Certificates);
             }
 
@@ -354,7 +354,7 @@ namespace PushSharp.Apple
                     (sender, targetHost, localCerts, remoteCert, acceptableIssuers) => certificate);
 
                 try {
-                    stream.AuthenticateAsClient (Configuration.Host, certificates, System.Security.Authentication.SslProtocols.Tls, false);
+                    await stream.AuthenticateAsClientAsync(Configuration.Host, certificates, System.Security.Authentication.SslProtocols.Tls, false);
                 } catch (System.Security.Authentication.AuthenticationException ex) {
                     throw new ApnsConnectionException ("SSL Stream Failed to Authenticate as Client", ex);
                 }
@@ -375,19 +375,25 @@ namespace PushSharp.Apple
         {            
             Log.Info ("APNS-Client[{0}]: Disconnecting (Batch ID={1})", id, batchId);
 
-            //We now expect apple to close the connection on us anyway, so let's try and close things
-            // up here as well to get a head start
-            //Hopefully this way we have less messages written to the stream that we have to requeue
-            try { stream.Close (); } catch { }
+			//We now expect apple to close the connection on us anyway, so let's try and close things
+			// up here as well to get a head start
+			//Hopefully this way we have less messages written to the stream that we have to requeue
+#if !NETSTANDARD
+			try { stream.Close (); } catch { }
+#endif
             try { stream.Dispose (); } catch { }
 
+#if !NETSTANDARD
             try { networkStream.Close (); } catch { }
+#endif
             try { networkStream.Dispose (); } catch { }
 
             try { client.Client.Shutdown (SocketShutdown.Both); } catch { }
             try { client.Client.Dispose (); } catch { }
 
+#if !NETSTANDARD
             try { client.Close (); } catch { }
+#endif
 
             client = null;
             networkStream = null;

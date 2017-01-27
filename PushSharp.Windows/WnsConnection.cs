@@ -175,16 +175,16 @@ namespace PushSharp.Windows
             result.ErrorDescription = wnsErrorDescription;
             result.MessageId = wnsMsgId;
 
-            if (wnsNotificationStatus.Equals("received", StringComparison.InvariantCultureIgnoreCase))
+            if (wnsNotificationStatus.Equals("received", StringComparison.OrdinalIgnoreCase))
                 result.NotificationStatus = WnsNotificationSendStatus.Received;
-            else if (wnsNotificationStatus.Equals("dropped", StringComparison.InvariantCultureIgnoreCase))
+            else if (wnsNotificationStatus.Equals("dropped", StringComparison.OrdinalIgnoreCase))
                 result.NotificationStatus = WnsNotificationSendStatus.Dropped;
             else
                 result.NotificationStatus = WnsNotificationSendStatus.ChannelThrottled;
 
-            if (wnsDeviceConnectionStatus.Equals("connected", StringComparison.InvariantCultureIgnoreCase))
+            if (wnsDeviceConnectionStatus.Equals("connected", StringComparison.OrdinalIgnoreCase))
                 result.DeviceConnectionStatus = WnsDeviceConnectionStatus.Connected;
-            else if (wnsDeviceConnectionStatus.Equals("tempdisconnected", StringComparison.InvariantCultureIgnoreCase))
+            else if (wnsDeviceConnectionStatus.Equals("tempdisconnected", StringComparison.OrdinalIgnoreCase))
                 result.DeviceConnectionStatus = WnsDeviceConnectionStatus.TempDisconnected;
             else
                 result.DeviceConnectionStatus = WnsDeviceConnectionStatus.Disconnected;
