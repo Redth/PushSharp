@@ -1,0 +1,20 @@
+{
+  "version": "4.0.0-*",
+  "dependencies": {
+    "NETStandard.Library": "1.6.0",
+    "System.Net.Http": "4.3.0",
+    "System.Net.Http.WinHttpHandler": "4.3.0",
+    "System.Net.Requests": "4.3.0",
+    "System.Net.Security": "4.3.0"
+  },
+  "frameworks": {
+    "netstandard1.5": {
+      "imports": [
+        "dnxcore50"
+      ]
+    }
+  },
+  "buildOptions": {
+    "define": [ "DEBUG", "NETSTANDARD" ]
+  }
+}

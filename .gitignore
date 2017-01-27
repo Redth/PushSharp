@@ -16,6 +16,7 @@ obj
 *.crx
 *.pem
 *.csproj.user
+*.xproj.user
 
 
 # mstest test results
@@ -33,3 +34,5 @@ node_modules/
 .vs/
 
 settings.json
+
+*project.lock.json
