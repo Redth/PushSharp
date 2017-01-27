@@ -32,12 +32,12 @@ namespace PushSharp.Apple
             var certificates = new X509CertificateCollection();
             certificates.Add(certificate);
 #if !NETSTANDARD
-			var client = new TcpClient (Configuration.FeedbackHost, Configuration.FeedbackPort);
+            var client = new TcpClient (Configuration.FeedbackHost, Configuration.FeedbackPort);
 #else
-			var client = new TcpClient();
-			client.ConnectAsync(Configuration.FeedbackHost, Configuration.FeedbackPort).Wait();
+            var client = new TcpClient();
+            client.ConnectAsync(Configuration.FeedbackHost, Configuration.FeedbackPort).Wait();
 #endif
-			var stream = new SslStream (client.GetStream(), true,
+            var stream = new SslStream (client.GetStream(), true,
                 (sender, cert, chain, sslErrs) => { return true; },
                 (sender, targetHost, localCerts, remoteCert, acceptableIssuers) => { return certificate; });
 
@@ -127,9 +127,9 @@ namespace PushSharp.Apple
 #if !NETSTANDARD
             try { client.Close (); } catch { }
 #else
-			try { client.Dispose (); } catch { }
+            try { client.Dispose (); } catch { }
 #endif
 
-		}
-	}
+        }
+    }
 }

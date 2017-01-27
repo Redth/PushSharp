@@ -375,11 +375,11 @@ namespace PushSharp.Apple
         {            
             Log.Info ("APNS-Client[{0}]: Disconnecting (Batch ID={1})", id, batchId);
 
-			//We now expect apple to close the connection on us anyway, so let's try and close things
-			// up here as well to get a head start
-			//Hopefully this way we have less messages written to the stream that we have to requeue
+            //We now expect apple to close the connection on us anyway, so let's try and close things
+            // up here as well to get a head start
+            //Hopefully this way we have less messages written to the stream that we have to requeue
 #if !NETSTANDARD
-			try { stream.Close (); } catch { }
+            try { stream.Close (); } catch { }
 #endif
             try { stream.Dispose (); } catch { }
 

@@ -19,18 +19,18 @@
         <language>en-US</language>
         <tags>APN, APNS, GCM, XMPP, ADM, GCMXMPP, C2DM, PAP, BIS, BEM, Blackberry, iOS, Android, iPad, iPhone, PushSharp, MDM, UWP, WNS, Windows Notification, Amazon, Amazon Device, Push, Push Notifications, Google Cloud, Cloud Messaging, Google Cloud Messaging, OSX, Mac, WindowsPhone, PassKit</tags>
         <dependencies>
-			<group targetFramework="net45">
-				<dependency id="Newtonsoft.Json" version="7.0.1" />
-			</group>
-			<group targetFramework="netstandard1.5">
-				<dependency id="NETStandard.Library" version="1.6.0" />
-				<dependency id="Newtonsoft.Json" version="9.0.1" />
-				<dependency id="System.Net.Http" version="4.3.0" />
-				<dependency id="System.Net.Http.WinHttpHandler" version="4.3.0" />
-				<dependency id="System.Net.Requests" version="4.3.0" />
-				<dependency id="System.Net.Security" version="4.3.0" />
-				<dependency id="System.Net.Sockets" version="4.3.0" />
-			</group>
+            <group targetFramework="net45">
+                <dependency id="Newtonsoft.Json" version="7.0.1" />
+            </group>
+            <group targetFramework="netstandard1.5">
+                <dependency id="NETStandard.Library" version="1.6.0" />
+                <dependency id="Newtonsoft.Json" version="9.0.1" />
+                <dependency id="System.Net.Http" version="4.3.0" />
+                <dependency id="System.Net.Http.WinHttpHandler" version="4.3.0" />
+                <dependency id="System.Net.Requests" version="4.3.0" />
+                <dependency id="System.Net.Security" version="4.3.0" />
+                <dependency id="System.Net.Sockets" version="4.3.0" />
+            </group>
         </dependencies>
     </metadata>
     <files>
@@ -45,14 +45,14 @@
         <file src="PushSharp.Google\bin\Release\PushSharp.Google.dll" target="lib\net45\PushSharp.Google.dll" />
         <file src="PushSharp.Blackberry\bin\Release\PushSharp.Blackberry.dll" target="lib\net45\PushSharp.Blackberry.dll" />
 
-		
-		<file src="PushSharp.Core\bin\Release\netstandard1.5\PushSharp.Core.dll" target="lib\netstandard1.5\PushSharp.Core.dll" />
+        
+        <file src="PushSharp.Core\bin\Release\netstandard1.5\PushSharp.Core.dll" target="lib\netstandard1.5\PushSharp.Core.dll" />
 
-		<file src="PushSharp.Amazon\bin\Release\netstandard1.5\PushSharp.Amazon.dll" target="lib\netstandard1.5\PushSharp.Amazon.dll" />
-		<file src="PushSharp.Apple\bin\Release\netstandard1.5\PushSharp.Apple.dll" target="lib\netstandard1.5\PushSharp.Apple.dll" />
-		<file src="PushSharp.Firefox\bin\Release\netstandard1.5\PushSharp.Firefox.dll" target="lib\netstandard1.5\PushSharp.Firefox.dll" />
-		<file src="PushSharp.Windows\bin\Release\netstandard1.5\PushSharp.Windows.dll" target="lib\netstandard1.5\PushSharp.Windows.dll" />
-		<file src="PushSharp.Google\bin\Release\netstandard1.5\PushSharp.Google.dll" target="lib\netstandard1.5\PushSharp.Google.dll" />
-		<file src="PushSharp.Blackberry\bin\Release\netstandard1.5\PushSharp.Blackberry.dll" target="lib\netstandard1.5\PushSharp.Blackberry.dll" />
+        <file src="PushSharp.Amazon\bin\Release\netstandard1.5\PushSharp.Amazon.dll" target="lib\netstandard1.5\PushSharp.Amazon.dll" />
+        <file src="PushSharp.Apple\bin\Release\netstandard1.5\PushSharp.Apple.dll" target="lib\netstandard1.5\PushSharp.Apple.dll" />
+        <file src="PushSharp.Firefox\bin\Release\netstandard1.5\PushSharp.Firefox.dll" target="lib\netstandard1.5\PushSharp.Firefox.dll" />
+        <file src="PushSharp.Windows\bin\Release\netstandard1.5\PushSharp.Windows.dll" target="lib\netstandard1.5\PushSharp.Windows.dll" />
+        <file src="PushSharp.Google\bin\Release\netstandard1.5\PushSharp.Google.dll" target="lib\netstandard1.5\PushSharp.Google.dll" />
+        <file src="PushSharp.Blackberry\bin\Release\netstandard1.5\PushSharp.Blackberry.dll" target="lib\netstandard1.5\PushSharp.Blackberry.dll" />
     </files>
 </package>

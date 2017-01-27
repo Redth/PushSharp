@@ -16,7 +16,7 @@ namespace PushSharp.Core
         static PushHttpClient ()
         {
 #if !NETSTANDARD
-			ServicePointManager.DefaultConnectionLimit = 100;
+            ServicePointManager.DefaultConnectionLimit = 100;
             ServicePointManager.Expect100Continue = false;
 #endif
         }
@@ -24,57 +24,57 @@ namespace PushSharp.Core
         public static async Task<PushHttpResponse> RequestAsync (PushHttpRequest request)
         {
 #if NETSTANDARD
-			WinHttpHandler httpHandler = new WinHttpHandler ();
-			httpHandler.SslProtocols = SslProtocols.Tls12;
-			HttpClient client = new HttpClient(httpHandler);
+            WinHttpHandler httpHandler = new WinHttpHandler ();
+            httpHandler.SslProtocols = SslProtocols.Tls12;
+            HttpClient client = new HttpClient(httpHandler);
 
-			client.DefaultRequestHeaders.Clear ();
-	        foreach (var headerKey in request.Headers.AllKeys)
-	        {
-		        client.DefaultRequestHeaders.TryAddWithoutValidation (headerKey, request.Headers[headerKey]);
-	        }
+            client.DefaultRequestHeaders.Clear ();
+            foreach (var headerKey in request.Headers.AllKeys)
+            {
+                client.DefaultRequestHeaders.TryAddWithoutValidation (headerKey, request.Headers[headerKey]);
+            }
 
-			HttpMethod method = HttpMethod.Get;
-			switch (request.Method)
-			{
-				case "GET":
-					method = HttpMethod.Get;
-					break;
-				case "POST":
-					method = HttpMethod.Post;
-					break;
-				case "PUT":
-					method = HttpMethod.Put;
-					break;
-			}
+            HttpMethod method = HttpMethod.Get;
+            switch (request.Method)
+            {
+                case "GET":
+                    method = HttpMethod.Get;
+                    break;
+                case "POST":
+                    method = HttpMethod.Post;
+                    break;
+                case "PUT":
+                    method = HttpMethod.Put;
+                    break;
+            }
 
-			HttpRequestMessage message = new HttpRequestMessage (method, request.Url);
-	        HttpContent content = new StringContent (request.Body, request.Encoding);
-	        message.Content = content;
+            HttpRequestMessage message = new HttpRequestMessage (method, request.Url);
+            HttpContent content = new StringContent (request.Body, request.Encoding);
+            message.Content = content;
 
-			HttpResponseMessage httpResponse = await client.SendAsync (message);
+            HttpResponseMessage httpResponse = await client.SendAsync (message);
 
-			WebHeaderCollection responseHeaderCollection = new WebHeaderCollection ();
-	        foreach (var responseHeader in httpResponse.Headers)
-	        {
-				responseHeaderCollection[responseHeader.Key] = responseHeader.Value.FirstOrDefault ();
-	        }
+            WebHeaderCollection responseHeaderCollection = new WebHeaderCollection ();
+            foreach (var responseHeader in httpResponse.Headers)
+            {
+                responseHeaderCollection[responseHeader.Key] = responseHeader.Value.FirstOrDefault ();
+            }
 
-			PushHttpResponse response = new PushHttpResponse
-			{
-				Body = await httpResponse.Content.ReadAsStringAsync (),
-				Headers = responseHeaderCollection,
-				Uri = httpResponse.RequestMessage.RequestUri,
-				Encoding = Encoding.GetEncoding (httpResponse.Content.Headers.ContentEncoding.First ()),
-				LastModified = httpResponse.Content.Headers.LastModified == null ? DateTime.Now : httpResponse.Content.Headers.LastModified.Value.DateTime,
-				StatusCode = httpResponse.StatusCode
-			};
+            PushHttpResponse response = new PushHttpResponse
+            {
+                Body = await httpResponse.Content.ReadAsStringAsync (),
+                Headers = responseHeaderCollection,
+                Uri = httpResponse.RequestMessage.RequestUri,
+                Encoding = Encoding.GetEncoding (httpResponse.Content.Headers.ContentEncoding.First ()),
+                LastModified = httpResponse.Content.Headers.LastModified == null ? DateTime.Now : httpResponse.Content.Headers.LastModified.Value.DateTime,
+                StatusCode = httpResponse.StatusCode
+            };
 
-			client.Dispose ();
-			return response;
+            client.Dispose ();
+            return response;
 #else
 
-			var httpRequest = HttpWebRequest.CreateHttp (request.Url);
+            var httpRequest = HttpWebRequest.CreateHttp (request.Url);
             httpRequest.Proxy = null;
 
             httpRequest.Headers = request.Headers;
@@ -127,7 +127,7 @@ namespace PushSharp.Core
 #endif
         }
 
-	}
+    }
 
     public class PushHttpRequest
     {
