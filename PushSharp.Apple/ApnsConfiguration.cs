@@ -110,15 +110,17 @@ namespace PushSharp.Apple
                 if (!issuerName.Contains ("Apple"))
                     throw new ArgumentOutOfRangeException ("Your Certificate does not appear to be issued by Apple!  Please check to ensure you have the correct certificate!");
 
-                if (!Regex.IsMatch (commonName, "Apple.*?Push Services")
-                    && !commonName.Contains ("Website Push ID:"))
-                    throw new ArgumentOutOfRangeException ("Your Certificate is not a valid certificate for connecting to Apple's APNS servers");
+                if (!commonName.Contains ("com.apple.mgmt.External")) { 
+                    if (!Regex.IsMatch (commonName, "Apple.*?Push Services")
+                        && !commonName.Contains ("Website Push ID:"))
+                        throw new ArgumentOutOfRangeException ("Your Certificate is not a valid certificate for connecting to Apple's APNS servers");
 
-                if (commonName.Contains ("Development") && ServerEnvironment != ApnsServerEnvironment.Sandbox)
-                    throw new ArgumentOutOfRangeException ("You are using a certificate created for connecting only to the Sandbox APNS server but have selected a different server environment to connect to.");
+                    if (commonName.Contains ("Development") && ServerEnvironment != ApnsServerEnvironment.Sandbox)
+                        throw new ArgumentOutOfRangeException ("You are using a certificate created for connecting only to the Sandbox APNS server but have selected a different server environment to connect to.");
 
-                if (commonName.Contains ("Production") && ServerEnvironment != ApnsServerEnvironment.Production)
-                    throw new ArgumentOutOfRangeException ("You are using a certificate created for connecting only to the Production APNS server but have selected a different server environment to connect to.");
+                    if (commonName.Contains ("Production") && ServerEnvironment != ApnsServerEnvironment.Production)
+                        throw new ArgumentOutOfRangeException ("You are using a certificate created for connecting only to the Production APNS server but have selected a different server environment to connect to.");
+                }
             } else {
                 throw new ArgumentOutOfRangeException ("You must provide a Certificate to connect to APNS with!");
             }
