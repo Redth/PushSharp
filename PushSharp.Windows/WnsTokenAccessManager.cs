@@ -28,6 +28,7 @@ namespace PushSharp.Windows
                     Log.Info ("Renewing Access Token");
                     renewAccessTokenTask = RenewAccessToken ();
                     await renewAccessTokenTask;
+                    renewAccessTokenTask = null;
                 } else {
                     Log.Info ("Waiting for access token");
                     await renewAccessTokenTask;
