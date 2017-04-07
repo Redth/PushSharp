@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using Newtonsoft.Json;
 using System.IO;
+using Microsoft.Extensions.PlatformAbstractions;
 
 namespace PushSharp.Tests
 {
@@ -20,7 +21,7 @@ namespace PushSharp.Tests
                         return instance;
                     }
 
-                    var baseDir = AppDomain.CurrentDomain.BaseDirectory;
+                    var baseDir = ""; //AppDomain.CurrentDomain.BaseDirectory;
 
                     var settingsFile = Path.Combine (baseDir, "settings.json");
 

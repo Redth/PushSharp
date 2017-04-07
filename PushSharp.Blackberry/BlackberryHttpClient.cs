@@ -15,7 +15,7 @@ namespace PushSharp.Blackberry
             Configuration = configuration;
 
             var authInfo = Configuration.ApplicationId + ":" + Configuration.Password;
-            authInfo = Convert.ToBase64String (Encoding.Default.GetBytes(authInfo));
+            authInfo = Convert.ToBase64String (Encoding.GetEncoding(0).GetBytes(authInfo));
 
             this.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue ("Basic", authInfo);
             this.DefaultRequestHeaders.ConnectionClose = true;

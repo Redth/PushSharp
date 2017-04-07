@@ -92,7 +92,7 @@ namespace PushSharp.Blackberry
 
                 if (!string.IsNullOrEmpty(r.RecipientType))
                 {
-                    addrValue = string.Format("WAPPUSH={0}%3A{1}/TYPE={2}", System.Web.HttpUtility.UrlEncode(r.Recipient),
+                    addrValue = string.Format("WAPPUSH={0}%3A{1}/TYPE={2}", System.Net.WebUtility.UrlEncode(r.Recipient),
                         r.Port, r.RecipientType);
                 }
 
@@ -109,10 +109,7 @@ namespace PushSharp.Blackberry
         }
 
 
-        protected string XmlEncode(string text)
-        {
-            return System.Security.SecurityElement.Escape(text);
-        }
+        
 
     }
 

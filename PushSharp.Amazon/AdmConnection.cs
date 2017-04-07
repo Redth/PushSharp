@@ -94,7 +94,7 @@ namespace PushSharp.Amazon
                 {
                 case HttpStatusCode.BadGateway: //400
                 case HttpStatusCode.BadRequest: //
-                    if ("InvalidRegistrationId".Equals (reason, StringComparison.InvariantCultureIgnoreCase)) {
+                    if ("InvalidRegistrationId".Equals (reason, StringComparison.OrdinalIgnoreCase)) {
                         throw new DeviceSubscriptionExpiredException (notification) {
                             OldSubscriptionId = regId,
                             ExpiredAt = DateTime.UtcNow

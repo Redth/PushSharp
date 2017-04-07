@@ -35,9 +35,10 @@ namespace PushSharp.Tests
 
             try { listener.Shutdown (SocketShutdown.Both); }
             catch { }
-
-            try { listener.Close (); }
-            catch { }
+            
+            throw new NotImplementedException("replace .Close() in dotnetcore somehow?!");
+            //try { listener.Close (); }
+            //catch { }
 
             try { listener.Dispose (); }
             catch { }
@@ -64,9 +65,10 @@ namespace PushSharp.Tests
 
                 try {
                     // Get a client connection
-                    socket = await Task.Factory.FromAsync<Socket> (
-                        listener.BeginAccept (null, null), 
-                        listener.EndAccept).ConfigureAwait (false);
+                    throw new NotImplementedException("replace .FromAsync() and BeginAccept() in dotnetcore somehow?!");
+                    //socket = await Task.Factory.FromAsync<Socket> (
+                    //    listener .BeginAccept (null, null), 
+                    //    listener.EndAccept).ConfigureAwait (false);
                 } catch {
                 }
 
@@ -142,10 +144,12 @@ namespace PushSharp.Tests
                         s.Shutdown (SocketShutdown.Both);
                     } catch {
                     }
-                    try {
-                        s.Close ();
-                    } catch {
-                    }
+
+                    throw new NotImplementedException("replace .Close() in dotnetcore somehow?!");
+                    //try {
+                    //    s.Close ();
+                    //} catch {
+                    //}
                     try {
                         s.Dispose ();
                     } catch {
@@ -173,9 +177,10 @@ namespace PushSharp.Tests
             var id = BitConverter.GetBytes (IPAddress.HostToNetworkOrder (identifier));
             Buffer.BlockCopy (id, 0, errorResponseData, 2, 4);
 
-            var sent = Task.Factory.FromAsync<int> (
-                s.BeginSend (errorResponseData, 0, errorResponseData.Length, SocketFlags.None, null, null),
-                s.EndSend).Result;
+            throw new NotImplementedException("replace .BeginSend() and .EndSend() in dotnetcore somehow?!");
+            //var sent = Task.Factory.FromAsync<int> (
+            //    s.BeginSend (errorResponseData, 0, errorResponseData.Length, SocketFlags.None, null, null),
+            //    s.EndSend).Result;
         }
 
         ApnsServerNotification Parse (List<byte> data)
