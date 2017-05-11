@@ -154,18 +154,24 @@ namespace PushSharp.Apple
                     }
 
                     foreach (var n in toSend)
-                    {
-                        if (!n.Notification.IsDeviceRegistrationIdValid())
-                            n.CompleteFailed(new ApnsNotificationException(ApnsNotificationErrorStatusCode.ConnectionError, n.Notification));
-                        else
-                            sent.Add(new SentNotification(n));
-                    }
+                        sent.Add(new SentNotification(n));
                 }
 
             } catch (Exception ex) {
                 Log.Error ("APNS-CLIENT[{0}]: Send Batch Error: Batch ID={1}, Error={2}", id, batchId, ex);
+                var errorNotificationToSend = new List<CompletableApnsNotification>();
+
                 foreach (var n in toSend)
-                    n.CompleteFailed (new ApnsNotificationException (ApnsNotificationErrorStatusCode.ConnectionError, n.Notification, ex));
+                {
+                    if (!n.Notification.IsDeviceRegistrationIdValid())
+                        errorNotificationToSend.Add(n);
+                    else
+                        notifications.Enqueue(n);
+                }
+
+                foreach (var n in errorNotificationToSend)
+                    n.CompleteFailed(new ApnsNotificationException(ApnsNotificationErrorStatusCode.ConnectionError, n.Notification, ex));
+            
             }
 
             Log.Info ("APNS-Client[{0}]: Sent Batch, waiting for possible response...", id);
