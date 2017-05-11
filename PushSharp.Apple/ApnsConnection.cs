@@ -154,7 +154,12 @@ namespace PushSharp.Apple
                     }
 
                     foreach (var n in toSend)
-                        sent.Add (new SentNotification (n));
+                    {
+                        if (!n.Notification.IsDeviceRegistrationIdValid())
+                            n.CompleteFailed(new ApnsNotificationException(ApnsNotificationErrorStatusCode.ConnectionError, n.Notification));
+                        else
+                            sent.Add(new SentNotification(n));
+                    }
                 }
 
             } catch (Exception ex) {
