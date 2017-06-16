@@ -1,23 +1,23 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
+using PushSharp.Core;
 
 namespace PushSharp.Windows
 {
-	public class WindowsNotificationSendFailureException : Exception
-	{
-		public WindowsNotificationSendFailureException(WindowsNotificationStatus status)
-			: base()
-		{
-			this.NotificationStatus = status;
-		}
+    public class WnsNotificationException : NotificationException
+    {
+        public WnsNotificationException (WnsNotificationStatus status) : base (status.ErrorDescription, status.Notification) 
+        {
+            Notification = status.Notification;
+            Status = status;
+        }
 
-		public WindowsNotificationStatus NotificationStatus
-		{
-			get;
-			set;
-		}
-	}
+        public new WnsNotification Notification { get; set; }
+        public WnsNotificationStatus Status { get; private set; }
+
+        public override string ToString ()
+        {
+            return base.ToString() + " Status = " + Status.HttpStatus;
+        }
+    }
 }
+
