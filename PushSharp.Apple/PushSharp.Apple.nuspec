@@ -1,0 +1,20 @@
+<?xml version="1.0"?>
+  <package>
+    <metadata>
+      <id>PushSharp.Apple</id>
+      <version>2.2.1.0</version>
+      <title>PushSharp.Apple</title>
+      <authors>Redth</authors>
+      <owners>Redth</owners>
+      <licenseUrl>http://www.apache.org/licenses/LICENSE-2.0.txt</licenseUrl>
+      <projectUrl>https://github.com/Redth/PushSharp</projectUrl>
+      <iconUrl>https://github.com/Redth/PushSharp/raw/master/Resources/PushSharp-Icon-NuGet-Small.png</iconUrl>
+      <requireLicenseAcceptance>false</requireLicenseAcceptance>
+      <description>A server-side library for sending Push Notifications to iOS (iPhone/iPad APNS)</description>
+      <summary>A server-side library for sending Push Notifications to iOS (iPhone/iPad APNS)</summary>
+      <copyright>Copyright 2015</copyright>
+    </metadata>
+    <files>
+      <file target="lib\net452\PushSharp.Core.dll" src="$OutputPath$PushSharp.Core.dll" />
+    </files>
+  </package>
