@@ -1,7 +1,7 @@
 PushSharp v4.0
 ==============
 
-PushSharp is a server-side library for sending Push Notifications to iOS/OSX (APNS), Android/Chrome (GCM), Windows/Windows Phone, Amazon (ADM) and Blackberry devices!
+PushSharp is a server-side library for sending Push Notifications to iOS/OSX (APNS), Android/Chrome (GCM/FCM), Windows/Windows Phone, Amazon (ADM) and Blackberry devices!
 
 PushSharp v3.0+ is a complete rewrite of the original library, aimed at taking advantage of things like async/await, HttpClient, and generally a better infrastructure using lessons learned from the old code.
 
@@ -103,13 +103,19 @@ fbs.Check ();
 ```
 
 
-### GCM Sample Usage
+### GCM/FCM Sample Usage
 
-Here is how you would send a GCM Notification:
+Here is how you would send a GCM/FCM Notification:
 
 ```csharp
-// Configuration
+// Configuration GCM (use this section for GCM)
 var config = new GcmConfiguration ("GCM-SENDER-ID", "AUTH-TOKEN", null);
+var provider = "GCM";
+
+// Configuration FCM (use this section for FCM)
+// var config = new GcmConfiguration("APIKEY");
+// config.GcmUrl = "https://fcm.googleapis.com/fcm/send";
+// var provider = "FCM";
 
 // Create a new broker
 var gcmBroker = new GcmServiceBroker (config);
@@ -127,19 +133,19 @@ gcmBroker.OnNotificationFailed += (notification, aggregateEx) => {
 			var gcmNotification = notificationException.Notification;
 			var description = notificationException.Description;
 
-			Console.WriteLine ($"GCM Notification Failed: ID={gcmNotification.MessageId}, Desc={description}");
+			Console.WriteLine ($"{provider} Notification Failed: ID={gcmNotification.MessageId}, Desc={description}");
 		} else if (ex is GcmMulticastResultException) {
 			var multicastException = (GcmMulticastResultException)ex;
 
 			foreach (var succeededNotification in multicastException.Succeeded) {
-				Console.WriteLine ($"GCM Notification Succeeded: ID={succeededNotification.MessageId}");
+				Console.WriteLine ($"{provider} Notification Succeeded: ID={succeededNotification.MessageId}");
 			}
 
 			foreach (var failedKvp in multicastException.Failed) {
 				var n = failedKvp.Key;
 				var e = failedKvp.Value;
 
-				Console.WriteLine ($"GCM Notification Failed: ID={n.MessageId}, Desc={e.Description}");
+				Console.WriteLine ($"{provider} Notification Failed: ID={n.MessageId}, Desc={e.Description}");
 			}
 
 		} else if (ex is DeviceSubscriptionExpiredException) {
@@ -157,9 +163,9 @@ gcmBroker.OnNotificationFailed += (notification, aggregateEx) => {
 		} else if (ex is RetryAfterException) {
 			var retryException = (RetryAfterException)ex;
 			// If you get rate limited, you should stop sending messages until after the RetryAfterUtc date
-			Console.WriteLine ($"GCM Rate Limited, don't send more until after {retryException.RetryAfterUtc}");
+			Console.WriteLine ($"{provider} Rate Limited, don't send more until after {retryException.RetryAfterUtc}");
 		} else {
-			Console.WriteLine ("GCM Notification Failed for some unknown reason");
+			Console.WriteLine ("{provider} Notification Failed for some unknown reason");
 		}
 
 		// Mark it as handled
@@ -168,7 +174,7 @@ gcmBroker.OnNotificationFailed += (notification, aggregateEx) => {
 };
 
 gcmBroker.OnNotificationSucceeded += (notification) => {
-	Console.WriteLine ("GCM Notification Sent!");
+	Console.WriteLine ("{provider} Notification Sent!");
 };
 
 // Start the broker
@@ -190,7 +196,7 @@ foreach (var regId in MY_REGISTRATION_IDS) {
 gcmBroker.Stop ();
 ```
 
-#### Components of a GCM Notification
+#### Components of a GCM/FCM Notification
 
 GCM notifications are much more customizable than Apple Push Notifications. More information about the messaging concepts and options can be found [here](https://developers.google.com/cloud-messaging/concept-options#components-of-a-message).
 
