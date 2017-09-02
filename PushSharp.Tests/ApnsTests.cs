@@ -5,7 +5,8 @@ using PushSharp.Apple;
 using System.Threading;
 using Newtonsoft.Json.Linq;
 using NUnit.Framework;
-using PushSharp.Core;
+using PushSharp.Common;
+using PushSharp.Tests.Servers;
 
 namespace PushSharp.Tests
 {

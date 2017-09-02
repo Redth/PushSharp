@@ -4,10 +4,10 @@ using System.Net.Http;
 using System.Net.Http.Headers;
 using Newtonsoft.Json.Linq;
 using System.Net;
-using PushSharp.Core;
 using System.Collections.Generic;
 using System.Linq;
 using System.Runtime.Serialization;
+using PushSharp.Common;
 
 namespace PushSharp.Google
 {

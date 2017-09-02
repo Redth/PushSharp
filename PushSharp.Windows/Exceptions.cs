@@ -1,5 +1,5 @@
 ﻿using System;
-using PushSharp.Core;
+using PushSharp.Common;
 
 namespace PushSharp.Windows
 {

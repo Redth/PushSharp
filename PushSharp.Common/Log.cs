@@ -2,7 +2,7 @@
 using System.Collections.Generic;
 using System.Diagnostics;
 
-namespace PushSharp.Core
+namespace PushSharp.Common
 {
     [Flags]
     public enum LogLevel

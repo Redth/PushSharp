@@ -7,7 +7,7 @@ using System.Security.Cryptography.X509Certificates;
 using System.Collections.Generic;
 using System.Threading;
 using System.Net;
-using PushSharp.Core;
+using PushSharp.Common;
 
 namespace PushSharp.Apple
 {

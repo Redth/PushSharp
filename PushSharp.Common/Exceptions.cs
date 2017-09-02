@@ -1,19 +1,10 @@
 ﻿using System;
-using System.Collections.Generic;
 
-namespace PushSharp.Core
+namespace PushSharp.Common
 {
-    public class DeviceSubscriptionExpiredException : DeviceSubscriptonExpiredException
+    public class DeviceSubscriptionExpiredException : NotificationException
     {
-        public DeviceSubscriptionExpiredException (INotification notification) : base (notification)
-        {
-        }
-    }
-
-    [Obsolete ("Do not use this class directly, it has a typo in it, instead use DeviceSubscriptionExpiredException")]
-    public class DeviceSubscriptonExpiredException : NotificationException
-    {
-        public DeviceSubscriptonExpiredException (INotification notification) : base ("Device Subscription has Expired", notification)
+        public DeviceSubscriptionExpiredException(INotification notification) : base ("Device Subscription has Expired", notification)
         {
             ExpiredAt = DateTime.UtcNow;
         }

@@ -1,6 +1,4 @@
-﻿using System;
-
-namespace PushSharp.Amazon
+﻿namespace PushSharp.Amazon
 {
     public class AdmConfiguration
     {

@@ -1,7 +1,6 @@
-﻿using System;
-using System.Collections.Generic;
-using PushSharp.Core;
+﻿using System.Collections.Generic;
 using Newtonsoft.Json.Linq;
+using PushSharp.Common;
 
 namespace PushSharp.Amazon
 {

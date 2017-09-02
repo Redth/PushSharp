@@ -1,9 +1,9 @@
 ﻿using System;
-using PushSharp.Core;
 using Newtonsoft.Json.Linq;
 using System.Net;
 using System.Text;
 using System.Collections.Generic;
+using PushSharp.Common;
 
 namespace PushSharp.Apple
 {

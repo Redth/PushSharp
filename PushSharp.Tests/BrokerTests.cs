@@ -1,13 +1,13 @@
 ﻿using NUnit.Framework;
 
 using System;
-using PushSharp.Core;
 using System.Threading.Tasks;
 using System.Linq;
 using System.Collections.Generic;
 using PushSharp.Apple;
 using Newtonsoft.Json.Linq;
 using System.Threading;
+using PushSharp.Common;
 
 
 namespace PushSharp.Tests

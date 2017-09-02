@@ -1,9 +1,10 @@
 ﻿using System;
-using PushSharp.Core;
 using System.Collections.Generic;
 using System.Xml.Linq;
 using System.Text;
 using System.Globalization;
+using System.Web;
+using PushSharp.Common;
 
 namespace PushSharp.Blackberry
 {
@@ -92,7 +93,7 @@ namespace PushSharp.Blackberry
 
                 if (!string.IsNullOrEmpty(r.RecipientType))
                 {
-                    addrValue = string.Format("WAPPUSH={0}%3A{1}/TYPE={2}", System.Web.HttpUtility.UrlEncode(r.Recipient),
+                    addrValue = string.Format("WAPPUSH={0}%3A{1}/TYPE={2}", HttpUtility.UrlEncode(r.Recipient),
                         r.Port, r.RecipientType);
                 }
 

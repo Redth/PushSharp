@@ -1,7 +1,7 @@
 ﻿using System;
 using System.Linq;
-using PushSharp.Core;
 using System.Threading.Tasks;
+using PushSharp.Common;
 
 namespace PushSharp.Tests
 {

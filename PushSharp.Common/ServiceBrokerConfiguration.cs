@@ -1,6 +1,4 @@
-﻿using System;
-
-namespace PushSharp.Core
+﻿namespace PushSharp.Common
 {
 	public class ServiceBrokerConfiguration // : IPushServiceSettings
 	{
