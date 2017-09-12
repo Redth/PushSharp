@@ -1,8 +1,11 @@
 PushSharp v4.0
 ==============
 Same as the original PushSharp only I fixed some bugs while sending thousends of IOS notification. 
+
 --Client null control added
+
 --Prevent from blocking all notification batch if some of tokens are not valid. (Only invalid tokens are removed from batch)
+
 
 PushSharp is a server-side library for sending Push Notifications to iOS/OSX (APNS), Android/Chrome (GCM), Windows/Windows Phone, Amazon (ADM) and Blackberry devices!
 
