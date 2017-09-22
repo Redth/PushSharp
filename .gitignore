@@ -33,3 +33,4 @@ node_modules/
 .vs/
 
 settings.json
+/PushSharp.Apple/ApnsConnection.cs.bak
