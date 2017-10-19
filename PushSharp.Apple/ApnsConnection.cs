@@ -119,9 +119,13 @@ namespace PushSharp.Apple
             // Let's store the batch items to send internally
             var toSend = new List<CompletableApnsNotification> ();
 
-            while (notifications.Count > 0 && toSend.Count < Configuration.InternalBatchSize) {
-                var n = notifications.Dequeue ();
-                toSend.Add (n);
+            lock (notificationBatchQueueLock)
+            {
+                while (notifications.Count > 0 && toSend.Count < Configuration.InternalBatchSize)
+                {
+                    var n = notifications.Dequeue ();
+                    toSend.Add(n);
+                }
             }
 
 
