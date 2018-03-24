@@ -22,13 +22,21 @@ namespace PushSharp.Tests
             var succeeded = 0;
             var failed = 0;
             var attempted = 0;
-
+		    var locker = new object();
+		    
             var broker = new TestServiceBroker ();
             broker.OnNotificationFailed += (notification, exception) => {
-                failed++;
+                lock (locker)
+                {
+                    failed++;
+                }
             };
-            broker.OnNotificationSucceeded += (notification) => {
-                succeeded++;  
+            broker.OnNotificationSucceeded += (notification) =>
+            {
+                lock (locker)
+                {
+                    succeeded++;
+                }
             };
 			broker.Start ();
 			broker.ChangeScale (1);
@@ -38,10 +46,10 @@ namespace PushSharp.Tests
             for (int i = 1; i <= 1000; i++) {
                 attempted++;
                 broker.QueueNotification (new TestNotification { TestId = i });
-            }
-
+            }		    
+		    
 			broker.Stop ();
-		
+		   		    
             c.StopAndLog ("Test Took {0} ms");
 
             Assert.AreEqual (attempted, succeeded);
