@@ -8,6 +8,7 @@ using System.Collections.Generic;
 using System.Threading;
 using System.Net;
 using PushSharp.Core;
+using System.Linq;
 
 namespace PushSharp.Apple
 {
@@ -159,8 +160,24 @@ namespace PushSharp.Apple
 
             } catch (Exception ex) {
                 Log.Error ("APNS-CLIENT[{0}]: Send Batch Error: Batch ID={1}, Error={2}", id, batchId, ex);
-                foreach (var n in toSend)
-                    n.CompleteFailed (new ApnsNotificationException (ApnsNotificationErrorStatusCode.ConnectionError, n.Notification, ex));
+                var errorNotificationToSend = new List<CompletableApnsNotification> ();
+                //Check to see if any notification items have a bad registration id
+                foreach (var notificationItem in toSend) {
+                    if (!notificationItem.Notification.IsDeviceRegistrationIdValid ())
+                        errorNotificationToSend.Add (notificationItem);
+                }
+                if (errorNotificationToSend.Count > 0) {
+                    //If any devices had a bad registration id assume this exception was caused by those bad ids and requeue the other notifications
+                    foreach (var notificationItem in toSend.Except (errorNotificationToSend))
+                        notifications.Enqueue (notificationItem);
+                    //Report invalid token errors for each invalid registration id
+                    foreach (var n in errorNotificationToSend)
+                        n.CompleteFailed (new ApnsNotificationException (ApnsNotificationErrorStatusCode.InvalidToken, n.Notification, ex));
+                } else {
+                    //If there were no invalid registration ids then report the errors as normal
+                    foreach (var n in toSend)
+                        n.CompleteFailed (new ApnsNotificationException (ApnsNotificationErrorStatusCode.ConnectionError, n.Notification, ex));
+                }
             }
 
             Log.Info ("APNS-Client[{0}]: Sent Batch, waiting for possible response...", id);
