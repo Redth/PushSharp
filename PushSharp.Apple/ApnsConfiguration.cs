@@ -91,7 +91,7 @@ namespace PushSharp.Apple
 
             ValidateServerCertificate = false;
 
-            KeepAlivePeriod = TimeSpan.FromMinutes (20);
+            KeepAlivePeriod = TimeSpan.FromMinutes (3);
             KeepAliveRetryPeriod = TimeSpan.FromSeconds (30);
 
             InternalBatchSize = 1000;
