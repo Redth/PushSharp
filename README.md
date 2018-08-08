@@ -13,8 +13,8 @@ PushSharp will now follow [semver](http://semver.org/) versioning, so major vers
 
 [![NuGet Version](https://badge.fury.io/nu/PushSharp.svg)](https://badge.fury.io/nu/PushSharp)
 
- - Read more on my blog http://redth.codes/pushsharp-3-0-the-push-awakens/
- - Join the [Gitter.im channel](https://gitter.im/Redth/PushSharp) with questions/feedback
+ - Read more on my blog http://redth.codes/pushsharp-3-0-the-push-awakens/;
+ - Join the [Gitter.im channel](https://gitter.im/Redth/PushSharp) with questions/feedback.
 
 ---
 
@@ -266,13 +266,13 @@ Please see this Wiki page for more information: https://github.com/Redth/PushSha
 
 ## Roadmap
 
- - **APNS - Apple Push Notification Service** 
-   - Finish HTTP/2 support (currently in another branch)
+ - **APNS - Apple Push Notification Service**
+   - Finish HTTP/2 support (currently in another branch).
  - **GCM - Google Cloud Messaging** 
-   - XMPP transport still under development
+   - XMPP transport still under development.
  - **Other**
-   - More NUnit tests to be written, with a test GCM Server, and eventually Test servers for other platforms
-   - New Xamarin Client samples (how to setup each platform as a push client) will be built and live in a separate repository to be less confusing
+   - More NUnit tests to be written, with a test GCM Server, and eventually Test servers for other platforms;
+   - New Xamarin Client samples (how to setup each platform as a push client) will be built and live in a separate repository to be less confusing.
    
 
 License
