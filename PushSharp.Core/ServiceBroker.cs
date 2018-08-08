@@ -179,6 +179,9 @@ namespace PushSharp.Core
 
                             // Let's wait for the continuation not the task itself
                             toSend.Add (cont);
+                            
+                            // release references to completed tasks
+                            toSend.RemoveAll(task => task.IsCompleted);
                         }
 
                         if (toSend.Count <= 0)
