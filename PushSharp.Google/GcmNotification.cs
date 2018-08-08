@@ -43,6 +43,7 @@ namespace PushSharp.Google
             result.DelayWhileIdle = msg.DelayWhileIdle;
             result.ContentAvailable = msg.ContentAvailable;
             result.DryRun = msg.DryRun;
+            result.Notification = msg.Notification;
             result.Priority = msg.Priority;
             result.NotificationKey = msg.NotificationKey;
 
