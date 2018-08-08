@@ -39,8 +39,7 @@ apnsBroker.OnNotificationFailed += (notification, aggregateEx) => {
 	aggregateEx.Handle (ex => {
 	
 		// See what kind of exception it was to further diagnose
-		if (ex is ApnsNotificationException) {
-			var notificationException = (ApnsNotificationException)ex;
+		if (ex is ApnsNotificationException notificationException) {
 			
 			// Deal with the failed notification
 			var apnsNotification = notificationException.Notification;
@@ -126,16 +125,14 @@ gcmBroker.OnNotificationFailed += (notification, aggregateEx) => {
 	aggregateEx.Handle (ex => {
 	
 		// See what kind of exception it was to further diagnose
-		if (ex is GcmNotificationException) {
-			var notificationException = (GcmNotificationException)ex;
+		if (ex is GcmNotificationException notificationException) {
 			
 			// Deal with the failed notification
 			var gcmNotification = notificationException.Notification;
 			var description = notificationException.Description;
 
 			Console.WriteLine ($"{provider} Notification Failed: ID={gcmNotification.MessageId}, Desc={description}");
-		} else if (ex is GcmMulticastResultException) {
-			var multicastException = (GcmMulticastResultException)ex;
+		} else if (ex is GcmMulticastResultException multicastException) {
 
 			foreach (var succeededNotification in multicastException.Succeeded) {
 				Console.WriteLine ($"{provider} Notification Succeeded: ID={succeededNotification.MessageId}");
@@ -148,8 +145,7 @@ gcmBroker.OnNotificationFailed += (notification, aggregateEx) => {
 				Console.WriteLine ($"{provider} Notification Failed: ID={n.MessageId}, Desc={e.Description}");
 			}
 
-		} else if (ex is DeviceSubscriptionExpiredException) {
-			var expiredException = (DeviceSubscriptionExpiredException)ex;
+		} else if (ex is DeviceSubscriptionExpiredException expiredException) {
 			
 			var oldId = expiredException.OldSubscriptionId;
 			var newId = expiredException.NewSubscriptionId;
@@ -160,8 +156,8 @@ gcmBroker.OnNotificationFailed += (notification, aggregateEx) => {
 				// If this value isn't null, our subscription changed and we should update our database
 				Console.WriteLine ($"Device RegistrationId Changed To: {newId}");
 			}
-		} else if (ex is RetryAfterException) {
-			var retryException = (RetryAfterException)ex;
+		} else if (ex is RetryAfterException retryException) {
+			
 			// If you get rate limited, you should stop sending messages until after the RetryAfterUtc date
 			Console.WriteLine ($"{provider} Rate Limited, don't send more until after {retryException.RetryAfterUtc}");
 		} else {
@@ -218,8 +214,7 @@ wnsBroker.OnNotificationFailed += (notification, aggregateEx) => {
 	aggregateEx.Handle (ex => {
 	
 		// See what kind of exception it was to further diagnose
-		if (ex is WnsNotificationException) {
-			var notificationException = (WnsNotificationException)ex;
+		if (ex is WnsNotificationException notificationException) {
 			Console.WriteLine ($"WNS Notification Failed: {notificationException.Message}");
 		} else {
 			Console.WriteLine ("WNS Notification Failed for some (Unknown Reason)");
