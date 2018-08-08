@@ -33,3 +33,7 @@ node_modules/
 .vs/
 
 settings.json
+/PushSharp.1.0.6.nupkg
+/PushSharp.4.0.10.1.nupkg
+/PushSharp.Core.1.0.6340.27706.nupkg
+/PushSharp.Apple.1.0.6340.27706.nupkg
