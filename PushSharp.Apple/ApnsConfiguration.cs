@@ -1,5 +1,6 @@
-﻿using System;
+using System;
 using System.Collections.Generic;
+using System.Net;
 using System.Security.Cryptography.X509Certificates;
 using System.Text.RegularExpressions;
 
@@ -136,6 +137,22 @@ namespace PushSharp.Apple
             FeedbackPort = port;
         }
 
+        public void SetProxy(string proxyHost, int proxyPort)
+        {
+            UseProxy = true;
+            ProxyHost = proxyHost;
+            ProxyPort = proxyPort;
+            ProxyCredentials = CredentialCache.DefaultNetworkCredentials;
+        }
+
+        public void SetProxy(string proxyHost, int proxyPort, string userName, string password, string domain)
+        {
+            UseProxy = true;
+            ProxyHost = proxyHost;
+            ProxyPort = proxyPort;
+            ProxyCredentials = new NetworkCredential(userName, password, domain);
+        }
+
         public string Host { get; private set; }
 
         public int Port { get; private set; }
@@ -144,6 +161,14 @@ namespace PushSharp.Apple
 
         public int FeedbackPort { get; private set; }
 
+        public bool UseProxy { get; private set; }
+
+        public string ProxyHost { get; private set; }
+
+        public int ProxyPort { get; private set; }
+
+        public NetworkCredential ProxyCredentials { get; private set; }
+        
         public X509Certificate2 Certificate { get; private set; }
 
         public List<X509Certificate2> AdditionalCertificates { get; private set; }

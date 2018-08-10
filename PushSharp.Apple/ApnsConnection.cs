@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.IO;
 using System.Net.Sockets;
 using System.Net.Security;
@@ -8,6 +8,7 @@ using System.Collections.Generic;
 using System.Threading;
 using System.Net;
 using PushSharp.Core;
+using System.Diagnostics;
 
 namespace PushSharp.Apple
 {
@@ -239,7 +240,7 @@ namespace PushSharp.Apple
                 sent.Clear ();
                 return;
             }
-
+            
             // If we make it here, we did get data back, so we have errors
 
             Log.Info ("APNS-Client[{0}]: Batch (ID={1}) completed with error response...", id, batchId);
@@ -314,6 +315,55 @@ namespace PushSharp.Apple
             return p;
         }
 
+
+        /// <summary>
+        /// Source:
+        /// https://web.archive.org/web/20160317134733/https://nitormobiledevelopment.wordpress.com/2013/08/13/push-sharp-using-proxy/
+        /// </summary>
+        /// <param name="targetHost"></param>
+        /// <param name="targetPort"></param>
+        /// <param name="httpProxyHost"></param>
+        /// <param name="httpProxyPort"></param>
+        /// <returns></returns>
+        private TcpClient getClientViaHTTPProxy(string targetHost, int targetPort, string httpProxyHost, int httpProxyPort)
+        {
+            try
+            {
+                var uriBuilder = new UriBuilder
+                {
+                    Scheme = Uri.UriSchemeHttp,
+                    Host = httpProxyHost,
+                    Port = httpProxyPort
+                };
+                var proxyUri = uriBuilder.Uri;
+                var request = WebRequest.Create("http://" + targetHost + ":" + targetPort);
+                var webProxy = new WebProxy(proxyUri);
+                request.Proxy = webProxy;
+                request.Method = "CONNECT";
+                webProxy.Credentials = Configuration.ProxyCredentials;
+                var response = request.GetResponse();
+                var responseStream = response.GetResponseStream();
+                Debug.Assert(responseStream != null);
+                const System.Reflection.BindingFlags Flags = System.Reflection.BindingFlags.NonPublic | System.Reflection.BindingFlags.Instance;
+                var rsType = responseStream.GetType();
+                var connectionProperty = rsType.GetProperty("Connection", Flags);
+                var connection = connectionProperty.GetValue(responseStream, null);
+                var connectionType = connection.GetType();
+                var networkStreamProperty = connectionType.GetProperty("NetworkStream", Flags);
+                Stream networkStream1 = (Stream)networkStreamProperty.GetValue(connection, null);
+                var nsType = networkStream1.GetType();
+                var socketProperty = nsType.GetProperty("Socket", Flags);
+                var socket = (Socket)socketProperty.GetValue(networkStream1, null);
+                return new TcpClient { Client = socket };
+            }
+            catch (Exception ex)
+            {
+                Log.Error(ex.Message);
+                throw;
+            }
+        }
+
+
         async Task connect ()
         {            
             if (client != null)
@@ -321,10 +371,21 @@ namespace PushSharp.Apple
             
             Log.Info ("APNS-Client[{0}]: Connecting (Batch ID={1})", id, batchId);
 
-            client = new TcpClient ();
+            if (Configuration.UseProxy)
+            {
+                client = getClientViaHTTPProxy(Configuration.Host, Configuration.Port, Configuration.ProxyHost, Configuration.ProxyPort);
+            }
+            else
+            {
+                client = new TcpClient();
+            }
 
-            try {
-                await client.ConnectAsync (Configuration.Host, Configuration.Port).ConfigureAwait (false);
+            try
+            {
+                if (!Configuration.UseProxy)
+                {
+                    await client.ConnectAsync (Configuration.Host, Configuration.Port).ConfigureAwait (false);
+                }
 
                 //Set keep alive on the socket may help maintain our APNS connection
                 try {
@@ -349,7 +410,7 @@ namespace PushSharp.Apple
 
                 // Create our ssl stream
                 stream = new SslStream (client.GetStream (), 
-                    false,
+                    true,
                     ValidateRemoteCertificate,
                     (sender, targetHost, localCerts, remoteCert, acceptableIssuers) => certificate);
 
