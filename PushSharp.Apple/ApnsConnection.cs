@@ -5,6 +5,7 @@ using System.Net.Security;
 using System.Threading.Tasks;
 using System.Security.Cryptography.X509Certificates;
 using System.Collections.Generic;
+using System.Collections.Concurrent;
 using System.Threading;
 using System.Net;
 using PushSharp.Core;
@@ -68,38 +69,33 @@ namespace PushSharp.Apple
         byte[] buffer = new byte[6];
         int id;
 
-
         SemaphoreSlim connectingSemaphore = new SemaphoreSlim (1);
         SemaphoreSlim batchSendSemaphore = new SemaphoreSlim (1);
-        object notificationBatchQueueLock = new object ();
-
+        
         //readonly object connectingLock = new object ();
-        Queue<CompletableApnsNotification> notifications = new Queue<CompletableApnsNotification> ();
+        ConcurrentQueue<CompletableApnsNotification> notifications = new ConcurrentQueue<CompletableApnsNotification>();
         List<SentNotification> sent = new List<SentNotification> ();
 
         Timer timerBatchWait;
 
         public void Send (CompletableApnsNotification notification)
         {
-            lock (notificationBatchQueueLock) {
-
-                notifications.Enqueue (notification);
-
-                if (notifications.Count >= Configuration.InternalBatchSize) {
-
-                    // Make the timer fire immediately and send a batch off
-                    timerBatchWait.Change (0, Timeout.Infinite);
-                    return;
-                }
-
-                // Restart the timer to wait for more notifications to be batched
-                //  This timer will keep getting 'restarted' before firing as long as notifications
-                //  are queued before the timer's due time
-                //  if the timer is actually called, it means no more notifications were queued, 
-                //  so we should flush out the queue instead of waiting for more to be batched as they
-                //  might not ever come and we don't want to leave anything stranded in the queue
-                timerBatchWait.Change (Configuration.InternalBatchingWaitPeriod, Timeout.InfiniteTimeSpan);
+            notifications.Enqueue(notification);
+            
+            if (notifications.Count >= Configuration.InternalBatchSize) {
+            
+                // Make the timer fire immediately and send a batch off
+                timerBatchWait.Change (0, Timeout.Infinite);
+                return;
             }
+            
+            // Restart the timer to wait for more notifications to be batched
+            //  This timer will keep getting 'restarted' before firing as long as notifications
+            //  are queued before the timer's due time
+            //  if the timer is actually called, it means no more notifications were queued, 
+            //  so we should flush out the queue instead of waiting for more to be batched as they
+            //  might not ever come and we don't want to leave anything stranded in the queue
+            timerBatchWait.Change (Configuration.InternalBatchingWaitPeriod, Timeout.InfiniteTimeSpan);
         }
 
         long batchId = 0;
@@ -113,15 +109,19 @@ namespace PushSharp.Apple
             // Pause the timer
             timerBatchWait.Change (Timeout.Infinite, Timeout.Infinite);
 
-            if (notifications.Count <= 0)
+            if (notifications.IsEmpty)
                 return;
 
             // Let's store the batch items to send internally
             var toSend = new List<CompletableApnsNotification> ();
 
-            while (notifications.Count > 0 && toSend.Count < Configuration.InternalBatchSize) {
-                var n = notifications.Dequeue ();
-                toSend.Add (n);
+            while (!notifications.IsEmpty && toSend.Count < Configuration.InternalBatchSize) {
+
+                CompletableApnsNotification n;
+                if (notifications.TryDequeue (out n))
+                {
+                    toSend.Add(n);
+                }
             }
 
 
