@@ -24,12 +24,13 @@ namespace PushSharp.Core
         static List<ILogger> loggers { get; set; }
         static Dictionary<CounterToken, Stopwatch> counters;
 
-        static Log ()
+        static Log()
         {
-            counters = new Dictionary<CounterToken, Stopwatch> ();
-            loggers = new List<ILogger> ();
-
-            AddLogger (new ConsoleLogger ());
+            counters = new Dictionary<CounterToken, Stopwatch>();
+            loggers = new List<ILogger>();
+#if DEBUG
+            AddLogger(new DebugLogger());
+#endif
         }
 
         public static void AddLogger (ILogger logger)
@@ -150,6 +151,32 @@ namespace PushSharp.Core
             case LogLevel.Error:
                 Console.Error.WriteLine (d + " [ERROR] " + s);
                 break;
+            }
+        }
+    }
+
+    public class DebugLogger : ILogger
+    {
+        public void Write(LogLevel level, string msg, params object[] args)
+        {
+            var s = msg;
+
+            if (args != null && args.Length > 0)
+                s = string.Format(msg, args);
+
+            var d = DateTime.Now.ToString("yyyy-MM-dd HH:mm:ss.ttt");
+
+            switch (level)
+            {
+                case LogLevel.Info:
+                    System.Diagnostics.Debug.WriteLine(d + " [INFO] " + s);
+                    break;
+                case LogLevel.Debug:
+                    System.Diagnostics.Debug.WriteLine(d + " [DEBUG] " + s);
+                    break;
+                case LogLevel.Error:
+                    System.Diagnostics.Debug.WriteLine(d + " [ERROR] " + s);
+                    break;
             }
         }
     }
