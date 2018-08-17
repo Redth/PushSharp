@@ -199,7 +199,7 @@ namespace PushSharp.Apple
             // read (in the case that all the messages sent successfully, apple will send us nothing
             // So, let's make our read timeout after a reasonable amount of time to wait for apple to tell
             // us of any errors that happened.
-            readCancelToken.CancelAfter (750);
+            readCancelToken.CancelAfter (Configuration.MillisecondsToWaitBeforeMessageDeclaredSuccess);
 
             int len = -1;
 
@@ -252,10 +252,15 @@ namespace PushSharp.Apple
             //Get the index of our failed notification (by identifier)
             var failedIndex = sent.FindIndex (n => n.Identifier == identifier);
 
-            // If we didn't find an index for the failed notification, something is wrong
-            // Let's just return
+            // Looks like failed index was from previous batch. The reason is that readCancelToken timeout wasn't enought
+            // to get response from apns. 
+            // So put notifications from current batch again to queue and use new socket for next batches
             if (failedIndex < 0)
+            {
+                Log.Info ("APNS-Client[{0}]: Cant find failed notification {1} in current batch", id, identifier);
+                EnqueRemainingBatchItems ();
                 return;
+            }
 
             // Get all the notifications before the failed one and mark them as sent!
             if (failedIndex > 0) {
@@ -286,6 +291,11 @@ namespace PushSharp.Apple
             // The remaining items in the list were sent after the failed notification
             // we can assume these were ignored by apple so we need to send them again
             // Requeue the remaining notifications
+            EnqueRemainingBatchItems();
+        }
+
+        private void EnqueRemainingBatchItems()
+        {
             foreach (var s in sent)
                 notifications.Enqueue (s.Notification);
 
@@ -306,6 +316,15 @@ namespace PushSharp.Apple
 
             if (!client.Client.Connected)
                 return false;
+
+            // looks like response for previous batch wasn't read (and some errors were in previous batch)
+            // Unfortunatelly we already notified client that notifications were sent. 
+            // But at least we won't use this socket for new batch because otherwise new enqueued notifications won't be sent too...
+            if (client.Available > 0)
+            {
+                Log.Info ("APNS-Client[{0}]: Previous batch wasn't processed correctly. Try to increase ResponseWaitTimeout");
+                return false;
+            }
 
             var p = client.Client.Poll (1000, SelectMode.SelectWrite); 
 

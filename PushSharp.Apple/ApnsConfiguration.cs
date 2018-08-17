@@ -76,7 +76,7 @@ namespace PushSharp.Apple
 
             Certificate = certificate;
 
-            MillisecondsToWaitBeforeMessageDeclaredSuccess = 3000;
+            MillisecondsToWaitBeforeMessageDeclaredSuccess = 750;
             ConnectionTimeout = 10000;
             MaxConnectionAttempts = 3;
 
