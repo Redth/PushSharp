@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.IO;
 using System.Net.Sockets;
 using System.Net.Security;
@@ -185,9 +185,20 @@ namespace PushSharp.Apple
             var batchData = new List<byte> ();
 
             // Add all the frame data
-            foreach (var n in toSend)
-                batchData.AddRange (n.Notification.ToBytes ());
-            
+            foreach (var n in toSend) {
+                try {
+                    batchData.AddRange(n.Notification.ToBytes ());
+                } catch (NotificationException ex) {
+                    // If a notification fails validation, simply fail it and skip
+                    Log.Info("APNS-CLIENT[{0}]: Notification failed validation, failing notification {1}. Batch ID={2}, Error={3}", id, n.Notification.Identifier, batchId, ex);
+
+                    // Raise the failed event for this notification so the caller knows it wasn't sent
+                    n.CompleteFailed(new ApnsNotificationException(ApnsNotificationErrorStatusCode.ConnectionError, n.Notification, ex));
+
+                    // Keep adding the other notifications to the batch data to send as we still want to send the others (provided they pass validation themselves)
+                }
+            }
+
             return batchData.ToArray ();
         }
 
