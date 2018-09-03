@@ -154,6 +154,7 @@ namespace PushSharp.Apple
                     }
 
                     foreach (var n in toSend) {
+                        // If the notification failed validation before being sent (i.e. it was skipped)
                         if (n.State == NotificationState.Failed)
                             continue;
 
@@ -164,7 +165,8 @@ namespace PushSharp.Apple
             } catch (Exception ex) {
                 Log.Error ("APNS-CLIENT[{0}]: Send Batch Error: Batch ID={1}, Error={2}", id, batchId, ex);
                 foreach (var n in toSend) {
-                    // If the notification has already failed, don't fail it again - we want the original error intact (and CompleteFailed raises an exception if called twice on the same notification)
+                    // If the notification has already failed, don't fail it again (it's possible it failed validation already)
+                    // - we want the original error intact (and CompleteFailed raises an exception if called twice on the same notification)
                     if (n.State == NotificationState.Failed)
                         continue;
 
@@ -194,7 +196,6 @@ namespace PushSharp.Apple
             
             var batchData = new List<byte> ();
 
-            List<CompletableApnsNotification> failedValidation = new List<CompletableApnsNotification>();
             // Add all the frame data
             foreach (var n in toSend) {
                 try {
