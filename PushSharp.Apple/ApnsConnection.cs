@@ -7,7 +7,11 @@ using System.Security.Cryptography.X509Certificates;
 using System.Collections.Generic;
 using System.Threading;
 using System.Net;
+using System.Reflection;
+using System.Security.Cryptography;
+using System.Text;
 using PushSharp.Common;
+using System.Diagnostics;
 
 namespace PushSharp.Apple
 {
@@ -68,7 +72,6 @@ namespace PushSharp.Apple
         byte[] buffer = new byte[6];
         int id;
 
-
         SemaphoreSlim connectingSemaphore = new SemaphoreSlim (1);
         SemaphoreSlim batchSendSemaphore = new SemaphoreSlim (1);
         object notificationBatchQueueLock = new object ();
@@ -127,28 +130,37 @@ namespace PushSharp.Apple
 
             Log.Info ("APNS-Client[{0}]: Sending Batch ID={1}, Count={2}", id, batchId, toSend.Count);
 
-            try {
+            try
+            {
 
                 var data = createBatch (toSend);
 
-                if (data != null && data.Length > 0) {
+                if (data != null && data.Length > 0)
+                {
 
-                    for (var i = 0; i <= Configuration.InternalBatchFailureRetryCount; i++) {
+                    for (var i = 0; i <= Configuration.InternalBatchFailureRetryCount; i++)
+                    {
 
                         await connectingSemaphore.WaitAsync ();
 
-                        try {
+                        try
+                        {
                             // See if we need to connect
                             if (!socketCanWrite () || i > 0)
                                 await connect ();
-                        } finally {
+                        }
+                        finally
+                        {
                             connectingSemaphore.Release ();
                         }
                 
-                        try {
+                        try
+                        {
                             await networkStream.WriteAsync(data, 0, data.Length).ConfigureAwait(false);
                             break;
-                        } catch (Exception ex) when (i != Configuration.InternalBatchFailureRetryCount) {
+                        }
+                        catch (Exception ex) when (i != Configuration.InternalBatchFailureRetryCount)
+                        {
                             Log.Info("APNS-CLIENT[{0}]: Retrying Batch: Batch ID={1}, Error={2}", id, batchId, ex);
                         }
                     }
@@ -156,11 +168,18 @@ namespace PushSharp.Apple
                     foreach (var n in toSend)
                         sent.Add (new SentNotification (n));
                 }
-
-            } catch (Exception ex) {
+            }
+            catch (ApnsConnectionException ex)
+            {
                 Log.Error ("APNS-CLIENT[{0}]: Send Batch Error: Batch ID={1}, Error={2}", id, batchId, ex);
                 foreach (var n in toSend)
                     n.CompleteFailed (new ApnsNotificationException (ApnsNotificationErrorStatusCode.ConnectionError, n.Notification, ex));
+                return;
+            }
+            catch (Exception ex) {
+                Log.Error ("APNS-CLIENT[{0}]: Send Batch Error: Batch ID={1}, Error={2}", id, batchId, ex);
+                foreach (var n in toSend)
+                    n.CompleteFailed(new ApnsNotificationException(ApnsNotificationErrorStatusCode.ConnectionError, n.Notification, ex));
             }
 
             Log.Info ("APNS-Client[{0}]: Sent Batch, waiting for possible response...", id);
@@ -239,7 +258,7 @@ namespace PushSharp.Apple
                 sent.Clear ();
                 return;
             }
-
+            
             // If we make it here, we did get data back, so we have errors
 
             Log.Info ("APNS-Client[{0}]: Batch (ID={1}) completed with error response...", id, batchId);
@@ -321,25 +340,48 @@ namespace PushSharp.Apple
             
             Log.Info ("APNS-Client[{0}]: Connecting (Batch ID={1})", id, batchId);
 
-            client = new TcpClient ();
+                client = new TcpClient();
 
-            try {
-                await client.ConnectAsync (Configuration.Host, Configuration.Port).ConfigureAwait (false);
+            try
+            {
+                if (!Configuration.UseProxy)
+                {
+                    await client.ConnectAsync (Configuration.Host, Configuration.Port).ConfigureAwait (false);
+                }
+                else
+                {
+                    var proxyHelper = new ProxyHelper { ProxyConnectionExceptionCreator = (message) => new ApnsConnectionException(message) };
+                    proxyHelper.BeforeConnect += () => Log.Info("APNS-Client[{0}]: Connecting Proxy (Batch ID={1})", id, batchId);
+                    proxyHelper.AfterConnect += (status) => Log.Info("APNS-Client[{0}]: Proxy Connected (Batch ID={1}) : {2}", id, batchId, status);
+                    await proxyHelper.Connect(client, Configuration.Host, Configuration.Port, Configuration.ProxyHost, Configuration.ProxyPort, Configuration.ProxyCredentials).ConfigureAwait(false);
+                }
 
                 //Set keep alive on the socket may help maintain our APNS connection
-                try {
-                    client.Client.SetSocketOption (SocketOptionLevel.Socket, SocketOptionName.KeepAlive, true);
-                } catch {
+                try
+                {
+                    client.Client.SetSocketOption(SocketOptionLevel.Socket, SocketOptionName.KeepAlive, true);
+                }
+                catch
+                {
                 }
 
                 //Really not sure if this will work on MONO....
                 // This may help windows azure users
-                try {
-                    SetSocketKeepAliveValues (client.Client, (int)Configuration.KeepAlivePeriod.TotalMilliseconds, (int)Configuration.KeepAliveRetryPeriod.TotalMilliseconds);
-                } catch {
+                try
+                {
+                    SetSocketKeepAliveValues(client.Client, (int)Configuration.KeepAlivePeriod.TotalMilliseconds, (int)Configuration.KeepAliveRetryPeriod.TotalMilliseconds);
                 }
-            } catch (Exception ex) {
-                throw new ApnsConnectionException ("Failed to Connect, check your firewall settings!", ex);
+                catch
+                {
+                }
+            }
+            catch (ApnsConnectionException)
+            {
+                throw;
+            }
+            catch (Exception ex)
+            {
+                throw new ApnsConnectionException("Failed to Connect, check your firewall settings!", ex);
             }
 
             // We can configure skipping ssl all together, ie: if we want to hit a test server

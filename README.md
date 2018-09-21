@@ -252,6 +252,25 @@ foreach (var uri in MY_DEVICE_CHANNEL_URIS) {
 wnsBroker.Stop ();
 ```
 
+### Use a Proxy with APNS or GCM
+
+To configure a proxy call `SetProxy` method on the appropriate configuration object.
+
+```csharp
+// create ApnsConfiguration or GcmConfiguration as needed
+var config = new ApnsConfiguration (ApnsConfiguration.ApnsServerEnvironment.Sandbox, 
+    "push-cert.p12", "push-cert-pwd");
+
+// set up a proxy
+if (useProxy)
+{
+    config.SetProxy(proxyAddress, proxyPort);
+}
+
+// continue as in the examples above
+// ...
+```
+
 
 ## How to Migrate from PushSharp 2.x to 3.x and higher
 
