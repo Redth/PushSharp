@@ -1,5 +1,5 @@
-﻿using PushSharp.Core;
-using System.Xml.Linq;
+﻿using System.Xml.Linq;
+using PushSharp.Common;
 
 namespace PushSharp.Windows
 {

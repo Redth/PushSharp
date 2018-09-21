@@ -1,7 +1,7 @@
 ﻿using System;
 using NUnit.Framework;
-using PushSharp.Amazon;
 using System.Collections.Generic;
+using PushSharp.Amazon;
 
 namespace PushSharp.Tests
 {

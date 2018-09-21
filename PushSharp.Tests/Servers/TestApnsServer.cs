@@ -1,11 +1,11 @@
 ﻿using System;
-using System.Threading.Tasks;
-using System.Net.Sockets;
-using System.Net;
 using System.Collections.Generic;
+using System.Net;
+using System.Net.Sockets;
 using System.Threading;
+using System.Threading.Tasks;
 
-namespace PushSharp.Tests
+namespace PushSharp.Tests.Servers
 {
     public class TestApnsServer
     {

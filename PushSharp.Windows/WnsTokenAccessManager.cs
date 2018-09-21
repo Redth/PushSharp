@@ -1,9 +1,9 @@
 ﻿using System;
 using System.Threading.Tasks;
 using System.Net.Http;
-using PushSharp.Core;
 using System.Collections.Generic;
 using Newtonsoft.Json.Linq;
+using PushSharp.Common;
 
 namespace PushSharp.Windows
 {

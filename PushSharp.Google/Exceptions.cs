@@ -1,6 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
-using PushSharp.Core;
+using PushSharp.Common;
 
 namespace PushSharp.Google
 {

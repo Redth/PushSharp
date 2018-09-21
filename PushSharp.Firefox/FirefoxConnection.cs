@@ -1,9 +1,9 @@
 ﻿using System;
-using PushSharp.Core;
 using System.Threading.Tasks;
 using System.Net.Http;
 using System.Net;
 using System.Net.Http.Headers;
+using PushSharp.Common;
 
 namespace PushSharp.Firefox
 {

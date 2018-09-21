@@ -1,37 +1,41 @@
 <?xml version="1.0" encoding="utf-8"?>
 <package xmlns="http://schemas.microsoft.com/packaging/2011/10/nuspec.xsd">
     <metadata>
-        <id>PushSharp</id>
-        <version>$version$</version>
-        <title>PushSharp</title>
-        <authors>Redth</authors>
-        <owners>Redth</owners>
+        <id>PushSharp.Core</id>
+        <version>1.0.0</version>
+        <title>PushSharp.Core</title>
+        <authors>Redth, mitch-tofi</authors>
+        <owners>Redth, mitch-tofi</owners>
         <licenseUrl>http://www.apache.org/licenses/LICENSE-2.0.txt</licenseUrl>
-        <projectUrl>https://github.com/Redth/PushSharp/</projectUrl>
-        <iconUrl>https://github.com/Redth/PushSharp/raw/master/Resources/PushSharp-Icon-NuGet-Small.png</iconUrl>
+        <projectUrl>https://github.com/mitch-tofi/PushSharp.Core</projectUrl>
+        <iconUrl>https://github.com/mitch-tofi/PushSharp.Core/raw/master/Resources/PushSharp-Icon-NuGet-Small.png</iconUrl>
         <requireLicenseAcceptance>false</requireLicenseAcceptance>
         <description>A server-side library for sending Push Notifications to iOS/OSX (APNS), Android/Chrome (GCM), Windows Phone/Windows (WNS), Amazon (ADM), Blackberry and Firefox OS</description>
         <summary>A server-side library for sending Push Notifications to many platforms (APNS, GCM, WNS, ADM)</summary>
         <releaseNotes>
-            3.0.0 - Complete Rewrite, New API, see project site for more info
+            1.0.0 - Forked from PushSharp and added support NetStandard 2.0
         </releaseNotes>
-        <copyright>2012-2016 Redth</copyright>
+        <copyright>2012-2017 Redth, mitch-tofi</copyright>
         <language>en-US</language>
         <tags>APN, APNS, GCM, XMPP, ADM, GCMXMPP, C2DM, PAP, BIS, BEM, Blackberry, iOS, Android, iPad, iPhone, PushSharp, MDM, UWP, WNS, Windows Notification, Amazon, Amazon Device, Push, Push Notifications, Google Cloud, Cloud Messaging, Google Cloud Messaging, OSX, Mac, WindowsPhone, PassKit</tags>
         <dependencies>
-            <dependency id="Newtonsoft.Json" version="7.0.1" />
+            <dependency id="Newtonsoft.Json" version="10.0.3" />
         </dependencies>
     </metadata>
     <files>
-        <file src="PushSharp.Core\bin\Release\PushSharp.Core.dll" target="lib\net45\PushSharp.Core.dll" />
-
-        <file src="PushSharp.Amazon\bin\Release\PushSharp.Amazon.dll" target="lib\net45\PushSharp.Amazon.dll" />
-        <file src="PushSharp.Apple\bin\Release\PushSharp.Apple.dll" target="lib\net45\PushSharp.Apple.dll" />
-        <!-- <file src="PushSharp.Apple\bin\Release\HttpTwo.dll" target="lib\net45\HttpTwo.dll" /> -->
-        <!-- <file src="PushSharp.Apple\bin\Release\HttpTwo.HPack.dll" target="lib\net45\HttpTwo.HPack.dll" /> -->
-        <file src="PushSharp.Firefox\bin\Release\PushSharp.Firefox.dll" target="lib\net45\PushSharp.Firefox.dll" />
-        <file src="PushSharp.Windows\bin\Release\PushSharp.Windows.dll" target="lib\net45\PushSharp.Windows.dll" />
-        <file src="PushSharp.Google\bin\Release\PushSharp.Google.dll" target="lib\net45\PushSharp.Google.dll" />
-        <file src="PushSharp.Blackberry\bin\Release\PushSharp.Blackberry.dll" target="lib\net45\PushSharp.Blackberry.dll" />
+        <file src="PushSharp.Common\bin\Release\net45\PushSharp.Common.dll" target="lib\net45\PushSharp.Common.dll" />
+        <file src="PushSharp.Amazon\bin\Release\net45\PushSharp.Amazon.dll" target="lib\net45\PushSharp.Amazon.dll" />
+        <file src="PushSharp.Apple\bin\Release\net45\PushSharp.Apple.dll" target="lib\net45\PushSharp.Apple.dll" />
+        <file src="PushSharp.Firefox\bin\Release\net45\PushSharp.Firefox.dll" target="lib\net45\PushSharp.Firefox.dll" />
+        <file src="PushSharp.Windows\bin\Release\net45\PushSharp.Windows.dll" target="lib\net45\PushSharp.Windows.dll" />
+        <file src="PushSharp.Google\bin\Release\net45\PushSharp.Google.dll" target="lib\net45\PushSharp.Google.dll" />
+        <file src="PushSharp.Blackberry\bin\Release\net45\PushSharp.Blackberry.dll" target="lib\net45\PushSharp.Blackberry.dll" />
+        <file src="PushSharp.Common\bin\Release\netstandard2.0\PushSharp.Common.dll" target="lib\netstandard2.0\PushSharp.Common.dll" />
+        <file src="PushSharp.Amazon\bin\Release\netstandard2.0\PushSharp.Amazon.dll" target="lib\netstandard2.0\PushSharp.Amazon.dll" />
+        <file src="PushSharp.Apple\bin\Release\netstandard2.0\PushSharp.Apple.dll" target="lib\netstandard2.0\PushSharp.Apple.dll" />
+        <file src="PushSharp.Firefox\bin\Release\netstandard2.0\PushSharp.Firefox.dll" target="lib\netstandard2.0\PushSharp.Firefox.dll" />
+        <file src="PushSharp.Windows\bin\Release\netstandard2.0\PushSharp.Windows.dll" target="lib\netstandard2.0\PushSharp.Windows.dll" />
+        <file src="PushSharp.Google\bin\Release\netstandard2.0\PushSharp.Google.dll" target="lib\netstandard2.0\PushSharp.Google.dll" />
+        <file src="PushSharp.Blackberry\bin\Release\netstandard2.0\PushSharp.Blackberry.dll" target="lib\netstandard2.0\PushSharp.Blackberry.dll" />
     </files>
 </package>

@@ -3,7 +3,7 @@ using System.Threading.Tasks;
 using System.Net;
 using System.Xml.Linq;
 using System.Linq;
-using PushSharp.Core;
+using PushSharp.Common;
 
 namespace PushSharp.Blackberry
 {

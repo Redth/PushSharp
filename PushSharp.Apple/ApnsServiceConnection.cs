@@ -1,6 +1,6 @@
 ﻿using System;
-using PushSharp.Core;
 using System.Threading.Tasks;
+using PushSharp.Common;
 
 namespace PushSharp.Apple
 {

@@ -1,10 +1,10 @@
 ﻿using System;
+using System.IO;
 using System.Net;
 using System.Text;
-using System.IO;
 using System.Threading.Tasks;
 
-namespace PushSharp.Core
+namespace PushSharp.Common
 {
     public static class PushHttpClient
     {
