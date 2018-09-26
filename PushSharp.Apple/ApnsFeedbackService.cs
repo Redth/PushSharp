@@ -20,10 +20,10 @@ namespace PushSharp.Apple
 
         public ApnsConfiguration Configuration { get; private set; }
 
-        public delegate void FeedbackReceivedDelegate (string deviceToken, DateTime timestamp);
+        public delegate void FeedbackReceivedDelegate (string deviceToken, DateTime timestamp, object optionalData);
         public event FeedbackReceivedDelegate FeedbackReceived;
 
-        public void Check ()
+        public void Check (object optionalData = null)
         {
             var encoding = Encoding.ASCII;
 
@@ -95,7 +95,7 @@ namespace PushSharp.Apple
                         // Raise the event to the consumer
                         var evt = FeedbackReceived;
                         if (evt != null)
-                            evt (token, timestamp);
+                            evt (token, timestamp, optionalData);
                     } else {
                         continue;
                     }
