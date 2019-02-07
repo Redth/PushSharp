@@ -50,12 +50,12 @@ namespace PushSharp.Tests
         [JsonProperty ("apns_device_tokens")]
         public List<string> ApnsDeviceTokens { get;set; }
 
-        [JsonProperty ("gcm_auth_token")]
-        public string GcmAuthToken { get;set; }
-        [JsonProperty ("gcm_sender_id")]
-        public string GcmSenderId { get;set; }
-        [JsonProperty ("gcm_registration_ids")]
-        public List<string> GcmRegistrationIds { get;set; }
+        [JsonProperty ("fcm_auth_token")]
+        public string FcmAuthToken { get;set; }
+        [JsonProperty ("fcm_sender_id")]
+        public string FcmSenderId { get;set; }
+        [JsonProperty ("fcm_registration_ids")]
+        public List<string> FcmRegistrationIds { get;set; }
 
         [JsonProperty ("adm_client_id")]
         public string AdmClientId { get;set; }

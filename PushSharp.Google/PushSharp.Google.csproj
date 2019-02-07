@@ -41,12 +41,12 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="Properties\AssemblyInfo.cs" />
-    <Compile Include="GcmNotification.cs" />
-    <Compile Include="GcmMessageResult.cs" />
-    <Compile Include="GcmConfiguration.cs" />
-    <Compile Include="GcmResponse.cs" />
+    <Compile Include="FcmNotification.cs" />
+    <Compile Include="FcmMessageResult.cs" />
+    <Compile Include="FcmConfiguration.cs" />
+    <Compile Include="FcmResponse.cs" />
     <Compile Include="Exceptions.cs" />
-    <Compile Include="GcmServiceConnection.cs" />
+    <Compile Include="FcmServiceConnection.cs" />
   </ItemGroup>
   <Import Project="$(MSBuildBinPath)\Microsoft.CSharp.targets" />
   <ItemGroup>

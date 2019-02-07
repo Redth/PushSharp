@@ -6,15 +6,15 @@ using Newtonsoft.Json.Linq;
 
 namespace PushSharp.Tests
 {
-    [Category ("GCM")]
+    [Category ("FCM")]
     [TestFixture]
-    public class GcmTests
+    public class FcmTests
     {
         [Test]
-        public void GcmNotification_Priority_Should_Serialize_As_String_High ()
+        public void FcmNotification_Priority_Should_Serialize_As_String_High ()
         {
-            var n = new GcmNotification ();
-            n.Priority = GcmNotificationPriority.High;
+            var n = new FcmNotification ();
+            n.Priority = FcmNotificationPriority.High;
 
             var str = n.ToString ();
 
@@ -22,10 +22,10 @@ namespace PushSharp.Tests
         }
 
         [Test]
-        public void GcmNotification_Priority_Should_Serialize_As_String_Normal ()
+        public void FcmNotification_Priority_Should_Serialize_As_String_Normal ()
         {
-            var n = new GcmNotification ();
-            n.Priority = GcmNotificationPriority.Normal;
+            var n = new FcmNotification ();
+            n.Priority = FcmNotificationPriority.Normal;
 
             var str = n.ToString ();
 

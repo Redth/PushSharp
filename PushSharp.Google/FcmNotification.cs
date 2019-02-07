@@ -1,4 +1,4 @@
-using System;
+﻿using System;
 using System.Runtime.Serialization;
 using Newtonsoft.Json.Linq;
 using System.Collections.Generic;
@@ -8,11 +8,11 @@ using Newtonsoft.Json;
 
 namespace PushSharp.Google
 {
-    public class GcmNotification : INotification
+    public class FcmNotification : INotification
     {
-        public static GcmNotification ForSingleResult (GcmResponse response, int resultIndex)
+        public static FcmNotification ForSingleResult (FcmResponse response, int resultIndex)
         {
-            var result = new GcmNotification ();
+            var result = new FcmNotification ();
             result.Tag = response.OriginalNotification.Tag;
             result.MessageId = response.OriginalNotification.MessageId;
 
@@ -31,9 +31,9 @@ namespace PushSharp.Google
             return result;
         }
 
-        public static GcmNotification ForSingleRegistrationId (GcmNotification msg, string registrationId)
+        public static FcmNotification ForSingleRegistrationId (FcmNotification msg, string registrationId)
         {
-            var result = new GcmNotification ();
+            var result = new FcmNotification ();
             result.Tag = msg.Tag;
             result.MessageId = msg.MessageId;
             result.RegistrationIds.Add (registrationId);
@@ -49,7 +49,7 @@ namespace PushSharp.Google
             return result;
         }
 
-        public GcmNotification ()
+        public FcmNotification ()
         {
             RegistrationIds = new List<string> ();
             CollapseKey = string.Empty;
@@ -101,7 +101,7 @@ namespace PushSharp.Google
         public JObject Notification { get; set; }
 
         /// <summary>
-        /// If true, GCM will only be delivered once the device's screen is on
+        /// If true, FCM will only be delivered once the device's screen is on
         /// </summary>
         [JsonProperty ("delay_while_idle")]
         public bool? DelayWhileIdle { get; set; }
@@ -121,7 +121,7 @@ namespace PushSharp.Google
         /// <summary>
         /// A string that maps a single user to multiple registration IDs associated with that user. This allows a 3rd-party server to send a single message to multiple app instances (typically on multiple devices) owned by a single user.
         /// </summary>
-        [Obsolete ("Deprecated on GCM Server API.  Use Device Group Messaging to send to multiple devices.")]
+        [Obsolete ("Deprecated on FCM Server API.  Use Device Group Messaging to send to multiple devices.")]
         public string NotificationKey { get; set; }
 
         /// <summary>
@@ -142,7 +142,7 @@ namespace PushSharp.Google
         /// </summary>
         /// <value>The priority.</value>
         [JsonProperty ("priority"), JsonConverter (typeof (Newtonsoft.Json.Converters.StringEnumConverter))]
-        public GcmNotificationPriority? Priority { get; set; }
+        public FcmNotificationPriority? Priority { get; set; }
 
         internal string GetJson ()
         {
@@ -163,7 +163,7 @@ namespace PushSharp.Google
         }
     }
 
-    public enum GcmNotificationPriority
+    public enum FcmNotificationPriority
     {
         [EnumMember (Value="normal")]
         Normal = 5,

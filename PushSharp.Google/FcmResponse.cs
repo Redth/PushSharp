@@ -5,17 +5,17 @@ using System.Runtime.Serialization;
 
 namespace PushSharp.Google
 {
-    public class GcmResponse
+    public class FcmResponse
     {
-        public GcmResponse()
+        public FcmResponse()
         {
             MulticastId = -1;
             NumberOfSuccesses = 0;
             NumberOfFailures = 0;
             NumberOfCanonicalIds = 0;
             OriginalNotification = null;
-            Results = new List<GcmMessageResult>();
-            ResponseCode = GcmResponseCode.Ok;
+            Results = new List<FcmMessageResult>();
+            ResponseCode = FcmResponseCode.Ok;
         }
 
         [JsonProperty("multicast_id")]
@@ -31,16 +31,16 @@ namespace PushSharp.Google
         public long NumberOfCanonicalIds { get; set; }
 
         [JsonIgnore]
-        public GcmNotification OriginalNotification { get; set; }
+        public FcmNotification OriginalNotification { get; set; }
 
         [JsonProperty("results")]
-        public List<GcmMessageResult> Results { get; set; }
+        public List<FcmMessageResult> Results { get; set; }
 
         [JsonIgnore]
-        public GcmResponseCode ResponseCode { get; set; }
+        public FcmResponseCode ResponseCode { get; set; }
     }
 
-    public enum GcmResponseCode
+    public enum FcmResponseCode
     {
         Ok,
         Error,
@@ -50,7 +50,7 @@ namespace PushSharp.Google
         InternalServiceError
     }
 
-    public enum GcmResponseStatus
+    public enum FcmResponseStatus
     {
         [EnumMember (Value="Ok")]
         Ok,
