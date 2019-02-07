@@ -4,34 +4,34 @@ using PushSharp.Core;
 
 namespace PushSharp.Google
 {
-    public class GcmNotificationException : NotificationException
+    public class FcmNotificationException : NotificationException
     {
-        public GcmNotificationException (GcmNotification notification, string msg) : base (msg, notification)
+        public FcmNotificationException (FcmNotification notification, string msg) : base (msg, notification)
         {
             Notification = notification;
         }
 
-        public GcmNotificationException (GcmNotification notification, string msg, string description) : base (msg, notification)
+        public FcmNotificationException (FcmNotification notification, string msg, string description) : base (msg, notification)
         {
             Notification = notification;
             Description = description;
         }
 
-        public new GcmNotification Notification { get; private set; }
+        public new FcmNotification Notification { get; private set; }
         public string Description { get; private set; }
     }
 
-    public class GcmMulticastResultException : Exception
+    public class FcmMulticastResultException : Exception
     {
-        public GcmMulticastResultException () : base ("One or more Registration Id's failed in the multicast notification")
+        public FcmMulticastResultException () : base ("One or more Registration Id's failed in the multicast notification")
         {
-            Succeeded = new List<GcmNotification> ();
-            Failed = new Dictionary<GcmNotification, Exception> ();
+            Succeeded = new List<FcmNotification> ();
+            Failed = new Dictionary<FcmNotification, Exception> ();
         }
 
-        public List<GcmNotification> Succeeded { get;set; }
+        public List<FcmNotification> Succeeded { get;set; }
 
-        public Dictionary<GcmNotification, Exception> Failed { get;set; }
+        public Dictionary<FcmNotification, Exception> Failed { get;set; }
     }
 }
 

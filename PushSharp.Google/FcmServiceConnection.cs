@@ -11,31 +11,31 @@ using System.Runtime.Serialization;
 
 namespace PushSharp.Google
 {
-    public class GcmServiceConnectionFactory : IServiceConnectionFactory<GcmNotification>
+    public class FcmServiceConnectionFactory : IServiceConnectionFactory<FcmNotification>
     {
-        public GcmServiceConnectionFactory (GcmConfiguration configuration)
+        public FcmServiceConnectionFactory (FcmConfiguration configuration)
         {
             Configuration = configuration;
         }
 
-        public GcmConfiguration Configuration { get; private set; }
+        public FcmConfiguration Configuration { get; private set; }
 
-        public IServiceConnection<GcmNotification> Create()
+        public IServiceConnection<FcmNotification> Create()
         {
-            return new GcmServiceConnection (Configuration);
+            return new FcmServiceConnection (Configuration);
         }
     }
 
-    public class GcmServiceBroker : ServiceBroker<GcmNotification>
+    public class FcmServiceBroker : ServiceBroker<FcmNotification>
     {
-        public GcmServiceBroker (GcmConfiguration configuration) : base (new GcmServiceConnectionFactory (configuration))
+        public FcmServiceBroker (FcmConfiguration configuration) : base (new FcmServiceConnectionFactory (configuration))
         {
         }
     }
 
-    public class GcmServiceConnection : IServiceConnection<GcmNotification>
+    public class FcmServiceConnection : IServiceConnection<FcmNotification>
     {
-        public GcmServiceConnection (GcmConfiguration configuration)
+        public FcmServiceConnection (FcmConfiguration configuration)
         {
             Configuration = configuration;
             http = new HttpClient ();
@@ -45,17 +45,17 @@ namespace PushSharp.Google
             http.DefaultRequestHeaders.TryAddWithoutValidation ("Authorization", "key=" + Configuration.SenderAuthToken);
         }
 
-        public GcmConfiguration Configuration { get; private set; }
+        public FcmConfiguration Configuration { get; private set; }
 
         readonly HttpClient http;
 
-        public async Task Send (GcmNotification notification)
+        public async Task Send (FcmNotification notification)
         {
             var json = notification.GetJson ();
 
             var content = new StringContent (json, System.Text.Encoding.UTF8, "application/json");
 
-            var response = await http.PostAsync (Configuration.GcmUrl, content);
+            var response = await http.PostAsync (Configuration.FcmUrl, content);
 
             if (response.IsSuccessStatusCode) {
                 await processResponseOk (response, notification).ConfigureAwait (false);
@@ -64,12 +64,12 @@ namespace PushSharp.Google
             }
         }
 
-        async Task processResponseOk (HttpResponseMessage httpResponse, GcmNotification notification)
+        async Task processResponseOk (HttpResponseMessage httpResponse, FcmNotification notification)
         {
-            var multicastResult = new GcmMulticastResultException ();
+            var multicastResult = new FcmMulticastResultException ();
 
-            var result = new GcmResponse () {
-                ResponseCode = GcmResponseCode.Ok,
+            var result = new FcmResponse () {
+                ResponseCode = FcmResponseCode.Ok,
                 OriginalNotification = notification
             };
 
@@ -83,18 +83,18 @@ namespace PushSharp.Google
             var jsonResults = json ["results"] as JArray ?? new JArray ();
 
             foreach (var r in jsonResults) {
-                var msgResult = new GcmMessageResult ();
+                var msgResult = new FcmMessageResult ();
 
                 msgResult.MessageId = r.Value<string> ("message_id");
                 msgResult.CanonicalRegistrationId = r.Value<string> ("registration_id");
-                msgResult.ResponseStatus = GcmResponseStatus.Ok;
+                msgResult.ResponseStatus = FcmResponseStatus.Ok;
 
                 if (!string.IsNullOrEmpty (msgResult.CanonicalRegistrationId))
-                    msgResult.ResponseStatus = GcmResponseStatus.CanonicalRegistrationId;
+                    msgResult.ResponseStatus = FcmResponseStatus.CanonicalRegistrationId;
                 else if (r ["error"] != null) {
                     var err = r.Value<string> ("error") ?? "";
 
-                    msgResult.ResponseStatus = GetGcmResponseStatus (err);
+                    msgResult.ResponseStatus = GetFcmResponseStatus (err);
                 }
 
                 result.Results.Add (msgResult);
@@ -106,13 +106,13 @@ namespace PushSharp.Google
             // We will raise events for each individual result so that the consumer of the library
             // can deal with individual registrationid's for the notification
             foreach (var r in result.Results) {
-                var singleResultNotification = GcmNotification.ForSingleResult (result, index);
+                var singleResultNotification = FcmNotification.ForSingleResult (result, index);
 
                 singleResultNotification.MessageId = r.MessageId;
 
-                if (r.ResponseStatus == GcmResponseStatus.Ok) { // Success
+                if (r.ResponseStatus == FcmResponseStatus.Ok) { // Success
                     multicastResult.Succeeded.Add (singleResultNotification);
-                } else if (r.ResponseStatus == GcmResponseStatus.CanonicalRegistrationId) { //Need to swap reg id's
+                } else if (r.ResponseStatus == FcmResponseStatus.CanonicalRegistrationId) { //Need to swap reg id's
                     //Swap Registrations Id's
                     var newRegistrationId = r.CanonicalRegistrationId;
                     var oldRegistrationId = string.Empty;
@@ -131,9 +131,9 @@ namespace PushSharp.Google
                             OldSubscriptionId = oldRegistrationId,
                             NewSubscriptionId = newRegistrationId
                         });
-                } else if (r.ResponseStatus == GcmResponseStatus.Unavailable) { // Unavailable
-                    multicastResult.Failed.Add (singleResultNotification, new GcmNotificationException (singleResultNotification, "Unavailable Response Status"));
-                } else if (r.ResponseStatus == GcmResponseStatus.NotRegistered) { //Bad registration Id
+                } else if (r.ResponseStatus == FcmResponseStatus.Unavailable) { // Unavailable
+                    multicastResult.Failed.Add (singleResultNotification, new FcmNotificationException (singleResultNotification, "Unavailable Response Status"));
+                } else if (r.ResponseStatus == FcmResponseStatus.NotRegistered) { //Bad registration Id
                     var oldRegistrationId = string.Empty;
 
                     if (singleResultNotification.RegistrationIds != null && singleResultNotification.RegistrationIds.Count > 0)
@@ -149,7 +149,7 @@ namespace PushSharp.Google
                                                 new DeviceSubscriptionExpiredException (singleResultNotification) { 
                                                     OldSubscriptionId = oldRegistrationId });
                 } else {
-                    multicastResult.Failed.Add (singleResultNotification, new GcmNotificationException (singleResultNotification, "Unknown Failure: " + r.ResponseStatus));
+                    multicastResult.Failed.Add (singleResultNotification, new FcmNotificationException (singleResultNotification, "Unknown Failure: " + r.ResponseStatus));
                 }
 
                 index++;
@@ -170,7 +170,7 @@ namespace PushSharp.Google
                 throw multicastResult;
         }
 
-        async Task processResponseError (HttpResponseMessage httpResponse, GcmNotification notification)
+        async Task processResponseError (HttpResponseMessage httpResponse, FcmNotification notification)
         {
             string responseBody = null;
 
@@ -180,10 +180,10 @@ namespace PushSharp.Google
 
             //401 bad auth token
             if (httpResponse.StatusCode == HttpStatusCode.Unauthorized)
-                throw new UnauthorizedAccessException ("GCM Authorization Failed");
+                throw new UnauthorizedAccessException ("FCM Authorization Failed");
 
             if (httpResponse.StatusCode == HttpStatusCode.BadRequest)
-                throw new GcmNotificationException (notification, "HTTP 400 Bad Request", responseBody);
+                throw new FcmNotificationException (notification, "HTTP 400 Bad Request", responseBody);
 
             if ((int)httpResponse.StatusCode >= 500 && (int)httpResponse.StatusCode < 600) {
                 //First try grabbing the retry-after header and parsing it.
@@ -191,26 +191,26 @@ namespace PushSharp.Google
 
                 if (retryAfterHeader != null && retryAfterHeader.Delta.HasValue) {
                     var retryAfter = retryAfterHeader.Delta.Value;
-                    throw new RetryAfterException (notification, "GCM Requested Backoff", DateTime.UtcNow + retryAfter);
+                    throw new RetryAfterException (notification, "FCM Requested Backoff", DateTime.UtcNow + retryAfter);
                 }                  
             }
 
-            throw new GcmNotificationException (notification, "GCM HTTP Error: " + httpResponse.StatusCode, responseBody);           
+            throw new FcmNotificationException (notification, "FCM HTTP Error: " + httpResponse.StatusCode, responseBody);           
         }
 
-        static GcmResponseStatus GetGcmResponseStatus (string str)
+        static FcmResponseStatus GetFcmResponseStatus (string str)
         {
-            var enumType = typeof(GcmResponseStatus);
+            var enumType = typeof(FcmResponseStatus);
 
             foreach (var name in Enum.GetNames (enumType)) {
                 var enumMemberAttribute = ((EnumMemberAttribute[])enumType.GetField (name).GetCustomAttributes (typeof(EnumMemberAttribute), true)).Single ();
 
                 if (enumMemberAttribute.Value.Equals (str, StringComparison.InvariantCultureIgnoreCase))
-                    return (GcmResponseStatus)Enum.Parse (enumType, name);
+                    return (FcmResponseStatus)Enum.Parse (enumType, name);
             }
 
             //Default
-            return GcmResponseStatus.Error;
+            return FcmResponseStatus.Error;
         }
     }
 }

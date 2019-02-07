@@ -1,4 +1,4 @@
-using System;
+﻿using System;
 using System.Threading.Tasks;
 using System.Net.Http;
 using System.Net.Http.Headers;
@@ -6,7 +6,7 @@ using Newtonsoft.Json;
 
 namespace PushSharp.Google
 {
-    public class GcmMessageResult
+    public class FcmMessageResult
     {
         [JsonProperty("message_id", NullValueHandling = NullValueHandling.Ignore)]
         public string MessageId { get; set; }
@@ -15,7 +15,7 @@ namespace PushSharp.Google
         public string CanonicalRegistrationId { get; set; }
 
         [JsonIgnore]
-        public GcmResponseStatus ResponseStatus { get; set; }
+        public FcmResponseStatus ResponseStatus { get; set; }
 
         [JsonProperty("error", NullValueHandling = NullValueHandling.Ignore)]
         public string Error
@@ -24,35 +24,35 @@ namespace PushSharp.Google
             {
                 switch (ResponseStatus)
                 {
-                case GcmResponseStatus.Ok:
+                case FcmResponseStatus.Ok:
                     return null;
-                case GcmResponseStatus.Unavailable:
+                case FcmResponseStatus.Unavailable:
                     return "Unavailable";
-                case GcmResponseStatus.QuotaExceeded:
+                case FcmResponseStatus.QuotaExceeded:
                     return "QuotaExceeded";
-                case GcmResponseStatus.NotRegistered:
+                case FcmResponseStatus.NotRegistered:
                     return "NotRegistered";
-                case GcmResponseStatus.MissingRegistrationId:
+                case FcmResponseStatus.MissingRegistrationId:
                     return "MissingRegistration";
-                case GcmResponseStatus.MissingCollapseKey:
+                case FcmResponseStatus.MissingCollapseKey:
                     return "MissingCollapseKey";
-                case GcmResponseStatus.MismatchSenderId:
+                case FcmResponseStatus.MismatchSenderId:
                     return "MismatchSenderId";
-                case GcmResponseStatus.MessageTooBig:
+                case FcmResponseStatus.MessageTooBig:
                     return "MessageTooBig";
-                case GcmResponseStatus.InvalidTtl:
+                case FcmResponseStatus.InvalidTtl:
                     return "InvalidTtl";
-                case GcmResponseStatus.InvalidRegistration:
+                case FcmResponseStatus.InvalidRegistration:
                     return "InvalidRegistration";
-                case GcmResponseStatus.InvalidDataKey:
+                case FcmResponseStatus.InvalidDataKey:
                     return "InvalidDataKey";
-                case GcmResponseStatus.InternalServerError:
+                case FcmResponseStatus.InternalServerError:
                     return "InternalServerError";
-                case GcmResponseStatus.DeviceQuotaExceeded:
+                case FcmResponseStatus.DeviceQuotaExceeded:
                     return null;
-                case GcmResponseStatus.CanonicalRegistrationId:
+                case FcmResponseStatus.CanonicalRegistrationId:
                     return null;
-                case GcmResponseStatus.Error:
+                case FcmResponseStatus.Error:
                     return "Error";
                 default:
                     return null;

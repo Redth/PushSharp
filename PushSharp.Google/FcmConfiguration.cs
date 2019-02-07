@@ -2,24 +2,24 @@
 
 namespace PushSharp.Google
 {
-    public class GcmConfiguration
+    public class FcmConfiguration
     {
-        private const string GCM_SEND_URL = "https://gcm-http.googleapis.com/gcm/send";
+        private const string FCM_SEND_URL = "https://fcm.googleapis.com/fcm/send";
 
-        public GcmConfiguration (string senderAuthToken)
+        public FcmConfiguration (string senderAuthToken)
         {
             this.SenderAuthToken = senderAuthToken;
-            this.GcmUrl = GCM_SEND_URL;
+            this.FcmUrl = FCM_SEND_URL;
 
             this.ValidateServerCertificate = false;
         }
 
-        public GcmConfiguration (string optionalSenderID, string senderAuthToken, string optionalApplicationIdPackageName)
+        public FcmConfiguration (string optionalSenderID, string senderAuthToken, string optionalApplicationIdPackageName)
         {
             this.SenderID = optionalSenderID;
             this.SenderAuthToken = senderAuthToken;
             this.ApplicationIdPackageName = optionalApplicationIdPackageName;
-            this.GcmUrl = GCM_SEND_URL;
+            this.FcmUrl = FCM_SEND_URL;
 
             this.ValidateServerCertificate = false;
         }
@@ -32,11 +32,11 @@ namespace PushSharp.Google
 
         public bool ValidateServerCertificate { get; set; }
 
-        public string GcmUrl { get; set; }
+        public string FcmUrl { get; set; }
 
         public void OverrideUrl (string url)
         {
-            GcmUrl = url;
+            FcmUrl = url;
         }
     }
 }
