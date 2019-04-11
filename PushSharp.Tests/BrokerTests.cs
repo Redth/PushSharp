@@ -25,10 +25,10 @@ namespace PushSharp.Tests
 
             var broker = new TestServiceBroker ();
             broker.OnNotificationFailed += (notification, exception) => {
-                failed++;
+                Interlocked.Increment(ref failed);
             };
             broker.OnNotificationSucceeded += (notification) => {
-                succeeded++;  
+                Interlocked.Increment(ref succeeded);
             };
 			broker.Start ();
 			broker.ChangeScale (1);
