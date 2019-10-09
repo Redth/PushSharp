@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Net;
 
 namespace PushSharp.Google
 {
@@ -38,6 +39,8 @@ namespace PushSharp.Google
         {
             GcmUrl = url;
         }
+
+        public WebProxy Proxy { get; set; }
     }
 }
 
