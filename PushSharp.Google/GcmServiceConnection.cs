@@ -38,7 +38,17 @@ namespace PushSharp.Google
         public GcmServiceConnection (GcmConfiguration configuration)
         {
             Configuration = configuration;
-            http = new HttpClient ();
+            if (null != configuration.Proxy)
+            {
+                var httpHandler = new HttpClientHandler
+                {
+                    Proxy = configuration.Proxy
+                };
+                http = new HttpClient(httpHandler, true);
+            } else
+            {
+                http = new HttpClient();
+            }
 
             http.DefaultRequestHeaders.UserAgent.Clear ();
             http.DefaultRequestHeaders.UserAgent.Add (new ProductInfoHeaderValue ("PushSharp", "3.0"));
