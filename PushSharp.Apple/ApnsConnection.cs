@@ -159,8 +159,13 @@ namespace PushSharp.Apple
 
             } catch (Exception ex) {
                 Log.Error ("APNS-CLIENT[{0}]: Send Batch Error: Batch ID={1}, Error={2}", id, batchId, ex);
-                foreach (var n in toSend)
-                    n.CompleteFailed (new ApnsNotificationException (ApnsNotificationErrorStatusCode.ConnectionError, n.Notification, ex));
+                foreach (var n in toSend) {
+                    if (n == null) {
+                        Log.Error("APNS-CLIENT[{0}]: Batch contains invalid notification: Batch ID={1}", id, batchId);
+                    } else { 
+                        n.CompleteFailed(new ApnsNotificationException(ApnsNotificationErrorStatusCode.ConnectionError, n.Notification, ex));
+                    }
+                }
             }
 
             Log.Info ("APNS-Client[{0}]: Sent Batch, waiting for possible response...", id);
