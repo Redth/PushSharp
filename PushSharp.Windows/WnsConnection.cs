@@ -64,7 +64,10 @@ namespace PushSharp.Windows
 
             http.DefaultRequestHeaders.TryAddWithoutValidation ("X-WNS-Type", string.Format ("wns/{0}", notification.Type.ToString().ToLower ()));
 
-            if(!http.DefaultRequestHeaders.Contains("Authorization")) //prevent double values
+            if (notification.Priority != WnsPriority.Unspecified)
+                http.DefaultRequestHeaders.TryAddWithoutValidation("X-WNS-PRIORITY", ((int)notification.Priority).ToString());
+
+            if (!http.DefaultRequestHeaders.Contains("Authorization")) //prevent double values
                 http.DefaultRequestHeaders.TryAddWithoutValidation("Authorization", "Bearer " + accessToken);
 
             if (notification.RequestForStatus.HasValue)

@@ -43,5 +43,14 @@ namespace PushSharp.Windows
         Toast,
         Raw
     }
+
+    public enum WnsPriority
+    {
+        Unspecified = 0,
+        High = 1,
+        Meduim = 2,
+        Low = 3,
+        VeryLow = 4
+    }
 }
 

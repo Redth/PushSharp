@@ -14,6 +14,8 @@ namespace PushSharp.Windows
 
         public abstract WnsNotificationType Type { get; }
 
+        public WnsPriority Priority { get; set; }
+
         public bool IsDeviceRegistrationIdValid ()
         {
             return true;
