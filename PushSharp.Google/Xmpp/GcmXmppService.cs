@@ -26,7 +26,7 @@ namespace PushSharp.Google
         }
     }
 
-    public class GcmXmppServiceConnection : IServiceConnection<GcmXmppNotification>
+    public class GcmXmppServiceConnection : IServiceConnection<GcmXmppNotification>, IDisposable
     {   
         readonly GcmXmppConnection connection;
 
@@ -45,6 +45,11 @@ namespace PushSharp.Google
 
             if (ex != null)
                 throw ex;
+        }
+
+        public void Dispose()
+        {
+            connection?.Dispose();
         }
     }
 }

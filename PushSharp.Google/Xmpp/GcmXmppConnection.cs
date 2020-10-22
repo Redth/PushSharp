@@ -12,7 +12,7 @@ using System.Collections.Generic;
 
 namespace PushSharp.Google
 {
-    public class GcmXmppConnection
+    public class GcmXmppConnection : IDisposable
     {
         public const string STREAM_ELEMENT_NAME = "stream";
         public const string SASL_AUTH_ELEMENT_NAME = "auth";
@@ -39,36 +39,36 @@ namespace PushSharp.Google
 
         public Dictionary<string, CompletableNotification> notifications;
 
-        public GcmXmppConnection (GcmXmppConfiguration configuration)
+        public GcmXmppConnection(GcmXmppConfiguration configuration)
         {
-            authCompletion = new TaskCompletionSource<bool> ();
+            authCompletion = new TaskCompletionSource<bool>();
 
-            notifications = new Dictionary<string,CompletableNotification> ();
+            notifications = new Dictionary<string, CompletableNotification>();
             Configuration = configuration;
 
-            certificates = new X509CertificateCollection ();
+            certificates = new X509CertificateCollection();
 
             // Add local/machine certificate stores to our collection if requested
             //if (Configuration.AddLocalAndMachineCertificateStores) {
-                var store = new X509Store (StoreLocation.LocalMachine);
-                certificates.AddRange (store.Certificates);
+            var store = new X509Store(StoreLocation.LocalMachine);
+            certificates.AddRange(store.Certificates);
 
-                store = new X509Store (StoreLocation.CurrentUser);
-                certificates.AddRange (store.Certificates);
+            store = new X509Store(StoreLocation.CurrentUser);
+            certificates.AddRange(store.Certificates);
             //}
 
             // Add optionally specified additional certs into our collection
-//            if (Configuration.AdditionalCertificates != null) {
-//                foreach (var addlCert in Configuration.AdditionalCertificates)
-//                    certificates.Add (addlCert);
-//            }
+            //            if (Configuration.AdditionalCertificates != null) {
+            //                foreach (var addlCert in Configuration.AdditionalCertificates)
+            //                    certificates.Add (addlCert);
+            //            }
 
             // Finally, add the main private cert for authenticating to our collection
-//            if (certificate != null)
-//                certificates.Add (certificate);
+            //            if (certificate != null)
+            //                certificates.Add (certificate);
         }
 
-        public delegate void ReceiveMessageDelegate ();
+        public delegate void ReceiveMessageDelegate();
         public event ReceiveMessageDelegate ReceiveMessage;
 
         public GcmXmppConfiguration Configuration { get; private set; }
@@ -79,245 +79,269 @@ namespace PushSharp.Google
 
         XmlWriter xml;
         bool exit = false;
-        readonly object writeLock = new object ();
+        readonly object writeLock = new object();
 
-        public Task<bool> Connect ()
+        public Task<bool> Connect()
         {
-            lock (writeLock) {
-                client = new TcpClient ();
+            lock (writeLock)
+            {
+                client = new TcpClient();
 
-                Log.Debug ("GCM-XMPP: Connecting...");
+                Log.Debug("GCM-XMPP: Connecting...");
 
                 //await client.ConnectAsync (Configuration.Host, Configuration.Port).ConfigureAwait (false);
-         
-                client.Connect (Configuration.Host, Configuration.Port);
 
-                Log.Debug ("GCM-XMPP: Connected.  Creating Secure Channel...");
+                client.Connect(Configuration.Host, Configuration.Port);
 
-                sslStream = new SslStream (client.GetStream (), true, (sender, certificate, chain, sslPolicyErrors) => true);
+                Log.Debug("GCM-XMPP: Connected.  Creating Secure Channel...");
+                using (var networkStream = client.GetStream())
+                {
+                    sslStream = new SslStream(networkStream, true, (sender, certificate, chain, sslPolicyErrors) => true);
 
-                Log.Debug ("GCM-XMPP: Authenticating Tls...");
+                    Log.Debug("GCM-XMPP: Authenticating Tls...");
 
-                sslStream.AuthenticateAsClient (Configuration.Host, certificates, System.Security.Authentication.SslProtocols.Tls, false);
-                stream = sslStream;
+                    sslStream.AuthenticateAsClient(Configuration.Host, certificates, System.Security.Authentication.SslProtocols.Tls, false);
+                    stream = sslStream;
 
-                Log.Debug ("GCM-XMPP: Authenticated Tls.");
+                    Log.Debug("GCM-XMPP: Authenticated Tls.");
 
-                var xws = new XmlWriterSettings {
-                    Async = true,
-                    OmitXmlDeclaration = true,
-                    Indent = true,
-                    NewLineHandling = NewLineHandling.None,
-                    Encoding = new UTF8Encoding (false),
-                    CloseOutput = false,               
-                };
+                    var xws = new XmlWriterSettings
+                    {
+                        Async = true,
+                        OmitXmlDeclaration = true,
+                        Indent = true,
+                        NewLineHandling = NewLineHandling.None,
+                        Encoding = new UTF8Encoding(false),
+                        CloseOutput = false,
+                    };
 
-                xml = XmlWriter.Create (stream, xws);
+                    xml = XmlWriter.Create(stream, xws);
 
-                Log.Debug ("GCM-XMPP: Writing opening element...");
+                    Log.Debug("GCM-XMPP: Writing opening element...");
 
-                //Write initial stream:stream element
-                xml.WriteStartElement (STREAM_PREFIX, STREAM_ELEMENT_NAME, STREAM_NAMESPACE);
-                xml.WriteAttributeString (string.Empty, "to", string.Empty, "gcm.googleapis.com");
-                xml.WriteAttributeString ("version", string.Format ("{0}.{1}", MAJOR_VERSION, MINOR_VERSION));
-                xml.WriteAttributeString ("xmlns", JABBER_NAMESPACE);
-                xml.WriteWhitespace ("\n");
-                xml.Flush ();
+                    //Write initial stream:stream element
+                    xml.WriteStartElement(STREAM_PREFIX, STREAM_ELEMENT_NAME, STREAM_NAMESPACE);
+                    xml.WriteAttributeString(string.Empty, "to", string.Empty, "gcm.googleapis.com");
+                    xml.WriteAttributeString("version", string.Format("{0}.{1}", MAJOR_VERSION, MINOR_VERSION));
+                    xml.WriteAttributeString("xmlns", JABBER_NAMESPACE);
+                    xml.WriteWhitespace("\n");
+                    xml.Flush();
 
-                Log.Debug ("GCM-XMPP: Starting Listening...");
+                    Log.Debug("GCM-XMPP: Starting Listening...");
+                }
             }
 
-            Task.Factory.StartNew (Listen);
+            Task.Factory.StartNew(Listen);
 
-            Log.Debug ("GCM-XMPP: Waiting for Authentication...");
+            Log.Debug("GCM-XMPP: Waiting for Authentication...");
             return authCompletion.Task;
         }
 
-        public void Authenticate ()
+        public void Authenticate()
         {
-//            <auth mechanism="PLAIN" xmlns="urn:ietf:params:xml:ns:xmpp-sasl">Auth Token</auth>
-            Log.Debug ("GCM-XMPP: Authenticating...");
+            //            <auth mechanism="PLAIN" xmlns="urn:ietf:params:xml:ns:xmpp-sasl">Auth Token</auth>
+            Log.Debug("GCM-XMPP: Authenticating...");
 
             XNamespace ns = SASL_NAMESPACE;
-            var el = new XElement (ns + SASL_AUTH_ELEMENT_NAME, new XAttribute ("mechanism", "PLAIN"), Configuration.SaslAuthToken);
-            WriteElement (el);
+            var el = new XElement(ns + SASL_AUTH_ELEMENT_NAME, new XAttribute("mechanism", "PLAIN"), Configuration.SaslAuthToken);
+            WriteElement(el);
         }
 
-        public void Send (CompletableNotification notification)
+        public void Send(CompletableNotification notification)
         {
 
             XNamespace ns = GCM_MSG_NAMESPACE;
-            var gcm = new XElement (ns + "gcm", notification.Notification.ToJson ());
-            var msg = new XElement ("message", new XAttribute ("id", string.Empty), gcm);
+            var gcm = new XElement(ns + "gcm", notification.Notification.ToJson());
+            var msg = new XElement("message", new XAttribute("id", string.Empty), gcm);
 
-            Log.Debug ("GCM-XMPP: Sending: " + msg);
+            Log.Debug("GCM-XMPP: Sending: " + msg);
 
-            try {
-                WriteElement (msg);
+            try
+            {
+                WriteElement(msg);
 
-                notifications.Add (notification.Notification.MessageId, notification);
-            } catch (Exception ex) {
-                notification.CompleteFailed (ex);
+                notifications.Add(notification.Notification.MessageId, notification);
+            }
+            catch (Exception ex)
+            {
+                notification.CompleteFailed(ex);
             }
         }
 
 
         void Listen()
         {
-            try {
-                var xrs = new XmlReaderSettings {
+            try
+            {
+                var xrs = new XmlReaderSettings
+                {
                     //Async = true,
                     CloseInput = false,
                     ConformanceLevel = ConformanceLevel.Fragment,
 
                     //IgnoreComments = true,
                     //IgnoreWhitespace = true,
-    //                XmlResolver = null,
+                    //                XmlResolver = null,
                 };
 
-                Log.Debug ("GCM-XMPP: Listening...");
+                Log.Debug("GCM-XMPP: Listening...");
 
-                using (var xmlReader = XmlReader.Create (stream, xrs))
+                using (var xmlReader = XmlReader.Create(stream, xrs))
                 {
-                    while (!exit && xmlReader.Read ()) //await xmlReader.ReadAsync ().ConfigureAwait (false))
+                    while (!exit && xmlReader.Read()) //await xmlReader.ReadAsync ().ConfigureAwait (false))
                     {
-                        Log.Debug ("GCM-XMPP: Read: " + xmlReader.NodeType + " - " + xmlReader.Name);
+                        Log.Debug("GCM-XMPP: Read: " + xmlReader.NodeType + " - " + xmlReader.Name);
 
                         if (xmlReader.NodeType == XmlNodeType.Element)
                         {
-                            if (xmlReader.Name == STREAM_PREFIX + ":" + STREAM_ELEMENT_NAME) {
+                            if (xmlReader.Name == STREAM_PREFIX + ":" + STREAM_ELEMENT_NAME)
+                            {
 
-                                Log.Debug ("GCM-XMPP: Stream initialization node received");
+                                Log.Debug("GCM-XMPP: Stream initialization node received");
 
-                            } else {
-                                Log.Debug ("GCM-XMPP: Reading subtree...");
+                            }
+                            else
+                            {
+                                Log.Debug("GCM-XMPP: Reading subtree...");
 
-                                var elem = XElement.Load (xmlReader.ReadSubtree ());
+                                var elem = XElement.Load(xmlReader.ReadSubtree());
 
-                                Log.Debug ("GCM-XMPP: Loaded Subtree: " + elem);
+                                Log.Debug("GCM-XMPP: Loaded Subtree: " + elem);
 
                                 switch (elem.Name.LocalName)
                                 {
-                                case "success": 
-                                    authCompletion.TrySetResult (true);
-                                    break;
-                                case "failed":
-                                    authCompletion.TrySetResult (false);
-                                    break;
-                                case "error":
-                                    
-                                    //TODO: Check for stanza error GCM
-                                    Log.Debug ("XMPPStream error: " + elem.Value);
-                                    break;
-                                case "features":
-                                    Log.Debug ("Got Features");
-                                    Authenticate ();
-                                    break;
-                                case "message":
+                                    case "success":
+                                        authCompletion.TrySetResult(true);
+                                        break;
+                                    case "failed":
+                                        authCompletion.TrySetResult(false);
+                                        break;
+                                    case "error":
 
-                                    //TODO: Received a message, let's parse it!
+                                        //TODO: Check for stanza error GCM
+                                        Log.Debug("XMPPStream error: " + elem.Value);
+                                        break;
+                                    case "features":
+                                        Log.Debug("Got Features");
+                                        Authenticate();
+                                        break;
+                                    case "message":
 
-                                    var gcm = elem.Element (GCM_NS + "gcm");
+                                        //TODO: Received a message, let's parse it!
 
-                                    var err = elem.Element ("error");
+                                        var gcm = elem.Element(GCM_NS + "gcm");
 
-                                    if (err != null) {
-                                        //TODO: Handle stanza error
-                                    } else {
-                                        HandleMessage (gcm.Value);
-                                    }
-                                    break;
-                                default:
-                                    break;
+                                        var err = elem.Element("error");
+
+                                        if (err != null)
+                                        {
+                                            //TODO: Handle stanza error
+                                        }
+                                        else
+                                        {
+                                            HandleMessage(gcm.Value);
+                                        }
+                                        break;
+                                    default:
+                                        break;
                                 }
 
-                                Log.Debug ("GCM-XMPP: Received: " + elem);
+                                Log.Debug("GCM-XMPP: Received: " + elem);
                             }
-                        
+
                         }
                         else if (xmlReader.NodeType == XmlNodeType.EndElement && xmlReader.Name == STREAM_PREFIX + ":" + STREAM_ELEMENT_NAME)
                         {
-                            Log.Debug ("GCM-XMPP: Server closed the stream");
+                            Log.Debug("GCM-XMPP: Server closed the stream");
                             Close();
                             break;
-                        } else {
-                            Log.Debug ("GCM-XMPP: WHAT?");
+                        }
+                        else
+                        {
+                            Log.Debug("GCM-XMPP: WHAT?");
                         }
 
 
 
 
-                        
+
                     }
 
 
-                } 
-            } catch (Exception ex) {
+                }
+            }
+            catch (Exception ex)
+            {
 
-                Log.Error ("GCM-XMPP: Listener Error {0}", ex);
-                authCompletion.TrySetResult (false);
+                Log.Error("GCM-XMPP: Listener Error {0}", ex);
+                authCompletion.TrySetResult(false);
             }
 
             // If there are any notifications we're waiting on, they need to be failed
             foreach (var n in notifications.Values)
-                n.CompleteFailed (new Exception ("Connection Closed before response was received"));
+                n.CompleteFailed(new Exception("Connection Closed before response was received"));
 
-            Log.Debug ("GCM-XMPP: Closed Listener");
+            Log.Debug("GCM-XMPP: Closed Listener");
         }
 
-        public void Close ()
+        public void Close()
         {
-           // exit = true;
+            // exit = true;
 
-            Log.Debug ("GCM-XMPP: Closing XMPP Stream");
-            xml.WriteEndDocument ();
-            xml.Flush ();
+            Log.Debug("GCM-XMPP: Closing XMPP Stream");
+            xml.WriteEndDocument();
+            xml.Flush();
         }
 
         void WriteElement(XElement element)
         {
-            lock (writeLock) {
-                Log.Debug ("GCM-XMPP: Sending: " + element);
+            lock (writeLock)
+            {
+                Log.Debug("GCM-XMPP: Sending: " + element);
 
-                element.WriteTo (xml);
-                xml.Flush ();
+                element.WriteTo(xml);
+                xml.Flush();
             }
         }
 
 
-        void HandleMessage (string json) 
+        void HandleMessage(string json)
         {
-            Log.Debug ("Incoming Message: " + json);
+            Log.Debug("Incoming Message: " + json);
         }
 
         public class CompletableNotification
         {
-            public CompletableNotification (GcmXmppNotification notification)
+            public CompletableNotification(GcmXmppNotification notification)
             {
                 Notification = notification;
-                completionSource = new TaskCompletionSource<Exception> ();
+                completionSource = new TaskCompletionSource<Exception>();
             }
 
             public GcmXmppNotification Notification { get; private set; }
 
             readonly TaskCompletionSource<Exception> completionSource;
 
-            public async Task<Exception> WaitForComplete ()
+            public async Task<Exception> WaitForComplete()
             {
-                return await completionSource.Task.ConfigureAwait (false);
+                return await completionSource.Task.ConfigureAwait(false);
             }
 
-            public void CompleteSuccessfully ()
+            public void CompleteSuccessfully()
             {
-                completionSource.SetResult (null);
+                completionSource.SetResult(null);
             }
 
-            public void CompleteFailed (Exception ex)
+            public void CompleteFailed(Exception ex)
             {
-                completionSource.SetResult (ex);
+                completionSource.SetResult(ex);
             }
         }
 
+        public void Dispose()
+        {
+            sslStream?.Dispose();
+        }
     }
 }
 
