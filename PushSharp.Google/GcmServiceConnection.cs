@@ -53,14 +53,14 @@ namespace PushSharp.Google
         {
             var json = notification.GetJson ();
 
-            var content = new StringContent (json, System.Text.Encoding.UTF8, "application/json");
-
-            var response = await http.PostAsync (Configuration.GcmUrl, content);
-
-            if (response.IsSuccessStatusCode) {
-                await processResponseOk (response, notification).ConfigureAwait (false);
-            } else {
-                await processResponseError (response, notification).ConfigureAwait (false);
+            using (var content = new StringContent(json, System.Text.Encoding.UTF8, "application/json"))
+            using (var response = await http.PostAsync(Configuration.GcmUrl, content))
+            {
+                if (response.IsSuccessStatusCode) {
+                    await processResponseOk(response, notification).ConfigureAwait(false);
+                } else {
+                    await processResponseError(response, notification).ConfigureAwait(false);
+                }
             }
         }
 
@@ -211,6 +211,11 @@ namespace PushSharp.Google
 
             //Default
             return GcmResponseStatus.Error;
+        }
+
+        ~GcmServiceConnection()
+        {
+            http.Dispose();
         }
     }
 }
