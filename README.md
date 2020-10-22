@@ -11,7 +11,10 @@ PushSharp will now follow [semver](http://semver.org/) versioning, so major vers
 
 [![AppVeyor CI Status](https://ci.appveyor.com/api/projects/status/github/Redth/PushSharp?branch=master&svg=true)](https://ci.appveyor.com/project/Redth/pushsharp)
 
-[![NuGet Version](https://badge.fury.io/nu/PushSharp.svg)](https://badge.fury.io/nu/PushSharp)
+- Nuget Version
+  - Original: [![NuGet Version](https://badge.fury.io/nu/PushSharp.svg)](https://badge.fury.io/nu/PushSharp)
+  - Mobiroller Edition: [![Nuget](https://img.shields.io/nuget/v/Mobiroller.PushSharp?logo=nuget)](https://www.nuget.org/packages/Mobiroller.PushSharp)
+
 
  - Read more on my blog http://redth.codes/pushsharp-3-0-the-push-awakens/
  - Join the [Gitter.im channel](https://gitter.im/Redth/PushSharp) with questions/feedback
