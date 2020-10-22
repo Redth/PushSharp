@@ -1,19 +1,19 @@
 <?xml version="1.0" encoding="utf-8"?>
 <package xmlns="http://schemas.microsoft.com/packaging/2011/10/nuspec.xsd">
     <metadata>
-        <id>PushSharp</id>
+        <id>Mobiroller.PushSharp</id>
         <version>$version$</version>
-        <title>PushSharp</title>
-        <authors>Redth</authors>
+        <title>PushSharp Mobiroller Edition</title>
+        <authors>Redth,mobirollerteam</authors>
         <owners>Redth</owners>
         <licenseUrl>http://www.apache.org/licenses/LICENSE-2.0.txt</licenseUrl>
-        <projectUrl>https://github.com/Redth/PushSharp/</projectUrl>
-        <iconUrl>https://github.com/Redth/PushSharp/raw/master/Resources/PushSharp-Icon-NuGet-Small.png</iconUrl>
+        <projectUrl>https://github.com/mobirollerteam/PushSharp/</projectUrl>
+        <iconUrl>https://github.com/mobirollerteam/PushSharp/raw/master/Resources/PushSharp-Icon-NuGet-Small.png</iconUrl>
         <requireLicenseAcceptance>false</requireLicenseAcceptance>
         <description>A server-side library for sending Push Notifications to iOS/OSX (APNS), Android/Chrome (GCM), Windows Phone/Windows (WNS), Amazon (ADM), Blackberry and Firefox OS</description>
         <summary>A server-side library for sending Push Notifications to many platforms (APNS, GCM, WNS, ADM)</summary>
         <releaseNotes>
-            3.0.0 - Complete Rewrite, New API, see project site for more info
+            4.0.10.1 - Fix Memory Leak Issues
         </releaseNotes>
         <copyright>2012-2016 Redth</copyright>
         <language>en-US</language>
