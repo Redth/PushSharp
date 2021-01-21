@@ -17,7 +17,7 @@ You may also specify a username, password and domain to authenticate against the
 
 A method to tunnel the TCP-connection via a pre-configured HTTP-Proxy has been added. If Configuration.SetProxy has been called, a CONNECT-request is sent using the proxy adress specified. The socket is then extracted from the stream of this request's response (using the System.Reflection-Library) and used to create a TcpClient-object. All traffic sent through this TcpClient-object will pass through the proxy used to send the initial CONNECT-Request.
 
-###Important notice###
+### Important notice
 The APNS Binary API has been declared obsolete and is being discontinued by apple in Favor of the HTTP/2 REST-API. Binary API will not be supported after March 31st 2021!
 More info: https://developer.apple.com/news/?id=c88acm2b
 
