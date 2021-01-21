@@ -1,3 +1,27 @@
+
+This Fork
+=========
+This fork adds HTTP-proxy support for APNS binary API.
+
+A user of the library can specify an HTTP-Proxy to tunnel all requests to and responses from APNS by calling SetProxy on ApnsConfiguration before creating the PushBroker
+
+```
+ApnsConfiguration configuration = new ApnsConfiguration(ApnsConfiguration.ApnsServerEnvironment.Production, certificatePath, certPwd, false);
+configuration.SetProxy("yourProxyIP", 3128);
+pushBroker = new ApnsServiceBroker(configuration);
+```
+
+You may also specify a username, password and domain to authenticate against the Proxy. If nothing is specified, the Default Network Credentials will be used:
+
+`configuration.SetProxy("yourProxyIP", 3128, "proxyUser", "proxyPassword", "MY_DOMAIN");`
+
+A method to tunnel the TCP-connection via a pre-configured HTTP-Proxy has been added. If Configuration.SetProxy has been called, a CONNECT-request is sent using the proxy adress specified. The socket is then extracted from the stream of this request's response (using the System.Reflection-Library) and used to create a TcpClient-object. All traffic sent through this TcpClient-object will pass through the proxy used to send the initial CONNECT-Request.
+
+###Important notice###
+The APNS Binary API has been declared obsolete and is being discontinued by apple in Favor of the HTTP/2 REST-API. Binary API will not be supported after March 31st 2021!
+More info: https://developer.apple.com/news/?id=c88acm2b
+
+
 PushSharp v3.0
 ==============
 
