@@ -5,7 +5,7 @@ namespace PushSharp.Google
 {
     public class GcmConfiguration
     {
-        private const string GCM_SEND_URL = "https://gcm-http.googleapis.com/gcm/send";
+        private const string GCM_SEND_URL = "https://fcm.googleapis.com/fcm/send";
 
         public GcmConfiguration (string senderAuthToken)
         {
