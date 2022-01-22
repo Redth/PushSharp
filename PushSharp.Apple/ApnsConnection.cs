@@ -425,13 +425,13 @@ namespace PushSharp.Apple
 
         public class CompletableApnsNotification
         {
-            public CompletableApnsNotification (ApnsNotification notification)
+            public CompletableApnsNotification (IApnsNotification notification)
             {
                 Notification = notification;
                 completionSource = new TaskCompletionSource<Exception> ();
             }
 
-            public ApnsNotification Notification { get; private set; }
+            public IApnsNotification Notification { get; private set; }
 
             TaskCompletionSource<Exception> completionSource;
 
