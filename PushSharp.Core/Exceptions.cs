@@ -10,7 +10,6 @@ namespace PushSharp.Core
         }
     }
 
-    [Obsolete ("Do not use this class directly, it has a typo in it, instead use DeviceSubscriptionExpiredException")]
     public class DeviceSubscriptonExpiredException : NotificationException
     {
         public DeviceSubscriptonExpiredException (INotification notification) : base ("Device Subscription has Expired", notification)

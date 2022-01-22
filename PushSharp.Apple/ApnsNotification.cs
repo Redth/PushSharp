@@ -7,7 +7,7 @@ using System.Collections.Generic;
 
 namespace PushSharp.Apple
 {
-    public class ApnsNotification : INotification
+    public class ApnsNotification : IApnsNotification
     {
         static readonly object nextIdentifierLock = new object ();
         static int nextIdentifier = 1;

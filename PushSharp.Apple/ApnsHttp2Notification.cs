@@ -7,7 +7,7 @@ using System.Collections.Generic;
 
 namespace PushSharp.Apple
 {
-    public class ApnsHttp2Notification : INotification
+    public class ApnsHttp2Notification : IApnsHttp2Notification
     {                
         /// <summary>
         /// Store whatever associated information you'd like here

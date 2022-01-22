@@ -115,7 +115,8 @@ namespace PushSharp.Apple
                     }
 
                     // Expired
-                    throw new PushSharp.Core.DeviceSubscriptonExpiredException {
+                    throw new PushSharp.Core.DeviceSubscriptionExpiredException(notification)
+                    {
                         OldSubscriptionId = notification.DeviceToken,
                         NewSubscriptionId = null,
                         ExpiredAt = timestamp
@@ -125,7 +126,7 @@ namespace PushSharp.Apple
                 // Get the reason
                 var reasonStr = json.Value<string> ("reason");
 
-                var reason = (ApnsHttp2FailureReason)Enum.Parse (typeof (ApnsHttp2FailureReason), reasonStr, true);
+                var reason = byte.Parse(reasonStr);
 
                 throw new ApnsHttp2NotificationException (reason, notification);
             }
